@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>b0ase.com</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --text: #ffffff;
+            --spacing: 32px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: var(--spacing);
+        }
+
+        .site-title {
+            position: fixed;
+            top: var(--spacing);
+            left: var(--spacing);
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .column {
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            width: 180px;
+            padding: var(--spacing);
+            display: grid;
+            gap: calc(var(--spacing) / 2);
+            align-content: start;
+        }
+
+        .column h3 {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .column h4 {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: var(--spacing);
+            margin-bottom: calc(var(--spacing) / 2);
+        }
+
+        .button {
+            background: none;
+            border: 1px solid var(--text);
+            color: var(--text);
+            padding: 8px;
+            font-size: 14px;
+            width: 100%;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+
+        /* Column positions */
+        .user-column {
+            left: var(--spacing);
+        }
+
+        .wallet-column {
+            left: calc(var(--spacing) * 2 + 180px);
+        }
+
+        .token-column {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            align-items: center;
+        }
+
+        .tokens-column {
+            right: calc(var(--spacing) * 3 + 360px);
+            width: 180px;
+        }
+
+        .sites-column {
+            right: calc(var(--spacing) * 2 + 180px);
+            width: 180px;
+        }
+
+        .repos-column {
+            right: var(--spacing);
+            width: 180px;
+        }
+
+        /* Special elements */
+        .b0ase-button {
+            border: 1px solid var(--text);
+            padding: 16px;
+            text-align: center;
+            width: 220px;
+        }
+
+        .b0ase-button .info {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 12px;
+        }
+
+        .wallet-input {
+            background: none;
+            border: 1px solid var(--text);
+            color: var(--text);
+            padding: 8px;
+            font-size: 14px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .wallet-input::placeholder {
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        .wallet-input.requested {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="site-title">b0ase.com</div>
+
+    <div class="user-column column">
+        <h3>user</h3>
+    </div>
+
+    <div class="wallet-column column">
+        <h3>wallet</h3>
+        <button class="button">MetaMask</button>
+        <button class="button">Phantom</button>
+        <button class="button">HandCash</button>
+        <button class="button">Xverse</button>
+        <button class="button">Trust Wallet</button>
+        <button class="button">Coinbase Wallet</button>
+        <button class="button">Binance Wallet</button>
+        <input type="text" class="wallet-input" placeholder="request">
+    </div>
+
+    <div class="tokens-column column">
+        <h3>tokens</h3>
+        
+        <h4>/richardboase</h4>
+        <a href="#" class="button" title="$0.01 for 1 $b0ase.com access token">$b0ase</a>
+
+        <h4>/ai-tribes</h4>
+        <a href="#" class="button">$AITRIBES</a>
+
+        <h4>/ninjapunkgirls</h4>
+        <a href="#" class="button">$NPG</a>
+    </div>
+
+    <div class="sites-column column">
+        <h3>sites</h3>
+        
+        <h4>/richardboase</h4>
+        <a href="https://b0ase.com" class="button">b0ase.com</a>
+
+        <h4>/ai-tribes</h4>
+        <a href="https://aitribes.com" class="button">aitribes.com</a>
+
+        <h4>/ninjapunkgirls</h4>
+        <a href="https://ninjapunkgirls.com" class="button">ninjapunkgirls.com</a>
+    </div>
+
+    <div class="repos-column column">
+        <h3>github</h3>
+        
+        <h4>/richardboase</h4>
+        <a href="https://github.com/richardboase" class="button">github/richardboase</a>
+
+        <h4>/ai-tribes</h4>
+        <a href="https://github.com/ai-tribes" class="button">github/ai-tribes</a>
+
+        <h4>/ninjapunkgirls</h4>
+        <a href="https://github.com/ninjapunkgirls" class="button">github/ninjapunkgirls</a>
+    </div>
+
+    <script>
+        document.querySelector('.wallet-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.value = 'Requested!';
+                this.classList.add('requested');
+                this.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html> 
