@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>b0ase.com</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬚</text></svg>">
     <style>
         :root {
             --bg: #000000;
@@ -48,6 +49,7 @@
             opacity: 0.8;
             margin-top: var(--spacing);
             margin-bottom: calc(var(--spacing) / 2);
+            height: 19px;
         }
 
         .button {
@@ -57,10 +59,23 @@
             padding: 8px;
             font-size: 14px;
             width: 100%;
-            text-align: center;
+            text-align: left;
             cursor: pointer;
             text-decoration: none;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
         }
 
         /* Column positions */
@@ -70,13 +85,6 @@
 
         .wallet-column {
             left: calc(var(--spacing) * 2 + 180px);
-        }
-
-        .token-column {
-            left: 50%;
-            transform: translateX(-50%);
-            width: 400px;
-            align-items: center;
         }
 
         .tokens-column {
@@ -94,20 +102,6 @@
             width: 180px;
         }
 
-        /* Special elements */
-        .b0ase-button {
-            border: 1px solid var(--text);
-            padding: 16px;
-            text-align: center;
-            width: 220px;
-        }
-
-        .b0ase-button .info {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 12px;
-        }
-
         .wallet-input {
             background: none;
             border: 1px solid var(--text);
@@ -116,6 +110,7 @@
             font-size: 14px;
             width: 100%;
             text-align: center;
+            box-sizing: border-box;
         }
 
         .wallet-input::placeholder {
@@ -127,17 +122,77 @@
             opacity: 0.5;
             pointer-events: none;
         }
+
+        .page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            border-bottom: 1px solid #ffffff;
+            background: var(--bg);
+            z-index: 100;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); /* Subtle white border */
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: var(--spacing);
+            right: var(--spacing);
+            background: none;
+            border: 1px solid var(--text);
+            color: var(--text);
+            padding: 8px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: var(--text);
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        :root[data-theme="light"] {
+            --bg: #ffffff;
+            --text: #000000;
+        }
     </style>
 </head>
 <body>
     <div class="site-title">b0ase.com</div>
 
+    <button class="theme-toggle" aria-label="Toggle theme">
+        <svg class="sun-icon" viewBox="0 0 24 24" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
     <div class="user-column column">
-        <h3>user</h3>
+        <h3>/user</h3>
     </div>
 
     <div class="wallet-column column">
-        <h3>wallet</h3>
+        <h3>/wallet</h3>
         <button class="button">MetaMask</button>
         <button class="button">Phantom</button>
         <button class="button">HandCash</button>
@@ -149,45 +204,103 @@
     </div>
 
     <div class="tokens-column column">
-        <h3>tokens</h3>
-        
-        <h4>/richardboase</h4>
-        <a href="#" class="button" title="$0.01 for 1 $b0ase.com access token">$b0ase</a>
-
-        <h4>/ai-tribes</h4>
-        <a href="#" class="button">$AITRIBES</a>
-
-        <h4>/ninjapunkgirls</h4>
-        <a href="#" class="button">$NPG</a>
+        <h3>/token</h3>
+        <h4></h4>
+        <a href="#" class="button" title="$0.01 for 1 $b0ase.com access token">
+            <svg class="icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"/>
+                <path d="M12 6v12M8 12h8"/>
+            </svg>
+            $b0ase
+        </a>
+        <h4></h4>
+        <a href="#" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"/>
+                <path d="M12 6v12M8 12h8"/>
+            </svg>
+            $AITRIBES
+        </a>
+        <h4></h4>
+        <a href="#" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"/>
+                <path d="M12 6v12M8 12h8"/>
+            </svg>
+            $NPG
+        </a>
     </div>
 
     <div class="sites-column column">
-        <h3>sites</h3>
-        
-        <h4>/richardboase</h4>
-        <a href="https://b0ase.com" class="button">b0ase.com</a>
-
-        <h4>/ai-tribes</h4>
-        <a href="https://aitribes.com" class="button">aitribes.com</a>
-
-        <h4>/ninjapunkgirls</h4>
-        <a href="https://ninjapunkgirls.com" class="button">ninjapunkgirls.com</a>
+        <h3>/site</h3>
+        <h4></h4>
+        <a href="https://b0ase.com" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            b0ase.com
+        </a>
+        <h4></h4>
+        <a href="https://aitribes.com" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            aitribes.com
+        </a>
+        <h4></h4>
+        <a href="https://ninjapunkgirls.com" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            ninjapunkgirls.com
+        </a>
     </div>
 
     <div class="repos-column column">
-        <h3>github</h3>
+        <h3>/github</h3>
         
         <h4>/richardboase</h4>
-        <a href="https://github.com/richardboase" class="button">github/richardboase</a>
+        <a href="https://github.com/richardboase" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+            github/richardboase
+        </a>
 
         <h4>/ai-tribes</h4>
-        <a href="https://github.com/ai-tribes" class="button">github/ai-tribes</a>
+        <a href="https://github.com/ai-tribes" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+            github/ai-tribes
+        </a>
 
         <h4>/ninjapunkgirls</h4>
-        <a href="https://github.com/ninjapunkgirls" class="button">github/ninjapunkgirls</a>
+        <a href="https://github.com/ninjapunkgirls" class="button">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
+            github/ninjapunkgirls
+        </a>
     </div>
 
     <script>
+        // Add theme toggle functionality
+        const toggle = document.querySelector('.theme-toggle');
+        const sunIcon = toggle.querySelector('.sun-icon');
+        const moonIcon = toggle.querySelector('.moon-icon');
+
+        toggle.addEventListener('click', function() {
+            const root = document.documentElement;
+            const isDark = root.getAttribute('data-theme') !== 'light';
+            root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            sunIcon.style.display = isDark ? 'none' : 'block';
+            moonIcon.style.display = isDark ? 'block' : 'none';
+        });
+
         document.querySelector('.wallet-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 this.value = 'Requested!';
