@@ -36,6 +36,10 @@ body {
     align-content: start;
 }
 
+.column h3, .column h4 {
+    margin: 0;
+}
+
 .column h3 {
     font-size: 14px;
     font-weight: normal;
@@ -63,10 +67,43 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 0;
 }
 
 .user-column .button {
-    margin-top: calc(var(--spacing) * 2);
+    margin-top: 0;
+    position: relative;
+}
+
+.wallet-buttons {
+    display: grid;
+    gap: 16px;
+    margin-top: 0;
+}
+
+.user-column .button:hover + .flow-diagram {
+    display: block;
+}
+
+.user-column .button:hover ~ .wallet-column .wallet-buttons {
+    display: grid;
+}
+
+.flow-diagram {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--bg);
+    color: var(--text);
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.user-column .button:hover + .wallet-buttons + .flow-diagram {
+    display: block;
 }
 
 .icon {
@@ -87,26 +124,27 @@ body {
 .wallet-column {
     left: calc(var(--spacing) * 2 + 180px);
     top: 60px;
-}
-
-.wallet-buttons {
-    margin-top: calc(var(--spacing) * 2);
     display: grid;
-    gap: 8px;
+    gap: 16px;
+    overflow-y: auto;
+    max-height: calc(100vh - 120px);
 }
 
 .tokens-column {
     right: calc(var(--spacing) * 3 + 360px);
+    top: 60px;
     width: 180px;
 }
 
 .sites-column {
     right: calc(var(--spacing) * 2 + 180px);
+    top: 60px;
     width: 180px;
 }
 
 .repos-column {
     right: var(--spacing);
+    top: 60px;
     width: 180px;
 }
 
