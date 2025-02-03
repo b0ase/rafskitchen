@@ -4,7 +4,6 @@ import { GlobalNav } from '#/ui/global-nav';
 import { RightNav } from '#/ui/right-nav';
 import { TopHeader } from '#/ui/top-header';
 import { Metadata } from 'next';
-import { WalletNav } from '#/ui/wallet-nav';
 
 export const metadata: Metadata = {
   title: {
@@ -34,16 +33,15 @@ export default function RootLayout({
       <body className="relative min-h-screen bg-black text-gray-400">
         <TopHeader />
         <GlobalNav />
-        <WalletNav />
         <RightNav />
 
-        <div className="pt-14 lg:pl-[36rem] lg:pr-72">
+        <div className="ml-72 mr-72 pt-14">
           <div className="px-2 pt-6">
             <div className="rounded-lg bg-black p-3.5 lg:p-6">{children}</div>
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 h-44 border-t border-gray-800 bg-black" />
+        <div className="fixed bottom-0 left-72 right-72 h-44 border-t border-gray-800 bg-black" />
       </body>
     </html>
   );

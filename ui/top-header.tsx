@@ -5,10 +5,10 @@ import Link from 'next/link';
 
 export function TopHeader() {
   const pathname = usePathname();
-  const pageName =
-    pathname === '/' ? 'index' : pathname?.split('/').pop() || 'index';
-  const formattedPageName =
-    pageName.charAt(0).toUpperCase() + pageName.slice(1);
+  const pageName = pathname === '/' ? '' : pathname?.split('/').pop() || '';
+  const formattedPageName = pageName
+    ? pageName.charAt(0).toUpperCase() + pageName.slice(1)
+    : '';
 
   return (
     <div className="fixed left-0 right-0 top-0 z-20 h-14 border-b border-gray-800 bg-black">
