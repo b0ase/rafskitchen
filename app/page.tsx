@@ -77,7 +77,7 @@ export default function Home() {
           {messages.map((msg, i) => (
             <div key={i} className="font-mono">
               <div className={msg.role === 'assistant' ? 'text-emerald-500' : 'text-blue-500'}>
-                {msg.role === 'assistant' ? '$B0ASE' : '> _'}
+                {msg.role === 'assistant' ? '$B0ASE' : '>'}
               </div>
               <div className="text-white mt-1 text-sm sm:text-base break-words">
                 {msg.content}
@@ -89,7 +89,7 @@ export default function Home() {
         {/* Input */}
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="text-blue-500 font-mono text-sm sm:text-base">
-            > <span className="animate-blink">_</span>
+            {'>'} <span className="animate-blink">_</span>
           </div>
           <input
             type="text"
