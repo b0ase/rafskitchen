@@ -100,36 +100,54 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black">
-      <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 py-4">
+      <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 py-4 md:py-8 z-50">
         <div className="w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%]">
-          <div className="flex justify-between items-center">
-            <div className="text-white font-mono">b0ase.com</div>
-            <Navigation />
-          </div>
+          <Navigation />
         </div>
       </header>
 
-      <div className="w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] pt-16">
-        <div className="text-emerald-500 font-mono text-lg sm:text-xl pt-4 sm:pt-8 pb-4">
-          $B0ASE
+      {/* Increase mobile top padding and ensure content is above header */}
+      <main className="relative w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] pt-24 md:pt-32">
+        {/* Initial messages */}
+        <div className="space-y-6 mb-8 mt-4 md:mt-12">
+          <div className="font-arial">
+            <div className="text-white text-base md:text-2xl lg:text-3xl tracking-wide mb-2">$B0ASE</div>
+            <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6">
+              Welcome! How can I help?
+            </div>
+          </div>
         </div>
 
-        {messages.length === 0 && (
-          <div className="text-white font-mono mb-8 text-sm sm:text-base">
-            Welcome to $B0ASE
-          </div>
-        )}
+        {/* Message history */}
+        <div className="space-y-8 mb-8">
+          {messages.map((msg, i) => (
+            <div key={i} className="font-arial">
+              {msg.role === 'assistant' ? (
+                <>
+                  <div className="text-white text-base md:text-2xl lg:text-3xl tracking-wide mb-2">$B0ASE</div>
+                  <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6 break-words">
+                    {msg.content}
+                  </div>
+                </>
+              ) : (
+                <div className="flex text-blue-500 text-base md:text-2xl lg:text-3xl tracking-wide">
+                  <span>{'>'}</span>
+                  <span className="pl-6">{msg.content}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
 
-        {messageElements}
-
-        <form onSubmit={handleSubmit} className="mb-8">
-          <div className="flex items-center text-blue-500 font-mono text-sm sm:text-base">
-            {'>'} 
+        {/* Input form */}
+        <form onSubmit={handleSubmit} className="w-full mb-8">
+          <div className="flex items-start text-blue-500 font-arial text-base md:text-2xl lg:text-3xl tracking-wide">
+            <span>{'>'}</span>
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 bg-transparent text-blue-500 font-mono focus:outline-none text-sm sm:text-base ml-1"
+              className="flex-1 bg-transparent text-blue-500 font-arial focus:outline-none pl-2"
               disabled={isLoading}
               autoFocus
               aria-label="Chat input"
@@ -139,13 +157,14 @@ export default function Home() {
           </div>
         </form>
 
+        {/* Loading state */}
         {isLoading && (
-          <div className="font-mono mt-4 text-sm sm:text-base">
-            <div className="text-emerald-500">$B0ASE</div>
-            <div className="text-white">thinking...</div>
+          <div className="font-arial mt-4">
+            <div className="text-white text-base md:text-2xl lg:text-3xl tracking-wide mb-2">$B0ASE</div>
+            <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6">thinking...</div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

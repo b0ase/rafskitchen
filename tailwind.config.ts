@@ -1,6 +1,6 @@
-import { Config } from 'tailwindcss';
+import type { Config } from 'tailwindcss';
 
-export default {
+const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
@@ -10,7 +10,12 @@ export default {
         'mobile': {'max': '767px'},
         'desktop': '768px',
       },
+      fontFamily: {
+        arial: ['Arial', 'Helvetica', 'sans-serif'],
+      },
     },
   },
   plugins: [],
-} satisfies Config;
+};
+
+export default config;

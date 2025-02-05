@@ -1,64 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Check if click was on a menu item
+      const target = event.target as HTMLElement;
+      if (target.closest('.menu-items')) return;
+      
+      setIsOpen(false);
+    };
+
+    if (isOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <div>
-      {/* Hamburger button */}
+    <div className="relative z-50">
+      {/* Clickable logo */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden text-white p-2"
-        aria-label="Menu"
+        className="text-white font-arial text-base md:text-2xl tracking-wider hover:text-emerald-500 transition-colors duration-200 relative z-50"
       >
-        <svg 
-          className="w-6 h-6" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          {isOpen ? (
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M6 18L18 6M6 6l12 12" 
-            />
-          ) : (
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M4 6h16M4 12h16M4 18h16" 
-            />
-          )}
-        </svg>
+        b0ase.com
       </button>
 
-      {/* Mobile menu */}
-      {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-95 z-50">
-          <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <a href="#" className="text-white hover:text-emerald-500 text-xl font-mono">About</a>
-            <a href="#" className="text-white hover:text-emerald-500 text-xl font-mono">Docs</a>
-            <a href="#" className="text-white hover:text-emerald-500 text-xl font-mono">GitHub</a>
-            <button 
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:text-emerald-500 mt-8"
-            >
-              Close
-            </button>
-          </div>
+      {/* Animated dropdown menu */}
+      <div className={`fixed top-0 left-0 right-0 bg-black transition-all duration-300 ease-in-out z-40 ${
+        isOpen 
+          ? 'opacity-95 h-screen'
+          : 'opacity-0 h-0'
+      }`}>
+        <div className={`menu-items flex flex-col items-center pt-32 space-y-8 transition-all duration-500 transform ${
+          isOpen
+            ? 'translate-y-0 opacity-100'
+            : '-translate-y-8 opacity-0'
+        }`}>
+          <a href="#" className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">About</a>
+          <a href="#" className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">Docs</a>
+          <a href="#" className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">GitHub</a>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}
+            className="text-white hover:text-emerald-500 mt-8 text-xl md:text-3xl font-arial transition-colors duration-200"
+          >
+            Close
+          </button>
         </div>
-      )}
-
-      {/* Desktop menu */}
-      <div className="hidden md:flex space-x-6">
-        <a href="#" className="text-white hover:text-emerald-500 font-mono">About</a>
-        <a href="#" className="text-white hover:text-emerald-500 font-mono">Docs</a>
-        <a href="#" className="text-white hover:text-emerald-500 font-mono">GitHub</a>
       </div>
     </div>
   );
