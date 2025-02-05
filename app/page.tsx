@@ -67,26 +67,37 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-black">
-      <div className="container mx-auto max-w-2xl px-4 py-8 pb-24">
-        <div className="space-y-4">
-          {messages.map((message, index) => (
-            <div key={index} className="rounded-lg p-4 bg-gray-900">
-              <div className="text-sm text-gray-400 mb-2">
-                {message.role === 'assistant' ? '$B0ASE' : 'user'}
-              </div>
-              <div className="text-white">{message.content}</div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="rounded-lg p-4 bg-gray-900">
-              <div className="text-sm text-gray-400 mb-2">$B0ASE</div>
-              <div className="text-white">thinking...</div>
-            </div>
-          )}
+    <div className="min-h-screen bg-black flex flex-col">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 z-10">
+        <div className="container mx-auto max-w-2xl px-4 py-4">
+          <div className="text-xl font-mono text-emerald-500 font-bold">$B0ASE</div>
         </div>
-      </div>
+      </header>
 
+      {/* Main content */}
+      <main className="flex-1 pt-16"> {/* Added padding-top to account for fixed header */}
+        <div className="container mx-auto max-w-2xl px-4 py-8 pb-24">
+          <div className="space-y-4">
+            {messages.map((message, index) => (
+              <div key={index} className="rounded-lg p-4 bg-gray-900">
+                <div className="text-sm text-gray-400 mb-2">
+                  {message.role === 'assistant' ? '$B0ASE' : 'user'}
+                </div>
+                <div className="text-white">{message.content}</div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="rounded-lg p-4 bg-gray-900">
+                <div className="text-sm text-gray-400 mb-2">$B0ASE</div>
+                <div className="text-white">thinking...</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* Input form */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-gray-800">
         <div className="container mx-auto max-w-2xl">
           <form onSubmit={handleSubmit}>
@@ -101,6 +112,6 @@ export default function Home() {
           </form>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
