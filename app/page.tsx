@@ -58,16 +58,16 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-black px-2 sm:px-6 md:px-8 lg:px-12">
+      <div className="mx-auto w-[98%] sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%]">
         {/* Header */}
-        <div className="text-emerald-500 font-mono text-lg mb-4">
+        <div className="text-emerald-500 font-mono text-lg sm:text-xl pt-4 sm:pt-8 pb-4">
           $B0ASE
         </div>
 
         {/* Welcome - only shown when no messages */}
         {messages.length === 0 && (
-          <div className="text-white font-mono mb-8">
+          <div className="text-white font-mono mb-8 text-sm sm:text-base">
             Welcome to $B0ASE
           </div>
         )}
@@ -79,21 +79,23 @@ export default function Home() {
               <div className={msg.role === 'assistant' ? 'text-emerald-500' : 'text-blue-500'}>
                 {msg.role === 'assistant' ? '$B0ASE' : '> _'}
               </div>
-              <div className="text-white mt-1">{msg.content}</div>
+              <div className="text-white mt-1 text-sm sm:text-base break-words">
+                {msg.content}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSubmit}>
-          <div className="text-blue-500 font-mono">
+        <form onSubmit={handleSubmit} className="mb-8">
+          <div className="text-blue-500 font-mono text-sm sm:text-base">
             > <span className="animate-blink">_</span>
           </div>
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="w-full bg-transparent text-white font-mono mt-1 focus:outline-none"
+            className="w-full bg-transparent text-white font-mono mt-1 focus:outline-none text-sm sm:text-base"
             disabled={isLoading}
             autoFocus
           />
@@ -101,7 +103,7 @@ export default function Home() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="font-mono mt-4">
+          <div className="font-mono mt-4 text-sm sm:text-base">
             <div className="text-emerald-500">$B0ASE</div>
             <div className="text-white">thinking...</div>
           </div>
