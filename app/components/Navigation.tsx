@@ -7,19 +7,29 @@ export default function Navigation() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Check if click was on a menu item
-      const target = event.target as HTMLElement;
-      if (target.closest('.menu-items')) return;
+      // Ignore clicks on the logo/toggle button
+      if ((event.target as HTMLElement).closest('button')) return;
       
+      // Ignore clicks on menu items
+      if ((event.target as HTMLElement).closest('.menu-items a')) return;
+      
+      // Close menu for clicks anywhere else
       setIsOpen(false);
     };
 
     if (isOpen) {
-      document.addEventListener('click', handleClickOutside);
+      // Add listener when menu opens
+      document.addEventListener('mousedown', handleClickOutside);
+      // Also handle escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setIsOpen(false);
+      });
     }
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      // Clean up listeners when menu closes
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleClickOutside);
     };
   }, [isOpen]);
 
