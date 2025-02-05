@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useMenu } from '../context/MenuContext';
 
 export default function Navigation() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isMenuOpen, setIsMenuOpen } = useMenu();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -14,15 +15,15 @@ export default function Navigation() {
       if ((event.target as HTMLElement).closest('.menu-items a')) return;
       
       // Close menu for clicks anywhere else
-      setIsOpen(false);
+      setIsMenuOpen(false);
     };
 
-    if (isOpen) {
+    if (isMenuOpen) {
       // Add listener when menu opens
       document.addEventListener('mousedown', handleClickOutside);
       // Also handle escape key
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') setIsOpen(false);
+        if (e.key === 'Escape') setIsMenuOpen(false);
       });
     }
 
@@ -31,40 +32,41 @@ export default function Navigation() {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isMenuOpen, setIsMenuOpen]);
 
   return (
     <div className="relative z-50">
       {/* Clickable logo */}
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
         className="text-white font-arial text-base md:text-2xl tracking-wider hover:text-emerald-500 transition-colors duration-200 relative z-50"
       >
-        b0ase.com
+        Connect Wallet
       </button>
 
       {/* Animated dropdown menu */}
       <div className={`fixed top-0 left-0 right-0 bg-black transition-all duration-300 ease-in-out z-40 ${
-        isOpen 
+        isMenuOpen 
           ? 'opacity-95 h-screen'
           : 'opacity-0 h-0'
       }`}>
-        <div className={`menu-items flex flex-col items-center pt-16 md:pt-32 space-y-8 transition-all duration-500 transform ${
-          isOpen
+        <div className={`menu-items flex flex-col items-center px-8 md:px-32 pt-16 md:pt-32 space-y-8 transition-all duration-500 transform ${
+          isMenuOpen
             ? 'translate-y-0 opacity-100'
             : '-translate-y-8 opacity-0'
         }`}>
-          <a href="#" className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">About</a>
-          <a href="#" className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">Docs</a>
-          <a href="#" className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">GitHub</a>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(false);
-            }}
-            className="text-white hover:text-emerald-500 mt-8 text-xl md:text-3xl font-arial transition-colors duration-200"
-          >
-            Close
+          {/* Wallet Options */}
+          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+            MetaMask
+          </button>
+          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+            HandCash
+          </button>
+          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+            Phantom
+          </button>
+          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+            XVerse
           </button>
         </div>
       </div>

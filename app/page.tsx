@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import OpenAI from 'openai';
-import Navigation from './components/Navigation';
+import Header from './components/Header';
+import { useMenu } from './context/MenuContext';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
@@ -15,6 +16,7 @@ const SYSTEM_MESSAGE: Message = {
 };
 
 export default function Home() {
+  const { isMenuOpen, setIsMenuOpen } = useMenu();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -100,20 +102,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black">
-      <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 py-4 md:py-8 z-50">
-        <div className="w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%]">
-          <Navigation />
-        </div>
-      </header>
-
-      {/* Increase mobile top padding and ensure content is above header */}
+      <Header />
       <main className="relative w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] pt-24 md:pt-32">
         {/* Initial messages */}
         <div className="space-y-6 mb-8 mt-4 md:mt-12">
           <div className="font-arial">
-            <div className="text-white text-base md:text-2xl lg:text-3xl tracking-wide mb-2">$B0ASE</div>
             <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6">
-              Welcome! How can I help?
+              <button 
+                onClick={() => setIsMenuOpen(true)} 
+                className="hover:text-white transition-colors duration-200"
+              >
+                Connect wallet to start.
+              </button>
             </div>
           </div>
         </div>
@@ -123,12 +123,9 @@ export default function Home() {
           {messages.map((msg, i) => (
             <div key={i} className="font-arial">
               {msg.role === 'assistant' ? (
-                <>
-                  <div className="text-white text-base md:text-2xl lg:text-3xl tracking-wide mb-2">$B0ASE</div>
-                  <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6 break-words">
-                    {msg.content}
-                  </div>
-                </>
+                <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6 break-words">
+                  {msg.content}
+                </div>
               ) : (
                 <div className="flex text-blue-500 text-base md:text-2xl lg:text-3xl tracking-wide">
                   <span>{'>'}</span>
@@ -139,28 +136,29 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Input form */}
-        <form onSubmit={handleSubmit} className="w-full mb-8">
-          <div className="flex items-start text-blue-500 font-arial text-base md:text-2xl lg:text-3xl tracking-wide">
-            <span>{'>'}</span>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="flex-1 bg-transparent text-blue-500 font-arial focus:outline-none pl-2"
-              disabled={isLoading}
-              autoFocus
-              aria-label="Chat input"
-              role="textbox"
-              onBlur={(e) => e.target.focus()}
-            />
-          </div>
-        </form>
+        {/* Input form - hidden when menu is open */}
+        {!isMenuOpen && (
+          <form onSubmit={handleSubmit} className="w-full mb-8">
+            <div className="flex items-start text-blue-500 font-arial text-base md:text-2xl lg:text-3xl tracking-wide">
+              <span>{'>'}</span>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 bg-transparent text-blue-500 font-arial focus:outline-none pl-2"
+                disabled={isLoading}
+                autoFocus
+                aria-label="Chat input"
+                role="textbox"
+                onBlur={(e) => e.target.focus()}
+              />
+            </div>
+          </form>
+        )}
 
         {/* Loading state */}
         {isLoading && (
           <div className="font-arial mt-4">
-            <div className="text-white text-base md:text-2xl lg:text-3xl tracking-wide mb-2">$B0ASE</div>
             <div className="text-emerald-500 text-base md:text-2xl lg:text-3xl tracking-wide pl-6">thinking...</div>
           </div>
         )}
