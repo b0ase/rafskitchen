@@ -18,19 +18,21 @@ export default function Navigation() {
       setIsMenuOpen(false);
     };
 
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMenuOpen(false);
+    };
+
     if (isMenuOpen) {
       // Add listener when menu opens
       document.addEventListener('mousedown', handleClickOutside);
       // Also handle escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') setIsMenuOpen(false);
-      });
+      document.addEventListener('keydown', handleEscapeKey);
     }
 
     return () => {
       // Clean up listeners when menu closes
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
     };
   }, [isMenuOpen, setIsMenuOpen]);
 
