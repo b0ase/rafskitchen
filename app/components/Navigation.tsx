@@ -39,7 +39,7 @@ export default function Navigation() {
           ? 'opacity-95 h-screen'
           : 'opacity-0 h-0'
       }`}>
-        <div className={`menu-items flex flex-col items-center pt-32 space-y-8 transition-all duration-500 transform ${
+        <div className={`menu-items flex flex-col items-center pt-16 md:pt-32 space-y-8 transition-all duration-500 transform ${
           isOpen
             ? 'translate-y-0 opacity-100'
             : '-translate-y-8 opacity-0'
