@@ -5,7 +5,12 @@ export default {
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'mobile': {'max': '767px'},
+        'desktop': '768px',
+      },
+    },
   },
   plugins: [],
 } satisfies Config;

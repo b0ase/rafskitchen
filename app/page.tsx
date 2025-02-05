@@ -15,17 +15,12 @@ export default function Home() {
   const [client, setClient] = useState<OpenAI | null>(null);
 
   useEffect(() => {
-    // Initialize OpenAI client after component mounts
-    const apiKey = process.env.NEXT_PUBLIC_AIML_API_KEY;
-    console.log('API Key available:', !!apiKey); // Debug log
-    
-    if (apiKey) {
-      const openai = new OpenAI({
-        apiKey: apiKey,
+    if (process.env.NEXT_PUBLIC_AIML_API_KEY) {
+      setClient(new OpenAI({
+        apiKey: process.env.NEXT_PUBLIC_AIML_API_KEY,
         baseURL: 'https://api.aimlapi.com/v1',
         dangerouslyAllowBrowser: true
-      });
-      setClient(openai);
+      }));
     }
   }, []);
 
@@ -40,25 +35,21 @@ export default function Home() {
       const response = await client.chat.completions.create({
         model: 'gpt-4',
         messages: [
-          {
-            role: 'system',
-            content: 'You are $B0ASE, a helpful AI assistant. Keep responses concise and clear.'
-          },
-          ...messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
+          { role: 'system', content: 'You are $B0ASE, a helpful AI assistant. Keep responses concise and clear.' },
+          ...messages,
           { role: 'user', content: input }
         ],
       });
 
-      const aiResponse = response.choices[0]?.message?.content || 'Sorry, I could not process that.';
-      setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: response.choices[0]?.message?.content || 'Error: No response' 
+      }]);
     } catch (error) {
       console.error('Error:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Sorry, I encountered an error processing your request.' 
+        content: 'Error: Unable to process request' 
       }]);
     } finally {
       setIsLoading(false);
@@ -67,50 +58,54 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 z-10">
-        <div className="container mx-auto max-w-2xl px-4 py-4">
-          <div className="text-xl font-mono text-emerald-500 font-bold">$B0ASE</div>
+    <div className="min-h-screen bg-black p-8">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-emerald-500 font-mono text-lg mb-4">
+          $B0ASE
         </div>
-      </header>
 
-      {/* Main content */}
-      <main className="flex-1 pt-16"> {/* Added padding-top to account for fixed header */}
-        <div className="container mx-auto max-w-2xl px-4 py-8 pb-24">
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div key={index} className="rounded-lg p-4 bg-gray-900">
-                <div className="text-sm text-gray-400 mb-2">
-                  {message.role === 'assistant' ? '$B0ASE' : 'user'}
-                </div>
-                <div className="text-white">{message.content}</div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="rounded-lg p-4 bg-gray-900">
-                <div className="text-sm text-gray-400 mb-2">$B0ASE</div>
-                <div className="text-white">thinking...</div>
-              </div>
-            )}
+        {/* Welcome - only shown when no messages */}
+        {messages.length === 0 && (
+          <div className="text-white font-mono mb-8">
+            Welcome to $B0ASE
           </div>
-        </div>
-      </main>
+        )}
 
-      {/* Input form */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-black border-t border-gray-800">
-        <div className="container mx-auto max-w-2xl">
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="user"
-              disabled={isLoading}
-              className="w-full bg-gray-900 text-white border border-gray-700 rounded-lg p-4 focus:outline-none focus:border-gray-500"
-            />
-          </form>
+        {/* Chat */}
+        <div className="space-y-4 mb-8">
+          {messages.map((msg, i) => (
+            <div key={i} className="font-mono">
+              <div className={msg.role === 'assistant' ? 'text-emerald-500' : 'text-blue-500'}>
+                {msg.role === 'assistant' ? '$B0ASE' : '> _'}
+              </div>
+              <div className="text-white mt-1">{msg.content}</div>
+            </div>
+          ))}
         </div>
+
+        {/* Input */}
+        <form onSubmit={handleSubmit}>
+          <div className="text-blue-500 font-mono">
+            > <span className="animate-blink">_</span>
+          </div>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="w-full bg-transparent text-white font-mono mt-1 focus:outline-none"
+            disabled={isLoading}
+            autoFocus
+          />
+        </form>
+
+        {/* Loading state */}
+        {isLoading && (
+          <div className="font-mono mt-4">
+            <div className="text-emerald-500">$B0ASE</div>
+            <div className="text-white">thinking...</div>
+          </div>
+        )}
       </div>
     </div>
   );
