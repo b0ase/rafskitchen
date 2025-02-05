@@ -3,8 +3,13 @@
 import { useState, useEffect } from 'react';
 import OpenAI from 'openai';
 
+type Message = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
 export default function Home() {
-  const [messages, setMessages] = useState<Array<{role: string, content: string}>>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [client, setClient] = useState<OpenAI | null>(null);
@@ -39,7 +44,10 @@ export default function Home() {
             role: 'system',
             content: 'You are $B0ASE, a helpful AI assistant. Keep responses concise and clear.'
           },
-          ...messages,
+          ...messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
           { role: 'user', content: input }
         ],
       });
