@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import OpenAI from 'openai';
+import Navigation from './components/Navigation';
 
 type Message = {
   role: 'user' | 'assistant' | 'system';
@@ -30,6 +31,14 @@ export default function Home() {
       setIsInitialized(true);
     }
   }, []);
+
+  useEffect(() => {
+    // Auto-focus the input when component mounts or after loading state changes
+    const input = document.querySelector('input');
+    if (input && !isLoading) {
+      input.focus();
+    }
+  }, [isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +79,7 @@ export default function Home() {
           {msg.role === 'assistant' ? (
             <>
               <div className="text-emerald-500">$B0ASE</div>
-              <div className="text-white mt-1 text-sm sm:text-base break-words">
+              <div className="text-emerald-500 mt-1 text-sm sm:text-base break-words">
                 {msg.content}
               </div>
             </>
@@ -90,14 +99,17 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black px-2 sm:px-6 md:px-8 lg:px-12">
+    <div className="min-h-screen bg-black">
       <header className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 py-4">
-        <div className="mx-auto w-[98%] sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%]">
-          <div className="text-white font-mono">b0ase.com</div>
+        <div className="w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%]">
+          <div className="flex justify-between items-center">
+            <div className="text-white font-mono">b0ase.com</div>
+            <Navigation />
+          </div>
         </div>
       </header>
 
-      <div className="mx-auto w-[98%] sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] pt-16">
+      <div className="w-full px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] pt-16">
         <div className="text-emerald-500 font-mono text-lg sm:text-xl pt-4 sm:pt-8 pb-4">
           $B0ASE
         </div>
@@ -112,7 +124,7 @@ export default function Home() {
 
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex items-center text-blue-500 font-mono text-sm sm:text-base">
-            {'>'} <span className="animate-blink mx-1">_</span>
+            {'>'} 
             <input
               type="text"
               value={input}
@@ -122,6 +134,7 @@ export default function Home() {
               autoFocus
               aria-label="Chat input"
               role="textbox"
+              onBlur={(e) => e.target.focus()}
             />
           </div>
         </form>
