@@ -1,27 +1,54 @@
-import '#/styles/globals.css';
-import { AddressBar } from '#/ui/address-bar';
-import { GlobalNav } from '#/ui/global-nav';
-import { RightNav } from '#/ui/right-nav';
-import { TopHeader } from '#/ui/top-header';
-import { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: {
-    default: 'b0ase.com',
-    template: '%s | b0ase.com',
-  },
-  metadataBase: new URL('https://app-router.vercel.app'),
-  description: 'b0ase.com - Personal site and projects',
-  openGraph: {
-    title: 'Next.js App Router Playground',
-    description:
-      'A playground to explore new Next.js App Router features such as nested layouts, instant loading states, streaming, and component level data fetching.',
-    images: [`/api/og?title=Next.js App Router`],
-  },
-  twitter: {
-    card: 'summary_large_image',
-  },
-};
+import '#/styles/globals.css';
+import { ChatProvider, useChat } from './components/ChatProvider';
+import { useState } from 'react';
+
+function Terminal() {
+  const { messages, isLoading, sendMessage } = useChat();
+  const [input, setInput] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    sendMessage(input);
+    setInput('');
+  };
+  
+  return (
+    <div className="font-mono">
+      <div className="space-y-4">
+        {messages.map((message, index) => (
+          <div key={index}>
+            <span className="text-gray-400">{message.content}</span>
+          </div>
+        ))}
+        {isLoading && (
+          <div>
+            <span className="text-gray-400 animate-pulse">_</span>
+          </div>
+        )}
+        <div className="flex">
+          <form onSubmit={handleSubmit} className="flex-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="w-full bg-transparent text-gray-400 font-mono appearance-none"
+              style={{
+                outline: 'none',
+                border: 'none',
+                boxShadow: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none'
+              }}
+            />
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function RootLayout({
   children,
@@ -31,17 +58,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark [color-scheme:dark]">
       <body className="relative min-h-screen bg-black text-gray-400">
-        <TopHeader />
-        <GlobalNav />
-        <RightNav />
-
-        <div className="ml-72 mr-72 pt-14">
-          <div className="px-2 pt-6">
-            <div className="rounded-lg bg-black p-3.5 lg:p-6">{children}</div>
+        <ChatProvider>
+          <div className="p-4">
+            <Terminal />
+            <div className="mt-4">{children}</div>
           </div>
-        </div>
-
-        <div className="fixed bottom-0 left-72 right-72 h-44 border-t border-gray-800 bg-black" />
+        </ChatProvider>
       </body>
     </html>
   );
