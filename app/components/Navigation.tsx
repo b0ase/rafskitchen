@@ -43,7 +43,7 @@ export default function Navigation() {
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         className="text-white font-arial text-base md:text-2xl tracking-wider hover:text-emerald-500 transition-colors duration-200 relative z-50"
       >
-        Connect Wallet
+        Connect
       </button>
 
       {/* Animated dropdown menu */}
@@ -52,24 +52,17 @@ export default function Navigation() {
           ? 'opacity-95 h-screen'
           : 'opacity-0 h-0'
       }`}>
-        <div className={`menu-items flex flex-col items-center px-8 md:px-32 pt-16 md:pt-32 space-y-8 transition-all duration-500 transform ${
+        <div className={`menu-items flex flex-col items-start pt-32 md:pt-48 space-y-8 transition-all duration-500 transform ${
           isMenuOpen
             ? 'translate-y-0 opacity-100'
             : '-translate-y-8 opacity-0'
         }`}>
-          {/* Wallet Options */}
-          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
-            MetaMask
-          </button>
-          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
-            HandCash
-          </button>
-          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
-            Phantom
-          </button>
-          <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
-            XVerse
-          </button>
+          {/* Domain Section */}
+          <div className="w-full px-8 md:container md:mx-auto flex flex-col items-start space-y-8 md:pl-[calc(20%+1rem)]">
+            <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+              $B0ASE
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <Navigation />
           <a 
-            href="http://www.x.com/b0ase" 
+            href="https://twitter.com/b0ase" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-white hover:text-emerald-500 transition-colors duration-200"
