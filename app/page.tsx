@@ -20,6 +20,7 @@ export default function Home() {
   const [client, setClient] = useState<OpenAI | null>(null);
   const [isEditingContext, setIsEditingContext] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
   useEffect(() => {
@@ -37,20 +38,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Only run on mobile
     if (window.innerWidth < 768) {
       const showKeyboard = () => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          // Force keyboard to show
-          inputRef.current.readOnly = false;
-          inputRef.current.click();
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.readOnly = false;
+          textareaRef.current.click();
         }
       };
 
       showKeyboard();
-
-      // Show keyboard again after any visibility changes (e.g., app switching)
       document.addEventListener('visibilitychange', showKeyboard);
       return () => document.removeEventListener('visibilitychange', showKeyboard);
     }
@@ -58,16 +55,14 @@ export default function Home() {
 
   useEffect(() => {
     const handleResize = () => {
-      // Check if we're on mobile
       if (window.innerWidth < 768) {
-        // Adjust viewport height when keyboard opens
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
       }
     };
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Call once on mount
+    handleResize();
     
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -79,7 +74,6 @@ export default function Home() {
     const userInput = input;
     setIsLoading(true);
 
-    // Handle context editing command
     if (userInput.toLowerCase() === 'edit context') {
       setMessages(prev => [...prev,
         { role: 'user', content: userInput },
@@ -90,7 +84,6 @@ export default function Home() {
       return;
     }
 
-    // Check if user wants to exit context mode
     if (isEditingContext && userInput.toLowerCase() === 'done') {
       setIsEditingContext(false);
       setMessages(prev => [...prev,
@@ -102,7 +95,6 @@ export default function Home() {
       return;
     }
 
-    // Check if previous message was password prompt
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === 'assistant' && lastMessage.content === 'Password?') {
       if (userInput === process.env.NEXT_PUBLIC_EDIT_CONTEXT_PASSWORD) {
@@ -125,10 +117,8 @@ export default function Home() {
       }
     }
 
-    // Handle context update
     if (isEditingContext) {
       try {
-        // Store the lecture
         const lecture = userInput.trim();
         let contextUpdate = {
           lecture: {
@@ -209,7 +199,6 @@ export default function Home() {
     <div className="min-h-screen min-h-[calc(var(--vh,1vh)*100)] bg-black flex flex-col">
       <Header />
       <main className="flex-1 overflow-y-auto relative px-4 max-w-[320px] mx-auto sm:max-w-none sm:w-[95%] md:max-w-[80%] lg:max-w-[70%] xl:max-w-[60%] pt-16 sm:pt-24 md:pt-32">
-        {/* Message history and current input */}
         <div className="space-y-8 pb-16 sm:pb-8">
           {messages.map((msg, i) => (
             <div key={i} className="font-arial">
@@ -226,7 +215,6 @@ export default function Home() {
             </div>
           ))}
 
-          {/* Current input form */}
           {!isMenuOpen && (
             <div className="relative">
               <form onSubmit={handleSubmit} className="w-full">
@@ -234,7 +222,7 @@ export default function Home() {
                   <span className="pt-1">{'>'}</span>
                   {isMobile ? (
                     <textarea
-                      ref={inputRef}
+                      ref={textareaRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       className="flex-1 bg-transparent text-blue-500 font-arial focus:outline-none pl-2 py-1 resize-none"

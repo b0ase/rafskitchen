@@ -39,12 +39,14 @@ export default function Navigation() {
   return (
     <div className="relative z-50">
       {/* Clickable logo */}
-      <button 
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
+      <a 
+        href="http://www.x.com/@b0ase"
+        target="_blank"
+        rel="noopener noreferrer"
         className="text-white font-arial text-base md:text-2xl tracking-wider hover:text-emerald-500 transition-colors duration-200 relative z-50"
       >
-        Connect
-      </button>
+        $BOASE
+      </a>
 
       {/* Animated dropdown menu */}
       <div className={`fixed top-0 left-0 right-0 bg-black transition-all duration-300 ease-in-out z-40 ${
@@ -57,10 +59,23 @@ export default function Navigation() {
             ? 'translate-y-0 opacity-100'
             : '-translate-y-8 opacity-0'
         }`}>
-          {/* Domain Section */}
+          {/* Wallet Section */}
           <div className="w-full px-8 md:container md:mx-auto flex flex-col items-start space-y-8 md:pl-[calc(20%+1rem)]">
             <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
-              $B0ASE
+              Phantom
+            </button>
+            <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+              MetaMask
+            </button>
+            <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+              Yours
+            </button>
+          </div>
+
+          {/* Coming Soon Section */}
+          <div className="w-full px-8 md:container md:mx-auto flex flex-col items-start space-y-8 md:pl-[calc(20%+1rem)]">
+            <button className="text-white hover:text-emerald-500 text-xl md:text-3xl font-arial transition-colors duration-200">
+              Coming Soon
             </button>
           </div>
         </div>

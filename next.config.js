@@ -9,9 +9,6 @@ const nextConfig = {
       tls: false,
     };
     return config;
-  },
-  experimental: {
-    optimizeFonts: true,
   }
 };
 
