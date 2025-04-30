@@ -24,19 +24,11 @@ const portfolioData = {
     { id: 2, title: 'Project Two', description: 'Another cool project showcase.', tech: ['WordPress', 'SEO', 'Content Strategy'], link: '#', image: '/placeholder.svg' },
     // Add more projects
   ],
-  // Updated Skills array with a broader range
+  // New Skills array
   skills: [
-    // Core Languages
-    'JavaScript', 'TypeScript', 'Python', 'SQL', 'HTML5', 'CSS3',
-    // Frontend Frameworks & Libraries
-    'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
-    // Backend & Databases
-    'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
-    // Cloud, DevOps & Tools
-    'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
-    // Design & Other
-    'Figma', 'Adobe Photoshop', 'API Integration', 'SEO Principles'
-    // Add/remove/refine based on target roles/clients
+    'JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python', 
+    'HTML', 'CSS', 'Tailwind CSS', 'SQL', 'Git', 'Docker',
+    'Photoshop', 'Video Editing', 'SEO Basics' // Add/remove your actual skills
   ],
   // Keep services for descriptions
   services: {
