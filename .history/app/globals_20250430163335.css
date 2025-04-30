@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset custom variables and styles */
+/*
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  min-height: 100vh;
+}
+*/
+
+/* Add any global styles needed for the portfolio below */
+html {
+  scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+}
+
+body {
+  /* Example: Set a default background and text color if needed */
+  /* background-color: #f8fafc; /* Tailwind gray-50 */ */
+  /* color: #1f2937; /* Tailwind gray-800 */ */
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  max-width: 2048px;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+  .container {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+}
+
+/* Container styles */
+.container {
+  width: 100%;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+  padding: 0 clamp(1rem, 5%, 2rem);
+}
+
+/* Mobile view styles */
+.container.mobile-view {
+  max-width: min(390px, 100vw) !important;
+  border-left: 1px solid #374151;
+  border-right: 1px solid #374151;
+  min-height: 100vh;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
+/* Optional: Add a background when in mobile view */
+.mobile-view-background {
+  background-color: #1a1a1a;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+} 

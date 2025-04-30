@@ -5,10 +5,8 @@
 /* Add any global styles needed for the portfolio below */
 html {
   scroll-behavior: smooth; /* Smooth scrolling for anchor links */
-  color-scheme: dark; /* Inform browser about dark mode preference */
 }
 
 body {
-  @apply bg-gray-900 text-gray-200; /* Default dark background and light text */
   /* Body styles can go here if needed */
 }

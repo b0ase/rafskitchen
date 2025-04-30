@@ -20,7 +20,7 @@ export default function Navigation() {
       <ul className="flex space-x-4 md:space-x-6">
         {navLinks.map((link) => (
           <li key={link.name}>
-            <Link href={link.href} className="text-gray-300 hover:text-white transition-colors duration-200 text-sm md:text-base">
+            <Link href={link.href} className="text-gray-600 hover:text-blue-600 transition-colors duration-200 text-sm md:text-base">
               {link.name}
             </Link>
           </li>
