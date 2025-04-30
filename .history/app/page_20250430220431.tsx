@@ -90,7 +90,7 @@ const portfolioData = {
     'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
     'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
     'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
-    'Figma', 'Adobe Photoshop', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles'
+    'Figma', 'Adobe Photoshop', 'API Integration', 'SEO Principles'
   ],
   services: {
     webDevelopment: { title: 'Web Development', description: 'Building responsive, performant websites and web applications using modern technologies.' },

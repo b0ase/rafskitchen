@@ -90,7 +90,7 @@ const portfolioData = {
     'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
     'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
     'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
-    'Figma', 'Adobe Photoshop', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles'
+    'Figma', 'Adobe Photoshop', 'API Integration', 'SEO Principles'
   ],
   services: {
     webDevelopment: { title: 'Web Development', description: 'Building responsive, performant websites and web applications using modern technologies.' },
@@ -105,14 +105,14 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen bg-black text-gray-300 font-sans">
       <Header />
-      <main className="container px-4 py-16">
+      <main className="container mx-auto px-4 py-16">
         {/* Remove placeholder H1 */}
         {/* <h1 className="text-3xl font-bold text-white mb-6">Portfolio Page</h1> */}
 
         {/* Add About Me Section back - Technical Layout */}
         <section 
           id="about" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-900 shadow-lg max-w-4xl"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-900 rounded-lg shadow-lg max-w-4xl mx-auto"
         >
           <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">{portfolioData.about.name}</h1> 
           <h2 className="text-xl md:text-2xl text-gray-400 mb-5">{portfolioData.about.title}</h2>
@@ -139,51 +139,29 @@ export default function PortfolioPage() {
           {/* Grid Layout for Projects */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {portfolioData.projects.map((project) => (
-              <div key={project.id} className="bg-gray-900 p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col relative">
-                {/* Project Status Badge */}
-                <span className="absolute top-2 right-2 bg-gray-700 text-gray-300 text-xs font-medium px-2.5 py-0.5">{project.status}</span>
-                
+              // Project Card - Dark Mode Styling
+              <div key={project.id} className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+                {/* Placeholder Image - Darker Background */}
+                <div className="w-full h-48 bg-gray-700 rounded mb-4 flex items-center justify-center text-gray-400">
+                   <span>Project Image</span>
+                </div>
                 {/* Project Details */}
-                <div className="flex-grow mb-4 pt-4">
+                <div className="flex-grow">
                   <h3 className="text-xl font-bold mb-2 text-white">{project.title}</h3>
-                  {project.tech.length > 0 && (
-                    <div className="text-sm text-gray-500 mb-3">
-                      Tech: {project.tech.join(', ')}
-                    </div>
-                  )}
-                  <p className="text-gray-400 mb-3 flex-grow">{project.description}</p>
-                  {/* Token Info */}
-                  <div className="text-sm text-gray-500">
-                    Token: <span className="font-semibold text-gray-400">{project.tokenName}</span> ({project.tokenPlatform})
+                  <p className="text-gray-300 mb-3 flex-grow">{project.description}</p>
+                  <div className="text-sm text-gray-400 mb-4">
+                    Tech: {project.tech.join(', ')}
                   </div>
                 </div>
-                
-                {/* Links Area */}
-                <div className="mt-auto pt-4 border-t border-gray-800 flex justify-between items-center gap-4">
-                  {/* View Token Link */}
-                  <a 
-                    href={project.tokenMarketUrl}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className={`text-sm px-3 py-1 ${project.tokenMarketUrl === '#' 
-                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'} transition-colors duration-200`}
-                    aria-disabled={project.tokenMarketUrl === '#'}
-                  >
-                    {project.tokenMarketUrl === '#' ? 'Token TBD' : 'View Token'}
-                  </a>
-                  {/* View Code Link */}
-                  {project.githubUrl && (
-                    <a 
-                      href={project.githubUrl}
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-sm text-gray-400 hover:text-white underline"
-                    >
-                      View Code
-                    </a>
-                  )}
-                </div>
+                {/* View Project Link */}
+                <a 
+                  href={project.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-400 hover:text-white underline mt-auto"
+                >
+                  View Project →
+                </a>
               </div>
             ))}
           </div>
@@ -196,7 +174,7 @@ export default function PortfolioPage() {
             {portfolioData.skills.map((skill) => (
               <span 
                 key={skill} 
-                className="bg-gray-800 text-gray-300 text-sm font-medium px-3 py-1 shadow-md"
+                className="bg-gray-800 text-gray-300 text-sm font-medium px-3 py-1 rounded-full shadow-md"
               >
                 {skill}
               </span>
@@ -212,7 +190,7 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Skill/Service Card - Dark Mode Styling
-              <div key={key} className="bg-gray-900 p-6 shadow-lg">
+              <div key={key} className="bg-gray-900 p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-400">{service.description}</p>
               </div>
@@ -226,7 +204,7 @@ export default function PortfolioPage() {
           <h2 className="text-3xl font-semibold mb-8 border-b border-gray-800 pb-2 text-white">Get In Touch</h2>
           
           {/* Contact Form - Basic Structure */}
-          <form className="max-w-xl bg-gray-900 p-6 md:p-8 shadow-lg">
+          <form className="max-w-xl mx-auto bg-gray-900 p-6 md:p-8 rounded-lg shadow-lg">
             <div className="mb-4">
               <label htmlFor="name" className="block text-gray-400 text-sm font-bold mb-2">Name</label>
               <input 
@@ -234,7 +212,7 @@ export default function PortfolioPage() {
                 id="name" 
                 name="name" 
                 required 
-                className="w-full px-3 py-2 bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-600"
+                className="w-full px-3 py-2 rounded bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-600"
               />
             </div>
             <div className="mb-4">
@@ -244,7 +222,7 @@ export default function PortfolioPage() {
                 id="email" 
                 name="email" 
                 required 
-                className="w-full px-3 py-2 bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-600"
+                className="w-full px-3 py-2 rounded bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-600"
               />
             </div>
             <div className="mb-6">
@@ -254,28 +232,26 @@ export default function PortfolioPage() {
                 name="message" 
                 rows={4} 
                 required 
-                className="w-full px-3 py-2 bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-600"
+                className="w-full px-3 py-2 rounded bg-gray-800 text-gray-200 border border-gray-700 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-600"
               ></textarea>
             </div>
-            <div className="text-left">
+            <div className="text-center">
               <button 
                 type="submit" 
-                className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 focus:outline-none focus:shadow-outline transition-colors duration-200"
+                className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
               >
                 Send Message
               </button>
             </div>
           </form>
           {/* Add email address below form */}
-          <div className="max-w-xl mt-6">
-            <p className="text-gray-500">
-              Or reach me directly via Email: <a href="mailto:richarewboase@gmail.com" className="text-gray-400 hover:text-white underline">richarewboase@gmail.com</a>
-            </p>
-            {/* Add WhatsApp link */}
-            <p className="text-gray-500 mt-2">
-              WhatsApp: <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">+44 7412 922 288</a>
-            </p>
-          </div>
+          <p className="text-center text-gray-500 mt-6">
+            Or reach me directly via Email: <a href="mailto:richarewboase@gmail.com" className="text-gray-400 hover:text-white underline">richarewboase@gmail.com</a>
+          </p>
+          {/* Add WhatsApp link */}
+          <p className="text-center text-gray-500 mt-2">
+            WhatsApp: <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white underline">+44 7412 922 288</a>
+          </p>
         </section>
 
       </main>
