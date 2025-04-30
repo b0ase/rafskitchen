@@ -2,20 +2,17 @@
 
 import React from 'react';
 import Header from './components/Header';
-import Footer from './components/Footer';
 
 // Add back portfolio data (starting with 'about')
 const portfolioData = {
   about: {
-    name: 'Richard Boase', // Updated name
+    name: 'Your Name', // Replace with your actual name
     title: 'Multifaceted Creative & Technologist', // Replace with your title
     bio: 'Passionate about building beautiful and functional web experiences, storytelling through various mediums, and driving business growth. Experienced in web development, journalism, filmmaking, graphic design, SEO, and copywriting.', // Update bio
     links: {
-      github: 'https://github.com/b0ase', // Updated GitHub link
-      linkedin: 'https://www.linkedin.com/in/richardboase/', // Updated LinkedIn link
-      x: 'https://x.com/b0ase', // Add X.com link
-      youtube: 'https://www.youtube.com/@richardboase', // Added YouTube link
-      // Add other relevant links (e.g., personal site)
+      github: 'https://github.com/yourusername', // Update link
+      linkedin: 'https://linkedin.com/in/yourusername', // Update link
+      // Add other relevant links (e.g., Twitter, personal site)
       // portfolio: 'https://yourportfolio.com' // Remove or update
     }
   },
@@ -117,64 +114,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Contact Section */}
-        <section id="contact" className="mb-16 scroll-mt-16">
-          {/* Section Title */}
-          <h2 className="text-3xl font-semibold mb-8 border-b border-gray-700 pb-2 text-white">Get In Touch</h2>
-          
-          {/* Contact Form - Basic Structure */}
-          <form className="max-w-xl mx-auto bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg">
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-300 text-sm font-bold mb-2">Name</label>
-              <input 
-                type="text" 
-                id="name" 
-                name="name" 
-                required 
-                className="w-full px-3 py-2 rounded bg-gray-700 text-gray-200 border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-300 text-sm font-bold mb-2">Email</label>
-              <input 
-                type="email" 
-                id="email" 
-                name="email" 
-                required 
-                className="w-full px-3 py-2 rounded bg-gray-700 text-gray-200 border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-6">
-              <label htmlFor="message" className="block text-gray-300 text-sm font-bold mb-2">Message</label>
-              <textarea 
-                id="message" 
-                name="message" 
-                rows={4} 
-                required 
-                className="w-full px-3 py-2 rounded bg-gray-700 text-gray-200 border border-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              ></textarea>
-            </div>
-            <div className="text-center">
-              <button 
-                type="submit" 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition-colors duration-200"
-              >
-                Send Message
-              </button>
-            </div>
-          </form>
-          {/* Add email address below form */}
-          <p className="text-center text-gray-400 mt-6">
-            Or reach me directly via Email: <a href="mailto:richarewboase@gmail.com" className="text-blue-400 hover:underline">richarewboase@gmail.com</a>
-          </p>
-          {/* Add WhatsApp link */}
-          <p className="text-center text-gray-400 mt-2">
-            WhatsApp: <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">+44 7412 922 288</a>
-          </p>
-        </section>
-
       </main>
-      <Footer />
     </div>
   );
 }

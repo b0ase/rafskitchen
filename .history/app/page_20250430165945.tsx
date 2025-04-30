@@ -165,11 +165,7 @@ export default function PortfolioPage() {
           </form>
           {/* Add email address below form */}
           <p className="text-center text-gray-400 mt-6">
-            Or reach me directly via Email: <a href="mailto:richarewboase@gmail.com" className="text-blue-400 hover:underline">richarewboase@gmail.com</a>
-          </p>
-          {/* Add WhatsApp link */}
-          <p className="text-center text-gray-400 mt-2">
-            WhatsApp: <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">+44 7412 922 288</a>
+            Or reach me directly at: <a href="mailto:richarewboase@gmail.com" className="text-blue-400 hover:underline">richarewboase@gmail.com</a>
           </p>
         </section>
 

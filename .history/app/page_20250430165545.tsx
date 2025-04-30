@@ -7,15 +7,13 @@ import Footer from './components/Footer';
 // Add back portfolio data (starting with 'about')
 const portfolioData = {
   about: {
-    name: 'Richard Boase', // Updated name
+    name: 'Your Name', // Replace with your actual name
     title: 'Multifaceted Creative & Technologist', // Replace with your title
     bio: 'Passionate about building beautiful and functional web experiences, storytelling through various mediums, and driving business growth. Experienced in web development, journalism, filmmaking, graphic design, SEO, and copywriting.', // Update bio
     links: {
-      github: 'https://github.com/b0ase', // Updated GitHub link
-      linkedin: 'https://www.linkedin.com/in/richardboase/', // Updated LinkedIn link
-      x: 'https://x.com/b0ase', // Add X.com link
-      youtube: 'https://www.youtube.com/@richardboase', // Added YouTube link
-      // Add other relevant links (e.g., personal site)
+      github: 'https://github.com/yourusername', // Update link
+      linkedin: 'https://linkedin.com/in/yourusername', // Update link
+      // Add other relevant links (e.g., Twitter, personal site)
       // portfolio: 'https://yourportfolio.com' // Remove or update
     }
   },
@@ -163,14 +161,6 @@ export default function PortfolioPage() {
               </button>
             </div>
           </form>
-          {/* Add email address below form */}
-          <p className="text-center text-gray-400 mt-6">
-            Or reach me directly via Email: <a href="mailto:richarewboase@gmail.com" className="text-blue-400 hover:underline">richarewboase@gmail.com</a>
-          </p>
-          {/* Add WhatsApp link */}
-          <p className="text-center text-gray-400 mt-2">
-            WhatsApp: <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">+44 7412 922 288</a>
-          </p>
         </section>
 
       </main>
