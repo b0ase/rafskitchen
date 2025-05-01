@@ -1,22 +1,18 @@
 import React from 'react';
-// Remove incorrect PageProps import
+// Import PageProps from next
+import type { PageProps } from 'next'; 
 import Header from '../../components/Header'; // Adjust path
 import Footer from '../../components/Footer'; // Adjust path
 
-// Define a local interface with a unique name
-interface ProjectDetailProps {
-  params: { 
-    slug: string; 
-  };
-  // searchParams?: { [key: string]: string | string[] | undefined }; // Optional searchParams
+// Define props using imported PageProps type
+interface ProjectPageParams { 
+  slug: string; 
 }
 
-// Use the uniquely named interface for props
-export default function ProjectDetailPage({ params }: ProjectDetailProps) {
+export default function ProjectDetailPage({ params }: PageProps<ProjectPageParams>) {
   // TODO: Fetch project data based on slug from portfolioData or an API
   // For now, just display the slug
-  // Explicitly type 'l' as string in the replace callback
-  const projectName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()); 
+  const projectName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); // Basic formatting
 
   return (
     <div className="min-h-screen bg-black text-gray-300 font-sans flex flex-col">

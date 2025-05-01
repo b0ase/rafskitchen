@@ -2,6 +2,7 @@
 
 import Link from 'next/link'; // Use Next.js Link for internal navigation
 // import { useMenu } from '../context/MenuContext'; // Remove MenuContext dependency
+import portfolioData from '../page'; // Corrected import for default export
 
 // --- Icon Components --- 
 // (Moved from page.tsx and added new ones)
@@ -9,7 +10,7 @@ const GitHubIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0
 const XIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
 const LinkedInIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>;
 const YouTubeIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>;
-const TelegramIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.91 3.79L20.3 20.84c-.25 1.21-.98 1.5-2 .94l-5.5-4.07-2.66 2.57c-.3.3-.55.56-1.1.56-.72 0-.6-.27-.84-.95L6.3 13.7l-5.45-1.7c-1.18-.35-1.19-1.16.26-1.75l21.26-8.2c.97-.43 1.9.24 1.53 1.73z"/></svg>;
+const TelegramIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.79-2.102-1.484-.82-2.888.31-.354.708-.797 1.105-1.235.997-1.11 1.99-2.228 2.98-3.34.096-.11.04-.23 0-.31-.13-.21-.33-.14-.47-.05-.17.11-.29.2-.45.33l-3.89 2.925c-.53.39-.96.54-1.3.54-.44.01-.88-.15-1.3-.33-.6-.26-1.1-.38-1.5-.4-.48-.02-.9.09-1.2.3-.21.14-.39.3-.5.46-.14.21-.19.42-.18.63-.01.1.01.21.04.32.18.67.79 2.3 1.95 3.15 1.1.8 2.4 1.1 3.7 1.1.45 0 .88-.13 1.28-.38.1-.06.56-.34.98-.76.46-.47.43-.98.43-1.42v-2.76c0-.71.19-1.33.55-1.87z"/></svg>;
 const EmailIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>;
 const WhatsAppIcon = () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 0C5.49 0 0 5.5 0 12.18c0 2.17.56 4.24 1.65 6.07L0 24l6.01-1.61c1.79.99 3.8 1.53 5.94 1.53h.01c6.64 0 12-5.4 12-12.09S18.69 0 12.04 0zm6.01 14.94c-.26.49-.54.93-.88 1.3-.41.43-1.06.77-1.8.95-.8.19-1.73.22-2.74-.04-.76-.19-1.88-.62-3.64-1.9-1.85-1.33-3.24-3.1-4.1-5.1-.58-1.35-.8-2.8-.79-4.28.02-1.3.35-2.48 1-3.47.4-.6.95-.95 1.6-1.1.73-.17 1.45-.15 2.06.06.52.18.9.43 1.19.75.3.31.48.69.61 1.12.13.43.13.87.08 1.31-.09.75-.39 1.41-.8 1.96-.23.32-.47.63-.7.94l-.25.31c-.08.1-.13.2-.15.3-.02.1-.02.2.01.3.06.25.23.55.49.88.3.39.66.79 1.08 1.2.47.45.97.83 1.5 1.1.35.18.7.3 1.03.36.12.02.24.04.36.04.1 0 .19-.01.28-.03.09-.02.18-.05.26-.09.28-.14.53-.33.73-.56.3-.34.56-.75.75-1.22.12-.29.23-.59.32-.89.2-.69.57-1.18 1.08-1.43.41-.2.86-.25 1.3-.15.56.12 1.06.44 1.44.9.38.45.59.99.59 1.57 0 .63-.18 1.23-.5 1.77z"/></svg>;
 // --- End Icon Components ---
@@ -30,20 +31,22 @@ export default function Navigation() {
 
   // Define navigation links for the TOP navigation bar
   const textLinks = [
-    { name: 'Client Login', href: '/login' },
     { name: 'Studio', href: '/studio' },
-    { name: '$BOASE', href: '/token' },
+    { name: 'Token', href: '/token' },
   ];
 
-  // Define icon links (Hardcoded URLs for now)
+  // Define icon links (use portfolioData for URLs where available)
   const iconLinks = [
-    { key: 'github', href: 'https://github.com/b0ase', Icon: GitHubIcon },
-    { key: 'linkedin', href: 'https://www.linkedin.com/in/richardboase/', Icon: LinkedInIcon },
-    { key: 'x', href: 'https://x.com/b0ase', Icon: XIcon },
-    { key: 'youtube', href: 'https://www.youtube.com/@richardboase', Icon: YouTubeIcon },
-    // { key: 'telegram', href: '#', Icon: TelegramIcon }, // Omitted Telegram
-    { key: 'email', href: 'mailto:richardwboase@gmail.com', Icon: EmailIcon }, 
-    { key: 'whatsapp', href: 'https://wa.me/447412922288', Icon: WhatsAppIcon }, 
+    // Assuming portfolioData structure holds these links
+    { key: 'github', href: portfolioData.about.links.github, Icon: GitHubIcon },
+    { key: 'linkedin', href: portfolioData.about.links.linkedin, Icon: LinkedInIcon },
+    { key: 'x', href: portfolioData.about.links.x, Icon: XIcon },
+    { key: 'youtube', href: portfolioData.about.links.youtube, Icon: YouTubeIcon },
+    // Add Telegram if you have a link, otherwise remove or use '#'
+    // { key: 'telegram', href: '#', Icon: TelegramIcon }, 
+    // Construct mailto and wa.me links
+    { key: 'email', href: `mailto:${portfolioData.contact.email}`, Icon: EmailIcon }, 
+    { key: 'whatsapp', href: `https://wa.me/${portfolioData.contact.phone.replace(/[^+\d]/g, '')}`, Icon: WhatsAppIcon }, 
   ];
 
   return (
@@ -62,12 +65,12 @@ export default function Navigation() {
         
         {/* Separator (Optional) */}
         {textLinks.length > 0 && iconLinks.length > 0 && (
-          <li className="h-4 border-l border-gray-700 mx-2"></li> // Added margin to separator
+          <li className="h-4 border-l border-gray-700"></li>
         )}
 
         {/* Render Icon Links */}
         {iconLinks.map(linkInfo => 
-          linkInfo.href && linkInfo.href !== '#' 
+          linkInfo.href && linkInfo.href !== '#' // Only render if href is valid
             ? createIconLink(linkInfo.key, linkInfo.href, linkInfo.Icon)
             : null
         )}

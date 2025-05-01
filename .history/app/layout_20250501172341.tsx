@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-// Import Roboto Mono, remove Space Grotesk
-import { Roboto_Mono, Outfit } from "next/font/google"; 
-// Import PropsWithChildren for typing layout props
-import type { PropsWithChildren } from 'react'; 
+// Import Space Grotesk, remove Roboto
+import { Space_Grotesk, Outfit } from "next/font/google"; // Note the underscore in Space_Grotesk
 import "./globals.css";
 // import { MenuProvider } from './context/MenuContext'; // Remove MenuProvider for now
 
-// Configure Roboto Mono (replace Space Grotesk)
-const roboto_mono = Roboto_Mono({ 
+// Configure Space Grotesk (replace Roboto)
+const space_grotesk = Space_Grotesk({ 
   subsets: ["latin"], 
-  weight: ['400', '700'], // Include necessary weights
-  variable: '--font-roboto-mono' // Assign CSS variable for default mono
+  weight: ['400', '700'], // Include necessary weights (adjust if needed)
+  variable: '--font-space-grotesk' // Assign CSS variable for default sans
 });
 
 // Configure Outfit (remains for specific elements like header)
@@ -21,20 +19,23 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "B0ASE.COM | Digital Agency", // Updated browser tab title
+  title: "b0ase.com | Digital Agency", // Updated browser tab title
   description: "A digital agency offering web development, blockchain solutions, creative media services, and incubating innovative projects.", // Updated description
 };
 
-// Use PropsWithChildren for typing
-export default function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" className={`${roboto_mono.variable} ${outfit.variable}`}>
+    <html lang="en" className={`${space_grotesk.variable} ${outfit.variable}`}>
       <head>
         {/* Keep viewport settings, remove others if not needed */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
       </head>
-      {/* Change body class from font-sans to font-mono */}
-      <body className="antialiased font-mono">
+      {/* Keep font-sans on body, Tailwind should pick up the variable */}
+      <body className="antialiased font-sans">
         {/* <MenuProvider> */}
           {children}
         {/* </MenuProvider> */}

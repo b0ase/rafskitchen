@@ -3,16 +3,8 @@ import React from 'react';
 import Header from '../../components/Header'; // Adjust path
 import Footer from '../../components/Footer'; // Adjust path
 
-// Define a local interface with a unique name
-interface ProjectDetailProps {
-  params: { 
-    slug: string; 
-  };
-  // searchParams?: { [key: string]: string | string[] | undefined }; // Optional searchParams
-}
-
-// Use the uniquely named interface for props
-export default function ProjectDetailPage({ params }: ProjectDetailProps) {
+// Revert to simple inline type for props
+export default function ProjectDetailPage({ params }: { params: { slug: string } }) {
   // TODO: Fetch project data based on slug from portfolioData or an API
   // For now, just display the slug
   // Explicitly type 'l' as string in the replace callback

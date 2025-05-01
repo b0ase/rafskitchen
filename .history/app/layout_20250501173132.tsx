@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 // Import Roboto Mono, remove Space Grotesk
 import { Roboto_Mono, Outfit } from "next/font/google"; 
-// Import PropsWithChildren for typing layout props
-import type { PropsWithChildren } from 'react'; 
 import "./globals.css";
 // import { MenuProvider } from './context/MenuContext'; // Remove MenuProvider for now
 
@@ -25,8 +23,11 @@ export const metadata: Metadata = {
   description: "A digital agency offering web development, blockchain solutions, creative media services, and incubating innovative projects.", // Updated description
 };
 
-// Use PropsWithChildren for typing
-export default function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" className={`${roboto_mono.variable} ${outfit.variable}`}>
       <head>

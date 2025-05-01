@@ -1,0 +1,13 @@
+# Cursor Rules: Enforcing JSX Standards
+
+## JSX Syntax & Structure
+- Ensure all JSX elements are correctly formed, with proper opening and closing tags.
+- Verify correct attribute syntax (e.g., className vs class, quotes around string values).
+- Check for proper nesting of elements.
+- Validate syntax for fragments (`<>...</>`).
+
+## JSX Logic & Rendering
+- When mapping over arrays to create elements, ensure a unique `key` prop is provided for each element in the list.
+- Verify that conditional rendering logic (e.g., `&&`, ternary operators) is clear, correct, and won't lead to unexpected rendering issues (like rendering `0` or `NaN`).
+- Check for appropriate use of curly braces `{}` for embedding JavaScript expressions within JSX.
+- Ensure event handlers are correctly passed as functions (e.g., `onClick={handleClick}` not `onClick={handleClick()}` unless intended). 
