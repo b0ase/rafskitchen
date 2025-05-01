@@ -30,7 +30,7 @@ export default function PortfolioPage() {
         {/* Add About Me Section back - Update to Light Theme & Full Width */}
         <section 
           id="about" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-700"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-950 shadow-lg border border-gray-800"
         >
           {/* Update text to light */}
           <h1 className="text-4xl md:text-5xl font-bold mb-5 text-white font-mono">{portfolioData.about.name}</h1> 
@@ -51,7 +51,7 @@ export default function PortfolioPage() {
           </div>
           {/* Update Token Info Display for Dark Theme */}
           {portfolioData.about.token && (
-            <div className="mt-6 pt-4 border-t border-gray-700 flex items-center space-x-4">
+            <div className="mt-6 pt-4 border-t border-gray-800 flex items-center space-x-4">
               <span className="text-lg font-semibold text-white">{portfolioData.about.token.name}</span>
               <span className="text-sm text-gray-400">({portfolioData.about.token.platform})</span>
               <a 
@@ -76,8 +76,8 @@ export default function PortfolioPage() {
           {/* Grid Layout for Skills/Services */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
-              // Apply bg-black background and border-gray-700
-              (<div key={key} className="bg-black p-6 shadow-lg border border-gray-700">
+              // Apply bg-gray-950 background and border-gray-800
+              (<div key={key} className="bg-gray-950 p-6 shadow-lg border border-gray-800">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-300">{service.description}</p>
               </div>)
@@ -92,8 +92,8 @@ export default function PortfolioPage() {
             {portfolioData.skills.map((skill) => (
               <span 
                 key={skill} 
-                // Use black bg, dark border, lighter text for badges
-                className="bg-black text-gray-400 text-sm font-medium px-3 py-1 shadow-sm border border-gray-700"
+                // Use darker gray bg and lighter border for badges
+                className="bg-gray-800 text-gray-300 text-sm font-medium px-3 py-1 shadow-sm border border-gray-700"
               >
                 {skill}
               </span>
@@ -117,8 +117,8 @@ export default function PortfolioPage() {
               // Define base styles
               const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group border";
               
-              // Apply consistent black background and border-gray-700
-              const cardStyle = cardBaseStyle + " bg-black border-gray-700";
+              // Apply consistent dark background and border
+              const cardStyle = cardBaseStyle + " bg-gray-900 border-gray-700";
 
               // Ensure all text/link styles are LIGHT for dark backgrounds
               const titleStyle = "text-white";
@@ -128,7 +128,7 @@ export default function PortfolioPage() {
               const tokenDisabledStyle = "text-gray-500"; // Keep this muted for progress/icon
               const statusBadgeStyle = "text-gray-200 bg-black bg-opacity-40 px-1 rounded"; // Light text on dark bg
               const externalLinksStyle = "text-gray-400 hover:text-white";
-              const separatorStyle = "border-gray-800"; // Keep slightly lighter than card border for visibility
+              const separatorStyle = "border-gray-700"; // Lighter separator for dark bg
 
               return (
                 <div key={project.id} className={cardStyle}> {/* Apply consistent style */}
@@ -214,14 +214,14 @@ export default function PortfolioPage() {
               // Define base styles
               const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group border";
               
-              // Apply consistent black background and border-gray-700
-              const cardStyle = cardBaseStyle + " bg-black border-gray-700";
+              // Apply consistent dark background and border - REMOVE conditional logic
+              const cardStyle = cardBaseStyle + " bg-gray-900 border-gray-700";
 
               // Define consistent LIGHT text styles - REMOVE conditional logic
               const titleStyle = "text-white";
               const techStyle = "text-gray-400";
               const externalLinksStyle = "text-gray-400 hover:text-white";
-              const separatorStyle = "border-gray-800"; 
+              const separatorStyle = "border-gray-700"; 
               const tokenNameStyle = "font-semibold text-gray-200";
               const tokenProgressTextStyle = "text-gray-500"; // Keep progress text muted
               const statusBadgeStyle = "text-gray-200 bg-black bg-opacity-40 px-1 rounded"; // Light text on dark bg
@@ -311,13 +311,13 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* ===== Contact Section - Apply bg-black Theme & Lighter Border ===== */}
+        {/* ===== Contact Section - Apply bg-gray-950 Theme ===== */}
         <section 
           id="contact" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-700"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-950 shadow-lg border border-gray-800"
         >
-          {/* Update title border color to match card border */}
-          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-700 pb-2 text-white">Contact</h2>
+          {/* Update title text color */}
+          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-800 pb-2 text-white">Contact</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Update Contact Info Text Color */}

@@ -1,12 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import SubNavigation from './components/SubNavigation';
-// Import portfolioData from the new location
-import { portfolioData } from '../lib/data'; 
 
 // Uncomment icons
 const GitHubIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>;
@@ -14,8 +12,175 @@ const XIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24
 const NotionIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>; 
 const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1.143A6.857 6.857 0 1 1 8 1.143a6.857 6.857 0 0 1 0 13.714z"/><path d="M6.29 8.51H4.844V6.66h.33L6.29 8.51zm2.47-1.615c0-.58-.4-1.047-1.063-1.047H6.42v4.33h1.374c.68 0 1.086-.467 1.086-1.08V6.895zm-1.22 1.857H6.81V6.24h.74c.39 0 .625.246.625.6v1.867c0 .348-.248.602-.64.602zM11.156 8.51h-1.45v-1.85h.33l1.12 1.85z"/></svg>; 
 
+// Uncomment helper function
+const createProjectStub = (id: number, title: string, description: string, status: string = 'Concept', tech: string[] = [], tokenName: string = '', tokenProgressPercent: number = 0) => {
+  const safeTitle = title.toLowerCase().replace('.com', '').replace('.ai', '').replace('.online', '').replace('.app', '').replace('.', '-');
+  return {
+    id,
+    title,
+    description,
+    tech,
+    githubUrl: `https://github.com/b0ase/${safeTitle}`, 
+    xUrl: `https://x.com/${safeTitle}`, 
+    notionUrl: '#', 
+    tokenName,
+    tokenProgressPercent,
+    status,
+    type: 'domain' // Assume helper is for domain for now
+  };
+};
+
+const portfolioData = {
+  about: {
+    name: 'B0ASE',
+    bio: "B0ASE is a dynamic digital agency, transforming concepts into digital experiences. We deliver client solutions in web development, blockchain, content, video, and social media, while also incubating our own projects. Explore our services, view our work, and contact us to build your next venture.",
+    links: {
+      github: 'https://github.com/b0ase',
+      linkedin: 'https://www.linkedin.com/in/richardboase/',
+      x: 'https://x.com/b0ase',
+      youtube: 'https://www.youtube.com/@richardboase',
+    },
+    token: {
+      name: '$BOASE',
+      marketUrl: 'https://1sat.market/market/bsv21/c3bf2d7a4519ddc633bc91bbfd1022db1a77da71e16bb582b0acc0d8f7836161_1',
+      platform: 'BSV21'
+    }
+  },
+  projects: [
+    // Uncomment projects using createProjectStub
+    { ...createProjectStub(7, 'ninjapunkgirls.com', 'Concept for Ninja Punk Girls project.', 'Ltd Company', [], '$NPG', 85), type: 'domain' },
+    { ...createProjectStub(8, 'hyper-flix.com', 'Concept for Hyper-Flix project.', 'Concept', [], '$HFLIX', 100), type: 'domain' },
+    { ...createProjectStub(9, 'tribify.ai', 'Concept for Tribify AI project.', 'Concept', [], '$TRIBE', 100), type: 'domain' },
+    { ...createProjectStub(10, 'aitribes.online', 'Concept for AI Tribes online platform.', 'Concept', [], '$AITR', 100), type: 'domain' },
+    { ...createProjectStub(11, 'lilithtattoo.com', 'Concept for Lilith Tattoo project.', 'Concept', [], '$LILITH', 100), type: 'domain' },
+    { ...createProjectStub(12, 'metagraph.app', 'Concept for Metagraph application.', 'Concept', [], '$META', 100), type: 'domain' },
+    { ...createProjectStub(13, 'floop.online', 'Concept for Floop online service.', 'Concept', [], '$FLOOP', 100), type: 'domain' },
+    { ...createProjectStub(14, 'dns-dex.com', 'Concept for DNS DEX project.', 'Concept', [], '$DNSD', 100), type: 'domain' },
+    { ...createProjectStub(15, 'tribeswallet.com', 'Concept for Tribes Wallet project.', 'Concept', [], '$TWALL', 100), type: 'domain' },
+    { ...createProjectStub(16, 'pennypics.store', 'Concept for PennyPics Store.', 'Concept', [], '$PICS', 100), type: 'domain' },
+    { ...createProjectStub(17, 'missvoid.store', 'Concept for MissVoid Store.', 'Concept', [], '$VOID', 100), type: 'domain' },
+    { ...createProjectStub(18, 'interiordesigns.website', 'Concept for Interior Designs website.', 'Concept', [], '$NTR', 100), type: 'domain' },
+    
+    // Keep GitHub Stubs 
+    {
+      id: 1, 
+      title: 'AIOSX',
+      description: 'Fork of AIOS: LLM Agent Operating System. Exploring potential applications.', 
+      tech: ['Python'], 
+      githubUrl: 'https://github.com/b0ase/AIOSX',
+      xUrl: '#', 
+      notionUrl: '#', 
+      status: 'Exploration',
+      type: 'github',
+      tokenName: '$AIOSX', 
+      tokenProgressPercent: 100 // Added progress 
+    },
+    {
+      id: 2, 
+      title: 'bitcoin (Fork)',
+      description: 'Fork of Bitcoin Core integration/staging tree. For study and potential integration.', 
+      tech: ['TypeScript'], 
+      githubUrl: 'https://github.com/b0ase/bitcoin',
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Study',
+      type: 'github',
+      tokenName: '$BTC_FORK', 
+      tokenProgressPercent: 100 // Added progress
+    },
+    {
+      id: 3, 
+      title: 'npgpublic',
+      description: 'Public Go project. Purpose and potential to be defined.', 
+      tech: ['Go'], 
+      githubUrl: 'https://github.com/b0ase/npgpublic',
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Concept',
+      type: 'github',
+      tokenName: '$NPG_DEV', // Renamed slightly to distinguish from domain NPG
+      tokenProgressPercent: 100 // Added progress
+    },
+    {
+      id: 4, 
+      title: 'Penshun',
+      description: 'Fork of simply-stream: Lock to Stream Bitcoin. Investigating streaming payment models.', 
+      tech: ['JavaScript'], 
+      githubUrl: 'https://github.com/b0ase/Penshun',
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Investigation',
+      type: 'github',
+      tokenName: '$PENSHUN',
+      tokenProgressPercent: 100 // Added progress
+    },
+    {
+      id: 5, 
+      title: 'Weight',
+      description: 'Fork of hodlocker: Lock Bitcoins to Social Posts. Experimenting with social/economic weighting.', 
+      tech: ['TypeScript'], 
+      githubUrl: 'https://github.com/b0ase/Weight',
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Experiment',
+      type: 'github',
+      tokenName: '$WEIGHT',
+      tokenProgressPercent: 100 // Added progress
+    },
+    {
+      id: 6, 
+      title: 'Yours-HandCash-Login',
+      description: 'Fork of Yours Wallet: Yours/HandCash Integration exploration.', 
+      tech: ['JavaScript'], 
+      githubUrl: 'https://github.com/b0ase/Yours-HandCash-Login',
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Archived/Study',
+      type: 'github',
+      tokenName: '$YHC', 
+      tokenProgressPercent: 100 // Added progress
+    },
+    // ADDED Index Token Repo
+    {
+      id: 19, // Next available ID
+      title: 'Index Token',
+      description: 'Concept and development for an index-based token system.', 
+      tech: ['Solidity', 'TypeScript'], // Example tech
+      githubUrl: 'https://github.com/b0ase/index-token', // ADDED GitHub URL placeholder
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Development',
+      type: 'github',
+      tokenName: '$INDEX',
+      tokenProgressPercent: 100, 
+      imageUrl: '/images/development/index-token/index-token-bg.jpg' // Path updated previously, specify ONE image
+    },
+  ],
+  skills: [
+    'JavaScript', 'TypeScript', 'Python', 'SQL', 'HTML5', 'CSS3',
+    'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
+    'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
+    'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
+    'Figma', 'Adobe Photoshop', 'Logo Design', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles',
+    'Adobe After Effects', 'Adobe Premiere Pro', 'Cinema 4D', 'Blender', 
+    'Final Cut Pro', 'DaVinci Resolve', 'Lottie/Bodymovin', 'Animation Principles', 
+    'Compositing', 'VFX Basics', 'Adobe Illustrator', 'Adobe InDesign', 'Adobe Creative Suite'
+  ],
+  services: {
+    webDevelopment: { title: 'Web Development', description: 'Building responsive, performant websites and web applications using modern technologies.' },
+    journalism: { title: 'Content & Copywriting', description: 'Crafting compelling narratives, articles, and website copy tailored to your audience.' },
+    filmmaking: { title: 'Video Production', description: 'From concept and shooting to editing and final delivery for promotional or creative needs.' },
+    logoDesign: { title: 'Logo Design & Branding', description: 'Crafting unique logos and visual identities that effectively represent your brand.' },
+    photography: { title: 'Photography', description: 'High-quality photography solutions for events, products, portraits, and more.' },
+    seo: { title: 'SEO & Digital Marketing', description: 'Optimizing online presence and content strategy to drive organic growth.' },
+    socialMedia: { title: 'Social Media Management', description: 'Developing strategies, creating content, and managing social media presence to grow engagement and reach.' },
+    consulting: { title: 'Technical Consulting', description: 'Providing expert advice and strategy for your digital projects and technical challenges.' }, 
+    support: { title: 'Ongoing Support & Maintenance', description: 'Reliable support packages to keep your digital assets running smoothly and securely.' }
+  }
+};
+
 export default function PortfolioPage() {
-  // Filter projects by type (now using imported portfolioData)
+  // Filter projects by type
   const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
   const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
 
@@ -23,18 +188,18 @@ export default function PortfolioPage() {
     <div className="min-h-screen bg-black text-gray-300 font-sans">
       <Header />
       <SubNavigation />
-      <main className="px-4 py-16">
+      <main className="container mx-auto px-4 py-16">
         {/* Remove placeholder H1 */}
         {/* <h1 className="text-3xl font-bold text-white mb-6">Portfolio Page</h1> */}
 
         {/* Add About Me Section back - Update to Light Theme & Full Width */}
         <section 
           id="about" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-700"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-white shadow-lg border border-gray-300"
         >
-          {/* Update text to light */}
-          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-white font-mono">{portfolioData.about.name}</h1> 
-          <p className="text-base md:text-lg text-gray-300 mb-6 leading-relaxed">{portfolioData.about.bio}</p>
+          {/* Update text to dark */}
+          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-gray-900 font-mono">{portfolioData.about.name}</h1> 
+          <p className="text-base md:text-lg text-gray-700 mb-6 leading-relaxed">{portfolioData.about.bio}</p>
           <div className="flex space-x-6">
             {Object.entries(portfolioData.about.links).map(([key, value]) => (
               <a 
@@ -42,24 +207,24 @@ export default function PortfolioPage() {
                 href={value} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                 // Update link colors to light
-                className="text-gray-400 hover:text-white underline transition-colors duration-200 text-lg"
+                 // Update link colors
+                className="text-gray-600 hover:text-black underline transition-colors duration-200 text-lg"
               >
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </a>
             ))}
           </div>
-          {/* Update Token Info Display for Dark Theme */}
+          {/* Update Token Info Display for Light Theme */}
           {portfolioData.about.token && (
-            <div className="mt-6 pt-4 border-t border-gray-700 flex items-center space-x-4">
-              <span className="text-lg font-semibold text-white">{portfolioData.about.token.name}</span>
-              <span className="text-sm text-gray-400">({portfolioData.about.token.platform})</span>
+            <div className="mt-6 pt-4 border-t border-gray-200 flex items-center space-x-4">
+              <span className="text-lg font-semibold text-gray-900">{portfolioData.about.token.name}</span>
+              <span className="text-sm text-gray-500">({portfolioData.about.token.platform})</span>
               <a 
                 href={portfolioData.about.token.marketUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                 // Update link colors to light
-                className="text-blue-400 hover:text-blue-300 underline transition-colors duration-200 flex items-center text-sm"
+                 // Update link colors
+                className="text-blue-600 hover:text-blue-800 underline transition-colors duration-200 flex items-center text-sm"
               >
                 View Market
                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -71,15 +236,14 @@ export default function PortfolioPage() {
         {/* ===== NEW POSITION for Services Section ===== */}
         <section id="services" className="mb-16 scroll-mt-16">
           {/* Section Title */}
-          <h2 className="text-3xl font-semibold mb-8 border-b border-gray-800 pb-2 text-white">Services</h2> 
-          
+          <h2 className="text-3xl font-semibold mb-8 border-b border-gray-800 pb-2 text-white">Services</h2>
           {/* Grid Layout for Skills/Services */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
-              // Apply bg-black background and border-gray-700
-              (<div key={key} className="bg-black p-6 shadow-lg border border-gray-700">
-                <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
-                <p className="text-gray-300">{service.description}</p>
+              // Apply subtle gradient instead of bg-gray-50
+              (<div key={key} className="bg-gradient-to-br from-white to-gray-100 p-6 shadow-lg border border-gray-200">
+                <h3 className="text-xl font-bold mb-2 text-gray-900">{service.title}</h3>
+                <p className="text-gray-700">{service.description}</p>
               </div>)
             ))}
           </div>
@@ -92,8 +256,8 @@ export default function PortfolioPage() {
             {portfolioData.skills.map((skill) => (
               <span 
                 key={skill} 
-                // Use black bg, dark border, lighter text for badges
-                className="bg-black text-gray-400 text-sm font-medium px-3 py-1 shadow-sm border border-gray-700"
+                // Use light gray bg and dark text for badges
+                className="bg-gray-200 text-gray-800 text-sm font-medium px-3 py-1 shadow-sm border border-gray-300"
               >
                 {skill}
               </span>
@@ -117,8 +281,8 @@ export default function PortfolioPage() {
               // Define base styles
               const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group border";
               
-              // Apply consistent black background and border-gray-700
-              const cardStyle = cardBaseStyle + " bg-black border-gray-700";
+              // Apply consistent dark background and border
+              const cardStyle = cardBaseStyle + " bg-gray-900 border-gray-700";
 
               // Ensure all text/link styles are LIGHT for dark backgrounds
               const titleStyle = "text-white";
@@ -128,7 +292,7 @@ export default function PortfolioPage() {
               const tokenDisabledStyle = "text-gray-500"; // Keep this muted for progress/icon
               const statusBadgeStyle = "text-gray-200 bg-black bg-opacity-40 px-1 rounded"; // Light text on dark bg
               const externalLinksStyle = "text-gray-400 hover:text-white";
-              const separatorStyle = "border-gray-800"; // Keep slightly lighter than card border for visibility
+              const separatorStyle = "border-gray-700"; // Lighter separator for dark bg
 
               return (
                 <div key={project.id} className={cardStyle}> {/* Apply consistent style */}
@@ -214,14 +378,14 @@ export default function PortfolioPage() {
               // Define base styles
               const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group border";
               
-              // Apply consistent black background and border-gray-700
-              const cardStyle = cardBaseStyle + " bg-black border-gray-700";
+              // Apply consistent dark background and border - REMOVE conditional logic
+              const cardStyle = cardBaseStyle + " bg-gray-900 border-gray-700";
 
               // Define consistent LIGHT text styles - REMOVE conditional logic
               const titleStyle = "text-white";
               const techStyle = "text-gray-400";
               const externalLinksStyle = "text-gray-400 hover:text-white";
-              const separatorStyle = "border-gray-800"; 
+              const separatorStyle = "border-gray-700"; 
               const tokenNameStyle = "font-semibold text-gray-200";
               const tokenProgressTextStyle = "text-gray-500"; // Keep progress text muted
               const statusBadgeStyle = "text-gray-200 bg-black bg-opacity-40 px-1 rounded"; // Light text on dark bg
@@ -311,56 +475,45 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* ===== Contact Section - Apply bg-black Theme & Lighter Border ===== */}
-        <section 
-          id="contact" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-700"
-        >
-          {/* Update title border color to match card border */}
-          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-700 pb-2 text-white">Contact</h2>
+        {/* ===== Contact Section ===== */}
+        <section id="contact" className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gradient-to-br from-white to-gray-100 shadow-lg border border-gray-200">
+          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-300 pb-2 text-gray-900">Contact</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Update Contact Info Text Color */}
+            {/* Update Contact Info Text */}
             <div>
-              <p className="text-lg text-gray-300 mb-4">
+              <p className="text-lg text-gray-700 mb-4">
                 Interested in collaborating or need my services? Reach out:
               </p>
               <div className="space-y-3">
-                 <p className="text-gray-400 flex items-center">
+                 <p className="text-gray-600 flex items-center">
                   <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                   {/* Update link colors */}
-                  <a href="mailto:richardwboase@gmail.com" className="text-blue-400 hover:text-blue-300 underline">richardwboase@gmail.com</a>
+                  <a href="mailto:richardwboase@gmail.com" className="text-blue-600 hover:text-blue-800 underline">richardwboase@gmail.com</a>
                  </p>
-                 <p className="text-gray-400 flex items-center">
+                 <p className="text-gray-600 flex items-center">
                    <svg className="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.684 10.64C17.856 10.03 18 9.388 18 8.71c0-1.9-.833-3.606-2.177-4.812a6.14 6.14 0 00-4.738-2.016C8.688 1.882 6.76 3.35 6.08 5.434 5.737 6.53 6.01 7.71 6.67 8.613c.52.704 1.23 1.24 2.052 1.588.821.348 1.71.445 2.554.264l.286-.063c.948-.208 1.81-.72 2.492-1.438.213-.222.396-.47.546-.732l.44-.763-.017-.03zM4.316 9.36c-.172.61-.316 1.252-.316 1.93 0 1.9.833 3.606 2.177 4.812a6.14 6.14 0 004.738 2.016c2.398 0 4.326-1.468 5.006-3.554.344-1.104.07-2.284-.59-3.188-.52-.704-1.23-1.24-2.052-1.588-.821-.348-1.71-.445-2.554-.264l-.286.063c-.948.208-1.81.72-2.492 1.438-.213-.222-.396-.47-.546-.732l-.44.763.017.03z"></path></svg>
                    {/* Update link colors */}
-                    <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">WhatsApp: +44 (0)7412 922288</a>
+                    <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">WhatsApp: +44 (0)7412 922288</a>
                  </p>
               </div>
             </div>
             
-            {/* Update Contact Form for Dark Theme */}
+            {/* Update Contact Form for Light Theme */}
             <form onSubmit={(e) => { e.preventDefault(); alert('Form submission placeholder'); }}>
               <div className="mb-4">
-                {/* Update label text color */}
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">Name</label>
-                {/* Update input bg, border, text colors */}
-                <input type="text" id="name" name="name" required className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm" />
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" id="name" name="name" required className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm" />
               </div>
               <div className="mb-4">
-                 {/* Update label text color */}
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                 {/* Update input bg, border, text colors */}
-                <input type="email" id="email" name="email" required className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm" />
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="email" name="email" required className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm" />
               </div>
               <div className="mb-4">
-                 {/* Update label text color */}
-                <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-1">Message</label>
-                 {/* Update textarea bg, border, text colors */}
-                <textarea id="message" name="message" rows={4} required className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"></textarea>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea id="message" name="message" rows={4} required className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"></textarea>
               </div>
-              {/* Update button colors */}
-              <button type="submit" className="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-4 transition duration-300 shadow-md">
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 transition duration-300 shadow-md">
                 Send Message
               </button>
             </form>

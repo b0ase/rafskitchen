@@ -30,7 +30,7 @@ export default function PortfolioPage() {
         {/* Add About Me Section back - Update to Light Theme & Full Width */}
         <section 
           id="about" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-700"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-900"
         >
           {/* Update text to light */}
           <h1 className="text-4xl md:text-5xl font-bold mb-5 text-white font-mono">{portfolioData.about.name}</h1> 
@@ -51,7 +51,7 @@ export default function PortfolioPage() {
           </div>
           {/* Update Token Info Display for Dark Theme */}
           {portfolioData.about.token && (
-            <div className="mt-6 pt-4 border-t border-gray-700 flex items-center space-x-4">
+            <div className="mt-6 pt-4 border-t border-gray-900 flex items-center space-x-4">
               <span className="text-lg font-semibold text-white">{portfolioData.about.token.name}</span>
               <span className="text-sm text-gray-400">({portfolioData.about.token.platform})</span>
               <a 
@@ -76,8 +76,8 @@ export default function PortfolioPage() {
           {/* Grid Layout for Skills/Services */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
-              // Apply bg-black background and border-gray-700
-              (<div key={key} className="bg-black p-6 shadow-lg border border-gray-700">
+              // Apply bg-black background and border-gray-900
+              (<div key={key} className="bg-black p-6 shadow-lg border border-gray-900">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-300">{service.description}</p>
               </div>)
@@ -93,7 +93,7 @@ export default function PortfolioPage() {
               <span 
                 key={skill} 
                 // Use black bg, dark border, lighter text for badges
-                className="bg-black text-gray-400 text-sm font-medium px-3 py-1 shadow-sm border border-gray-700"
+                className="bg-black text-gray-400 text-sm font-medium px-3 py-1 shadow-sm border border-gray-800"
               >
                 {skill}
               </span>
@@ -117,8 +117,8 @@ export default function PortfolioPage() {
               // Define base styles
               const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group border";
               
-              // Apply consistent black background and border-gray-700
-              const cardStyle = cardBaseStyle + " bg-black border-gray-700";
+              // Apply consistent black background and border-gray-900
+              const cardStyle = cardBaseStyle + " bg-black border-gray-900";
 
               // Ensure all text/link styles are LIGHT for dark backgrounds
               const titleStyle = "text-white";
@@ -214,8 +214,8 @@ export default function PortfolioPage() {
               // Define base styles
               const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group border";
               
-              // Apply consistent black background and border-gray-700
-              const cardStyle = cardBaseStyle + " bg-black border-gray-700";
+              // Apply consistent black background and border-gray-900
+              const cardStyle = cardBaseStyle + " bg-black border-gray-900";
 
               // Define consistent LIGHT text styles - REMOVE conditional logic
               const titleStyle = "text-white";
@@ -311,13 +311,13 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* ===== Contact Section - Apply bg-black Theme & Lighter Border ===== */}
+        {/* ===== Contact Section - Apply bg-black Theme ===== */}
         <section 
           id="contact" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-700"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-black shadow-lg border border-gray-900"
         >
-          {/* Update title border color to match card border */}
-          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-700 pb-2 text-white">Contact</h2>
+          {/* Update title text color */}
+          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-800 pb-2 text-white">Contact</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Update Contact Info Text Color */}
