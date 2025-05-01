@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTwitter, FaBars, FaTimes } from 'react-icons/fa';
-import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,14 +40,14 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full bg-gray-950 dark:bg-gray-950 border-b border-gray-800 dark:border-gray-800 text-gray-300 dark:text-gray-300 py-3 shadow-md relative z-50">
+    <header className="w-full bg-gray-950 border-b border-gray-800 text-gray-300 py-3 shadow-md relative z-50">
       <div className="container mx-auto px-4 flex flex-wrap items-center justify-between">
-        {/* Logo - Ensure white/light text in dark mode */}
+        {/* Logo - Ensure white/light text */}
         <Link href="/" className="text-xl font-bold text-white hover:text-gray-300 transition-colors" onClick={handleMobileLinkClick}>
           B0ASE.COM
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links - Ensure white/light text */}
         <nav className="hidden md:flex items-center space-x-6">
           {sectionLinks.map((link) => (
             <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
@@ -59,7 +58,7 @@ export default function Header() {
 
         {/* Right side container */}
         <div className="flex items-center space-x-4">
-          {/* Desktop Utility Links */}
+          {/* Desktop Utility Links - Ensure white/light text */}
           <div className="hidden md:flex items-center space-x-4">
             {utilityLinks.map((link) => (
               <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
@@ -68,17 +67,16 @@ export default function Header() {
             ))}
           </div>
 
-          {/* Social Icons and Theme Toggle Container */}
+          {/* Social Icons - Ensure white/light text */}
           <div className="flex items-center space-x-3">
             {socialLinks.map((link, index) => (
               <a key={index} href={link.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <link.Icon size={18} />
               </a>
             ))}
-            <ThemeToggle />
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Ensure white/light text */}
           <div className="md:hidden">
             <button onClick={toggleMobileMenu} aria-label="Toggle menu" className="text-gray-300 hover:text-white focus:outline-none">
               {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
@@ -87,10 +85,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown - Apply dark class explicitly? Maybe not needed if body handles it */}
+      {/* Mobile Menu Dropdown - Use dark background */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-gray-900 dark:bg-gray-900 border-t border-gray-800 dark:border-gray-800 shadow-lg py-4 px-4">
-           {/* Ensure links have dark styles */} 
+        <div className="md:hidden absolute top-full left-0 w-full bg-gray-900 border-t border-gray-800 shadow-lg py-4 px-4">
+          {/* Ensure white/light text for links */}
           <nav className="flex flex-col space-y-3 mb-4">
             {sectionLinks.map((link) => (
               <Link key={`mobile-${link.name}`} href={link.href} className="block text-base font-medium text-gray-300 hover:text-white transition-colors" onClick={handleMobileLinkClick}>
@@ -98,7 +96,7 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-          <div className="border-t border-gray-700 dark:border-gray-700 pt-4 flex flex-col space-y-3"> 
+          <div className="border-t border-gray-700 pt-4 flex flex-col space-y-3"> {/* Darker border */}
              {utilityLinks.map((link) => (
               <Link key={`mobile-${link.name}`} href={link.href} className="block text-base font-medium text-gray-300 hover:text-white transition-colors" onClick={handleMobileLinkClick}>
                 {link.name}

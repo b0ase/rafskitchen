@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Dark Theme Defaults
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 21, 21, 21; 
+  --background-end-rgb: 0, 0, 0;     
+}
+
+/* Remove light theme enforcement */
+/* 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+} 
+*/
+
+body {
+  color: rgb(var(--foreground-rgb));
+  // Apply dark gradient background via Tailwind utility classes
+  @apply bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

@@ -45,38 +45,8 @@ interface Project {
   tokenPlatform?: string; // Added for specific projects
 }
 
-interface SkillsData {
-    technical: string[];
-    // soft?: string[]; // Optional: Add other skill categories if needed
-}
-
-interface PortfolioData {
-    about: {
-        name: string;
-        tagline: string;
-        bio: string;
-        socials: {
-            github: string;
-            linkedin: string;
-            x: string;
-            youtube: string;
-        };
-        token: {
-            name: string;
-            ticker: string;
-            description: string;
-            platform: string;
-            marketLink: string;
-        };
-    };
-    projects: Project[];
-    skills: SkillsData;
-    services: Service[];
-    contact: { email: string; };
-}
-
 // Main data object
-export const portfolioData: PortfolioData = {
+export const portfolioData = {
   about: {
     name: 'B0ASE',
     tagline: 'A dynamic digital agency, transforming concepts into digital experiences.',
@@ -204,19 +174,16 @@ export const portfolioData: PortfolioData = {
       imageUrl: '/images/development/index-token/index-token-bg.jpg'
     },
   ],
-  skills: {
-    technical: [
-      'JavaScript', 'TypeScript', 'Python', 'SQL', 'HTML5', 'CSS3',
-      'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
-      'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
-      'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
-      'Figma', 'Adobe Photoshop', 'Logo Design', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles',
-      'Adobe After Effects', 'Adobe Premiere Pro', 'Cinema 4D', 'Blender',
-      'Final Cut Pro', 'DaVinci Resolve', 'Lottie/Bodymovin', 'Animation Principles',
-      'Compositing', 'VFX Basics', 'Adobe Illustrator', 'Adobe InDesign', 'Adobe Creative Suite'
-    ],
-    // soft: ["Communication", "Problem Solving"] // Add soft skills here if desired
-  },
+  skills: [
+    'JavaScript', 'TypeScript', 'Python', 'SQL', 'HTML5', 'CSS3',
+    'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
+    'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
+    'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
+    'Figma', 'Adobe Photoshop', 'Logo Design', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles',
+    'Adobe After Effects', 'Adobe Premiere Pro', 'Cinema 4D', 'Blender',
+    'Final Cut Pro', 'DaVinci Resolve', 'Lottie/Bodymovin', 'Animation Principles',
+    'Compositing', 'VFX Basics', 'Adobe Illustrator', 'Adobe InDesign', 'Adobe Creative Suite'
+  ],
   services: [
     { id: 1, title: 'Web Development', description: 'Building responsive, performant websites and web applications using modern technologies.', priceInfo: 'Est. Rate: £120/hr | £480/day. UK VAT added where applicable. Fixed-price projects negotiable.' },
     { id: 2, title: 'Content & Copywriting', description: 'Crafting compelling narratives, articles, and website copy tailored to your audience.', priceInfo: 'Est. Rate: £100/article | £400/day' },
@@ -227,8 +194,5 @@ export const portfolioData: PortfolioData = {
     { id: 7, title: 'Social Media Management', description: 'Developing strategies, creating content, and managing social media presence to grow engagement and reach.', priceInfo: 'Est. Rate: £90/hr | Retainer' },
     { id: 8, title: 'Technical Consulting', description: 'Providing expert advice and strategy for your digital projects and technical challenges.', priceInfo: 'Est. Rate: £150/hr' },
     { id: 9, title: 'Ongoing Support & Maintenance', description: 'Reliable support packages to keep your digital assets running smoothly and securely.', priceInfo: 'Est. Rate: Retainer based' }
-  ],
-  contact: {
-    email: "richard@b0ase.com"
-  }
+  ]
 }; 

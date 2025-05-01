@@ -3,8 +3,7 @@ import { Inter } from "next/font/google"; // Import Inter
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-// Import ThemeProvider
-import { ThemeProvider } from "./context/ThemeContext";
+import SubNavigation from "./components/SubNavigation";
 
 // Configure Inter font
 const inter = Inter({
@@ -24,16 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       {/* Apply the Inter font variable to the body */}
       <body className={`${inter.variable} font-sans`}> 
-        {/* Wrap children with ThemeProvider */}
-        <ThemeProvider>
-          {/* Header and Footer can remain outside if they don't need theme context directly,
-              or move inside if they do (e.g., for a toggle button in Header) */}
-          {/* For simplicity now, let's assume Header/Footer are styled via CSS vars or body classes */} 
-          {children}
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   );

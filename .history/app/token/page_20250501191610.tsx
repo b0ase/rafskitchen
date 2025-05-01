@@ -15,11 +15,11 @@ const tokenDetails = {
 
 export default function TokenPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16 text-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{tokenDetails.name} Token</h1>
-        <p className="text-lg text-gray-300 mb-6 max-w-2xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold text-black mb-4">{tokenDetails.name} Token</h1>
+        <p className="text-lg text-gray-700 mb-6 max-w-2xl mx-auto">
           {tokenDetails.description}
         </p>
         {tokenDetails.marketUrl && tokenDetails.marketUrl !== '#' && (
@@ -27,7 +27,7 @@ export default function TokenPage() {
             href={tokenDetails.marketUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-6 py-2 bg-blue-700 text-white font-medium hover:bg-blue-600 transition-colors shadow-md"
+            className="inline-block px-6 py-2 bg-black text-white font-medium hover:bg-gray-800 transition-colors shadow-sm"
           >
             View on Market
           </a>

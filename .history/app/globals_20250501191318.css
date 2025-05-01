@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0; /* Black text for light theme */
+  --background-start-rgb: 255, 255, 255; /* White background start */
+  --background-end-rgb: 255, 255, 255;   /* White background end */
+}
+
+/* Remove dark mode preference for now, enforce light */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+} */
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  /* Or simpler: bg-white text-gray-900 */
+  @apply bg-white text-gray-900; /* Apply light background and dark text directly */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Dark Theme Defaults
+:root {
+  --foreground-rgb: 255, 255, 255; // White text
+  --background-start-rgb: 21, 21, 21; // Dark gray/near black start (adjust as needed)
+  --background-end-rgb: 0, 0, 0;     // Black end
+}
+
+/* Remove light theme enforcement */
+/* 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+} 
+*/
+
+body {
+  color: rgb(var(--foreground-rgb));
+  // Restore dark gradient background
+  background: linear-gradient(
+      to bottom,
+      rgb(var(--background-start-rgb)),
+      rgb(var(--background-end-rgb))
+    );
+  @apply bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

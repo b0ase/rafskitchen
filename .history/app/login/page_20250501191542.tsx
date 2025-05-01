@@ -60,14 +60,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
       <Header />
       <main className="flex-grow flex items-center justify-center px-4 py-16">
-        <div className="w-full max-w-md bg-gray-900 p-8 shadow-lg border border-gray-800">
-          <h1 className="text-2xl font-bold text-white mb-6 text-center">Client Project Login</h1>
+        <div className="w-full max-w-md bg-white p-8 shadow-md border border-gray-200">
+          <h1 className="text-2xl font-bold text-black mb-6 text-center">Client Project Login</h1>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="project-select" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="project-select" className="block text-sm font-medium text-gray-700 mb-1">
                 Select Project:
               </label>
               <select 
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
+                className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
               >
                 <option value="" disabled>-- Select Your Project --</option>
                 {domainProjects.map((project) => (
@@ -87,7 +87,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-6">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password:
               </label>
               <input 
@@ -96,17 +96,17 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
+                className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
               />
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+              <p className="text-red-600 text-sm mb-4 text-center">{error}</p>
             )}
 
             <button 
               type="submit"
-              className="w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-4 transition duration-300 shadow-md disabled:opacity-50"
+              className="w-full bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 transition duration-300 shadow-sm disabled:opacity-50"
               disabled={!selectedProject || !password}
             >
               Login

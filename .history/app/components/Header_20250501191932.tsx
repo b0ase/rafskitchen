@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTwitter, FaBars, FaTimes } from 'react-icons/fa';
-import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,66 +40,65 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full bg-gray-950 dark:bg-gray-950 border-b border-gray-800 dark:border-gray-800 text-gray-300 dark:text-gray-300 py-3 shadow-md relative z-50">
+    <header className="w-full bg-white border-b border-gray-200 text-gray-900 py-3 shadow-sm relative z-50">
       <div className="container mx-auto px-4 flex flex-wrap items-center justify-between">
-        {/* Logo - Ensure white/light text in dark mode */}
-        <Link href="/" className="text-xl font-bold text-white hover:text-gray-300 transition-colors" onClick={handleMobileLinkClick}>
+        {/* Logo */}
+        <Link href="/" className="text-xl font-bold text-black hover:text-gray-700 transition-colors" onClick={handleMobileLinkClick}>
           B0ASE.COM
         </Link>
 
-        {/* Desktop Navigation Links */}
+        {/* Main Navigation Links */}
         <nav className="hidden md:flex items-center space-x-6">
           {sectionLinks.map((link) => (
-            <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+            <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
               {link.name}
             </Link>
           ))}
         </nav>
 
-        {/* Right side container */}
+        {/* Utility & Social Links */}
         <div className="flex items-center space-x-4">
-          {/* Desktop Utility Links */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Utility Links */}
+          <div className="hidden sm:flex items-center space-x-4">
             {utilityLinks.map((link) => (
-              <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+              <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
                 {link.name}
               </Link>
             ))}
           </div>
 
-          {/* Social Icons and Theme Toggle Container */}
+          {/* Social Icons */}
           <div className="flex items-center space-x-3">
             {socialLinks.map((link, index) => (
-              <a key={index} href={link.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+              <a key={index} href={link.href} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-black transition-colors">
                 <link.Icon size={18} />
               </a>
             ))}
-            <ThemeToggle />
           </div>
-
-          {/* Mobile Menu Button */}
+          
+          {/* Mobile Menu Button (Hidden on Desktop) */}
           <div className="md:hidden">
-            <button onClick={toggleMobileMenu} aria-label="Toggle menu" className="text-gray-300 hover:text-white focus:outline-none">
+            <button onClick={toggleMobileMenu} aria-label="Toggle menu" className="text-gray-600 hover:text-black focus:outline-none">
               {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown - Apply dark class explicitly? Maybe not needed if body handles it */}
+      {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-gray-900 dark:bg-gray-900 border-t border-gray-800 dark:border-gray-800 shadow-lg py-4 px-4">
-           {/* Ensure links have dark styles */} 
+        {/* Use absolute positioning to overlay content */}
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-md py-4 px-4">
           <nav className="flex flex-col space-y-3 mb-4">
             {sectionLinks.map((link) => (
-              <Link key={`mobile-${link.name}`} href={link.href} className="block text-base font-medium text-gray-300 hover:text-white transition-colors" onClick={handleMobileLinkClick}>
+              <Link key={`mobile-${link.name}`} href={link.href} className="text-base font-medium text-gray-700 hover:text-black transition-colors" onClick={handleMobileLinkClick}>
                 {link.name}
               </Link>
             ))}
           </nav>
-          <div className="border-t border-gray-700 dark:border-gray-700 pt-4 flex flex-col space-y-3"> 
+          <div className="border-t border-gray-100 pt-4 flex flex-col space-y-3">
              {utilityLinks.map((link) => (
-              <Link key={`mobile-${link.name}`} href={link.href} className="block text-base font-medium text-gray-300 hover:text-white transition-colors" onClick={handleMobileLinkClick}>
+              <Link key={`mobile-${link.name}`} href={link.href} className="text-base font-medium text-gray-700 hover:text-black transition-colors" onClick={handleMobileLinkClick}>
                 {link.name}
               </Link>
             ))}

@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  /* Apply dark theme defaults directly using Tailwind */
+  @apply bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
