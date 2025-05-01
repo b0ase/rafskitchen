@@ -57,6 +57,9 @@ const portfolioData = {
     { ...createProjectStub(13, 'floop.online', 'Concept for Floop online service.', 'Concept', [], '$FLOOP', 100), type: 'domain' },
     { ...createProjectStub(14, 'dns-dex.com', 'Concept for DNS DEX project.', 'Concept', [], '$DNSD', 100), type: 'domain' },
     { ...createProjectStub(15, 'tribeswallet.com', 'Concept for Tribes Wallet project.', 'Concept', [], '$TWALL', 100), type: 'domain' },
+    { ...createProjectStub(16, 'pennypics.store', 'Concept for PennyPics Store.', 'Concept', [], '$PICS', 100), type: 'domain' },
+    { ...createProjectStub(17, 'missvoid.store', 'Concept for MissVoid Store.', 'Concept', [], '$VOID', 100), type: 'domain' },
+    { ...createProjectStub(18, 'interiordesigns.website', 'Concept for Interior Designs website.', 'Concept', [], '$NTR', 100), type: 'domain' },
     
     // Keep GitHub Stubs 
     {
@@ -136,6 +139,21 @@ const portfolioData = {
       type: 'github',
       tokenName: '$YHC', 
       tokenProgressPercent: 100 // Added progress
+    },
+    // ADDED Index Token Repo
+    {
+      id: 19, // Next available ID
+      title: 'Index Token',
+      description: 'Concept and development for an index-based token system.', 
+      tech: ['Solidity', 'TypeScript'], // Example tech
+      githubUrl: 'https://github.com/b0ase/index-token', // ADDED GitHub URL placeholder
+      xUrl: '#',
+      notionUrl: '#',
+      status: 'Development',
+      type: 'github',
+      tokenName: '$INDEX',
+      tokenProgressPercent: 100, 
+      imageUrl: '/images/development/index-token/index-token-bg.jpg' // Path updated previously, specify ONE image
     },
   ],
   skills: [
@@ -220,7 +238,7 @@ export default function PortfolioPage() {
     <div className="min-h-screen bg-black text-gray-300 font-sans">
       <Header />
       <SubNavigation />
-      <main className="container px-4 py-16">
+      <main className="container mx-auto px-4 py-16">
         {/* Remove placeholder H1 */}
         {/* <h1 className="text-3xl font-bold text-white mb-6">Portfolio Page</h1> */}
 
@@ -440,73 +458,98 @@ export default function PortfolioPage() {
               // Define background and border styles for GitHub repos
               const cardStyle = cardBaseStyle + " bg-gray-200 border-gray-200"; // Darker gray for GitHub repos
 
-              // Ensure all text/link styles are dark for light backgrounds
-              const titleStyle = "text-gray-900";
-              const descriptionStyle = "text-gray-700"; // Keep consistent even if unused for now
-              const techStyle = "text-gray-600";
-              const tokenNameStyle = "font-semibold text-gray-800";
-              const tokenDisabledStyle = "text-gray-500";
-              const statusBadgeStyle = "text-gray-500 bg-white bg-opacity-50 px-1 rounded"; // De-emphasized + slight background
-              const externalLinksStyle = "text-gray-600 hover:text-black";
-              const separatorStyle = "border-gray-300"; // Slightly darker separator for contrast
+              // Define text styles conditionally based on image presence
+              const titleStyle = project.imageUrl ? "text-white" : "text-gray-900";
+              const techStyle = project.imageUrl ? "text-gray-200" : "text-gray-600";
+              const externalLinksStyle = project.imageUrl ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-black";
+              const separatorStyle = project.imageUrl ? "border-gray-500" : "border-gray-300";
+              const tokenNameStyle = project.imageUrl ? "text-gray-100" : "font-semibold text-gray-800"; // Keep original bold if no image
+              const tokenProgressTextStyle = project.imageUrl ? "text-gray-300" : "text-gray-500"; // Lighter for progress text
+              // Define status badge style conditionally
+              const statusBadgeStyle = project.imageUrl 
+                ? "text-gray-200 bg-black bg-opacity-50 px-1 rounded" // Light text on dark semi-transparent bg
+                : "text-gray-500 bg-white bg-opacity-50 px-1 rounded"; // Original dark text on light semi-transparent bg
+
+              // Prepare background style if imageUrl exists
+              const backgroundStyle = project.imageUrl ? { backgroundImage: `url(${project.imageUrl})` } : {};
 
               return (
-                <div key={project.id} className={cardStyle}> {/* Apply dynamic style */} 
-                  {/* Status Badge - Adjusted style */}
-                  <span className={`absolute top-2 right-2 text-xs font-medium z-10 ${statusBadgeStyle}`}>{project.status}</span>
-
-                  {/* Main Content Area */} 
-                  <div className="flex flex-col flex-grow mb-4 relative pt-2"> 
-                    <h3 className={`text-xl font-bold mb-2 ${titleStyle}`}>{project.title}</h3>
-                    {project.tech.length > 0 && (
-                      <div className={`text-sm mb-3 ${techStyle}`}>
-                        Tech: {project.tech.join(', ')}
-                      </div>
-                    )}
-                    {/* Description could go here if needed later, currently omitted */}
-                  </div>
-
-                  {/* Separator - Adjusted style */}
-                  <hr className={`my-4 ${separatorStyle}`} />
-
-                  {/* External Links - Adjusted style */}
-                  <div className="flex justify-start space-x-3 mb-4">
-                    {project.githubUrl && project.githubUrl !== '#' && (
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className={`${externalLinksStyle} transition-colors`} aria-label={`${project.title} GitHub Repository`}>
-                        <GitHubIcon />
-                      </a>
-                    )}
-                    {project.xUrl && project.xUrl !== '#' && (
-                      <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className={`${externalLinksStyle} transition-colors`} aria-label={`${project.title} X.com Profile`}>
-                        <XIcon />
-                      </a>
-                    )}
-                    {project.notionUrl && project.notionUrl !== '#' && (
-                      <a href={project.notionUrl} target="_blank" rel="noopener noreferrer" className={`${externalLinksStyle} transition-colors`} aria-label={`${project.title} Notion Page`}>
-                        <NotionIcon />
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Token Info - Remove platform display */}
-                  {project.tokenName && (
-                    <div className="flex justify-between items-center text-sm">
-                      <span className={tokenNameStyle}>{project.tokenName}</span>
-                      {project.tokenProgressPercent > 0 ? (
-                        <span className={tokenDisabledStyle}>{project.tokenProgressPercent}%</span>
-                      ) : (
-                        <span className={tokenDisabledStyle}><TokenIcon /></span>
-                      )}
-                    </div>
+                // Apply background image style, ensure relative positioning for overlay
+                <div 
+                  key={project.id} 
+                  className={`${cardStyle} bg-cover bg-center relative overflow-hidden`} // Base card style + background handling
+                  style={backgroundStyle}
+                >
+                  {/* Dark overlay for text readability - sits below content */}
+                  {project.imageUrl && (
+                    <div className="absolute inset-0 bg-black bg-opacity-60 z-0"></div>
                   )}
 
-                  {/* Overlay Link for Project Details - Add legacyBehavior */}
-                  <Link href={`/projects/${projectSlug}`} passHref legacyBehavior>
-                    <a className="absolute inset-0 z-0 group-hover:bg-black group-hover:bg-opacity-5 transition-opacity duration-300 rounded-md" aria-label={`View details for ${project.title}`}></a>
-                  </Link>
-                  {/* Add subtle hover effect via the overlay link */}
+                  {/* Content container - positioned above overlay */}
+                  <div className="relative z-10 flex flex-col h-full">
+                    
+                    {/* Status Badge - ensure it's above overlay */}
+                    <span className={`absolute top-2 right-2 text-xs font-medium ${statusBadgeStyle} z-20`}>{project.status}</span> 
 
-                </div>
+                    {/* Main Content Area */}
+                    <div className="flex flex-col flex-grow mb-4 pt-2">
+                      {/* Use conditional text styles */}
+                      <h3 className={`text-xl font-bold mb-2 ${titleStyle}`}>{project.title}</h3>
+                      {project.tech.length > 0 && (
+                        <div className={`text-sm mb-3 ${techStyle}`}>
+                          Tech: {project.tech.join(', ')}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Separator - Use conditional style */}
+                    <hr className={`my-4 ${separatorStyle}`} />
+
+                    {/* External Links - Use conditional style */}
+                    <div className="flex justify-start space-x-3 mb-4">
+                      {project.githubUrl && project.githubUrl !== '#' && (
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className={`${externalLinksStyle} transition-colors`} aria-label={`${project.title} GitHub Repository`}>
+                          <GitHubIcon />
+                        </a>
+                      )}
+                      {project.xUrl && project.xUrl !== '#' && (
+                        <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className={`${externalLinksStyle} transition-colors`} aria-label={`${project.title} X.com Profile`}>
+                          <XIcon />
+                        </a>
+                      )}
+                      {project.notionUrl && project.notionUrl !== '#' && (
+                        <a href={project.notionUrl} target="_blank" rel="noopener noreferrer" className={`${externalLinksStyle} transition-colors`} aria-label={`${project.title} Notion Page`}>
+                          <NotionIcon />
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Token Info - Use conditional styles */}
+                    {project.tokenName && (
+                      <div className="flex justify-between items-center text-sm mt-auto"> 
+                        <span className={`font-semibold ${tokenNameStyle}`}>{project.tokenName}</span>
+                        {typeof project.tokenProgressPercent === 'number' && project.tokenProgressPercent >= 0 && (
+                           <div className="flex items-center ml-2">
+                             {/* Keep progress bar colors consistent for now */}
+                             <div className="w-16 h-2 bg-gray-600 rounded-full overflow-hidden mr-2">
+                               <div 
+                                 className="h-full bg-blue-500"
+                                 style={{ width: `${100 - project.tokenProgressPercent}%` }} 
+                               ></div>
+                             </div>
+                             <span className={`text-xs ${tokenProgressTextStyle}`}>{project.tokenProgressPercent}% Available</span>
+                           </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Overlay Link for Project Details */}
+                    <Link href={`/projects/${projectSlug}`} passHref legacyBehavior>
+                      <a className="absolute inset-0 z-10 group-hover:bg-white group-hover:bg-opacity-10 transition-opacity duration-300 rounded-md" aria-label={`View details for ${project.title}`}></a>
+                       {/* This overlay link is now clickable *above* the background but *below* interactive elements like text links if needed */}
+                    </Link>
+                  </div> 
+                </div> 
               );
             })}
           </div>
