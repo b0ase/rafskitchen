@@ -140,7 +140,7 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {portfolioData.projects.map((project) => (
               // Project Card - Dark Mode Styling
-              <div key={project.id} className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+              (<div key={project.id} className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
                 {/* Placeholder Image - Darker Background */}
                 <div className="w-full h-48 bg-gray-700 rounded mb-4 flex items-center justify-center text-gray-400">
                    <span>Project Image</span>
@@ -162,7 +162,7 @@ export default function PortfolioPage() {
                 >
                   View Project →
                 </a>
-              </div>
+              </div>)
             ))}
           </div>
         </section>
@@ -190,10 +190,10 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Skill/Service Card - Dark Mode Styling
-              <div key={key} className="bg-gray-900 p-6 rounded-lg shadow-lg">
+              (<div key={key} className="bg-gray-900 p-6 rounded-lg shadow-lg">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-400">{service.description}</p>
-              </div>
+              </div>)
             ))}
           </div>
         </section>

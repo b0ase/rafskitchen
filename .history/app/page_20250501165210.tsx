@@ -322,10 +322,10 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Apply light gray background and dark text
-              <div key={key} className="bg-gray-50 p-6 shadow-lg border border-gray-200">
+              (<div key={key} className="bg-gray-50 p-6 shadow-lg border border-gray-200">
                 <h3 className="text-xl font-bold mb-2 text-gray-900">{service.title}</h3>
                 <p className="text-gray-700">{service.description}</p>
-              </div>
+              </div>)
             ))}
           </div>
         </section>
@@ -482,7 +482,6 @@ export default function PortfolioPage() {
                   {project.imageUrl && (
                     <div className="absolute inset-0 bg-black bg-opacity-60 z-0"></div>
                   )}
-
                   {/* Content container - positioned above overlay */}
                   <div className="relative z-10 flex flex-col h-full">
                     
@@ -546,8 +545,8 @@ export default function PortfolioPage() {
                       <a className="absolute inset-0 z-10 group-hover:bg-white group-hover:bg-opacity-10 transition-opacity duration-300 rounded-md" aria-label={`View details for ${project.title}`}></a>
                        {/* This overlay link is now clickable *above* the background but *below* interactive elements like text links if needed */}
                     </Link>
-                  </div> 
-                </div> 
+                  </div>
+                </div>
               );
             })}
           </div>

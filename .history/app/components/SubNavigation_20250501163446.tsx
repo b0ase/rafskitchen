@@ -24,10 +24,10 @@ export default function SubNavigation() {
           <ul className="flex space-x-4 md:space-x-6 overflow-x-auto whitespace-nowrap">
             {subNavLinks.map((link) => (
               <li key={link.name}>
-                <Link 
-                  href={link.href} 
+                <Link
+                  href={link.href}
                   className="text-gray-400 hover:text-white transition-colors duration-200 text-sm py-1"
-                >
+                  legacyBehavior>
                   {link.name}
                 </Link>
               </li>

@@ -192,12 +192,14 @@ export default function PortfolioPage() {
                                      .replace(/\s+/g, '-') // Replace spaces with hyphens
                                      .replace(/-+/g, '-'); // Replace multiple hyphens with one
               return (
-                <div key={project.id} className="bg-gray-900 p-6 shadow-lg flex flex-col relative group"> 
+                <div key={project.id} className="bg-gray-900 p-6 shadow-lg flex flex-col relative group">
                   {/* Status Badge */}
                   <span className="absolute top-2 right-2 bg-gray-700 text-gray-300 text-xs font-medium px-2.5 py-0.5 z-10">{project.status}</span>
-
                   {/* Main Content Area (Link to detail page) */}
-                  <Link href={`/projects/${projectSlug}`} className="flex flex-col flex-grow mb-4 cursor-pointer">
+                  <Link
+                    href={`/projects/${projectSlug}`}
+                    className="flex flex-col flex-grow mb-4 cursor-pointer"
+                    legacyBehavior>
                     <h3 className="text-xl font-bold mb-2 text-white">{project.title}</h3>
                     {project.tech.length > 0 && (
                       <div className="text-sm text-gray-500 mb-3">
@@ -206,7 +208,6 @@ export default function PortfolioPage() {
                     )}
                     <p className="text-gray-400 mb-3 flex-grow">{project.description}</p>
                   </Link>
-
                   {/* External Links Area */}
                   <div className="mt-auto pt-4 border-t border-gray-800 flex justify-between items-center gap-4 text-gray-400">
                     <div className="flex gap-3 items-center">
@@ -269,10 +270,10 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Skill/Service Card - Dark Mode Styling
-              <div key={key} className="bg-gray-900 p-6 shadow-lg">
+              (<div key={key} className="bg-gray-900 p-6 shadow-lg">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-400">{service.description}</p>
-              </div>
+              </div>)
             ))}
           </div>
         </section>

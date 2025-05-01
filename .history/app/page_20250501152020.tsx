@@ -208,10 +208,10 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Revert to original dark style for now
-              <div key={key} className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 shadow-lg">
+              (<div key={key} className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 shadow-lg">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-400">{service.description}</p>
-              </div>
+              </div>)
             ))}
           </div>
         </section>
@@ -266,7 +266,6 @@ export default function PortfolioPage() {
                 <div key={project.id} className={`${cardStyle} border border-gray-200`}>
                   {/* Status Badge - De-emphasized */}
                   <span className={`absolute top-2 right-2 text-xs font-medium z-10 ${statusBadgeStyle}`}>{project.status}</span>
-
                   {/* Main Content Area */}
                   <div className="flex flex-col flex-grow mb-4 relative pt-2"> 
                     <h3 className={`text-xl font-bold mb-2 ${titleStyle}`}>{project.title}</h3>
@@ -277,10 +276,8 @@ export default function PortfolioPage() {
                     )}
                     {/* Description could go here if needed later, currently omitted */}
                   </div>
-
                   {/* Separator */}
                   <hr className={`my-4 ${separatorStyle}`} />
-
                   {/* External Links */}
                   <div className="flex justify-start space-x-3 mb-4">
                     {project.githubUrl && project.githubUrl !== '#' && (
@@ -299,7 +296,6 @@ export default function PortfolioPage() {
                       </a>
                     )}
                   </div>
-
                   {/* Token Info */}
                   {project.tokenName && (
                     <div className="flex justify-between items-center text-sm">
@@ -314,10 +310,13 @@ export default function PortfolioPage() {
                       )}
                     </div>
                   )}
-
                   {/* Overlay Link for Project Details */}
-                  <Link href={`/projects/${projectSlug}`} passHref>
-                    <a className="absolute inset-0 z-0 group-hover:bg-gray-500 group-hover:bg-opacity-5 transition-opacity duration-300" aria-label={`View details for ${project.title}`}></a>
+                  <Link
+                    href={`/projects/${projectSlug}`}
+                    passHref
+                    className="absolute inset-0 z-0 group-hover:bg-gray-500 group-hover:bg-opacity-5 transition-opacity duration-300"
+                    aria-label={`View details for ${project.title}`}>
+
                   </Link>
                   {/* Add subtle hover effect via the overlay link */}
                 </div>

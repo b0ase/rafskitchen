@@ -17,17 +17,17 @@ export default function SubNavigation() {
 
   return (
     // Lighter background than main header
-    <nav className="w-full bg-gray-900 shadow-sm py-2 border-b border-gray-700 sticky top-0 z-40"> 
+    <nav className="w-full bg-gray-900 shadow-sm py-2 border-b border-gray-700 sticky top-0 z-40">
       {/* Container ensures alignment with main content */}
       <div className="container mx-auto px-4">
         {/* Simple flex layout for links */}
         <ul className="flex space-x-4 md:space-x-6 overflow-x-auto whitespace-nowrap">
           {subNavLinks.map((link) => (
             <li key={link.name}>
-              <Link 
-                href={link.href} 
+              <Link
+                href={link.href}
                 className="text-gray-400 hover:text-white transition-colors duration-200 text-sm py-1"
-              >
+                legacyBehavior>
                 {link.name}
               </Link>
             </li>

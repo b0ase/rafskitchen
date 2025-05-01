@@ -53,7 +53,10 @@ export default function Navigation() {
         {/* Render Text Links */}
         {textLinks.map((link) => (
           <li key={link.name}>
-            <Link href={link.href} className="text-gray-300 hover:text-white transition-colors duration-200 text-sm md:text-base">
+            <Link
+              href={link.href}
+              className="text-gray-300 hover:text-white transition-colors duration-200 text-sm md:text-base"
+              legacyBehavior>
               {link.name}
             </Link>
           </li>
@@ -61,7 +64,7 @@ export default function Navigation() {
         
         {/* Separator (Optional) */}
         {textLinks.length > 0 && iconLinks.length > 0 && (
-          <li className="h-4 border-l border-gray-700 mx-2"></li> // Added margin to separator
+          (<li className="h-4 border-l border-gray-700 mx-2"></li>) // Added margin to separator
         )}
 
         {/* Render Icon Links */}

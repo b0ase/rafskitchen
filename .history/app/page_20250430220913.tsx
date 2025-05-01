@@ -212,10 +212,10 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Skill/Service Card - Dark Mode Styling
-              <div key={key} className="bg-gray-900 p-6 shadow-lg">
+              (<div key={key} className="bg-gray-900 p-6 shadow-lg">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-400">{service.description}</p>
-              </div>
+              </div>)
             ))}
           </div>
         </section>

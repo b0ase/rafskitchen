@@ -57,7 +57,10 @@ export default function Navigation() {
         {/* Render Text Links */}
         {textLinks.map((link) => (
           <li key={link.name}>
-            <Link href={link.href} className="text-gray-300 hover:text-white transition-colors duration-200 text-sm md:text-base">
+            <Link
+              href={link.href}
+              className="text-gray-300 hover:text-white transition-colors duration-200 text-sm md:text-base"
+              legacyBehavior>
               {link.name}
             </Link>
           </li>
