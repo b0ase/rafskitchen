@@ -5,13 +5,13 @@ import Link from 'next/link';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
-// Uncomment icons
+// Add simple SVG icons (replace with better ones later if desired)
 const GitHubIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>;
 const XIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
-const NotionIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>; 
-const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1.143A6.857 6.857 0 1 1 8 1.143a6.857 6.857 0 0 1 0 13.714z"/><path d="M6.29 8.51H4.844V6.66h.33L6.29 8.51zm2.47-1.615c0-.58-.4-1.047-1.063-1.047H6.42v4.33h1.374c.68 0 1.086-.467 1.086-1.08V6.895zm-1.22 1.857H6.81V6.24h.74c.39 0 .625.246.625.6v1.867c0 .348-.248.602-.64.602zM11.156 8.51h-1.45v-1.85h.33l1.12 1.85z"/></svg>; 
+const NotionIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>; // Placeholder icon
+const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1.143A6.857 6.857 0 1 1 8 1.143a6.857 6.857 0 0 1 0 13.714z"/><path d="M6.29 8.51H4.844V6.66h.33L6.29 8.51zm2.47-1.615c0-.58-.4-1.047-1.063-1.047H6.42v4.33h1.374c.68 0 1.086-.467 1.086-1.08V6.895zm-1.22 1.857H6.81V6.24h.74c.39 0 .625.246.625.6v1.867c0 .348-.248.602-.64.602zM11.156 8.51h-1.45v-1.85h.33l1.12 1.85z"/></svg>; // Placeholder icon
 
-// Uncomment helper function
+// Helper function to create placeholders
 const createProjectStub = (id: number, title: string, description: string, status: string = 'Concept', tech: string[] = []) => {
   const safeTitle = title.toLowerCase().replace('.com', '').replace('.ai', '').replace('.online', '').replace('.app', '').replace('.', '-');
   return {
@@ -19,20 +19,21 @@ const createProjectStub = (id: number, title: string, description: string, statu
     title,
     description,
     tech,
-    githubUrl: `https://github.com/b0ase/${safeTitle}`, 
-    xUrl: `https://x.com/${safeTitle}`, 
-    notionUrl: '#', 
-    tokenName: `$${safeTitle.toUpperCase()}`, 
-    tokenMarketUrl: '#', 
-    tokenPlatform: 'TBD', 
+    githubUrl: `https://github.com/b0ase/${safeTitle}`, // Placeholder
+    xUrl: `https://x.com/${safeTitle}`, // Placeholder
+    notionUrl: '#', // Placeholder
+    tokenName: `$${safeTitle.toUpperCase()}_TBD`, // Placeholder
+    tokenMarketUrl: '#', // Placeholder
+    tokenPlatform: 'TBD', // Placeholder
     status,
-    type: 'domain' // Assume helper is for domain for now
   };
 };
 
+// Add back portfolio data (starting with 'about')
 const portfolioData = {
   about: {
-    name: 'b0ase',
+    name: 'Richard Boase',
+    title: 'Digital Project Incubator & Service Provider',
     bio: 'Exploring and developing diverse digital projects, from web applications and blockchain concepts to creative media. This space showcases works-in-progress, past experiments, and future ideas. Seeking collaboration and support to bring promising concepts to fruition. Also providing technical and creative services for clients.',
     links: {
       github: 'https://github.com/b0ase',
@@ -42,102 +43,94 @@ const portfolioData = {
     }
   },
   projects: [
-    // Uncomment projects using createProjectStub
-    { ...createProjectStub(7, 'ninjapunkgirls.com', 'Concept for Ninja Punk Girls project.', 'Ltd Company'), type: 'domain' },
-    { ...createProjectStub(8, 'Hyper-Flix.com', 'Concept for Hyper-Flix project.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(9, 'Tribify.ai', 'Concept for Tribify AI project.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(10, 'AITribes.online', 'Concept for AI Tribes online platform.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(11, 'lilithtattoo.com', 'Concept for Lilith Tattoo project.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(12, 'metagraph.app', 'Concept for Metagraph application.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(13, 'floop.online', 'Concept for Floop online service.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(14, 'dns-dex.com', 'Concept for DNS DEX project.', 'Concept'), type: 'domain' },
-    { ...createProjectStub(15, 'tribeswallet.com', 'Concept for Tribes Wallet project.', 'Concept'), type: 'domain' },
-    
-    // Keep GitHub Stubs 
     {
       id: 1, 
       title: 'AIOSX',
       description: 'Fork of AIOS: LLM Agent Operating System. Exploring potential applications.', 
-      tech: ['Python'], 
+      tech: ['Python'],
       githubUrl: 'https://github.com/b0ase/AIOSX',
-      xUrl: '#', 
-      notionUrl: '#', 
-      tokenName: '$AIOSX',
+      xUrl: '#',
+      notionUrl: '#',
+      tokenName: '$AIOSX_TBD',
       tokenMarketUrl: '#',
       tokenPlatform: 'TBD',
-      status: 'Exploration',
-      type: 'github' 
+      status: 'Exploration'
     },
     {
       id: 2, 
       title: 'bitcoin (Fork)',
       description: 'Fork of Bitcoin Core integration/staging tree. For study and potential integration.', 
-      tech: ['TypeScript'], 
+      tech: ['TypeScript'],
       githubUrl: 'https://github.com/b0ase/bitcoin',
       xUrl: '#',
       notionUrl: '#',
-      tokenName: '$BTC_FORK',
+      tokenName: '$BTC_FORK_TBD',
       tokenMarketUrl: '#',
       tokenPlatform: 'TBD',
-      status: 'Study',
-      type: 'github' 
+      status: 'Study'
     },
     {
       id: 3, 
       title: 'npgpublic',
       description: 'Public Go project. Purpose and potential to be defined.', 
-      tech: ['Go'], 
+      tech: ['Go'],
       githubUrl: 'https://github.com/b0ase/npgpublic',
       xUrl: '#',
       notionUrl: '#',
-      tokenName: '$NPG',
+      tokenName: '$NPG_TBD',
       tokenMarketUrl: '#',
       tokenPlatform: 'TBD',
-      status: 'Concept',
-      type: 'github' 
+      status: 'Concept'
     },
     {
       id: 4, 
       title: 'Penshun',
       description: 'Fork of simply-stream: Lock to Stream Bitcoin. Investigating streaming payment models.', 
-      tech: ['JavaScript'], 
+      tech: ['JavaScript'],
       githubUrl: 'https://github.com/b0ase/Penshun',
       xUrl: '#',
       notionUrl: '#',
-      tokenName: '$PENSHUN',
+      tokenName: '$PENSHUN_TBD',
       tokenMarketUrl: '#',
-      tokenPlatform: 'BSV', 
-      status: 'Investigation',
-      type: 'github' 
+      tokenPlatform: 'BSV',
+      status: 'Investigation'
     },
     {
       id: 5, 
       title: 'Weight',
       description: 'Fork of hodlocker: Lock Bitcoins to Social Posts. Experimenting with social/economic weighting.', 
-      tech: ['TypeScript'], 
+      tech: ['TypeScript'],
       githubUrl: 'https://github.com/b0ase/Weight',
       xUrl: '#',
       notionUrl: '#',
-      tokenName: '$WEIGHT',
+      tokenName: '$WEIGHT_TBD',
       tokenMarketUrl: '#',
-      tokenPlatform: 'BSV', 
-      status: 'Experiment',
-      type: 'github' 
+      tokenPlatform: 'BSV',
+      status: 'Experiment'
     },
     {
       id: 6, 
       title: 'Yours-HandCash-Login',
       description: 'Fork of Yours Wallet: Yours/HandCash Integration exploration.', 
-      tech: ['JavaScript'], 
+      tech: ['JavaScript'],
       githubUrl: 'https://github.com/b0ase/Yours-HandCash-Login',
       xUrl: '#',
       notionUrl: '#',
-      tokenName: '$YHC',
+      tokenName: '$YHC_TBD',
       tokenMarketUrl: '#',
-      tokenPlatform: 'BSV', 
-      status: 'Archived/Study',
-      type: 'github' 
+      tokenPlatform: 'BSV',
+      status: 'Archived/Study'
     },
+    // New Domain-based Project Stubs
+    createProjectStub(7, 'ninjapunkgirls.com', 'Concept for Ninja Punk Girls project.', 'Concept'),
+    createProjectStub(8, 'Hyper-Flix.com', 'Concept for Hyper-Flix project.', 'Concept'),
+    createProjectStub(9, 'Tribify.ai', 'Concept for Tribify AI project.', 'Concept'),
+    createProjectStub(10, 'AITribes.online', 'Concept for AI Tribes online platform.', 'Concept'),
+    createProjectStub(11, 'lilithtattoo.com', 'Concept for Lilith Tattoo project.', 'Concept'),
+    createProjectStub(12, 'metagraph.app', 'Concept for Metagraph application.', 'Concept'),
+    createProjectStub(13, 'floop.online', 'Concept for Floop online service.', 'Concept'),
+    createProjectStub(14, 'dns-dex.com', 'Concept for DNS DEX project.', 'Concept'),
+    createProjectStub(15, 'tribeswallet.com', 'Concept for Tribes Wallet project.', 'Concept'),
   ],
   skills: [
     'JavaScript', 'TypeScript', 'Python', 'SQL', 'HTML5', 'CSS3',
@@ -168,7 +161,8 @@ export default function PortfolioPage() {
           id="about" 
           className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-900 shadow-lg max-w-4xl"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-white font-mono">{portfolioData.about.name}</h1> 
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">{portfolioData.about.name}</h1> 
+          <h2 className="text-xl md:text-2xl text-gray-400 mb-5">{portfolioData.about.title}</h2>
           <p className="text-base md:text-lg text-gray-300 mb-6 leading-relaxed">{portfolioData.about.bio}</p>
           <div className="flex space-x-6">
             {Object.entries(portfolioData.about.links).map(([key, value]) => (
@@ -187,94 +181,64 @@ export default function PortfolioPage() {
 
         {/* Projects Section */}
         <section id="projects" className="mb-16 scroll-mt-16">
-          <h2 className="text-3xl font-semibold mb-8 border-b border-gray-800 pb-2 text-white">Development Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <h2 className="text-3xl font-semibold mb-8 border-b border-gray-800 pb-2 text-white">Incubator Projects</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {portfolioData.projects.map((project) => {
+              // Generate a URL-safe slug from the title
               const projectSlug = project.title.toLowerCase()
                                      .replace(/\.com|\.ai|\.online|\.app/g, '') // Remove common TLDs
                                      .replace(/\(fork\)/g, 'fork') // Handle (Fork)
                                      .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric/space/hyphen
                                      .replace(/\s+/g, '-') // Replace spaces with hyphens
                                      .replace(/-+/g, '-'); // Replace multiple hyphens with one
-              const isDomainProject = project.type === 'domain';
-
-              // Define base styles and conditional styles including gradients
-              const cardBaseStyle = "p-6 shadow-lg flex flex-col relative group"; // Removed base bg
-              const cardStyle = isDomainProject
-                ? `${cardBaseStyle} bg-gradient-to-br from-white to-gray-100 text-gray-900` // Light gradient
-                : `${cardBaseStyle} bg-gradient-to-br from-gray-900 to-gray-800 text-gray-300`; // Dark gradient
-
-              const titleStyle = isDomainProject ? "text-gray-900" : "text-white";
-              const descriptionStyle = isDomainProject ? "text-gray-700" : "text-gray-400";
-              const techStyle = isDomainProject ? "text-gray-600" : "text-gray-500";
-              const tokenNameStyle = isDomainProject ? "font-semibold text-gray-800" : "font-semibold text-gray-400";
-              const tokenPlatformStyle = isDomainProject ? "text-gray-600" : "text-gray-500";
-              const tokenLinkStyle = isDomainProject ? "text-gray-700 hover:text-black" : "text-gray-400 hover:text-white";
-              const tokenDisabledStyle = isDomainProject ? "text-gray-400" : "text-gray-600";
-              const statusBadgeStyle = isDomainProject ? "text-gray-400" : "text-gray-500";
-              const externalLinksStyle = isDomainProject ? "text-gray-600 hover:text-black" : "text-gray-400 hover:text-white";
-              const separatorStyle = isDomainProject ? "border-gray-200" : "border-gray-800";
-
               return (
-                <div key={project.id} className={cardStyle}>
+                <div key={project.id} className="bg-gray-900 p-6 shadow-lg flex flex-col relative group"> 
                   {/* Status Badge */}
-                  <span className={`absolute top-2 right-2 text-xs font-medium z-10 ${statusBadgeStyle}`}>{project.status}</span>
+                  <span className="absolute top-2 right-2 bg-gray-700 text-gray-300 text-xs font-medium px-2.5 py-0.5 z-10">{project.status}</span>
 
-                  {/* Main Content Area (No longer a link) */}
-                  <div className="flex flex-col flex-grow mb-4 relative pt-2"> 
-                    <h3 className={`text-xl font-bold mb-2 ${titleStyle}`}>{project.title}</h3>
+                  {/* Main Content Area (Link to detail page) */}
+                  <Link href={`/projects/${projectSlug}`} className="flex flex-col flex-grow mb-4 cursor-pointer">
+                    <h3 className="text-xl font-bold mb-2 text-white">{project.title}</h3>
                     {project.tech.length > 0 && (
-                      <div className={`text-sm mb-3 ${techStyle}`}>
+                      <div className="text-sm text-gray-500 mb-3">
                         Tech: {project.tech.join(', ')}
                       </div>
                     )}
-                    {/* Hide description here, show in overlay */}
-                    {/* <p className={`mb-3 flex-grow ${descriptionStyle}`}>{project.description}</p> */}
-
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                       <p className="text-white text-center text-sm">{project.description}</p>
-                    </div>
-                  </div>
+                    <p className="text-gray-400 mb-3 flex-grow">{project.description}</p>
+                  </Link>
 
                   {/* External Links Area */}
-                  <div className={`mt-auto pt-4 border-t ${separatorStyle} flex justify-between items-center gap-4`}>
+                  <div className="mt-auto pt-4 border-t border-gray-800 flex justify-between items-center gap-4 text-gray-400">
                     <div className="flex gap-3 items-center">
-                      {/* GitHub - Uncomment Usage */}
+                      {/* GitHub */}
                       {project.githubUrl && project.githubUrl !== '#' && (
-                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub" className={externalLinksStyle}><GitHubIcon /></a>
+                        <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" title="GitHub" className="hover:text-white"><GitHubIcon /></a>
                       )}
-                      {/* X.com - Uncomment Usage */}
+                      {/* X.com */}
                       {project.xUrl && project.xUrl !== '#' && (
-                         <a href={project.xUrl} target="_blank" rel="noopener noreferrer" title="X.com" className={externalLinksStyle}><XIcon /></a>
+                        <a href={project.xUrl} target="_blank" rel="noopener noreferrer" title="X.com" className="hover:text-white"><XIcon /></a>
                       )}
-                      {/* Notion - Uncomment Usage */}
+                      {/* Notion */}
                       {project.notionUrl && project.notionUrl !== '#' && (
-                         <a href={project.notionUrl} target="_blank" rel="noopener noreferrer" title="Notion" className={externalLinksStyle}><NotionIcon /></a>
+                         <a href={project.notionUrl} target="_blank" rel="noopener noreferrer" title="Notion" className="hover:text-white"><NotionIcon /></a>
                       )}
                     </div>
-                     {/* Token Link - Uncomment Usage */}
+                     {/* Token Link */}
                     {project.tokenMarketUrl && project.tokenMarketUrl !== '#' ? (
-                      <a href={project.tokenMarketUrl} target="_blank" rel="noopener noreferrer" title={`View ${project.tokenName} ${project.tokenPlatform !== 'TBD' ? '(' + project.tokenPlatform + ')' : '' }`} className={`flex items-center gap-1 text-sm ${tokenLinkStyle}`}>
-                        <TokenIcon /> <span className={tokenNameStyle}>{project.tokenName}</span> 
-                        {project.tokenPlatform !== 'TBD' && <span className={tokenPlatformStyle}>({project.tokenPlatform})</span>}
+                      <a
+                        href={project.tokenMarketUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`View ${project.tokenName} (${project.tokenPlatform})`}
+                        className="flex items-center gap-1 text-sm hover:text-white"
+                      >
+                        <TokenIcon /> {project.tokenName}
                       </a>
                     ) : (
-                      <span className={`flex items-center gap-1 text-sm ${tokenDisabledStyle}`} title="Token Not Available">
-                         <TokenIcon /> <span className={tokenNameStyle}>{project.tokenName}</span> 
-                         {project.tokenPlatform !== 'TBD' && <span className={tokenPlatformStyle}>({project.tokenPlatform})</span>}
+                      <span className="flex items-center gap-1 text-sm text-gray-600" title="Token Not Available">
+                         <TokenIcon /> {project.tokenName}
                       </span>
                     )}
-                  </div>
-
-                  {/* View Details Button */}
-                  <div className="mt-4">
-                    <Link
-                      href={`/projects/${projectSlug}`}
-                      className={`block w-full text-center py-2 text-sm ${isDomainProject ? 'bg-gray-200 hover:bg-gray-300 text-gray-800' : 'bg-gray-700 hover:bg-gray-600 text-white'} transition-colors duration-200`}
-                    >
-                      View Details
-                    </Link>
                   </div>
                 </div>
               );
@@ -289,7 +253,7 @@ export default function PortfolioPage() {
             {portfolioData.skills.map((skill) => (
               <span 
                 key={skill} 
-                className="bg-gradient-to-r from-gray-800 to-gray-700 text-gray-300 text-sm font-medium px-3 py-1 shadow-md"
+                className="bg-gray-800 text-gray-300 text-sm font-medium px-3 py-1 shadow-md"
               >
                 {skill}
               </span>
@@ -305,7 +269,7 @@ export default function PortfolioPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Object.entries(portfolioData.services).map(([key, service]) => (
               // Skill/Service Card - Dark Mode Styling
-              <div key={key} className="bg-gradient-to-br from-gray-900 to-gray-800 p-6 shadow-lg">
+              <div key={key} className="bg-gray-900 p-6 shadow-lg">
                 <h3 className="text-xl font-bold mb-2 text-white">{service.title}</h3>
                 <p className="text-gray-400">{service.description}</p>
               </div>

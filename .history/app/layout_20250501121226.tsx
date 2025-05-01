@@ -17,7 +17,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "b0ase.com", // Update browser tab title
-  description: "Digital Project Incubator & Service Provider", // Removed name
+  description: "Richard Boase - Digital Project Incubator & Service Provider", // Update description to match content
 };
 
 export default function RootLayout({

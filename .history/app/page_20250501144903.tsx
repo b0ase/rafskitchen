@@ -271,11 +271,6 @@ export default function PortfolioPage() {
                   <div className="mt-4">
                     <Link
                       href={`/projects/${projectSlug}`}
-                      className={`block w-full text-center py-2 text-sm ${isDomainProject ? 'bg-gray-200 hover:bg-gray-300 text-gray-800' : 'bg-gray-700 hover:bg-gray-600 text-white'} transition-colors duration-200`}
-                    >
-                      View Details
-                    </Link>
-                  </div>
                 </div>
               );
             })}
