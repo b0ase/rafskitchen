@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import SubNavigation from './components/SubNavigation';
 
 // Uncomment icons
 const GitHubIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>;
@@ -33,7 +32,7 @@ const createProjectStub = (id: number, title: string, description: string, statu
 const portfolioData = {
   about: {
     name: 'b0ase',
-    bio: "b0ase.com is a dynamic digital agency, transforming concepts into digital experiences. We deliver client solutions in web development, blockchain, content, video, and social media, while also incubating our own projects. Explore our services, view our work, and contact us to build your next venture.",
+    bio: "b0ase is a digital agency specializing in bringing ideas to life across web development, blockchain, creative media, and content strategy. We offer a comprehensive suite of services to clients while also incubating our own innovative projects. Explore our capabilities, discover our ongoing development work, and get in touch to discuss how we can help build your next digital venture.",
     links: {
       github: 'https://github.com/b0ase',
       linkedin: 'https://www.linkedin.com/in/richardboase/',
@@ -143,10 +142,10 @@ const portfolioData = {
     'React', 'Next.js', 'Tailwind CSS', 'Vue.js',
     'Node.js', 'Express.js', 'PostgreSQL', 'MongoDB', 'MySQL',
     'Docker', 'Kubernetes', 'AWS Basics', 'Google Cloud Basics', 'Git', 'CI/CD',
-    'Figma', 'Adobe Photoshop', 'Logo Design', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles',
+    'Figma', 'Adobe Photoshop', 'Motion Graphics', 'Video Production', 'API Integration', 'SEO Principles',
     'Adobe After Effects', 'Adobe Premiere Pro', 'Cinema 4D', 'Blender', 
     'Final Cut Pro', 'DaVinci Resolve', 'Lottie/Bodymovin', 'Animation Principles', 
-    'Compositing', 'VFX Basics', 'Adobe Illustrator', 'Adobe InDesign', 'Adobe Creative Suite'
+    'Compositing', 'VFX Basics'
   ],
   services: {
     webDevelopment: { title: 'Web Development', description: 'Building responsive, performant websites and web applications using modern technologies.' },
@@ -158,68 +157,14 @@ const portfolioData = {
   }
 };
 
-// ADDED Tab Type
-type InfoTabName = 'graphics' | 'logos' | 'photography'; // Renamed slightly to avoid clashes if needed
-
 export default function PortfolioPage() {
   // Filter projects by type
   const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
   const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
 
-  // ADDED Tab State
-  const [activeInfoTab, setActiveInfoTab] = useState<InfoTabName>('graphics');
-
-  // ADDED Tab Helper Functions (adapted from graphics page)
-  const renderInfoTabContent = () => {
-    switch (activeInfoTab) {
-      case 'photography':
-        return (
-          <div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Photography Services</h3>
-            <p className="text-gray-700">
-              High-quality photography solutions for events, products, portraits, and more. We capture the moments that matter. 
-              (Placeholder content)
-            </p>
-          </div>
-        );
-      case 'graphics':
-        return (
-          <div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">General Graphic Design</h3>
-            <p className="text-gray-700">
-              Comprehensive graphic design services including branding assets, marketing materials, web graphics, illustrations, and custom visual solutions.
-              (Placeholder content)
-            </p>
-          </div>
-        );
-      case 'logos':
-        return (
-          <div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Logo Design & Branding</h3>
-            <p className="text-gray-700">
-              Crafting unique and memorable logos and visual identities that represent your brand effectively. From initial concept to final assets.
-              (Placeholder content)
-            </p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getInfoTabClassName = (tabName: InfoTabName) => {
-    // Adjusted styling to fit main page context if needed (using dark bg for tabs)
-    return `py-2 px-4 cursor-pointer transition-colors duration-200 border-b-2 ${
-      activeInfoTab === tabName 
-        ? 'border-blue-400 text-white' 
-        : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-gray-500'
-    }`;
-  };
-
   return (
     <div className="min-h-screen bg-black text-gray-300 font-sans">
       <Header />
-      <SubNavigation />
       <main className="container px-4 py-16">
         {/* Remove placeholder H1 */}
         {/* <h1 className="text-3xl font-bold text-white mb-6">Portfolio Page</h1> */}
@@ -263,37 +208,6 @@ export default function PortfolioPage() {
               </a>
             </div>
           )}
-        </section>
-
-        {/* ===== ADDED Info Tabs Section ===== */}
-        <section id="info-tabs" className="mb-16 scroll-mt-16">
-          {/* Tab Navigation - Dark theme */}
-          <div className="flex border-b border-gray-700 mb-0">
-            <button 
-              onClick={() => setActiveInfoTab('graphics')}
-              className={getInfoTabClassName('graphics')}
-            >
-              Graphics
-            </button>
-            <button 
-              onClick={() => setActiveInfoTab('logos')}
-              className={getInfoTabClassName('logos')}
-            >
-              Logos
-            </button>
-            <button 
-              onClick={() => setActiveInfoTab('photography')}
-              className={getInfoTabClassName('photography')}
-            >
-              Photography
-            </button>
-            {/* Add more tabs here if needed */}
-          </div>
-
-          {/* Tab Content Area - Light Background - Separate div needed */}
-          <div className="bg-white p-6 md:p-8 shadow-lg border border-gray-300 mt-0">
-            {renderInfoTabContent()}
-          </div>
         </section>
 
         {/* ===== NEW POSITION for Services Section ===== */}

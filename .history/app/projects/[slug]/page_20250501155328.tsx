@@ -2,11 +2,16 @@ import React from 'react';
 import Header from '../../components/Header'; // Adjust path
 import Footer from '../../components/Footer'; // Adjust path
 
-// Type as React.FC with inline props
-const ProjectDetailPage: React.FC<{
-  params: { slug: string };
-  // searchParams?: { [key: string]: string | string[] | undefined }; // Add if needed
-}> = ({ params }) => {
+// Define the expected props structure
+interface ProjectDetailPageProps {
+  params: { 
+    slug: string; 
+  };
+  // searchParams?: { [key: string]: string | string[] | undefined }; // Optional: if needed later
+}
+
+// Use the defined interface for props
+export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   // TODO: Fetch project data based on slug from portfolioData or an API
   // For now, just display the slug
   const projectName = params.slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); // Basic formatting
@@ -28,6 +33,4 @@ const ProjectDetailPage: React.FC<{
       <Footer />
     </div>
   );
-}
-
-export default ProjectDetailPage; 
+} 

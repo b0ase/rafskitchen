@@ -230,7 +230,7 @@ export default function PortfolioPage() {
           className="mb-16 scroll-mt-16 p-6 md:p-8 bg-white shadow-lg border border-gray-300"
         >
           {/* Update text to dark */}
-          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-gray-900 font-mono">{portfolioData.about.name}</h1> 
+          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-gray-900 font-mono">b0ase.com</h1> 
           <p className="text-base md:text-lg text-gray-700 mb-6 leading-relaxed">{portfolioData.about.bio}</p>
           <div className="flex space-x-6">
             {Object.entries(portfolioData.about.links).map(([key, value]) => (

@@ -6,9 +6,14 @@ import Link from 'next/link'; // Use Next.js Link for internal navigation
 export default function Navigation() {
   // const { isMenuOpen, setIsMenuOpen } = useMenu(); // Remove state related to old menu
 
-  // Define navigation links for the TOP navigation bar
+  // Define navigation links for the portfolio
   const navLinks = [
-    // Removed: About, Services, Skills, Projects, Development, Contact
+    { name: 'About', href: '#about' },
+    { name: 'Services', href: '#services' },
+    { name: 'Skills', href: '#skills' },
+    { name: 'Projects', href: '#projects' },
+    { name: 'Development', href: '#development' },
+    { name: 'Contact', href: '#contact' },
     { name: 'Studio', href: '/studio' },
     { name: 'Token', href: '/token' },
   ];
