@@ -18,13 +18,12 @@ const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 
 
 export default function PortfolioPage() {
   // Filter projects by type (now using imported portfolioData)
-  // const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
-  // const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
+  const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
+  const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
 
   // Type assertion for projects and development arrays
   const projects = portfolioData.projects as any[];
-  // Correctly filter github projects here
-  // const development = portfolioData.development as any[] || [];
+  const development = portfolioData.development as any[] || [];
 
   return (
     <div className="flex flex-col">
@@ -33,7 +32,7 @@ export default function PortfolioPage() {
         {/* About Section - Apply dark: variants */}
         <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
           <div className="bg-white dark:bg-black p-6 md:p-8 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl">
-            <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4 font-mono">
+            <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4">
                 <CharacterCycle text={portfolioData.about.name} cycleDuration={40} />
             </h1>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-4">{portfolioData.about.tagline}</p>
@@ -63,7 +62,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
         {/* Services Section - Apply dark: variants */}
         <section id="services" className="mb-16 md:mb-24 scroll-mt-20">
           <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">
@@ -71,17 +69,13 @@ export default function PortfolioPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {portfolioData.services.map((service) => (
-              <Link 
-                key={service.id} 
-                href={`/services/${service.slug}`}
-                className="block bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125"
-              >
+              <div key={service.id} className="bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col">
                 <h3 className="text-xl font-semibold text-black dark:text-white mb-2">{service.title}</h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 flex-grow">{service.description}</p>
                 {service.priceInfo && (
                   <p className="text-xs text-gray-500 dark:text-gray-500 italic mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">{service.priceInfo}</p>
                 )}
-              </Link>
+              </div>
             ))}
           </div>
         </section>
@@ -107,7 +101,7 @@ export default function PortfolioPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.filter(p => p.type === 'domain').map((project) => (
-              <div key={project.id} className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden group transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125">
+              <div key={project.id} className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden group">
                 {project.imageUrl && (
                    <div className="relative w-full h-40 bg-gray-200 dark:bg-gray-700"> 
                     <Image 
@@ -176,8 +170,8 @@ export default function PortfolioPage() {
                 <span className="text-purple-500 dark:text-purple-400">#</span> Open Source / Development
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.filter(p => p.type === 'github').map((project) => (
-                    <div key={project.id} className="bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125">
+                {development.filter(p => p.type === 'github').map((project) => (
+                    <div key={project.id} className="bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col">
                         <h3 className="text-lg font-semibold text-black dark:text-white mb-1">{project.title}</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">{project.description}</p>
                         {project.status && (

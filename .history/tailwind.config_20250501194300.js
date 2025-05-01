@@ -9,10 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        // Map font-sans to Inter variable
-        sans: ['var(--font-inter)', 'sans-serif'], 
-        // Map font-mono to Fira Code variable
-        mono: ['var(--font-fira-code)', 'monospace'], 
+        mono: ['var(--font-fira-code)', 'monospace'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

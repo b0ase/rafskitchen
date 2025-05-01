@@ -63,7 +63,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
         {/* Services Section - Apply dark: variants */}
         <section id="services" className="mb-16 md:mb-24 scroll-mt-20">
           <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">

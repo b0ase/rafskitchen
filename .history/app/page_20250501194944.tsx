@@ -18,13 +18,12 @@ const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 
 
 export default function PortfolioPage() {
   // Filter projects by type (now using imported portfolioData)
-  // const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
-  // const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
+  const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
+  const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
 
   // Type assertion for projects and development arrays
   const projects = portfolioData.projects as any[];
-  // Correctly filter github projects here
-  // const development = portfolioData.development as any[] || [];
+  const development = portfolioData.development as any[] || [];
 
   return (
     <div className="flex flex-col">
@@ -63,7 +62,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
         {/* Services Section - Apply dark: variants */}
         <section id="services" className="mb-16 md:mb-24 scroll-mt-20">
           <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">
@@ -176,7 +174,7 @@ export default function PortfolioPage() {
                 <span className="text-purple-500 dark:text-purple-400">#</span> Open Source / Development
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.filter(p => p.type === 'github').map((project) => (
+                {development.filter(p => p.type === 'github').map((project) => (
                     <div key={project.id} className="bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125">
                         <h3 className="text-lg font-semibold text-black dark:text-white mb-1">{project.title}</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">{project.description}</p>

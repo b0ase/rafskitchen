@@ -18,7 +18,7 @@ export default function TokenPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col dark:bg-gradient-to-b dark:from-gray-950 dark:via-black dark:to-gray-950 dark:text-gray-300">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16 flex flex-col items-center">
-        <div className="text-center mb-8">
+        <div class="text-center mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-white dark:text-white mb-4">{tokenDetails.name} Token</h1>
             <p className="text-lg text-gray-300 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
                 {tokenDetails.description}
@@ -36,7 +36,19 @@ export default function TokenPage() {
         </div>
 
         {/* Iframe for Market Page */}
-        {/* ... iframe code ... */}
+        <div className="w-full max-w-6xl h-[70vh] border border-gray-700 dark:border-gray-700 shadow-lg mt-8">
+            <iframe
+                src={tokenDetails.marketUrl} 
+                title="$BOASE Token Market on 1Sat.Market"
+                width="100%"
+                height="100%"
+                className="border-0"
+                // Optional: Sandbox attributes for security if needed, but may break functionality
+                // sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+            >
+                Your browser does not support iframes.
+            </iframe>
+        </div>
       </main>
       <Footer />
     </div>

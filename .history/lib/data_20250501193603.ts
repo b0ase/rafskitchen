@@ -1,25 +1,19 @@
 import { Url } from "url";
 
 // Helper function to create project stubs
-const createProjectStub = (id: number, title: string, description: string, status?: string, tech?: string[], tokenName?: string, tokenProgressPercent?: number, imageUrl?: string, xUrl?: string, githubUrl?: string, notionUrl?: string) => {
-  // Ensure title is treated as a string
-  const safeTitle = (title || '').toLowerCase().replace('.com', '').replace('.ai', '').replace('.online', '').replace('.app', '').replace('.', '-');
-  const defaultStatus = status || 'Concept';
-  const defaultTech = tech || [];
-  const defaultTokenName = tokenName || '';
-  const defaultTokenProgress = tokenProgressPercent || 0;
-
+const createProjectStub = (id: number, title: string, description: string, status: string = 'Concept', tech: string[] = [], tokenName: string = '', tokenProgressPercent: number = 0, imageUrl?: string, xUrl?: string, githubUrl?: string, notionUrl?: string) => {
+  const safeTitle = title.toLowerCase().replace('.com', '').replace('.ai', '').replace('.online', '').replace('.app', '').replace('.', '-');
   return {
     id,
     title,
     description,
-    tech: defaultTech,
+    tech,
     githubUrl: githubUrl || `https://github.com/b0ase/${safeTitle}`,
     xUrl: xUrl || `https://x.com/${safeTitle}`,
     notionUrl: notionUrl || '#',
-    tokenName: defaultTokenName,
-    tokenProgressPercent: defaultTokenProgress,
-    status: defaultStatus,
+    tokenName,
+    tokenProgressPercent,
+    status,
     type: 'domain', // Default type, can be overridden
     imageUrl
   };
@@ -28,10 +22,8 @@ const createProjectStub = (id: number, title: string, description: string, statu
 // Define the structure for a Service
 interface Service {
   id: number;
-  slug: string;
   title: string;
   description: string;
-  detailedDescription: string;
   priceInfo?: string;
 }
 
@@ -226,78 +218,15 @@ export const portfolioData: PortfolioData = {
     // soft: ["Communication", "Problem Solving"] // Add soft skills here if desired
   },
   services: [
-    { 
-      id: 1, 
-      slug: "web-development", 
-      title: "Web Development", 
-      description: "Building responsive, performant websites and web applications using modern technologies.", 
-      detailedDescription: "Our web development process focuses on creating high-performance, scalable, and visually appealing digital experiences. We leverage modern frameworks like Next.js and React, combined with best practices in SEO, accessibility, and user experience. From simple landing pages to complex web applications and e-commerce platforms, we tailor solutions to meet specific business goals.",
-      priceInfo: "Est. Rate: £120/hr | £480/day. UK VAT added where applicable. Fixed-price projects negotiable."
-    },
-    { 
-      id: 2, 
-      slug: "content-copywriting",
-      title: "Content & Copywriting", 
-      description: "Crafting compelling narratives, articles, and website copy tailored to your audience.", 
-      detailedDescription: "We create engaging and SEO-optimized content that resonates with your target audience. Our services include blog posts, articles, website copy, social media content, email marketing campaigns, and more. We focus on clear communication and storytelling to enhance your brand voice.",
-      priceInfo: "Est. Rate: £100/article | £400/day" 
-    },
-    { 
-      id: 3, 
-      slug: "video-production",
-      title: "Video Production", 
-      description: "From concept and shooting to editing and final delivery for promotional or creative needs.",
-      detailedDescription: "Full-service video production covering concept development, storyboarding, filming, editing, color grading, motion graphics, and final delivery. We produce promotional videos, documentaries, interviews, social media clips, and more, using professional equipment and techniques.",
-      priceInfo: "Est. Rate: £110/hr | £450/day" 
-    },
-    { 
-      id: 4, 
-      slug: "logo-branding",
-      title: "Logo Design & Branding", 
-      description: "Crafting unique logos and visual identities that effectively represent your brand.", 
-      detailedDescription: "We develop strong visual identities, starting with logo design and extending to brand guidelines, color palettes, typography, and marketing collateral design. Our goal is to create a cohesive and memorable brand image that aligns with your values.",
-      priceInfo: "Est. Rate: £90/hr | Project-based" 
-    },
-    { 
-      id: 5, 
-      slug: "photography",
-      title: "Photography", 
-      description: "High-quality photography solutions for events, products, portraits, and more.", 
-      detailedDescription: "Professional photography services including event coverage, product photography, corporate headshots, lifestyle portraits, and architectural photography. We provide high-resolution images, expertly edited to meet your specific requirements.",
-      priceInfo: "Est. Rate: £100/hr | £400/day" 
-    },
-    { 
-      id: 6, 
-      slug: "seo-marketing",
-      title: "SEO & Digital Marketing", 
-      description: "Optimizing online presence and content strategy to drive organic growth.", 
-      detailedDescription: "Comprehensive SEO services including keyword research, on-page optimization, technical SEO audits, link building, and content strategy development. We also offer broader digital marketing support, including PPC campaign management and analytics reporting.",
-      priceInfo: "Est. Rate: £110/hr | £450/day" 
-    },
-    { 
-      id: 7, 
-      slug: "social-media-management",
-      title: "Social Media Management", 
-      description: "Developing strategies, creating content, and managing social media presence to grow engagement and reach.", 
-      detailedDescription: "Strategic social media management across various platforms. We handle content creation, scheduling, community engagement, performance tracking, and paid social advertising campaigns to build brand awareness and drive results.",
-      priceInfo: "Est. Rate: £90/hr | Retainer" 
-    },
-    { 
-      id: 8, 
-      slug: "technical-consulting",
-      title: "Technical Consulting", 
-      description: "Providing expert advice and strategy for your digital projects and technical challenges.",
-      detailedDescription: "Leverage our technical expertise for strategic decision-making. We offer consulting on technology stack selection, software architecture design, project planning, feasibility studies, and technical team guidance.", 
-      priceInfo: "Est. Rate: £150/hr" 
-    },
-    { 
-      id: 9, 
-      slug: "support-maintenance",
-      title: "Ongoing Support & Maintenance", 
-      description: "Reliable support packages to keep your digital assets running smoothly and securely.",
-      detailedDescription: "Customizable support and maintenance plans to ensure your websites and applications remain secure, up-to-date, and performant. Services include regular updates, security monitoring, backups, performance checks, and troubleshooting.", 
-      priceInfo: "Est. Rate: Retainer based" 
-    }
+    { id: 1, title: 'Web Development', description: 'Building responsive, performant websites and web applications using modern technologies.', priceInfo: 'Est. Rate: £120/hr | £480/day. UK VAT added where applicable. Fixed-price projects negotiable.' },
+    { id: 2, title: 'Content & Copywriting', description: 'Crafting compelling narratives, articles, and website copy tailored to your audience.', priceInfo: 'Est. Rate: £100/article | £400/day' },
+    { id: 3, title: 'Video Production', description: 'From concept and shooting to editing and final delivery for promotional or creative needs.', priceInfo: 'Est. Rate: £110/hr | £450/day' },
+    { id: 4, title: 'Logo Design & Branding', description: 'Crafting unique logos and visual identities that effectively represent your brand.', priceInfo: 'Est. Rate: £90/hr | Project-based' },
+    { id: 5, title: 'Photography', description: 'High-quality photography solutions for events, products, portraits, and more.', priceInfo: 'Est. Rate: £100/hr | £400/day' },
+    { id: 6, title: 'SEO & Digital Marketing', description: 'Optimizing online presence and content strategy to drive organic growth.', priceInfo: 'Est. Rate: £110/hr | £450/day' },
+    { id: 7, title: 'Social Media Management', description: 'Developing strategies, creating content, and managing social media presence to grow engagement and reach.', priceInfo: 'Est. Rate: £90/hr | Retainer' },
+    { id: 8, title: 'Technical Consulting', description: 'Providing expert advice and strategy for your digital projects and technical challenges.', priceInfo: 'Est. Rate: £150/hr' },
+    { id: 9, title: 'Ongoing Support & Maintenance', description: 'Reliable support packages to keep your digital assets running smoothly and securely.', priceInfo: 'Est. Rate: Retainer based' }
   ],
   contact: {
     email: "richardwboase@gmail.com"

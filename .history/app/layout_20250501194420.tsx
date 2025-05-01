@@ -33,31 +33,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${fira_code.variable}`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                function getInitialTheme() {
-                  try {
-                    const storedTheme = window.localStorage.getItem('theme');
-                    if (storedTheme) return storedTheme;
-                    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  } catch (e) {
-                    // If localStorage is unavailable (e.g., cookies disabled or SSR)
-                    return 'light'; // Default to light theme
-                  }
-                }
-                const theme = getInitialTheme();
-                if (theme === 'dark') {
-                  document.documentElement.classList.add('dark');
-                }
-              })();
-            `,
-          }}
-        />
-        {/* Other head elements like meta tags will be injected by Next.js here */}
-      </head>
       {/* Apply default font (Inter) via font-sans class */}
       <body className={`font-sans`}>
         {/* Wrap children with ThemeProvider */}
