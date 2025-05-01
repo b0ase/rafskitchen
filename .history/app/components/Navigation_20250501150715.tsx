@@ -9,13 +9,12 @@ export default function Navigation() {
   // Define navigation links for the portfolio
   const navLinks = [
     { name: 'About', href: '#about' },
-    { name: 'Services', href: '#services' },
-    { name: 'Skills', href: '#skills' },
     { name: 'Projects', href: '#projects' },
-    { name: 'Development', href: '#development' },
+    { name: 'Skills', href: '#skills' },
+    { name: 'Services', href: '#services' },
     { name: 'Contact', href: '#contact' },
-    { name: 'Studio', href: '/studio' },
-    { name: 'Token', href: '/token' },
+    { name: 'Studio', href: '/studio' }, // Add link to Studio page
+    { name: 'Token', href: '/token' }, // Add link to Token page
   ];
 
   return (

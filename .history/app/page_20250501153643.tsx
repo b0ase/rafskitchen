@@ -32,7 +32,7 @@ const createProjectStub = (id: number, title: string, description: string, statu
 const portfolioData = {
   about: {
     name: 'b0ase',
-    bio: "b0ase is a digital agency specializing in bringing ideas to life across web development, blockchain, creative media, and content strategy. We offer a comprehensive suite of services to clients while also incubating our own innovative projects. Explore our capabilities, discover our ongoing development work, and get in touch to discuss how we can help build your next digital venture.",
+    bio: 'Exploring and developing diverse digital projects, from web applications and blockchain concepts to creative media. This space showcases works-in-progress, past experiments, and future ideas. Seeking collaboration and support to bring promising concepts to fruition. Also providing technical and creative services for clients.',
     links: {
       github: 'https://github.com/b0ase',
       linkedin: 'https://www.linkedin.com/in/richardboase/',

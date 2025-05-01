@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, IBM_Plex_Mono } from "next/font/google";
+import { Inter, IBM_Plex_Mono, Fira_Code } from "next/font/google";
 import "./globals.css";
 // import { MenuProvider } from './context/MenuContext'; // Remove MenuProvider for now
 
@@ -15,6 +15,13 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-ibm-plex-mono' // Variable for the mono font
 });
 
+// Configure Fira Code
+const firaCode = Fira_Code({
+  subsets: ["latin"],
+  weight: ['400', '700'], // Include regular and bold weights
+  variable: '--font-fira-code' // Assign CSS variable
+});
+
 export const metadata: Metadata = {
   title: "b0ase.com | Digital Agency", // Updated browser tab title
   description: "A digital agency offering web development, blockchain solutions, creative media services, and incubating innovative projects.", // Updated description
@@ -26,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${ibmPlexMono.variable} ${firaCode.variable}`}>
       <head>
         {/* Keep viewport settings, remove others if not needed */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />

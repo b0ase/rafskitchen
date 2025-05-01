@@ -32,7 +32,7 @@ const createProjectStub = (id: number, title: string, description: string, statu
 const portfolioData = {
   about: {
     name: 'b0ase',
-    bio: "b0ase is a digital agency specializing in bringing ideas to life across web development, blockchain, creative media, and content strategy. We offer a comprehensive suite of services to clients while also incubating our own innovative projects. Explore our capabilities, discover our ongoing development work, and get in touch to discuss how we can help build your next digital venture.",
+    bio: 'Exploring and developing diverse digital projects, from web applications and blockchain concepts to creative media. This space showcases works-in-progress, past experiments, and future ideas. Seeking collaboration and support to bring promising concepts to fruition. Also providing technical and creative services for clients.',
     links: {
       github: 'https://github.com/b0ase',
       linkedin: 'https://www.linkedin.com/in/richardboase/',
@@ -168,14 +168,13 @@ export default function PortfolioPage() {
         {/* Remove placeholder H1 */}
         {/* <h1 className="text-3xl font-bold text-white mb-6">Portfolio Page</h1> */}
 
-        {/* Add About Me Section back - Update to Light Theme */}
+        {/* Add About Me Section back - Technical Layout */}
         <section 
           id="about" 
-          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-white shadow-lg max-w-4xl border border-gray-300"
+          className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-900 shadow-lg max-w-4xl"
         >
-          {/* Update text to dark */}
-          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-gray-900 font-mono">{portfolioData.about.name}</h1> 
-          <p className="text-base md:text-lg text-gray-700 mb-6 leading-relaxed">{portfolioData.about.bio}</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-5 text-white font-mono">{portfolioData.about.name}</h1> 
+          <p className="text-base md:text-lg text-gray-300 mb-6 leading-relaxed">{portfolioData.about.bio}</p>
           <div className="flex space-x-6">
             {Object.entries(portfolioData.about.links).map(([key, value]) => (
               <a 
@@ -183,24 +182,22 @@ export default function PortfolioPage() {
                 href={value} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                 // Update link colors
-                className="text-gray-600 hover:text-black underline transition-colors duration-200 text-lg"
+                className="text-gray-400 hover:text-white underline transition-colors duration-200 text-lg"
               >
                 {key.charAt(0).toUpperCase() + key.slice(1)}
               </a>
             ))}
           </div>
-          {/* Update Token Info Display for Light Theme */}
+          {/* Add Token Info Display */}
           {portfolioData.about.token && (
-            <div className="mt-6 pt-4 border-t border-gray-200 flex items-center space-x-4">
-              <span className="text-lg font-semibold text-gray-900">{portfolioData.about.token.name}</span>
-              <span className="text-sm text-gray-500">({portfolioData.about.token.platform})</span>
+            <div className="mt-6 pt-4 border-t border-gray-700 flex items-center space-x-4">
+              <span className="text-lg font-semibold text-white">{portfolioData.about.token.name}</span>
+              <span className="text-sm text-gray-400">({portfolioData.about.token.platform})</span>
               <a 
                 href={portfolioData.about.token.marketUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                 // Update link colors
-                className="text-blue-600 hover:text-blue-800 underline transition-colors duration-200 flex items-center text-sm"
+                className="text-blue-400 hover:text-blue-300 underline transition-colors duration-200 flex items-center text-sm"
               >
                 View Market
                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -232,8 +229,7 @@ export default function PortfolioPage() {
             {portfolioData.skills.map((skill) => (
               <span 
                 key={skill} 
-                // Use light gray bg and dark text for badges
-                className="bg-gray-200 text-gray-800 text-sm font-medium px-3 py-1 shadow-sm border border-gray-300"
+                className="bg-gradient-to-r from-gray-800 to-gray-700 text-gray-300 text-sm font-medium px-3 py-1 shadow-md"
               >
                 {skill}
               </span>
@@ -426,44 +422,42 @@ export default function PortfolioPage() {
         </section>
 
         {/* ===== Contact Section ===== */}
-        <section id="contact" className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-50 shadow-lg border border-gray-200">
-          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-300 pb-2 text-gray-900">Contact</h2>
+        <section id="contact" className="mb-16 scroll-mt-16 p-6 md:p-8 bg-gray-900 shadow-lg">
+          <h2 className="text-3xl font-semibold mb-6 border-b border-gray-800 pb-2 text-white">Contact</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Update Contact Info Text */}
+            {/* Contact Info */}
             <div>
-              <p className="text-lg text-gray-700 mb-4">
+              <p className="text-lg text-gray-300 mb-4">
                 Interested in collaborating or need my services? Reach out:
               </p>
               <div className="space-y-3">
-                 <p className="text-gray-600 flex items-center">
+                 <p className="text-gray-400 flex items-center">
                   <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                  {/* Update link colors */}
-                  <a href="mailto:richardwboase@gmail.com" className="text-blue-600 hover:text-blue-800 underline">richardwboase@gmail.com</a>
-                 </p>
-                 <p className="text-gray-600 flex items-center">
-                   <svg className="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.684 10.64C17.856 10.03 18 9.388 18 8.71c0-1.9-.833-3.606-2.177-4.812a6.14 6.14 0 00-4.738-2.016C8.688 1.882 6.76 3.35 6.08 5.434 5.737 6.53 6.01 7.71 6.67 8.613c.52.704 1.23 1.24 2.052 1.588.821.348 1.71.445 2.554.264l.286-.063c.948-.208 1.81-.72 2.492-1.438.213-.222.396-.47.546-.732l.44-.763-.017-.03zM4.316 9.36c-.172.61-.316 1.252-.316 1.93 0 1.9.833 3.606 2.177 4.812a6.14 6.14 0 004.738 2.016c2.398 0 4.326-1.468 5.006-3.554.344-1.104.07-2.284-.59-3.188-.52-.704-1.23-1.24-2.052-1.588-.821-.348-1.71-.445-2.554-.264l-.286.063c-.948.208-1.81.72-2.492 1.438-.213-.222-.396-.47-.546-.732l-.44.763.017.03z"></path></svg>
-                   {/* Update link colors */}
-                    <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">WhatsApp: +44 (0)7412 922288</a>
-                 </p>
+                  <a href="mailto:richardwboase@gmail.com" className="hover:text-white hover:underline">richardwboase@gmail.com</a>
+                </p>
+                <p className="text-gray-400 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.684 10.64C17.856 10.03 18 9.388 18 8.71c0-1.9-.833-3.606-2.177-4.812a6.14 6.14 0 00-4.738-2.016C8.688 1.882 6.76 3.35 6.08 5.434 5.737 6.53 6.01 7.71 6.67 8.613c.52.704 1.23 1.24 2.052 1.588.821.348 1.71.445 2.554.264l.286-.063c.948-.208 1.81-.72 2.492-1.438.213-.222-.396.47-.546-.732l-.44.763.017.03zM4.316 9.36c-.172.61-.316 1.252-.316 1.93 0 1.9.833 3.606 2.177 4.812a6.14 6.14 0 004.738 2.016c2.398 0 4.326-1.468 5.006-3.554.344-1.104.07-2.284-.59-3.188-.52-.704-1.23-1.24-2.052-1.588-.821-.348-1.71-.445-2.554-.264l-.286.063c-.948.208-1.81.72-2.492 1.438-.213-.222-.396.47-.546-.732l-.44.763.017.03z"></path></svg>
+                   <a href="https://wa.me/447412922288" target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">WhatsApp: +44 (0)7412 922288</a>
+                </p>
               </div>
             </div>
             
-            {/* Update Contact Form for Light Theme */}
+            {/* Contact Form */}
             <form onSubmit={(e) => { e.preventDefault(); alert('Form submission placeholder'); }}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" id="name" name="name" required className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm" />
+                <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">Name</label>
+                <input type="text" id="name" name="name" required className="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none" />
               </div>
               <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" id="email" name="email" required className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm" />
+                <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                <input type="email" id="email" name="email" required className="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none" />
               </div>
               <div className="mb-4">
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                <textarea id="message" name="message" rows={4} required className="w-full px-3 py-2 bg-white border border-gray-300 text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"></textarea>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-1">Message</label>
+                <textarea id="message" name="message" rows={4} required className="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"></textarea>
               </div>
-              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 transition duration-300 shadow-md">
+              <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 transition duration-300">
                 Send Message
               </button>
             </form>
