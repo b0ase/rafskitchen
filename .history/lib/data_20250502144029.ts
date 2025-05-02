@@ -121,7 +121,7 @@ export const portfolioData: PortfolioData = {
     { ...createProjectStub(7, 'ninjapunkgirls.com', 'A vibrant NFT marketplace showcasing unique digital art of cyberpunk female warriors.', 'Ltd Company', [], '$NPG', 85, [
       '/images/clientprojects/ninjapunkgirls/slug/NPG%20logo.png'
     ]), type: 'domain' as const },
-    { ...createProjectStub(8, 'hyper-flix.com', 'Innovative memecoin marketing platform specializing in viral TikTok campaigns and social engagement.', 'B2C', ['TikTok', 'Social Media', 'Crypto'], '$HFLIX', 100, ['/images/clientprojects/hyper-flix/slug/HYPERFLIXLOGO%20(1).png']), type: 'domain' as const },
+    { ...createProjectStub(8, 'hyper-flix.com', 'Next-gen streaming platform featuring curated indie films and experimental content.', 'B2C', [], '$HFLIX', 100, ['/images/clientprojects/hyper-flix/slug/HYPERFLIXLOGO%20(1).png']), type: 'domain' as const },
     { ...createProjectStub(9, 'tribify.ai', 'AI-powered community platform that connects like-minded individuals through shared interests.', 'SaaS', [], '$TRIBE', 100, ['/images/clientprojects/tribify/slug/TribifyAILogo.JPG']), type: 'domain' as const },
     { ...createProjectStub(10, 'aitribes.online', 'Dynamic social network where AI agents and humans collaborate to create unique digital experiences.', 'Platform', [], '$AITR', 100, []), type: 'domain' as const },
     { ...createProjectStub(11, 'lilithtattoo.com', 'Elegant portfolio showcase for a renowned tattoo artist specializing in dark art and mystical designs.', 'Service', [], '$LILITH', 100, []), type: 'domain' as const },
