@@ -22,12 +22,17 @@ export default function PortfolioPage() {
   const projects: Project[] = portfolioData.projects as Project[];
   const [isAboutVisible, setIsAboutVisible] = useState(false);
   const [hoveredProjectId, setHoveredProjectId] = useState<number | null>(null);
+  const [showAnimation, setShowAnimation] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAboutVisible(true);
-    }, 100);
-    return () => clearTimeout(timer);
+    const hasPlayed = typeof window !== 'undefined' && localStorage.getItem('b0ase_animation_played');
+    setIsAboutVisible(true); // Start fade-in immediately
+    if (hasPlayed) {
+      setShowAnimation(false);
+    } else {
+      setShowAnimation(true); // Start animation immediately
+      localStorage.setItem('b0ase_animation_played', 'true');
+    }
   }, []);
 
   return (
@@ -37,23 +42,35 @@ export default function PortfolioPage() {
         <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
           {/* Apply transition and opacity classes */}
           <div className={`bg-white dark:bg-black p-6 md:p-8 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl 
-                         transition-opacity duration-700 ease-in-out ${isAboutVisible ? 'opacity-100' : 'opacity-0'}`}>
+                         transition-opacity duration-300 ease-in-out ${isAboutVisible ? 'opacity-100' : 'opacity-0'}`}>
             <h1 className="relative text-3xl md:text-4xl text-black dark:text-white mb-4 font-mono min-h-[2.5rem]">
                 <span className="invisible">{portfolioData.about.name}</span>
-                <span className="absolute inset-0">
-                  <CharacterCycle text={portfolioData.about.name} cycleDuration={40} />
+                <span className="absolute inset-0 transition-none">
+                  {showAnimation ? (
+                    <CharacterCycle text={portfolioData.about.name} cycleDuration={15} />
+                  ) : (
+                    portfolioData.about.name
+                  )}
                 </span>
             </h1>
             <p className="relative text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-4">
               <span className="invisible">{portfolioData.about.tagline}</span>
-              <span className="absolute inset-0">
-                <CharacterCycle text={portfolioData.about.tagline} cycleDuration={20} />
+              <span className="absolute inset-0 transition-none">
+                {showAnimation ? (
+                  <CharacterCycle text={portfolioData.about.tagline} cycleDuration={10} />
+                ) : (
+                  portfolioData.about.tagline
+                )}
               </span>
             </p>
             <p className="relative text-base text-gray-600 dark:text-gray-400 mb-6 whitespace-pre-line">
                <span className="invisible">{portfolioData.about.bio}</span>
-               <span className="absolute inset-0">
-                 <CharacterCycle text={portfolioData.about.bio} cycleDuration={5} />
+               <span className="absolute inset-0 transition-none">
+                 {showAnimation ? (
+                   <CharacterCycle text={portfolioData.about.bio} cycleDuration={5} />
+                 ) : (
+                   portfolioData.about.bio
+                 )}
                 </span>
             </p>
             <div className="flex space-x-4 mb-6">
@@ -284,6 +301,8 @@ export default function PortfolioPage() {
         </section>
 
       </main>
+
+      <Footer />
     </div>
   );
 }

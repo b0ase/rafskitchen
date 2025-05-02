@@ -2,7 +2,6 @@
 
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation'; // Use App Router's router
-import { portfolioData } from '@/lib/data'; // Use path alias
 
 // --- VERY INSECURE - Placeholder Hardcoded Passwords --- 
 // Replace with secure auth method before production/real clients.
