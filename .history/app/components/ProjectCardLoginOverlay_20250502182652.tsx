@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Project } from '@/lib/data';
 import { FaExternalLinkAlt, FaLock, FaInfoCircle } from 'react-icons/fa';
 import Link from 'next/link';
-import { projectPasswords } from '@/lib/clientPasswords';
+import { projectPasswords } from '@/app/login/page';
 
 interface ProjectCardLoginOverlayProps {
   project: Project;

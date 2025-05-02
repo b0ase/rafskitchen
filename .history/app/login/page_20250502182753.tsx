@@ -3,7 +3,6 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation'; // Use App Router's router
 import { portfolioData } from '@/lib/data'; // Use path alias
-import { projectPasswords } from '@/lib/clientPasswords';
 
 export default function LoginPage() {
   const [selectedProject, setSelectedProject] = useState<string>('');

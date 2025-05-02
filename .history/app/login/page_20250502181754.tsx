@@ -3,7 +3,26 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation'; // Use App Router's router
 import { portfolioData } from '@/lib/data'; // Use path alias
-import { projectPasswords } from '@/lib/clientPasswords';
+
+// --- VERY INSECURE - Placeholder Hardcoded Passwords --- 
+// Replace with secure auth method before production/real clients.
+const projectPasswords: { [key: string]: string } = {
+  'ninjapunkgirls.com': 'password_npg', // Example
+  'hyper-flix.com': 'password_hf',
+  'tribify.ai': 'password_tribify',
+  // Add entries for ALL domain projects you want logins for
+  'aitribes.online': 'password_ait',
+  'lilithtattoo.com': 'password_lilith',
+  'metagraph.app': 'password_meta',
+  'floop.online': 'password_floop',
+  'dns-dex.com': 'password_dns',
+  'tribeswallet.com': 'password_tw',
+  'pennypics.store': 'password_pp',
+  'missvoid.store': 'password_mv',
+  'interiordesigns.website': 'password_idw',
+  'robust-ae.com': 'Robust123',
+};
+// --- End Insecure Placeholder --- 
 
 export default function LoginPage() {
   const [selectedProject, setSelectedProject] = useState<string>('');

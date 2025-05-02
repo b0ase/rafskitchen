@@ -3,7 +3,26 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation'; // Use App Router's router
 import { portfolioData } from '@/lib/data'; // Use path alias
-import { projectPasswords } from '@/lib/clientPasswords';
+
+// --- VERY INSECURE - Placeholder Hardcoded Passwords --- 
+// Replace with secure auth method before production/real clients.
+const projectPasswords: { [key: string]: string } = {
+  'ninjapunkgirls.com': 'password_npg', // Example
+  'hyper-flix.com': 'password_hf',
+  'tribify.ai': 'password_tribify',
+  // Add entries for ALL domain projects you want logins for
+  'aitribes.online': 'password_ait',
+  'lilithtattoo.com': 'password_lilith',
+  'metagraph.app': 'password_meta',
+  'floop.online': 'password_floop',
+  'dns-dex.com': 'password_dns',
+  'tribeswallet.com': 'password_tw',
+  'pennypics.store': 'password_pp',
+  'missvoid.store': 'password_mv',
+  'interiordesigns.website': 'password_idw',
+  'robust-ae.com': 'Robust123',
+};
+// --- End Insecure Placeholder --- 
 
 export default function LoginPage() {
   const [selectedProject, setSelectedProject] = useState<string>('');
@@ -22,13 +41,16 @@ export default function LoginPage() {
 
     if (selectedProject && password && expectedPassword && password === expectedPassword) {
       console.log('Login successful for:', selectedProject);
-      // Find the selected project object
-      const project = domainProjects.find((p) => p.title === selectedProject);
-      if (project && project.slug) {
-        router.push(`/projects/${project.slug}`);
-      } else {
-        setError('Project not found.');
-      }
+      
+      // Create slug for redirection
+      const projectSlug = selectedProject.toLowerCase()
+                                     .replace(/\.com|\.ai|\.online|\.app|\.store|\.website/g, '') 
+                                     .replace(/[^a-z0-9\s-]/g, '') 
+                                     .replace(/\s+/g, '-') 
+                                     .replace(/-+/g, '-'); 
+      
+      // Redirect to the dynamic project page
+      router.push(`/projects/${projectSlug}`); 
     } else if (!selectedProject) {
        setError('Please select a project.');
     } else {
