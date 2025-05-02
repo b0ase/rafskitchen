@@ -118,7 +118,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Projects (Domains) Section */}
+        {/* Projects (Domains) Section - Apply dark: variants */}
         <section id="projects" className="mb-16 md:mb-24 scroll-mt-20">
           <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">
             &lt;ClientProjects&gt;
@@ -166,7 +166,7 @@ export default function PortfolioPage() {
                   )}
                   <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <div className="flex space-x-3 items-center">
-                      {project.githubUrl && project.githubUrl !== '#' && (
+                      {project.githubUrl && (
                         <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors" title="View Repository">
                           <FaGithub size={16} />
                         </a>
@@ -188,40 +188,40 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Development (GitHub Repos) Section */}
+        {/* Development (GitHub Repos) Section - Apply dark: variants */}
         <section id="development" className="mb-16 md:mb-24 scroll-mt-20">
-          <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">
-            <span className="text-purple-500 dark:text-purple-400">#</span> Open Source / Development
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.filter(p => p.type === 'github').map((project) => (
-              <div key={project.id} className="bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125">
-                <h3 className="text-lg font-semibold text-black dark:text-white mb-1">{project.title}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">{project.description}</p>
-                {project.status && (
-                  <span className={`text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max border
-                    ${project.status === 'Live' ? 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-300' : 
-                     project.status === 'Archived' ? 'bg-gray-100 border-gray-300 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400' : 
-                     'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-300'}
-                  `}>
-                    {project.status}
-                  </span>
-                )}
-                <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700 flex space-x-3">
-                  {project.githubUrl && project.githubUrl !== '#' && (
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors" title="View Repository">
-                      <FaGithub size={16}/>
-                    </a>
-                  )}
-                  {project.xUrl && project.xUrl !== '#' && (
-                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" title="Visit X Profile">
-                      <FaExternalLinkAlt size={16}/>
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-black dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">
+                <span className="text-purple-500 dark:text-purple-400">#</span> Open Source / Development
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.filter(p => p.type === 'github').map((project) => (
+                    <div key={project.id} className="bg-white dark:bg-black p-6 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125">
+                        <h3 className="text-lg font-semibold text-black dark:text-white mb-1">{project.title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">{project.description}</p>
+                        {project.status && (
+                           <span className={`text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max border
+                           ${project.status === 'Live' ? 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-300' : 
+                           project.status === 'Archived' ? 'bg-gray-100 border-gray-300 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400' : 
+                           'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-300'}
+                           `}>
+                           {project.status}
+                           </span>
+                        )}
+                        <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700 flex space-x-3">
+                            {project.githubUrl && (
+                                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors" title="View Repository">
+                                    <FaGithub size={16}/>
+                                </a>
+                            )}
+                            {project.xUrl && (
+                                <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" title="Visit X Profile">
+                                    <FaExternalLinkAlt size={16}/>
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </section>
 
         {/* Contact Section - Apply dark: variants */}
