@@ -39,6 +39,16 @@ export default function TokenPage() {
             <p className="text-lg text-gray-300 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
                 {tokenDetails.description}
             </p>
+            {tokenDetails.marketUrl && tokenDetails.marketUrl !== '#' && (
+                <a 
+                    href={tokenDetails.marketUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-block px-6 py-2 bg-blue-700 text-white font-medium hover:bg-blue-600 transition-colors shadow-md mb-4"
+                >
+                    View on 1Sat Market
+                </a>
+            )}
             <div className="flex flex-row gap-4 justify-center mt-4">
               {tokenDetails.marketUrl && tokenDetails.marketUrl !== '#' && (
                 <a 
@@ -135,16 +145,7 @@ export default function TokenPage() {
                 &times;
               </button>
               <h2 className="text-xl font-bold mb-4 text-black dark:text-white">Staking (Coming Soon)</h2>
-              <button
-                className="w-full mb-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-300 transition-colors shadow"
-                onClick={() => alert('HandCash login integration coming soon!')}
-              >
-                Login with HandCash
-              </button>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Staking <b>$BOASE</b> tokens entitles stakers to receive dividends of revenue received by the <b>$BOASE</b> wallet handle.<br/>
-                Staking functionality will be available soon. Please check back later for updates on how to stake your $BOASE tokens and earn rewards.
-              </p>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">Staking functionality will be available soon. Please check back later for updates on how to stake your $BOASE tokens and earn rewards.</p>
             </div>
           </div>
         )}

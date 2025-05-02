@@ -13,7 +13,6 @@ const tokenDetails = {
 
 export default function TokenPage() {
   const [showKycModal, setShowKycModal] = useState(false);
-  const [showStakingModal, setShowStakingModal] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploadMessage, setUploadMessage] = useState('');
 
@@ -39,28 +38,22 @@ export default function TokenPage() {
             <p className="text-lg text-gray-300 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
                 {tokenDetails.description}
             </p>
-            <div className="flex flex-row gap-4 justify-center mt-4">
-              {tokenDetails.marketUrl && tokenDetails.marketUrl !== '#' && (
+            {tokenDetails.marketUrl && tokenDetails.marketUrl !== '#' && (
                 <a 
                     href={tokenDetails.marketUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="px-6 py-2 bg-blue-700 text-white font-medium hover:bg-blue-600 transition-colors shadow-md rounded"
+                    className="inline-block px-6 py-2 bg-blue-700 text-white font-medium hover:bg-blue-600 transition-colors shadow-md mb-4"
                 >
                     View on 1Sat Market
                 </a>
-              )}
+            )}
+            <div>
               <button
                 onClick={() => setShowKycModal(true)}
-                className="px-6 py-2 bg-green-700 text-white font-medium hover:bg-green-600 transition-colors shadow-md rounded"
+                className="mt-4 px-6 py-2 bg-green-700 text-white font-medium hover:bg-green-600 transition-colors shadow-md rounded"
               >
                 KYC Verification
-              </button>
-              <button
-                onClick={() => setShowStakingModal(true)}
-                className="px-6 py-2 bg-blue-700 text-white font-medium hover:bg-blue-600 transition-colors shadow-md rounded"
-              >
-                Staking
               </button>
             </div>
         </div>
@@ -116,35 +109,8 @@ export default function TokenPage() {
                 {uploadMessage && <p className="text-green-600 dark:text-green-400 text-center mt-2">{uploadMessage}</p>}
               </form>
               <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                All submitted documents will be held offline, securely, and encrypted, in compliance with GDPR.<br/>
                 Alternatively, <a href="#" className="underline hover:text-green-700">connect to Joomla</a> to complete KYC.
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Staking Modal */}
-        {showStakingModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-            <div className="bg-white dark:bg-gray-900 p-8 rounded shadow-lg max-w-md w-full relative">
-              <button
-                onClick={() => setShowStakingModal(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white text-xl"
-                aria-label="Close"
-              >
-                &times;
-              </button>
-              <h2 className="text-xl font-bold mb-4 text-black dark:text-white">Staking (Coming Soon)</h2>
-              <button
-                className="w-full mb-4 px-4 py-2 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-300 transition-colors shadow"
-                onClick={() => alert('HandCash login integration coming soon!')}
-              >
-                Login with HandCash
-              </button>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Staking <b>$BOASE</b> tokens entitles stakers to receive dividends of revenue received by the <b>$BOASE</b> wallet handle.<br/>
-                Staking functionality will be available soon. Please check back later for updates on how to stake your $BOASE tokens and earn rewards.
-              </p>
             </div>
           </div>
         )}

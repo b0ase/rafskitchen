@@ -111,7 +111,7 @@ export const portfolioData: PortfolioData = {
     token: {
       name: '$BOASE',
       ticker: 'BSV21',
-      description: "$BOASE is a regulated share in Boase Corporation. Shares may be tokenized on any blockchain, and can be redeemed and reissued on any chain at the company's discretion.",
+      description: 'Dividend-bearing share in the Boase Corporation and a regulated security.',
       platform: 'BSV21',
       marketLink: 'https://1sat.market/market/bsv21/c3bf2d7a4519ddc633bc91bbfd1022db1a77da71e16bb582b0acc0d8f7836161_1'
     }
