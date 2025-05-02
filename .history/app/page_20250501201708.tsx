@@ -28,11 +28,12 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex flex-col">
+      <Header />
       <main className="container mx-auto px-4 py-12 md:py-16 flex-grow">
         {/* About Section - Apply dark: variants */}
         <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
           <div className="bg-white dark:bg-black p-6 md:p-8 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl">
-            <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4 font-mono">
+            <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4 font-mono min-h-[2.5rem]">
                 <CharacterCycle text={portfolioData.about.name} cycleDuration={40} />
             </h1>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-4">{portfolioData.about.tagline}</p>

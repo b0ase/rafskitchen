@@ -4,6 +4,9 @@ import { Inter, Fira_Code } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+// Import new nav components
+import SubNavigation from "./components/SubNavigation";
+import ExternalNavigation from "./components/ExternalNavigation";
 // Import ThemeProvider
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -61,14 +64,12 @@ export default function RootLayout({
       {/* Apply default font (Inter) via font-sans class */}
       <body className={`font-sans`}>
         <ThemeProvider>
-          {/* Header and Footer MUST be outside ThemeProvider or siblings to {children} to wrap content */}
-          <Header />
-          <div className="flex flex-col min-h-screen"> {/* Optional wrapper for main content flex */} 
-            <main className="flex-grow">
-              {children} 
-            </main>
-          </div>
-          <Footer />
+          <Header /> 
+          <SubNavigation />
+          <ExternalNavigation />
+          {/* Main content pushed down by sticky navs */} 
+          {children}
+          <Footer /> 
         </ThemeProvider>
       </body>
     </html>

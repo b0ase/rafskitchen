@@ -1,0 +1,33 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
+const sections = [
+  { name: 'About', href: '/#about' },
+  { name: 'Services', href: '/#services' },
+  { name: 'Skills', href: '/#skills' },
+  { name: 'Client Projects', href: '/#projects' }, // Renamed for clarity
+  { name: 'Development', href: '/#development' },
+  { name: 'Contact', href: '/#contact' },
+];
+
+export default function SubNavigation() {
+  return (
+    // Hidden on mobile (e.g., hidden md:flex), shown on desktop
+    // Adjust sticky top value based on Header height
+    <nav className="hidden md:flex sticky top-[60px] z-30 w-full bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 shadow-sm px-4">
+      <div className="container mx-auto flex justify-center items-center h-12 space-x-6">
+        {sections.map((section) => (
+          <Link 
+            key={section.name}
+            href={section.href}
+            className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+          >
+            {section.name}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+} 
