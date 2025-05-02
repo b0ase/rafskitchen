@@ -1,7 +1,7 @@
 import { Url } from "url";
 
 // Helper function to create project stubs
-const createProjectStub = (id: number, title: string, description: string, status?: string, tech?: string[], tokenName?: string, tokenProgressPercent?: number, imageUrl?: string, xUrl?: string, githubUrl?: string, notionUrl?: string) => {
+const createProjectStub = (id: number, title: string, description: string, status?: string, tech?: string[], tokenName?: string, tokenProgressPercent?: number, cardImageUrls?: string[], xUrl?: string, githubUrl?: string, notionUrl?: string) => {
   // Ensure title is treated as a string for slug generation
   const safeTitle = (title || ''); 
   const slug = safeTitle.toLowerCase().replace(/\s+/g, '-') // Replace spaces with hyphens
@@ -12,6 +12,7 @@ const createProjectStub = (id: number, title: string, description: string, statu
   const defaultTech = tech || [];
   const defaultTokenName = tokenName || '';
   const defaultTokenProgress = tokenProgressPercent || 0;
+  const defaultCardImageUrls = cardImageUrls || []; // Default to empty array
 
   return {
     id,
@@ -26,7 +27,7 @@ const createProjectStub = (id: number, title: string, description: string, statu
     tokenProgressPercent: defaultTokenProgress,
     status: defaultStatus,
     type: 'domain', // Default type, can be overridden
-    imageUrl
+    cardImageUrls: defaultCardImageUrls // Use the new array field
   };
 };
 
@@ -54,7 +55,7 @@ export interface Project {
   tokenProgressPercent?: number;
   status: string;
   type: 'domain' | 'github';
-  imageUrl?: string;
+  cardImageUrls?: string[]; // Changed from imageUrl to cardImageUrls
   tokenMarketUrl?: string; // Added for specific projects
   tokenPlatform?: string; // Added for specific projects
 }
@@ -117,18 +118,20 @@ export const portfolioData: PortfolioData = {
   },
   projects: [
     // Domain Projects
-    { ...createProjectStub(7, 'ninjapunkgirls.com', 'Concept for Ninja Punk Girls project.', 'Ltd Company', [], '$NPG', 85), type: 'domain' as const },
-    { ...createProjectStub(8, 'hyper-flix.com', 'Concept for Hyper-Flix project.', 'B2C', [], '$HFLIX', 100), type: 'domain' as const },
-    { ...createProjectStub(9, 'tribify.ai', 'Concept for Tribify AI project.', 'SaaS', [], '$TRIBE', 100), type: 'domain' as const },
-    { ...createProjectStub(10, 'aitribes.online', 'Concept for AI Tribes online platform.', 'Platform', [], '$AITR', 100), type: 'domain' as const },
-    { ...createProjectStub(11, 'lilithtattoo.com', 'Concept for Lilith Tattoo project.', 'Service', [], '$LILITH', 100), type: 'domain' as const },
-    { ...createProjectStub(12, 'metagraph.app', 'Concept for Metagraph application.', 'App', [], '$META', 100), type: 'domain' as const },
-    { ...createProjectStub(13, 'floop.online', 'Concept for Floop online service.', 'Platform', [], '$FLOOP', 100), type: 'domain' as const },
-    { ...createProjectStub(14, 'dns-dex.com', 'Concept for DNS DEX project.', 'Platform', [], '$DNSD', 100), type: 'domain' as const },
-    { ...createProjectStub(15, 'tribeswallet.com', 'Concept for Tribes Wallet project.', 'App', [], '$TWALL', 100), type: 'domain' as const },
-    { ...createProjectStub(16, 'pennypics.store', 'Concept for PennyPics Store.', 'E-commerce', [], '$PICS', 100), type: 'domain' as const },
-    { ...createProjectStub(17, 'missvoid.store', 'Concept for MissVoid Store.', 'E-commerce', [], '$VOID', 100), type: 'domain' as const },
-    { ...createProjectStub(18, 'interiordesigns.website', 'Concept for Interior Designs website.', 'Service', [], '$NTR', 100), type: 'domain' as const },
+    { ...createProjectStub(7, 'ninjapunkgirls.com', 'Concept for Ninja Punk Girls project.', 'Ltd Company', [], '$NPG', 85, [
+      '/images/clientprojects/ninjapunkgirls/slug/NPG%20logo.png'
+    ]), type: 'domain' as const },
+    { ...createProjectStub(8, 'hyper-flix.com', 'Concept for Hyper-Flix project.', 'B2C', [], '$HFLIX', 100, ['/images/clientprojects/hyper-flix/slug/HYPERFLIXLOGO%20(1).png']), type: 'domain' as const },
+    { ...createProjectStub(9, 'tribify.ai', 'Concept for Tribify AI project.', 'SaaS', [], '$TRIBE', 100, ['/images/clientprojects/tribify/slug/TribifyAILogo.JPG']), type: 'domain' as const },
+    { ...createProjectStub(10, 'aitribes.online', 'Concept for AI Tribes online platform.', 'Platform', [], '$AITR', 100, []), type: 'domain' as const },
+    { ...createProjectStub(11, 'lilithtattoo.com', 'Concept for Lilith Tattoo project.', 'Service', [], '$LILITH', 100, []), type: 'domain' as const },
+    { ...createProjectStub(12, 'metagraph.app', 'Concept for Metagraph application.', 'App', [], '$META', 100, []), type: 'domain' as const },
+    { ...createProjectStub(13, 'floop.online', 'Concept for Floop online service.', 'Platform', [], '$FLOOP', 100, []), type: 'domain' as const },
+    { ...createProjectStub(14, 'dns-dex.com', 'Concept for DNS DEX project.', 'Platform', [], '$DNSD', 100, []), type: 'domain' as const },
+    { ...createProjectStub(15, 'tribeswallet.com', 'Concept for Tribes Wallet project.', 'App', [], '$TWALL', 100, []), type: 'domain' as const },
+    { ...createProjectStub(16, 'pennypics.store', 'Concept for PennyPics Store.', 'E-commerce', [], '$PICS', 100, []), type: 'domain' as const },
+    { ...createProjectStub(17, 'missvoid.store', 'Concept for MissVoid Store.', 'E-commerce', [], '$VOID', 100, []), type: 'domain' as const },
+    { ...createProjectStub(18, 'interiordesigns.website', 'Concept for Interior Designs website.', 'Service', [], '$NTR', 100, []), type: 'domain' as const },
 
     // GitHub Repos
     {
@@ -143,7 +146,8 @@ export const portfolioData: PortfolioData = {
       status: 'Exploration',
       type: 'github' as const,
       tokenName: '$AIOSX',
-      tokenProgressPercent: 100
+      tokenProgressPercent: 100,
+      cardImageUrls: [] // Initialize for GitHub repos
     },
     {
       id: 2,
@@ -157,7 +161,8 @@ export const portfolioData: PortfolioData = {
       status: 'Study',
       type: 'github' as const,
       tokenName: '$BTC_FORK',
-      tokenProgressPercent: 100
+      tokenProgressPercent: 100,
+      cardImageUrls: []
     },
     {
       id: 3,
@@ -171,7 +176,8 @@ export const portfolioData: PortfolioData = {
       status: 'Concept',
       type: 'github' as const,
       tokenName: '$NPG_DEV',
-      tokenProgressPercent: 100
+      tokenProgressPercent: 100,
+      cardImageUrls: []
     },
     {
       id: 4,
@@ -185,7 +191,8 @@ export const portfolioData: PortfolioData = {
       status: 'Investigation',
       type: 'github' as const,
       tokenName: '$PENSHUN',
-      tokenProgressPercent: 100
+      tokenProgressPercent: 100,
+      cardImageUrls: []
     },
     {
       id: 5,
@@ -199,7 +206,8 @@ export const portfolioData: PortfolioData = {
       status: 'Experiment',
       type: 'github' as const,
       tokenName: '$WEIGHT',
-      tokenProgressPercent: 100
+      tokenProgressPercent: 100,
+      cardImageUrls: []
     },
     {
       id: 6,
@@ -213,7 +221,8 @@ export const portfolioData: PortfolioData = {
       status: 'Archived/Study',
       type: 'github' as const,
       tokenName: '$YHC',
-      tokenProgressPercent: 100
+      tokenProgressPercent: 100,
+      cardImageUrls: []
     },
     {
       id: 19,
@@ -228,7 +237,7 @@ export const portfolioData: PortfolioData = {
       type: 'github' as const,
       tokenName: '$INDEX',
       tokenProgressPercent: 100,
-      imageUrl: '/images/development/index-token/index-token-bg.jpg'
+      cardImageUrls: ['/images/development/index-token/index-token-bg.jpg']
     },
   ],
   skills: {

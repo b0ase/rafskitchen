@@ -5,7 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import LoginModal from './components/LoginModal';
+import ProjectCardImage from './components/ProjectCardImage';
+import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
 import { portfolioData, Project } from '@/lib/data';
 import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock } from 'react-icons/fa';
 import { BsCurrencyBitcoin } from "react-icons/bs";
@@ -18,33 +19,16 @@ const NotionIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0
 const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1.143A6.857 6.857 0 1 1 8 1.143a6.857 6.857 0 0 1 0 13.714z"/><path d="M6.29 8.51H4.844V6.66h.33L6.29 8.51zm2.47-1.615c0-.58-.4-1.047-1.063-1.047H6.42v4.33h1.374c.68 0 1.086-.467 1.086-1.08V6.895zm-1.22 1.857H6.81V6.24h.74c.39 0 .625.246.625.6v1.867c0 .348-.248.602-.64.602zM11.156 8.51h-1.45v-1.85h.33l1.12 1.85z"/></svg>; 
 
 export default function PortfolioPage() {
-  // Filter projects by type (now using imported portfolioData)
-  // const domainProjects = portfolioData.projects.filter(p => p.type === 'domain');
-  // const githubRepos = portfolioData.projects.filter(p => p.type === 'github');
-
-  // Type assertion for projects and development arrays
   const projects: Project[] = portfolioData.projects as Project[];
-  // Correctly filter github projects here
-  // const development = portfolioData.development as any[] || [];
-
   const [isAboutVisible, setIsAboutVisible] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [hoveredProjectId, setHoveredProjectId] = useState<number | null>(null);
 
   useEffect(() => {
-    // Trigger fade-in shortly after mount
     const timer = setTimeout(() => {
       setIsAboutVisible(true);
-    }, 100); // Small delay (100ms)
-    return () => clearTimeout(timer); // Cleanup timer on unmount
-  }, []); // Empty dependency array ensures this runs only once on mount
-
-  const handleOpenLoginModal = (project: Project) => {
-    setSelectedProject(project);
-  };
-
-  const handleCloseLoginModal = () => {
-    setSelectedProject(null);
-  };
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -141,73 +125,63 @@ export default function PortfolioPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.filter(p => p.type === 'domain').map((project) => (
-              <div key={project.id} className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden group transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-110 dark:hover:brightness-125">
-                <div className="relative w-full h-40 bg-gray-200 dark:bg-gray-700">
-                  {project.imageUrl && (
-                    <Image 
-                      src={project.imageUrl}
-                      alt={`${project.title} screenshot`}
-                      layout="fill" 
-                      objectFit="cover"
-                      className="transition-opacity duration-300 group-hover:opacity-100 dark:opacity-80 dark:group-hover:opacity-100"
-                    />
-                  )}
+              <div 
+                key={project.id} 
+                className="relative group bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-110"
+                onMouseEnter={() => setHoveredProjectId(project.id)}
+                onMouseLeave={() => setHoveredProjectId(null)}
+              >
+                <div className="relative w-full h-40 bg-black flex items-center justify-start p-4">
+                  <ProjectCardImage 
+                    imageUrls={project.cardImageUrls || []} 
+                    alt={`${project.title} logo`}
+                  />
                 </div>
-                <div className="p-5 flex flex-col flex-grow">
+                <div className="p-5 flex flex-col flex-grow transition-opacity duration-300 group-hover:opacity-0 group-hover:pointer-events-none">
                   <h3 className="text-lg font-semibold text-black dark:text-white mb-1">{project.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">{project.description}</p>
-                  
-                  {/* Status/Token Badge - Apply dark: variants */}
-                  {project.status && (
-                    <span className={`text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max border 
-                      ${project.status === 'Live' ? 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-300' : 
-                       project.status === 'Ltd Company' ? 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-300' :
-                       project.status === 'In Development' ? 'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-300' : 
-                       'bg-gray-100 border-gray-300 text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300'
-                      }
-                    `}>
-                       {project.status}
-                    </span>
-                  )}
-                  {project.tokenName && (
-                    <span className="bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-900 dark:border-purple-700 dark:text-purple-300 border text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max">
-                      Token: {project.tokenName}
-                    </span>
-                  )}
-
-                  {/* Progress Bar - Apply dark: variants */}
+                  <div className="mb-3 flex flex-wrap gap-1">
+                    {project.status && (
+                      <span className={`text-xs font-medium mr-1 px-2 py-0.5 inline-block w-max border 
+                        ${project.status === 'Live' ? 'bg-green-100 border-green-300 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-300' : 
+                         project.status === 'Ltd Company' ? 'bg-blue-100 border-blue-300 text-blue-800 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-300' :
+                         project.status === 'In Development' ? 'bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-900 dark:border-yellow-700 dark:text-yellow-300' : 
+                         'bg-gray-100 border-gray-300 text-gray-800 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300'
+                        }
+                      `}>
+                         {project.status}
+                      </span>
+                    )}
+                    {project.tokenName && (
+                      <span className="bg-purple-100 border-purple-300 text-purple-800 dark:bg-purple-900 dark:border-purple-700 dark:text-purple-300 border text-xs font-medium mr-1 px-2 py-0.5 inline-block w-max">
+                        Token: {project.tokenName}
+                      </span>
+                    )}
+                  </div>
                   {typeof project.tokenProgressPercent === 'number' && (
                     <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 mb-3">
                       <div className="bg-blue-500 dark:bg-blue-600 h-1" style={{ width: `${project.tokenProgressPercent}%` }}></div>
                     </div>
                   )}
-
-                  {/* Links - Apply dark: variants */}
                   <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                      <div className="flex space-x-3 items-center">
-                          {project.liveUrl && (
-                              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" title="Visit Live Site">
-                                  <FaExternalLinkAlt size={16} />
-                              </a>
-                          )}
-                          {project.repoUrl && (
-                              <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors" title="View Repository">
-                                  <FaGithub size={16} />
-                              </a>
-                          )}
-                          <button 
-                            onClick={() => handleOpenLoginModal(project)} 
-                            className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors flex items-center text-xs"
-                            title="Client Login"
-                          >
-                             <FaLock size={14} className="mr-1"/> Login
-                          </button>
-                      </div>
-                      <Link href={`/projects/${project.slug}`} className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium inline-flex items-center">
-                         Details <FaArrowRight className="ml-1" size={10}/>
-                      </Link>
+                    <div className="flex space-x-3 items-center">
+                      {project.liveUrl && (
+                        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors" title="Visit Live Site">
+                          <FaExternalLinkAlt size={16} />
+                        </a>
+                      )}
+                      {project.repoUrl && (
+                        <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors" title="View Repository">
+                          <FaGithub size={16} />
+                        </a>
+                      )}
+                    </div>
+                    <Link href={`/projects/${project.slug}`} className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium inline-flex items-center">
+                      Details <FaArrowRight className="ml-1" size={10}/>
+                    </Link>
                   </div>
                 </div>
+                <ProjectCardLoginOverlay project={project} isVisible={hoveredProjectId === project.id} />
               </div>
             ))}
           </div>
@@ -268,8 +242,6 @@ export default function PortfolioPage() {
       </main>
 
       <Footer />
-
-      <LoginModal project={selectedProject} onClose={handleCloseLoginModal} />
     </div>
   );
 }
