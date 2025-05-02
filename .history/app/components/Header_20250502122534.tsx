@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTwitter, FaBars, FaTimes } from 'react-icons/fa';
 import ThemeToggle from './ThemeToggle';
-import { portfolioData } from '@/lib/data';
+import portfolioData from '../data/portfolioData';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,8 +42,8 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 text-black dark:text-white py-4 shadow-sm px-6">
-      <div className="flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 text-black dark:text-white py-4 shadow-sm px-4">
+      <div className="container mx-auto px-4 flex flex-wrap items-center justify-between">
         {/* Logo - Ensure white/light text in dark mode */}
         <Link 
           href="/" 
@@ -111,7 +111,7 @@ export default function Header() {
             ))}
           </div>
 
-          {/* Service Links */}
+          {/* Add Service Links to Mobile Dropdown */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-col space-y-3 mb-4">
              <span className="px-1 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Services</span>
              {portfolioData.services.map((service) => (

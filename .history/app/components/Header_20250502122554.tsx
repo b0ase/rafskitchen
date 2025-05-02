@@ -42,8 +42,8 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 text-black dark:text-white py-4 shadow-sm px-6">
-      <div className="flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 text-black dark:text-white py-4 shadow-sm px-4">
+      <div className="container mx-auto px-4 flex flex-wrap items-center justify-between">
         {/* Logo - Ensure white/light text in dark mode */}
         <Link 
           href="/" 
