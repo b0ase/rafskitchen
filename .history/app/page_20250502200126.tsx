@@ -37,7 +37,8 @@ export default function PortfolioPage() {
         {/* About Section - Apply fade-in */}
         <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
           {/* Apply transition and opacity classes */}
-          <div className={`relative bg-white dark:bg-black p-6 md:p-8 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl transition-opacity duration-700 ease-in-out ${isAboutVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`bg-white dark:bg-black p-6 md:p-8 border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl 
+                         transition-opacity duration-700 ease-in-out ${isAboutVisible ? 'opacity-100' : 'opacity-0'}`}>
             <h1 className="relative text-3xl md:text-4xl text-black dark:text-white mb-4 font-mono min-h-[2.5rem]">
                 <span className="invisible">{portfolioData.about.name}</span>
                 <span className="absolute inset-0">
@@ -64,19 +65,21 @@ export default function PortfolioPage() {
                 <FaLinkedin size={24} /> 
               </a>
             </div>
-            {/* Postage stamp token box in top right, no Bitcoin icon, more padding */}
-            <div className="absolute top-4 right-4 bg-gray-100 dark:bg-gray-900 px-4 py-3 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-400 rounded shadow-md flex flex-col items-start min-w-[160px] max-w-[220px] z-10 space-y-2">
-              <h3 className="font-semibold text-black dark:text-white mb-1">
-                $BOASE (BSV21)
-              </h3>
-              <a 
-                href={portfolioData.about.token.marketLink}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white text-xs font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors shadow-sm dark:shadow-md rounded"
-              >
-                View Market <FaExternalLinkAlt className="ml-1" />
-              </a>
+            <div className="relative">
+              {/* Postage stamp token box in top right */}
+              <div className="absolute top-0 right-0 bg-gray-100 dark:bg-gray-900 p-2 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-400 rounded shadow-md flex flex-col items-end min-w-[140px] max-w-[180px] z-10">
+                <h3 className="font-semibold text-black dark:text-white mb-1 flex items-center">
+                  <BsCurrencyBitcoin className="mr-1" /> {portfolioData.about.token.name} ({portfolioData.about.token.ticker})
+                </h3>
+                <a 
+                  href={portfolioData.about.token.marketLink}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white text-xs font-medium hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors shadow-sm dark:shadow-md rounded"
+                >
+                  View Market <FaExternalLinkAlt className="ml-1" />
+                </a>
+              </div>
             </div>
           </div>
         </section>
