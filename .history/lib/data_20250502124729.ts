@@ -2,12 +2,8 @@ import { Url } from "url";
 
 // Helper function to create project stubs
 const createProjectStub = (id: number, title: string, description: string, status?: string, tech?: string[], tokenName?: string, tokenProgressPercent?: number, imageUrl?: string, xUrl?: string, githubUrl?: string, notionUrl?: string) => {
-  // Ensure title is treated as a string for slug generation
-  const safeTitle = (title || ''); 
-  const slug = safeTitle.toLowerCase().replace(/\s+/g, '-') // Replace spaces with hyphens
-                       .replace(/[^a-z0-9\-]/g, '') // Remove invalid chars
-                       .replace(/\.+/g, '-'); // Replace periods with hyphens specifically for domain-like titles
-
+  // Ensure title is treated as a string
+  const safeTitle = (title || '').toLowerCase().replace('.com', '').replace('.ai', '').replace('.online', '').replace('.app', '').replace('.', '-');
   const defaultStatus = status || 'Concept';
   const defaultTech = tech || [];
   const defaultTokenName = tokenName || '';
@@ -16,11 +12,10 @@ const createProjectStub = (id: number, title: string, description: string, statu
   return {
     id,
     title,
-    slug, // Add generated slug
     description,
     tech: defaultTech,
-    githubUrl: githubUrl || `https://github.com/b0ase/${slug}`, // Use slug for default URLs too?
-    xUrl: xUrl || `https://x.com/${slug}`,
+    githubUrl: githubUrl || `https://github.com/b0ase/${safeTitle}`,
+    xUrl: xUrl || `https://x.com/${safeTitle}`,
     notionUrl: notionUrl || '#',
     tokenName: defaultTokenName,
     tokenProgressPercent: defaultTokenProgress,
@@ -31,7 +26,7 @@ const createProjectStub = (id: number, title: string, description: string, statu
 };
 
 // Define the structure for a Service
-export interface Service {
+interface Service {
   id: number;
   slug: string;
   title: string;
@@ -41,10 +36,9 @@ export interface Service {
 }
 
 // Define the structure for a Project
-export interface Project {
+interface Project {
   id: number;
   title: string;
-  slug: string;
   description: string;
   tech: string[];
   githubUrl?: string;
@@ -59,12 +53,12 @@ export interface Project {
   tokenPlatform?: string; // Added for specific projects
 }
 
-export interface SkillsData {
+interface SkillsData {
     technical: string[];
     // soft?: string[]; // Optional: Add other skill categories if needed
 }
 
-export interface PortfolioData {
+interface PortfolioData {
     about: {
         name: string;
         tagline: string;
@@ -134,7 +128,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 1,
       title: 'AIOSX',
-      slug: 'aiosx', // Manually add slug
       description: 'Fork of AIOS: LLM Agent Operating System. Exploring potential applications.',
       tech: ['Python'],
       githubUrl: 'https://github.com/b0ase/AIOSX',
@@ -148,7 +141,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 2,
       title: 'bitcoin (Fork)',
-      slug: 'bitcoin-fork', // Manually add slug
       description: 'Fork of Bitcoin Core integration/staging tree. For study and potential integration.',
       tech: ['TypeScript'],
       githubUrl: 'https://github.com/b0ase/bitcoin',
@@ -162,7 +154,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 3,
       title: 'npgpublic',
-      slug: 'npgpublic', // Manually add slug
       description: 'Public Go project. Purpose and potential to be defined.',
       tech: ['Go'],
       githubUrl: 'https://github.com/b0ase/npgpublic',
@@ -176,7 +167,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 4,
       title: 'Penshun',
-      slug: 'penshun', // Manually add slug
       description: 'Fork of simply-stream: Lock to Stream Bitcoin. Investigating streaming payment models.',
       tech: ['JavaScript'],
       githubUrl: 'https://github.com/b0ase/Penshun',
@@ -190,7 +180,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 5,
       title: 'Weight',
-      slug: 'weight', // Manually add slug
       description: 'Fork of hodlocker: Lock Bitcoins to Social Posts. Experimenting with social/economic weighting.',
       tech: ['TypeScript'],
       githubUrl: 'https://github.com/b0ase/Weight',
@@ -204,7 +193,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 6,
       title: 'Yours-HandCash-Login',
-      slug: 'yours-handcash-login', // Manually add slug
       description: 'Fork of Yours Wallet: Yours/HandCash Integration exploration.',
       tech: ['JavaScript'],
       githubUrl: 'https://github.com/b0ase/Yours-HandCash-Login',
@@ -218,7 +206,6 @@ export const portfolioData: PortfolioData = {
     {
       id: 19,
       title: 'Index Token',
-      slug: 'index-token', // Manually add slug
       description: 'Concept and development for an index-based token system.',
       tech: ['Solidity', 'TypeScript'],
       githubUrl: 'https://github.com/b0ase/index-token',
