@@ -38,6 +38,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="flex flex-col">
+      <Header />
       <main className="container mx-auto px-4 py-12 md:py-16 flex-grow">
         {/* About Section - Apply fade-in */}
         <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
