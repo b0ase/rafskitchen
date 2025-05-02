@@ -26,7 +26,7 @@ export default function ServicesNavigation() {
   return (
     // Hidden on mobile, shown on desktop
     <nav 
-      className="hidden md:flex sticky top-[60px] z-30 w-full bg-gray-100 dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-sm px-6"
+      className="hidden md:flex sticky top-16 z-30 w-full bg-gray-100 dark:bg-gray-900 border-b border-gray-300 dark:border-gray-700 shadow-sm px-6"
     >
       <div className="flex justify-start items-center h-10 space-x-5">
         {services.map((service) => (
