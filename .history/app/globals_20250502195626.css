@@ -23,5 +23,3 @@ html.dark body {
   50% { opacity: 0.4; }
 }
 .animate-pulse-slow {
-  animation: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}

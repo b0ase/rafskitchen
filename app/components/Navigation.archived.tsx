@@ -33,6 +33,7 @@ export default function Navigation() {
     { name: 'Client Login', href: '/login' },
     { name: 'Studio', href: '/studio' },
     { name: '$BOASE', href: '/token' },
+    { name: 'New Clients', href: '/clients' },
   ];
 
   // Define icon links (Hardcoded URLs for now)

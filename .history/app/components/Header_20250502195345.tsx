@@ -1,27 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTwitter, FaBars, FaTimes } from 'react-icons/fa';
 import ThemeToggle from './ThemeToggle';
 import { portfolioData } from '@/lib/data';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [backendConnected, setBackendConnected] = useState(false);
-
-  // Check backend connection on mount
-  useEffect(() => {
-    async function checkConnection() {
-      try {
-        const res = await fetch('/api/clients', { method: 'GET' });
-        setBackendConnected(res.ok);
-      } catch {
-        setBackendConnected(false);
-      }
-    }
-    checkConnection();
-  }, []);
 
   const sectionLinks = [
     { name: 'About', href: '#about' },
@@ -66,6 +52,12 @@ export default function Header() {
           onClick={handleMobileLinkClick}
         >
           B0ASE.COM
+          {/* Subtle green flashing dot for backend connection */}
+          <span
+            className="ml-2 w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse border border-green-700"
+            title="Backend connected"
+            aria-label="Backend connected"
+          />
         </Link>
 
         {/* Desktop Navigation Links */}
@@ -82,19 +74,9 @@ export default function Header() {
           {/* Desktop Utility Links */}
           <div className="hidden md:flex items-center space-x-4">
             {utilityLinks.map((link) => (
-              <span key={link.name} className="flex items-center gap-1">
-                <Link href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                  {link.name}
-                </Link>
-                {/* Show green dot only next to 'New Clients' if connected */}
-                {link.name === 'New Clients' && backendConnected && (
-                  <span
-                    className="ml-1 w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse-slow border border-green-700"
-                    title="Backend connected"
-                    aria-label="Backend connected"
-                  />
-                )}
-              </span>
+              <Link key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                {link.name}
+              </Link>
             ))}
           </div>
 
