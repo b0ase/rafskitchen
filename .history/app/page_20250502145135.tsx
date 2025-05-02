@@ -138,10 +138,10 @@ export default function PortfolioPage() {
                       href={project.tokenMarketUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`text-gray-400 hover:text-gray-300 transition-colors ${!project.tokenMarketUrl && 'opacity-50 cursor-not-allowed'} font-mono font-bold`}
+                      className={`text-purple-400 hover:text-purple-300 transition-colors ${!project.tokenMarketUrl && 'opacity-50 cursor-not-allowed'}`}
                       title={`View ${project.tokenName} Token`}
                     >
-                      $
+                      <BsCurrencyBitcoin size={16} />
                     </a>
                   )}
                   {project.githubUrl && project.githubUrl !== '#' && (
