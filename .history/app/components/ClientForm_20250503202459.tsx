@@ -113,12 +113,11 @@ export default function ClientForm() {
                     .from('client-logos')
                     .upload(filePath, file, { upsert: true });
                   if (!error && data) {
-                    const { data: urlData } = supabase.storage
+                    const publicURL = supabase.storage
                       .from('client-logos')
-                      .getPublicUrl(data.path);
-                    const publicUrl = urlData.publicUrl;
-                    if (publicUrl) {
-                      setForm(f => ({ ...f, logo_url: publicUrl }));
+                      .getPublicUrl(data.path).publicURL;
+                    if (publicURL) {
+                      setForm(f => ({ ...f, logo_url: publicURL }));
                     } else {
                       setError('Failed to get public URL for logo');
                     }

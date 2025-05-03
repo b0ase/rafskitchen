@@ -1,0 +1,214 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+interface TimelineEntry {
+  id: string;
+  phase: 'now' | 'next' | 'roadmap';
+  title: string;
+  description: string;
+  sort_order: number;
+}
+
+interface Feature {
+  id: string;
+  feature: string;
+  priority: string;
+  est_cost: number | null;
+  status: string;
+  approved: boolean;
+}
+
+interface Feedback {
+  id: string;
+  email: string;
+  message: string;
+  created_at: string;
+}
+
+export default function ClientProjectPage({ projectSlug, notionUrl }: { projectSlug: string, notionUrl?: string }) {
+  const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
+  const [feedback, setFeedback] = useState<Feedback[]>([]);
+  const [feedbackForm, setFeedbackForm] = useState({ email: '', message: '' });
+  const [feedbackSuccess, setFeedbackSuccess] = useState('');
+
+  // Fetch timeline and features
+  useEffect(() => {
+    async function fetchData() {
+      const { data: t } = await supabase
+        .from('project_timelines')
+        .select('*')
+        .eq('project_slug', projectSlug)
+        .order('sort_order', { ascending: true });
+      setTimeline(t || []);
+
+      const { data: f } = await supabase
+        .from('project_features')
+        .select('*')
+        .eq('project_slug', projectSlug)
+        .order('priority', { ascending: true });
+      setFeatures(f || []);
+
+      const { data: fb } = await supabase
+        .from('project_feedback')
+        .select('*')
+        .eq('project_slug', projectSlug)
+        .order('created_at', { ascending: false });
+      setFeedback(fb || []);
+    }
+    fetchData();
+  }, [projectSlug]);
+
+  // Submit feedback
+  async function handleFeedbackSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const { email, message } = feedbackForm;
+    if (!email || !message) return;
+    const { error } = await supabase.from('project_feedback').insert({
+      project_slug: projectSlug,
+      email,
+      message,
+    });
+    if (!error) {
+      setFeedbackSuccess('Thank you for your feedback!');
+      setFeedbackForm({ email: '', message: '' });
+    }
+  }
+
+  // Timeline phases
+  const phases = [
+    { key: 'now', label: 'Now (Live)' },
+    { key: 'next', label: 'Next (1-4 Weeks)' },
+    { key: 'roadmap', label: 'Roadmap (1-6 Months)' },
+  ] as const;
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Project Overview */}
+      <section className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Project Overview</h1>
+        <p className="text-gray-600 mb-2">
+          {/* Replace with your own project summary or fetch from Supabase */}
+          This is your digital hub for continuous development and collaboration.
+        </p>
+      </section>
+
+      {/* Timeline */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Development Timeline</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {phases.map(phase => (
+            <div key={phase.key} className="bg-gray-900 p-4 rounded shadow">
+              <h3 className="text-lg font-bold mb-2">{phase.label}</h3>
+              <ul className="list-disc pl-4 space-y-1">
+                {timeline.filter(t => t.phase === phase.key).length === 0 && (
+                  <li className="text-gray-500 italic">No items yet.</li>
+                )}
+                {timeline.filter(t => t.phase === phase.key).map(t => (
+                  <li key={t.id}>
+                    <strong>{t.title}</strong>
+                    {t.description && <span className="ml-1 text-gray-400">{t.description}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features & Budget */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Feature & Budget Collaboration</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left mb-4">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Priority</th>
+                <th>Est. Cost</th>
+                <th>Status</th>
+                <th>Approved</th>
+              </tr>
+            </thead>
+            <tbody>
+              {features.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="text-gray-500 italic">No features yet.</td>
+                </tr>
+              )}
+              {features.map(f => (
+                <tr key={f.id}>
+                  <td>{f.feature}</td>
+                  <td>{f.priority}</td>
+                  <td>{f.est_cost ? `£${f.est_cost}` : '-'}</td>
+                  <td>{f.status}</td>
+                  <td>{f.approved ? '✅' : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Requirements & Feedback */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Requirements & Feedback</h2>
+        <form onSubmit={handleFeedbackSubmit} className="flex flex-col md:flex-row gap-3 mb-4">
+          <input
+            type="email"
+            placeholder="Your Email"
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded w-full md:w-1/3"
+            value={feedbackForm.email}
+            onChange={e => setFeedbackForm(f => ({ ...f, email: e.target.value }))}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Your Feedback or Requirement"
+            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded w-full md:w-2/3"
+            value={feedbackForm.message}
+            onChange={e => setFeedbackForm(f => ({ ...f, message: e.target.value }))}
+            required
+          />
+          <button
+            type="submit"
+            className="bg-blue-700 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Submit
+          </button>
+        </form>
+        {feedbackSuccess && <p className="text-green-400 mb-2">{feedbackSuccess}</p>}
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Recent Feedback</h3>
+          <ul className="space-y-2">
+            {feedback.length === 0 && <li className="text-gray-500 italic">No feedback yet.</li>}
+            {feedback.map(fb => (
+              <li key={fb.id} className="bg-gray-800 p-2 rounded">
+                <span className="font-bold">{fb.email}:</span> {fb.message}
+                <span className="ml-2 text-xs text-gray-500">{new Date(fb.created_at).toLocaleString()}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Notion Integration */}
+      {notionUrl && (
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Project Docs & Collaboration (Notion)</h2>
+          <iframe
+            src={notionUrl}
+            style={{ width: '100%', height: 600, border: 'none', borderRadius: 8 }}
+            allowFullScreen
+          />
+        </section>
+      )}
+    </div>
+  );
+}
