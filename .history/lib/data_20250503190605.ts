@@ -273,22 +273,14 @@ export const portfolioData: PortfolioData = {
   services: [
     { 
       id: 1, 
-      slug: "web-development", 
-      title: "Web Development", 
-      description: "Building responsive, performant websites & applications using modern tech, including Web3, crypto & blockchain integrations.",
-      detailedDescription: "Our web development process focuses on creating high-performance, scalable, and visually appealing digital experiences. We leverage modern frameworks like Next.js and React, combined with best practices in SEO, accessibility, and user experience. From simple landing pages to complex web applications and e-commerce platforms, we tailor solutions to meet specific business goals.",
-      priceInfo: "Est. Rate: £120/hr | £480/day. UK VAT added where applicable. Fixed-price projects negotiable."
-    },
-    { 
-      id: 2, 
       slug: "software-development", 
       title: "Software Development", 
-      description: "App development and technical support for start-ups, with a special focus on crypto, blockchain, and AI innovation.",
+      description: "Building robust apps and digital solutions for start-ups, with a special focus on crypto, blockchain, and AI innovation.",
       detailedDescription: "We specialize in developing scalable web and mobile applications tailored for start-ups and forward-thinking businesses. Our expertise includes blockchain integration, crypto payment systems, AI-powered features, and rapid MVP development. We provide ongoing technical support and strategic guidance to help your venture succeed in a fast-moving digital landscape.",
       priceInfo: "Est. Rate: £120/hr | £480/day. UK VAT added where applicable. Fixed-price projects negotiable."
     },
     { 
-      id: 3, 
+      id: 2, 
       slug: "content-copywriting",
       title: "Content & Copywriting", 
       description: "Crafting compelling narratives, articles, and website copy tailored to your audience.", 
@@ -296,7 +288,7 @@ export const portfolioData: PortfolioData = {
       priceInfo: "Est. Rate: £100/article | £400/day" 
     },
     { 
-      id: 4, 
+      id: 3, 
       slug: "video-production",
       title: "Video Production & Photography", 
       description: "From concept and shooting to editing and final delivery for promotional or creative needs, including high-quality photography.",
@@ -304,12 +296,20 @@ export const portfolioData: PortfolioData = {
       priceInfo: "Est. Rate: £110/hr | £450/day" 
     },
     { 
-      id: 5, 
+      id: 4, 
       slug: "logo-branding",
       title: "Logo Design & Branding", 
       description: "Crafting unique logos and visual identities that effectively represent your brand.", 
       detailedDescription: "We develop strong visual identities, starting with logo design and extending to brand guidelines, color palettes, typography, and marketing collateral design. Our goal is to create a cohesive and memorable brand image that aligns with your values.",
       priceInfo: "Est. Rate: £90/hr | Project-based" 
+    },
+    { 
+      id: 5, 
+      slug: "photography",
+      title: "Photography", 
+      description: "High-quality photography solutions for events, products, portraits, and more.", 
+      detailedDescription: "Professional photography services including event coverage, product photography, corporate headshots, lifestyle portraits, and architectural photography. We provide high-resolution images, expertly edited to meet your specific requirements.",
+      priceInfo: "Est. Rate: £100/hr | £400/day" 
     },
     { 
       id: 6, 

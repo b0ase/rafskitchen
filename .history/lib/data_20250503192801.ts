@@ -313,6 +313,14 @@ export const portfolioData: PortfolioData = {
     },
     { 
       id: 6, 
+      slug: "photography",
+      title: "Photography", 
+      description: "High-quality photography solutions for events, products, portraits, and more.", 
+      detailedDescription: "Professional photography services including event coverage, product photography, corporate headshots, lifestyle portraits, and architectural photography. We provide high-resolution images, expertly edited to meet your specific requirements.",
+      priceInfo: "Est. Rate: £100/hr | £400/day" 
+    },
+    { 
+      id: 7, 
       slug: "seo-marketing",
       title: "SEO & Digital Marketing", 
       description: "Optimizing online presence and content strategy to drive organic growth.", 
@@ -320,7 +328,7 @@ export const portfolioData: PortfolioData = {
       priceInfo: "Est. Rate: £110/hr | £450/day" 
     },
     { 
-      id: 7, 
+      id: 8, 
       slug: "social-media-management",
       title: "Social Media Management", 
       description: "Developing strategies, creating content, and managing social media presence to grow engagement and reach.", 
@@ -328,7 +336,7 @@ export const portfolioData: PortfolioData = {
       priceInfo: "Est. Rate: £90/hr | Retainer" 
     },
     { 
-      id: 8, 
+      id: 9, 
       slug: "technical-consulting",
       title: "Technical Consulting", 
       description: "Providing expert advice and strategy for your digital projects and technical challenges.",
@@ -336,7 +344,7 @@ export const portfolioData: PortfolioData = {
       priceInfo: "Est. Rate: £150/hr" 
     },
     { 
-      id: 9, 
+      id: 10, 
       slug: "support-maintenance",
       title: "Ongoing Support & Maintenance", 
       description: "Reliable support packages to keep your digital assets running smoothly and securely.",

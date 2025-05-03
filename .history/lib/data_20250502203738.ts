@@ -281,14 +281,6 @@ export const portfolioData: PortfolioData = {
     },
     { 
       id: 2, 
-      slug: "software-development", 
-      title: "Software Development", 
-      description: "App development and technical support for start-ups, with a special focus on crypto, blockchain, and AI innovation.",
-      detailedDescription: "We specialize in developing scalable web and mobile applications tailored for start-ups and forward-thinking businesses. Our expertise includes blockchain integration, crypto payment systems, AI-powered features, and rapid MVP development. We provide ongoing technical support and strategic guidance to help your venture succeed in a fast-moving digital landscape.",
-      priceInfo: "Est. Rate: £120/hr | £480/day. UK VAT added where applicable. Fixed-price projects negotiable."
-    },
-    { 
-      id: 3, 
       slug: "content-copywriting",
       title: "Content & Copywriting", 
       description: "Crafting compelling narratives, articles, and website copy tailored to your audience.", 
@@ -296,20 +288,28 @@ export const portfolioData: PortfolioData = {
       priceInfo: "Est. Rate: £100/article | £400/day" 
     },
     { 
-      id: 4, 
+      id: 3, 
       slug: "video-production",
-      title: "Video Production & Photography", 
-      description: "From concept and shooting to editing and final delivery for promotional or creative needs, including high-quality photography.",
-      detailedDescription: "Full-service video production covering concept development, storyboarding, filming, editing, color grading, motion graphics, and final delivery. We produce promotional videos, documentaries, interviews, social media clips, and more, using professional equipment and techniques. Our photography services include event coverage, product photography, corporate headshots, lifestyle portraits, and architectural photography—all expertly edited to meet your requirements.",
+      title: "Video Production", 
+      description: "From concept and shooting to editing and final delivery for promotional or creative needs.",
+      detailedDescription: "Full-service video production covering concept development, storyboarding, filming, editing, color grading, motion graphics, and final delivery. We produce promotional videos, documentaries, interviews, social media clips, and more, using professional equipment and techniques.",
       priceInfo: "Est. Rate: £110/hr | £450/day" 
     },
     { 
-      id: 5, 
+      id: 4, 
       slug: "logo-branding",
       title: "Logo Design & Branding", 
       description: "Crafting unique logos and visual identities that effectively represent your brand.", 
       detailedDescription: "We develop strong visual identities, starting with logo design and extending to brand guidelines, color palettes, typography, and marketing collateral design. Our goal is to create a cohesive and memorable brand image that aligns with your values.",
       priceInfo: "Est. Rate: £90/hr | Project-based" 
+    },
+    { 
+      id: 5, 
+      slug: "photography",
+      title: "Photography", 
+      description: "High-quality photography solutions for events, products, portraits, and more.", 
+      detailedDescription: "Professional photography services including event coverage, product photography, corporate headshots, lifestyle portraits, and architectural photography. We provide high-resolution images, expertly edited to meet your specific requirements.",
+      priceInfo: "Est. Rate: £100/hr | £400/day" 
     },
     { 
       id: 6, 

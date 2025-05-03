@@ -3,13 +3,11 @@
 import React, { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { portfolioData } from '@/lib/data';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export default function LoginPage() {
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
@@ -85,27 +83,18 @@ export default function LoginPage() {
               />
             </div>
 
-            <div className="mb-6 relative">
+            <div className="mb-6">
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
                 Password:
               </label>
               <input 
-                type={showPassword ? 'text' : 'password'}
+                type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm pr-10"
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-gray-200 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
               />
-              <button
-                type="button"
-                tabIndex={-1}
-                className="absolute right-3 top-9 text-gray-400 hover:text-gray-200 focus:outline-none"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
             </div>
 
             <button

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Project } from '@/lib/data';
-import { FaExternalLinkAlt, FaLock, FaInfoCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaLock, FaInfoCircle } from 'react-icons/fa';
 import Link from 'next/link';
 
 interface ProjectCardLoginOverlayProps {
@@ -13,9 +13,7 @@ interface ProjectCardLoginOverlayProps {
 
 export default function ProjectCardLoginOverlay({ project, isVisible }: ProjectCardLoginOverlayProps) {
   const [showLoginForm, setShowLoginForm] = useState(false);
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -32,7 +30,7 @@ export default function ProjectCardLoginOverlay({ project, isVisible }: ProjectC
       const res = await fetch('/api/client-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectSlug: project.slug, email, password }),
+        body: JSON.stringify({ projectSlug: project.slug, password }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -57,7 +55,6 @@ export default function ProjectCardLoginOverlay({ project, isVisible }: ProjectC
     setShowLoginForm(false);
     setError('');
     setPassword('');
-    setEmail('');
   };
 
   return (
@@ -115,41 +112,18 @@ export default function ProjectCardLoginOverlay({ project, isVisible }: ProjectC
           
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label htmlFor={`email-${project.slug}`} className="sr-only">
-                Email
-              </label>
-              <input
-                type="email"
-                id={`email-${project.slug}`}
-                placeholder="Your Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-sm"
-              />
-            </div>
-            <div className="relative">
               <label htmlFor={`password-${project.slug}`} className="sr-only">
                 Password
               </label>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type="password"
                 id={`password-${project.slug}`}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-sm pr-10"
+                className="w-full px-3 py-2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-sm"
               />
-              <button
-                type="button"
-                tabIndex={-1}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-200 focus:outline-none"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
             </div>
 
             {error && (
@@ -159,7 +133,7 @@ export default function ProjectCardLoginOverlay({ project, isVisible }: ProjectC
             <button
               type="submit"
               className="w-full px-4 py-2 bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 transition-colors shadow-sm flex items-center justify-center gap-2"
-              disabled={loading || !email || !password}
+              disabled={loading}
             >
               <FaLock size={14} />
               {loading ? 'Logging in...' : 'Access Project'}
