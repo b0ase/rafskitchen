@@ -1,0 +1,10 @@
+# Project To-Do List
+
+- [x] ~~**Database:** Apply migrations to add `status` and `preview_deployment_url` columns to `clients` table and create `site_settings` table.~~
+- [x] ~~**Workflow:** Test the preview deployment workflow:~~
+    - [x] ~~Add an external preview URL (e.g., Vercel) to a project via `/admin/projects`.~~
+    - [x] ~~Verify the "Next (1-4 Weeks)" iframe on `/projects/[slug]` loads this URL correctly.~~
+    - [x] ~~Verify the "Now (Live)" iframe on `/projects/[slug]` still loads the `website` URL.~~
+- [x] ~~**Cleanup:** Remove the `/previews/*` route and related files (`app/previews/layout.tsx`, `app/previews/[slug]/page.tsx`).~~
+- [ ] **Git:** Resolve the Git push issue (local branch behind remote). Fetch/pull from `origin main` and then push.
+- [ ] **Bug:** Investigate and fix the "Invalid <Link> with <a> child" error (Need to identify the source page/component). 
