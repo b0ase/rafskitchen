@@ -74,7 +74,7 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
       setError(null);
       try {
         const { data: coreData, error: coreError } = await supabase
-          .from('projects')
+          .from('clients')
           .select('*')
           .eq('slug', projectSlug)
           .single();
@@ -131,7 +131,7 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
 
     try {
       const { error: updateError } = await supabase
-        .from('projects')
+        .from('clients')
         .update(updatedData)
         .eq('id', projectData.id);
 
