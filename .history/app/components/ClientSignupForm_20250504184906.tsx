@@ -151,27 +151,20 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
         setError(`Logo upload failed: ${uploadError.message}`);
       } else if (uploadData) {
         console.log("Upload successful, getting public URL for path:", uploadData.path);
-        try {
-          // Get public URL - this might throw on error or return data only
-          const { data: urlData } = supabase.storage
-            .from("client-logos")
-            .getPublicUrl(uploadData.path);
+        const { data: urlData, error: urlError } = supabase.storage
+          .from("client-logos")
+          .getPublicUrl(uploadData.path);
+          
+        console.log("Supabase getPublicUrl result:", { urlData, urlError }); // Log URL result
 
-          console.log("Supabase getPublicUrl result:", { urlData }); // Log URL data
-
-          if (urlData && urlData.publicUrl) {
+        if (urlError) {
+            console.error("Supabase getPublicUrl error object:", urlError);
+            setError(`Failed to get logo URL: ${urlError.message}`);
+            // Optionally set logo_url to null or keep the old one?
+        } else {
             console.log("Setting logo_url:", urlData.publicUrl);
             setForm(f => ({ ...f, logo_url: urlData.publicUrl }));
-            setSuccess("Logo uploaded successfully!");
-          } else {
-            // Handle case where getPublicUrl succeeded but returned unexpected data
-            console.warn("getPublicUrl did not return expected publicUrl data.", urlData);
-            setError("Failed to retrieve logo URL after upload.");
-          }
-        } catch (urlError) {
-            // Catch any error thrown by getPublicUrl
-            console.error("Supabase getPublicUrl error object:", urlError);
-            setError(`Failed to get logo URL: ${urlError instanceof Error ? urlError.message : String(urlError)}`);
+            setSuccess("Logo uploaded successfully!"); // Set success message
         }
       } else {
         // Should not happen if uploadError is null, but handle just in case

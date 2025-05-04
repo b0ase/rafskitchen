@@ -70,15 +70,14 @@ interface ProjectData {
 }
 
 interface ClientFormData {
-  name?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
-  logo_url?: string;
-  project_brief?: string;
-  project_types?: string[];
-  requested_budget?: number | string | null;
-  github_links?: string | null;
+  name: string;
+  email: string;
+  project_brief: string;
+  project_types: string[];
+  requested_budget: number | string | null;
+  github_links: string | null;
+  timeline_preference: string | null;
+  design_style_preference: string | null;
 }
 
 export default function ProjectPage({ params, searchParams }: { params: { slug: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
@@ -322,62 +321,43 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     setLoading(true);
     setError(null);
 
-    // Map form data ONLY to columns that EXIST in the clients table schema
-    const updatePayload: Partial<{
-        name: string | undefined;
-        email: string | undefined;
-        website: string | undefined;
-        notes: string | undefined;
-        logo_url: string | undefined;
-        phone: string | undefined;
-        github_repo_url: string | null | undefined;
-        // Add other ACTUAL columns if needed, e.g., repo_url if form had it
-    }> = {
-      name: updatedFormData.name, 
-      email: updatedFormData.email, 
-      website: updatedFormData.website,
-      notes: updatedFormData.project_brief, // Map project_brief -> notes
-      logo_url: updatedFormData.logo_url,
-      phone: updatedFormData.phone,
-      github_repo_url: updatedFormData.github_links, // Map github_links -> github_repo_url
+    // Map form data to the actual database schema (ProjectData)
+    const updatePayload: Partial<ProjectData> = {
+      client_name: updatedFormData.name, // Map name -> client_name
+      client_email: updatedFormData.email, // Map email -> client_email
+      project_name: projectData.project_name, // Keep existing project_name unless form has it
+      project_description: updatedFormData.project_brief, // Map project_brief -> project_description
+      project_type: updatedFormData.project_types, // Map project_types -> project_type
+      // Map requested_budget -> budget_tier (Handle potential type difference if needed)
+      budget_tier: typeof updatedFormData.requested_budget === 'number' || typeof updatedFormData.requested_budget === 'string' 
+                    ? String(updatedFormData.requested_budget) // Ensure it's a string if budget_tier is string?
+                    : null,
+      // Map github_links -> github_repo_url
+      github_repo_url: updatedFormData.github_links,
+      // Add mappings for other relevant fields if they exist in both ClientFormData and ProjectData
+      // and are intended to be editable here. For example:
+      // timeline_preference: updatedFormData.timeline_preference, // Assuming timeline_preference exists in ClientFormData
+      // design_style_preference: updatedFormData.design_style_preference, // Assuming design_style_preference exists in ClientFormData
+      // etc...
     };
 
     // Remove undefined fields to avoid errors during update
     Object.keys(updatePayload).forEach(key => 
-      updatePayload[key as keyof typeof updatePayload] === undefined && delete updatePayload[key as keyof typeof updatePayload]
+      updatePayload[key as keyof Partial<ProjectData>] === undefined && delete updatePayload[key as keyof Partial<ProjectData>]
     );
 
-    // Ensure we don't send an empty object if no fields changed
-    if (Object.keys(updatePayload).length === 0) {
-      console.log("No changes detected to update.");
-      setIsEditing(false); // Close edit mode
-      setLoading(false);
-      return; 
-    }
-
-    console.log("Attempting to update clients table with payload:", updatePayload);
-
     try {
-      const { data: updatedClientData, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('clients')
-        .update(updatePayload) // Use the correctly mapped payload
-        .eq('id', projectData.id)
-        .select() // Select the updated data
-        .single(); // Expect a single row back
+        .update(updatePayload) // Use the mapped payload
+        .eq('id', projectData.id);
 
       if (updateError) {
         console.error('Error updating project:', updateError);
         setError(`Failed to save changes: ${updateError.message}`);
-      } else if (updatedClientData) {
-        // Update projectData state with the *actual* data returned from DB
-        // This ensures consistency, especially if DB has triggers/defaults
-        setProjectData(prev => prev ? { ...prev, ...updatedClientData } : null);
-        setFeedbackSuccess("Project details updated successfully!"); // Show success message
-        setIsEditing(false);
       } else {
-         // Handle case where update succeeded but no data was returned (shouldn't happen with .single() unless row deleted)
-         console.warn("Update seemed successful but no data returned.");
-         setIsEditing(false);
+        setProjectData(prev => prev ? { ...prev, ...updatePayload } : null);
+        setIsEditing(false);
       }
     } catch (err) {
        console.error('Unexpected error updating project:', err);
@@ -414,6 +394,18 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   return (
     <div className="w-full px-4 md:px-8 lg:px-12 py-8">
       <div className="mb-8 flex flex-wrap justify-end gap-4">
+          {projectData?.preview_url && (
+            <Link href={projectData.preview_url} passHref legacyBehavior>
+              <a 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition duration-200 shadow"
+              >
+                <FaExternalLinkAlt /> View Preview
+              </a>
+             </Link>
+          )}
+          
           {projectData?.github_repo_url && (
               <a 
                   href={projectData.github_repo_url}
@@ -423,6 +415,15 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
               >
                   <FaGithub /> GitHub Repo
               </a>
+          )}
+
+          {!isEditing && (
+              <button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200 shadow"
+              >
+                  Edit Project Details
+              </button>
           )}
       </div>
 
@@ -444,33 +445,16 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         </section>
       ) : (
         <>
-          {/* REMOVED Project Title/Desc Section */}
-          {/* 
+          {/* Ensure ONLY the dynamic project name/desc is first */}
           <section className="mb-8">
+            {/* Use project_name from data, fallback to slug */}
             <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">{projectData.project_name || projectSlug}</h1>
             <p className="text-lg text-gray-300 mb-6">{projectData.project_description || 'No description provided.'}</p>
           </section>
-          */}
 
-          {/* Combined Project Info Card */}
+          {/* Project Details Summary Section */}
           <section className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            {/* Main Project Title */}
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">{projectData.project_name || projectSlug}</h1>
-            {/* Project Description */}
-            <p className="text-base text-gray-300 mb-4 border-b border-gray-700 pb-4">{projectData.project_description || 'No description provided.'}</p>
-
-            {/* Summary Header + Edit Button */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-white">Project Summary</h2>
-              <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded text-sm transition duration-200 shadow"
-              >
-                  Edit Project Details
-              </button>
-            </div>
-            
-            {/* Summary Grid */}
+            <h2 className="text-xl font-semibold mb-4 text-white border-b border-gray-700 pb-2">Project Summary</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
               <div>
                 <span className="font-semibold text-gray-400">Client Name: </span>
@@ -740,15 +724,14 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                              </Link>
                            )}
                            {phase.key === 'roadmap' && notionUrl && ( // Only show if notionUrl exists
-                             <Link href={`/projects/${projectSlug}/roadmap`} passHref legacyBehavior>
-                               <a 
-                                 target="_blank"
-                                 rel="noopener noreferrer"
-                                 className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
-                               >
-                                 View Roadmap
-                               </a>
-                             </Link>
+                             <a 
+                               href={notionUrl} 
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
+                             >
+                               View Roadmap
+                             </a>
                            )}
                         </div>
 

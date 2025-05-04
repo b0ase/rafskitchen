@@ -69,18 +69,6 @@ interface ProjectData {
   preview_url?: string | null;
 }
 
-interface ClientFormData {
-  name?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
-  logo_url?: string;
-  project_brief?: string;
-  project_types?: string[];
-  requested_budget?: number | string | null;
-  github_links?: string | null;
-}
-
 export default function ProjectPage({ params, searchParams }: { params: { slug: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
   const projectSlug = params.slug; // Get slug from params
   const notionUrl = typeof searchParams?.notionUrl === 'string' ? searchParams.notionUrl : undefined; // Example of getting search param
@@ -317,67 +305,23 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     }
   }
 
-  const handleUpdateProject = async (updatedFormData: Partial<ClientFormData>) => {
+  const handleUpdateProject = async (updatedData: Partial<ProjectData>) => {
     if (!projectData) return;
     setLoading(true);
     setError(null);
 
-    // Map form data ONLY to columns that EXIST in the clients table schema
-    const updatePayload: Partial<{
-        name: string | undefined;
-        email: string | undefined;
-        website: string | undefined;
-        notes: string | undefined;
-        logo_url: string | undefined;
-        phone: string | undefined;
-        github_repo_url: string | null | undefined;
-        // Add other ACTUAL columns if needed, e.g., repo_url if form had it
-    }> = {
-      name: updatedFormData.name, 
-      email: updatedFormData.email, 
-      website: updatedFormData.website,
-      notes: updatedFormData.project_brief, // Map project_brief -> notes
-      logo_url: updatedFormData.logo_url,
-      phone: updatedFormData.phone,
-      github_repo_url: updatedFormData.github_links, // Map github_links -> github_repo_url
-    };
-
-    // Remove undefined fields to avoid errors during update
-    Object.keys(updatePayload).forEach(key => 
-      updatePayload[key as keyof typeof updatePayload] === undefined && delete updatePayload[key as keyof typeof updatePayload]
-    );
-
-    // Ensure we don't send an empty object if no fields changed
-    if (Object.keys(updatePayload).length === 0) {
-      console.log("No changes detected to update.");
-      setIsEditing(false); // Close edit mode
-      setLoading(false);
-      return; 
-    }
-
-    console.log("Attempting to update clients table with payload:", updatePayload);
-
     try {
-      const { data: updatedClientData, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('clients')
-        .update(updatePayload) // Use the correctly mapped payload
-        .eq('id', projectData.id)
-        .select() // Select the updated data
-        .single(); // Expect a single row back
+        .update(updatedData)
+        .eq('id', projectData.id);
 
       if (updateError) {
         console.error('Error updating project:', updateError);
         setError(`Failed to save changes: ${updateError.message}`);
-      } else if (updatedClientData) {
-        // Update projectData state with the *actual* data returned from DB
-        // This ensures consistency, especially if DB has triggers/defaults
-        setProjectData(prev => prev ? { ...prev, ...updatedClientData } : null);
-        setFeedbackSuccess("Project details updated successfully!"); // Show success message
-        setIsEditing(false);
       } else {
-         // Handle case where update succeeded but no data was returned (shouldn't happen with .single() unless row deleted)
-         console.warn("Update seemed successful but no data returned.");
-         setIsEditing(false);
+        setProjectData(prev => prev ? { ...prev, ...updatedData } : null);
+        setIsEditing(false);
       }
     } catch (err) {
        console.error('Unexpected error updating project:', err);
@@ -414,6 +358,18 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   return (
     <div className="w-full px-4 md:px-8 lg:px-12 py-8">
       <div className="mb-8 flex flex-wrap justify-end gap-4">
+          {projectData?.preview_url && (
+            <Link href={projectData.preview_url} passHref legacyBehavior>
+              <a 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition duration-200 shadow"
+              >
+                <FaExternalLinkAlt /> View Live Preview
+              </a>
+             </Link>
+          )}
+          
           {projectData?.github_repo_url && (
               <a 
                   href={projectData.github_repo_url}
@@ -423,6 +379,15 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
               >
                   <FaGithub /> GitHub Repo
               </a>
+          )}
+
+          {!isEditing && (
+              <button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200 shadow"
+              >
+                  Edit Project Details
+              </button>
           )}
       </div>
 
@@ -444,71 +409,10 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         </section>
       ) : (
         <>
-          {/* REMOVED Project Title/Desc Section */}
-          {/* 
+          {/* Ensure ONLY the dynamic project name/desc is first */}
           <section className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">{projectData.project_name || projectSlug}</h1>
             <p className="text-lg text-gray-300 mb-6">{projectData.project_description || 'No description provided.'}</p>
-          </section>
-          */}
-
-          {/* Combined Project Info Card */}
-          <section className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            {/* Main Project Title */}
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">{projectData.project_name || projectSlug}</h1>
-            {/* Project Description */}
-            <p className="text-base text-gray-300 mb-4 border-b border-gray-700 pb-4">{projectData.project_description || 'No description provided.'}</p>
-
-            {/* Summary Header + Edit Button */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-white">Project Summary</h2>
-              <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded text-sm transition duration-200 shadow"
-              >
-                  Edit Project Details
-              </button>
-            </div>
-            
-            {/* Summary Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
-              <div>
-                <span className="font-semibold text-gray-400">Client Name: </span>
-                <span className="text-gray-300">{projectData.client_name || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-400">Client Email: </span>
-                <span className="text-gray-300">{projectData.client_email || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-400">Project Type: </span>
-                <span className="text-gray-300">{projectData.project_type?.join(', ') || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-400">Budget Tier: </span>
-                <span className="text-gray-300">{projectData.budget_tier || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-400">Timeline Preference: </span>
-                <span className="text-gray-300">{projectData.timeline_preference || 'N/A'}</span>
-              </div>
-              <div>
-                <span className="font-semibold text-gray-400">Design Style: </span>
-                <span className="text-gray-300">{projectData.design_style_preference || 'N/A'}</span>
-              </div>
-              <div className="md:col-span-2">
-                <span className="font-semibold text-gray-400">Required Integrations: </span>
-                <span className="text-gray-300">{projectData.required_integrations?.join(', ') || 'N/A'}</span>
-              </div>
-              <div className="md:col-span-2">
-                <span className="font-semibold text-gray-400">Key Features: </span>
-                <span className="text-gray-300 whitespace-pre-line">{projectData.key_features || 'N/A'}</span>
-              </div>
-               <div className="md:col-span-2">
-                <span className="font-semibold text-gray-400">Anything Else: </span>
-                <span className="text-gray-300 whitespace-pre-line">{projectData.anything_else || 'N/A'}</span>
-              </div>
-            </div>
           </section>
   
           {['current', 'next', 'ultimate'].map(phase => {
@@ -541,19 +445,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                     // Render 'now' phase card differently
                     return (
                       <div key={phase.key} className="bg-gray-900 p-4 rounded shadow flex flex-col">
-                        {/* Card Header with Button */}
-                        <div className="flex justify-between items-center mb-3">
-                          <h3 className="text-lg font-bold text-white">{phase.label}</h3>
-                          {/* View Live Button */}
-                          <a 
-                            href={`https://${projectSlug}`} // Link to actual live site
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
-                          >
-                            View Live
-                          </a>
-                        </div>
+                        <h3 className="text-lg font-bold mb-3 text-white">{phase.label}</h3>
                         
                         {/* Preview Panel - MODIFIED for Live Site iframe with Zoom-out and fitted container */}
                         <div 
@@ -724,34 +616,8 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                     
                     return (
                       <div key={phase.key} className="bg-gray-900 p-4 rounded shadow flex flex-col">
-                        {/* Card Header with Button */}
-                        <div className="flex justify-between items-center mb-3">
-                           <h3 className="text-lg font-bold text-white">{phase.label}</h3>
-                           {/* Conditional Button based on phase */}
-                           {phase.key === 'next' && (
-                             <Link href={`/previews/${projectSlug}`} passHref legacyBehavior>
-                               <a
-                                 target="_blank" // Open preview in new tab
-                                 rel="noopener noreferrer"
-                                 className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
-                               >
-                                 View Preview
-                               </a>
-                             </Link>
-                           )}
-                           {phase.key === 'roadmap' && notionUrl && ( // Only show if notionUrl exists
-                             <Link href={`/projects/${projectSlug}/roadmap`} passHref legacyBehavior>
-                               <a 
-                                 target="_blank"
-                                 rel="noopener noreferrer"
-                                 className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
-                               >
-                                 View Roadmap
-                               </a>
-                             </Link>
-                           )}
-                        </div>
-
+                        <h3 className="text-lg font-bold mb-3 text-white">{phase.label}</h3>
+                        
                         {/* Preview Panel - Conditional Rendering */}
                         <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden border border-gray-700">
                           {/* IFRAME for 'next' phase */}

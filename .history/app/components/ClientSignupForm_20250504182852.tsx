@@ -131,56 +131,22 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
   };
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    console.log("handleLogoUpload triggered"); // Log function start
     if (e.target.files && e.target.files[0]) {
-      console.log("File selected:", e.target.files[0]); // Log selected file
       setUploading(true);
-      setError(""); // Clear previous errors
       const file = e.target.files[0];
       const filePath = `logos/${Date.now()}_${file.name}`;
-      console.log("Uploading to filePath:", filePath); // Log target path
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("client-logos") // Make sure this bucket name is correct in your Supabase project
+      const { data, error } = await supabase.storage
+        .from("client-logos")
         .upload(filePath, file, { upsert: true });
-
-      console.log("Supabase upload result:", { uploadData, uploadError }); // Log upload result
-
-      if (uploadError) {
-        console.error("Supabase upload error object:", uploadError);
-        setError(`Logo upload failed: ${uploadError.message}`);
-      } else if (uploadData) {
-        console.log("Upload successful, getting public URL for path:", uploadData.path);
-        try {
-          // Get public URL - this might throw on error or return data only
-          const { data: urlData } = supabase.storage
-            .from("client-logos")
-            .getPublicUrl(uploadData.path);
-
-          console.log("Supabase getPublicUrl result:", { urlData }); // Log URL data
-
-          if (urlData && urlData.publicUrl) {
-            console.log("Setting logo_url:", urlData.publicUrl);
-            setForm(f => ({ ...f, logo_url: urlData.publicUrl }));
-            setSuccess("Logo uploaded successfully!");
-          } else {
-            // Handle case where getPublicUrl succeeded but returned unexpected data
-            console.warn("getPublicUrl did not return expected publicUrl data.", urlData);
-            setError("Failed to retrieve logo URL after upload.");
-          }
-        } catch (urlError) {
-            // Catch any error thrown by getPublicUrl
-            console.error("Supabase getPublicUrl error object:", urlError);
-            setError(`Failed to get logo URL: ${urlError instanceof Error ? urlError.message : String(urlError)}`);
-        }
+      if (!error && data) {
+        const { data: urlData } = supabase.storage
+          .from("client-logos")
+          .getPublicUrl(data.path);
+        setForm(f => ({ ...f, logo_url: urlData.publicUrl }));
       } else {
-        // Should not happen if uploadError is null, but handle just in case
-        console.warn("Upload seemed successful but no data returned?");
-        setError("Logo upload failed: Unknown reason");
+        setError("Logo upload failed");
       }
       setUploading(false);
-    } else {
-        console.log("No file selected or e.target.files is empty.");
     }
   }
 
@@ -281,8 +247,8 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
         <div>
           <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-            <input type="email" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+            <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Name" value={form.name} required onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+            <input type="email" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Email" value={form.email} required onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
             <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Phone (Optional)" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
             <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Current Website (Optional)" value={form.website} onChange={e => setForm(f => ({ ...f, website: e.target.value }))} />
             
@@ -310,7 +276,7 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
 
         <div>
           <h3 className="text-lg font-semibold mb-2">Project Details</h3>
-          <textarea className="w-full px-3 py-4 bg-gray-800 border border-gray-700 rounded min-h-[120px]" placeholder="Tell us about your project, goals, audience, and anything else you'd like us to know..." value={form.project_brief} onChange={e => setForm(f => ({ ...f, project_brief: e.target.value }))} />
+          <textarea className="w-full px-3 py-4 bg-gray-800 border border-gray-700 rounded min-h-[120px]" placeholder="Tell us about your project, goals, audience, and anything else you'd like us to know..." value={form.project_brief} required onChange={e => setForm(f => ({ ...f, project_brief: e.target.value }))} />
         </div>
 
         <div>

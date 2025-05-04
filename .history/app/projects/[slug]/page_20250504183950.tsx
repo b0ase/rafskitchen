@@ -70,15 +70,14 @@ interface ProjectData {
 }
 
 interface ClientFormData {
-  name?: string;
-  email?: string;
-  phone?: string;
-  website?: string;
-  logo_url?: string;
-  project_brief?: string;
-  project_types?: string[];
-  requested_budget?: number | string | null;
-  github_links?: string | null;
+  name: string;
+  email: string;
+  project_brief: string;
+  project_types: string[];
+  requested_budget: number | string | null;
+  github_links: string | null;
+  timeline_preference: string | null;
+  design_style_preference: string | null;
 }
 
 export default function ProjectPage({ params, searchParams }: { params: { slug: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
@@ -414,6 +413,18 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   return (
     <div className="w-full px-4 md:px-8 lg:px-12 py-8">
       <div className="mb-8 flex flex-wrap justify-end gap-4">
+          {projectData?.preview_url && (
+            <Link href={projectData.preview_url} passHref legacyBehavior>
+              <a 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition duration-200 shadow"
+              >
+                <FaExternalLinkAlt /> View Preview
+              </a>
+             </Link>
+          )}
+          
           {projectData?.github_repo_url && (
               <a 
                   href={projectData.github_repo_url}
@@ -423,6 +434,15 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
               >
                   <FaGithub /> GitHub Repo
               </a>
+          )}
+
+          {!isEditing && (
+              <button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition duration-200 shadow"
+              >
+                  Edit Project Details
+              </button>
           )}
       </div>
 
@@ -444,33 +464,16 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         </section>
       ) : (
         <>
-          {/* REMOVED Project Title/Desc Section */}
-          {/* 
+          {/* Ensure ONLY the dynamic project name/desc is first */}
           <section className="mb-8">
+            {/* Use project_name from data, fallback to slug */}
             <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white">{projectData.project_name || projectSlug}</h1>
             <p className="text-lg text-gray-300 mb-6">{projectData.project_description || 'No description provided.'}</p>
           </section>
-          */}
 
-          {/* Combined Project Info Card */}
+          {/* Project Details Summary Section */}
           <section className="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
-            {/* Main Project Title */}
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">{projectData.project_name || projectSlug}</h1>
-            {/* Project Description */}
-            <p className="text-base text-gray-300 mb-4 border-b border-gray-700 pb-4">{projectData.project_description || 'No description provided.'}</p>
-
-            {/* Summary Header + Edit Button */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-white">Project Summary</h2>
-              <button
-                  onClick={() => setIsEditing(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded text-sm transition duration-200 shadow"
-              >
-                  Edit Project Details
-              </button>
-            </div>
-            
-            {/* Summary Grid */}
+            <h2 className="text-xl font-semibold mb-4 text-white border-b border-gray-700 pb-2">Project Summary</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
               <div>
                 <span className="font-semibold text-gray-400">Client Name: </span>
@@ -740,15 +743,14 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                              </Link>
                            )}
                            {phase.key === 'roadmap' && notionUrl && ( // Only show if notionUrl exists
-                             <Link href={`/projects/${projectSlug}/roadmap`} passHref legacyBehavior>
-                               <a 
-                                 target="_blank"
-                                 rel="noopener noreferrer"
-                                 className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
-                               >
-                                 View Roadmap
-                               </a>
-                             </Link>
+                             <a 
+                               href={notionUrl} 
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-1 px-2 rounded transition duration-200 shadow"
+                             >
+                               View Roadmap
+                             </a>
                            )}
                         </div>
 
