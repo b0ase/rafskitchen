@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -25,50 +24,31 @@ export default function ClientSignupForm() {
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
-  const mainProjectTypes = [
-    // Digital
-    "Website", "Mobile App", "E-Commerce Store", "SaaS Platform", "API Development",
+  const projectTypes = [
+    // Core Digital Services
+    "Web App", "Mobile App", "E-commerce", "SaaS Platform",
     
-    // Creative
-    "Brand Design", "UI/UX", "Video", "Motion Graphics", "3D Design",
+    // Emerging Tech
+    "AI/ML", "Blockchain", "NFT", "Web3", "IoT Integration",
     
-    // Innovation
-    "AI/ML", "Blockchain", "Web3",
+    // Design & Experience
+    "UI/UX Design", "Brand Identity", "3D Design", "Motion Graphics",
     
-    // Growth
-    "Marketing", "Social Media", "SEO", "Content", "Email Marketing",
+    // Content & Marketing
+    "Content Strategy", "Social Media", "Email Marketing", "SEO/SEM",
     
-    // Support
-    "Consulting", "DevOps"
-  ];
-
-  const additionalProjectTypes = [
-    // Specialized Digital
-    "Progressive Web App", "Native Mobile App", "Cross-Platform App",
-    "Marketplace Platform", "Subscription Platform", "Custom CMS",
-    "Database Design", "System Integration", "Legacy System Modernization",
+    // Video & Media
+    "Video Production", "Animation", "Live Streaming", "Podcast Setup",
     
-    // Advanced Creative
-    "Design System", "Interactive Design", "Animation", "Illustration",
-    "Logo Design", "Typography", "Icon Design", "Print Design",
-    "Packaging Design", "Environmental Design",
+    // Business & Integration
+    "CRM Integration", "Payment Systems", "API Development", "Analytics",
     
-    // Extended Innovation
-    "Machine Learning", "Natural Language Processing", "Computer Vision",
-    "Smart Contracts", "DeFi", "NFT Platform", "DAO Tools",
-    "Data Science", "Predictive Analytics", "IoT Platform",
+    // Specialized Solutions
+    "Educational Platform", "Healthcare Tech", "FinTech Solution", "Real Estate Tech",
     
-    // Comprehensive Growth
-    "Growth Strategy", "Content Strategy", "Influencer Marketing",
-    "PPC Advertising", "Marketing Automation", "Lead Generation",
-    "Conversion Optimization", "Analytics Setup", "Performance Marketing",
-    
-    // Additional Services
-    "Security", "Code Review", "Performance Optimization", "Security Audit",
-    "Cloud Architecture", "Infrastructure Setup", "CI/CD Pipeline",
-    "Technical Documentation", "Team Training", "Project Management"
+    // Support Services
+    "Technical Consulting", "DevOps Setup", "Security Audit", "Performance Optimization"
   ];
 
   const toggleProjectType = (type: string) => {
@@ -151,8 +131,8 @@ export default function ClientSignupForm() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">Project Types</h3>
-          <div className="flex flex-wrap gap-2 items-center">
-            {mainProjectTypes.map(type => (
+          <div className="flex flex-wrap gap-2">
+            {projectTypes.map(type => (
               <button
                 key={type}
                 type="button"
@@ -166,33 +146,7 @@ export default function ClientSignupForm() {
                 {type}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => setShowMoreOptions(!showMoreOptions)}
-              className="px-4 py-2 rounded-full text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1 border border-gray-700"
-            >
-              {showMoreOptions ? 'Show Less' : 'Show More Options'} {showMoreOptions ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
           </div>
-
-          {showMoreOptions && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {additionalProjectTypes.map(type => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => toggleProjectType(type)}
-                  className={`px-4 py-2 rounded-full transition-colors text-sm ${
-                    form.project_types.includes(type)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         <div>

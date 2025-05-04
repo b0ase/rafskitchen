@@ -41,7 +41,7 @@ export default function ClientSignupForm() {
     "Marketing", "Social Media", "SEO", "Content", "Email Marketing",
     
     // Support
-    "Consulting", "DevOps"
+    "Consulting", "DevOps", "Security"
   ];
 
   const additionalProjectTypes = [
@@ -66,7 +66,7 @@ export default function ClientSignupForm() {
     "Conversion Optimization", "Analytics Setup", "Performance Marketing",
     
     // Additional Services
-    "Security", "Code Review", "Performance Optimization", "Security Audit",
+    "Code Review", "Performance Optimization", "Security Audit",
     "Cloud Architecture", "Infrastructure Setup", "CI/CD Pipeline",
     "Technical Documentation", "Team Training", "Project Management"
   ];
@@ -151,7 +151,7 @@ export default function ClientSignupForm() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold mb-2">Project Types</h3>
-          <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex flex-wrap gap-2">
             {mainProjectTypes.map(type => (
               <button
                 key={type}
@@ -166,14 +166,16 @@ export default function ClientSignupForm() {
                 {type}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => setShowMoreOptions(!showMoreOptions)}
-              className="px-4 py-2 rounded-full text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1 border border-gray-700"
-            >
-              {showMoreOptions ? 'Show Less' : 'Show More Options'} {showMoreOptions ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
           </div>
+          
+          <button
+            type="button"
+            onClick={() => setShowMoreOptions(!showMoreOptions)}
+            className="mt-4 flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            {showMoreOptions ? <FaChevronUp /> : <FaChevronDown />}
+            {showMoreOptions ? 'Show Less Options' : 'Show More Options'}
+          </button>
 
           {showMoreOptions && (
             <div className="mt-4 flex flex-wrap gap-2">
