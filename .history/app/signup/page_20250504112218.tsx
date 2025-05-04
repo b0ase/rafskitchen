@@ -6,7 +6,7 @@ export default function SignupPage() {
       <section className="w-full bg-gradient-to-br from-blue-900/80 to-gray-900/80 rounded-xl shadow-lg p-4 md:p-12 text-white">
         <div className="w-3/4 mx-auto text-center mb-12">
           <h1 className="text-4xl font-extrabold mb-8">Welcome to B0ASE</h1>
-          <p className="text-lg mb-8">We are a full-service digital agency who specializes in transforming ideas into powerful digital experiences—from sophisticated web applications and mobile solutions to blockchain innovations and AI-driven platforms.</p>
+          <p className="text-lg mb-8">We are a full-service digital agency. We specialize in transforming ideas into powerful digital experiences—from sophisticated web applications and mobile solutions to blockchain innovations and AI-driven platforms.</p>
           
           <p className="text-md text-blue-200 mb-8">Our approach combines strategic thinking with cutting-edge technology to deliver results that matter. Whether you're a startup with a groundbreaking concept, an established brand seeking digital transformation, or an innovator exploring new technological frontiers—we're here to bring your vision to life.</p>
           

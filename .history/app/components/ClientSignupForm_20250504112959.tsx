@@ -65,17 +65,10 @@ export default function ClientSignupForm() {
     setError("");
     setSuccess("");
     try {
-      // Clean up the form data before submission
-      const formData = {
-        ...form,
-        // Convert empty budget string to null, or convert to number if it has a value
-        requested_budget: form.requested_budget ? Number(form.requested_budget) : null
-      };
-
       const res = await fetch("/api/client-request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(form),
       });
       
       const data = await res.json();

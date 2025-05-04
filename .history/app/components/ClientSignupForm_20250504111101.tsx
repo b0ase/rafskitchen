@@ -64,59 +64,35 @@ export default function ClientSignupForm() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    try {
-      // Clean up the form data before submission
-      const formData = {
-        ...form,
-        // Convert empty budget string to null, or convert to number if it has a value
-        requested_budget: form.requested_budget ? Number(form.requested_budget) : null
-      };
-
-      const res = await fetch("/api/client-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+    const res = await fetch("/api/client-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    if (res.ok) {
+      setSuccess("Thank you! Your request has been submitted. We'll be in touch soon.");
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        website: "",
+        logo_url: "",
+        project_brief: "",
+        requested_budget: "",
+        how_heard: "",
+        socials: "",
+        github_links: "",
+        inspiration_links: "",
+        project_types: [],
       });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setSuccess("Thank you! Your request has been submitted. We'll be in touch soon.");
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          website: "",
-          logo_url: "",
-          project_brief: "",
-          requested_budget: "",
-          how_heard: "",
-          socials: "",
-          github_links: "",
-          inspiration_links: "",
-          project_types: [],
-        });
-      } else {
-        setError(`Submission failed: ${data.error || 'Unknown error occurred'}`);
-        console.error('Form submission error:', data);
-      }
-    } catch (err) {
-      setError(`Request failed: ${err instanceof Error ? err.message : 'Unknown error occurred'}`);
-      console.error('Form submission error:', err);
+    } else {
+      setError("Submission failed. Please try again.");
     }
   }
 
   return (
     <div className="space-y-8">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Debug info */}
-        <div className="text-xs text-gray-500 mb-4">
-          <p>Name: {form.name ? '✓' : '×'}</p>
-          <p>Email: {form.email ? '✓' : '×'}</p>
-          <p>Project Brief: {form.project_brief ? '✓' : '×'}</p>
-          <p>Uploading: {uploading ? 'Yes' : 'No'}</p>
-        </div>
-        
         <div>
           <h3 className="text-lg font-semibold mb-2">Project Types</h3>
           <div className="flex flex-wrap gap-2">
@@ -136,7 +112,6 @@ export default function ClientSignupForm() {
             ))}
           </div>
         </div>
-
         <div>
           <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -146,12 +121,6 @@ export default function ClientSignupForm() {
             <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Website (optional)" value={form.website} onChange={e => setForm(f => ({ ...f, website: e.target.value }))} />
           </div>
         </div>
-
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Project Details</h3>
-          <textarea className="w-full px-3 py-4 bg-gray-800 border border-gray-700 rounded min-h-[120px]" placeholder="Tell us about your project, goals, audience, and anything else you'd like us to know..." value={form.project_brief} required onChange={e => setForm(f => ({ ...f, project_brief: e.target.value }))} />
-        </div>
-
         <div>
           <h3 className="text-lg font-semibold mb-2">Brand & Logo</h3>
           <div className="flex items-center gap-2">
@@ -165,7 +134,10 @@ export default function ClientSignupForm() {
             <img src={form.logo_url} alt="Logo preview" className="mt-2 h-12 rounded bg-white object-contain" />
           )}
         </div>
-
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Project Details</h3>
+          <textarea className="w-full px-3 py-4 bg-gray-800 border border-gray-700 rounded min-h-[120px]" placeholder="Tell us about your project, goals, audience, and anything else you'd like us to know..." value={form.project_brief} required onChange={e => setForm(f => ({ ...f, project_brief: e.target.value }))} />
+        </div>
         <div>
           <h3 className="text-lg font-semibold mb-2">Budget & Discovery</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -173,51 +145,13 @@ export default function ClientSignupForm() {
             <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="How did you hear about us? (optional)" value={form.how_heard} onChange={e => setForm(f => ({ ...f, how_heard: e.target.value }))} />
           </div>
         </div>
-
         <div>
-          <h3 className="text-lg font-semibold mb-2">Links & Inspiration <span className="text-sm font-normal text-gray-400">(Optional)</span></h3>
-          <div className="space-y-4 text-sm">
-            <div>
-              <label className="block text-gray-300 mb-1">Social Media Links</label>
-              <textarea 
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" 
-                placeholder="Twitter, LinkedIn, Instagram, etc." 
-                value={form.socials} 
-                onChange={e => setForm(f => ({ ...f, socials: e.target.value }))} 
-              />
-            </div>
-            <div>
-              <label className="block text-gray-300 mb-1">GitHub or Code Repository Links</label>
-              <textarea 
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" 
-                placeholder="Share any relevant code repositories" 
-                value={form.github_links} 
-                onChange={e => setForm(f => ({ ...f, github_links: e.target.value }))} 
-              />
-            </div>
-            <div>
-              <label className="block text-gray-300 mb-1">Inspiration</label>
-              <textarea 
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" 
-                placeholder="Share links to sites, apps, or designs that inspire your vision" 
-                value={form.inspiration_links} 
-                onChange={e => setForm(f => ({ ...f, inspiration_links: e.target.value }))} 
-              />
-            </div>
-          </div>
+          <h3 className="text-lg font-semibold mb-2">Links & Inspiration</h3>
+          <textarea className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Social links (Twitter, LinkedIn, etc.)" value={form.socials} onChange={e => setForm(f => ({ ...f, socials: e.target.value }))} />
+          <textarea className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded mt-2" placeholder="GitHub or code links (optional)" value={form.github_links} onChange={e => setForm(f => ({ ...f, github_links: e.target.value }))} />
+          <textarea className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded mt-2" placeholder="Sites or apps you want to emulate (optional)" value={form.inspiration_links} onChange={e => setForm(f => ({ ...f, inspiration_links: e.target.value }))} />
         </div>
-
-        <button 
-          type="submit" 
-          className="w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded disabled:opacity-50" 
-          disabled={uploading || !form.name || !form.email || !form.project_brief}
-          onClick={() => {
-            if (!form.name) console.log('Missing name');
-            if (!form.email) console.log('Missing email');
-            if (!form.project_brief) console.log('Missing project brief');
-            if (uploading) console.log('Still uploading');
-          }}
-        >
+        <button type="submit" className="w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded disabled:opacity-50" disabled={uploading || !form.name || !form.email || !form.project_brief}>
           {uploading ? "Uploading..." : "Submit Request"}
         </button>
         {error && <p className="text-red-400 text-sm mt-2">{error}</p>}

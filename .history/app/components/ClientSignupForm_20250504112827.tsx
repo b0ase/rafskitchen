@@ -64,45 +64,29 @@ export default function ClientSignupForm() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    try {
-      // Clean up the form data before submission
-      const formData = {
-        ...form,
-        // Convert empty budget string to null, or convert to number if it has a value
-        requested_budget: form.requested_budget ? Number(form.requested_budget) : null
-      };
-
-      const res = await fetch("/api/client-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+    const res = await fetch("/api/client-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    if (res.ok) {
+      setSuccess("Thank you! Your request has been submitted. We'll be in touch soon.");
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        website: "",
+        logo_url: "",
+        project_brief: "",
+        requested_budget: "",
+        how_heard: "",
+        socials: "",
+        github_links: "",
+        inspiration_links: "",
+        project_types: [],
       });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setSuccess("Thank you! Your request has been submitted. We'll be in touch soon.");
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          website: "",
-          logo_url: "",
-          project_brief: "",
-          requested_budget: "",
-          how_heard: "",
-          socials: "",
-          github_links: "",
-          inspiration_links: "",
-          project_types: [],
-        });
-      } else {
-        setError(`Submission failed: ${data.error || 'Unknown error occurred'}`);
-        console.error('Form submission error:', data);
-      }
-    } catch (err) {
-      setError(`Request failed: ${err instanceof Error ? err.message : 'Unknown error occurred'}`);
-      console.error('Form submission error:', err);
+    } else {
+      setError("Submission failed. Please try again.");
     }
   }
 

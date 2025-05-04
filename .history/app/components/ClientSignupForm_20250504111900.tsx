@@ -64,59 +64,35 @@ export default function ClientSignupForm() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    try {
-      // Clean up the form data before submission
-      const formData = {
-        ...form,
-        // Convert empty budget string to null, or convert to number if it has a value
-        requested_budget: form.requested_budget ? Number(form.requested_budget) : null
-      };
-
-      const res = await fetch("/api/client-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+    const res = await fetch("/api/client-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    if (res.ok) {
+      setSuccess("Thank you! Your request has been submitted. We'll be in touch soon.");
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        website: "",
+        logo_url: "",
+        project_brief: "",
+        requested_budget: "",
+        how_heard: "",
+        socials: "",
+        github_links: "",
+        inspiration_links: "",
+        project_types: [],
       });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setSuccess("Thank you! Your request has been submitted. We'll be in touch soon.");
-        setForm({
-          name: "",
-          email: "",
-          phone: "",
-          website: "",
-          logo_url: "",
-          project_brief: "",
-          requested_budget: "",
-          how_heard: "",
-          socials: "",
-          github_links: "",
-          inspiration_links: "",
-          project_types: [],
-        });
-      } else {
-        setError(`Submission failed: ${data.error || 'Unknown error occurred'}`);
-        console.error('Form submission error:', data);
-      }
-    } catch (err) {
-      setError(`Request failed: ${err instanceof Error ? err.message : 'Unknown error occurred'}`);
-      console.error('Form submission error:', err);
+    } else {
+      setError("Submission failed. Please try again.");
     }
   }
 
   return (
     <div className="space-y-8">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Debug info */}
-        <div className="text-xs text-gray-500 mb-4">
-          <p>Name: {form.name ? '✓' : '×'}</p>
-          <p>Email: {form.email ? '✓' : '×'}</p>
-          <p>Project Brief: {form.project_brief ? '✓' : '×'}</p>
-          <p>Uploading: {uploading ? 'Yes' : 'No'}</p>
-        </div>
-        
         <div>
           <h3 className="text-lg font-semibold mb-2">Project Types</h3>
           <div className="flex flex-wrap gap-2">
@@ -207,17 +183,7 @@ export default function ClientSignupForm() {
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          className="w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded disabled:opacity-50" 
-          disabled={uploading || !form.name || !form.email || !form.project_brief}
-          onClick={() => {
-            if (!form.name) console.log('Missing name');
-            if (!form.email) console.log('Missing email');
-            if (!form.project_brief) console.log('Missing project brief');
-            if (uploading) console.log('Still uploading');
-          }}
-        >
+        <button type="submit" className="w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded disabled:opacity-50" disabled={uploading || !form.name || !form.email || !form.project_brief}>
           {uploading ? "Uploading..." : "Submit Request"}
         </button>
         {error && <p className="text-red-400 text-sm mt-2">{error}</p>}

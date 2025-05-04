@@ -32,7 +32,7 @@ export default function Header() {
   ];
 
   const utilityLinks = [
-    { name: 'New Clients', href: '/signup' },
+    { name: 'New Clients', href: '/clients' },
     { name: 'Client Login', href: '/login' },
     { name: 'Studio', href: '/studio' },
     { name: '$BOASE', href: '/token' },
@@ -107,7 +107,7 @@ export default function Header() {
             ))}
             <ThemeToggle />
             {/* Admin Link (padlock icon) */}
-            <Link href="/admin" aria-label="Admin Dashboard" className="text-gray-400 hover:text-blue-400 transition-colors ml-2">
+            <Link href="/admin/clients" aria-label="Admin Dashboard" className="text-gray-400 hover:text-blue-400 transition-colors ml-2">
               <FaLock size={18} />
             </Link>
           </div>
@@ -132,7 +132,7 @@ export default function Header() {
               </Link>
             ))}
             {/* Admin Link (padlock icon) in mobile menu */}
-            <Link href="/admin" aria-label="Admin Dashboard" className="block text-base font-medium text-gray-300 hover:text-blue-400 transition-colors mt-2" onClick={handleMobileLinkClick}>
+            <Link href="/admin/clients" aria-label="Admin Dashboard" className="block text-base font-medium text-gray-300 hover:text-blue-400 transition-colors mt-2" onClick={handleMobileLinkClick}>
               <span className="inline-flex items-center gap-2"><FaLock size={16} /> Admin</span>
             </Link>
           </nav>

@@ -32,7 +32,7 @@ export default function Header() {
   ];
 
   const utilityLinks = [
-    { name: 'New Clients', href: '/signup' },
+    { name: 'Signup', href: '/signup' },
     { name: 'Client Login', href: '/login' },
     { name: 'Studio', href: '/studio' },
     { name: '$BOASE', href: '/token' },
