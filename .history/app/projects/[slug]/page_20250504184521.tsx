@@ -67,8 +67,6 @@ interface ProjectData {
   slug: string;
   github_repo_url?: string | null;
   preview_url?: string | null;
-  website?: string | null;
-  preview_deployment_url?: string | null;
 }
 
 interface ClientFormData {
@@ -100,103 +98,102 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log(`Attempting to fetch client with slug inside fetchData: ${projectSlug}`);
-      const { data: coreData, error: coreError } = await supabase
-        .from('clients')
-        .select('*')
-        .eq('slug', projectSlug)
-        .single();
-
-      console.log('Supabase core fetch result:', { coreData, coreError });
-
-      if (coreError) {
-        console.error('Supabase error fetching client:', coreError);
-        setError(`Error loading project details: ${coreError.message}`);
-        setLoading(false);
-        return;
-      } 
-      if (!coreData) {
-        console.error('No client data returned from Supabase for slug:', projectSlug);
-        setError('Could not find project details for this slug.');
-        setLoading(false);
-        return;
-      }
-
-      console.log('Successfully fetched core project data.');
-      setProjectData(coreData);
-
-      const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
-        supabase.from('project_treatments').select('*').eq('project_slug', projectSlug).order('sort_order', { ascending: true }),
-        supabase.from('project_timelines').select('*, is_summary, preview_image_url').eq('project_slug', projectSlug).order('sort_order', { ascending: true }),
-        supabase.from('project_features').select('*, completed').eq('project_slug', projectSlug).order('priority', { ascending: true }),
-        supabase.from('project_feedback').select('*').eq('project_slug', projectSlug).order('created_at', { ascending: false })
-      ]);
-
-      setTreatments(treatmentsRes.data || []);
-      setTimeline(timelineRes.data || []);
-      
-      // Process features - check for and add defaults
-      const existingFeatures = featuresRes.data || [];
-      const defaultFeatures = [
-        { feature: 'Initial Consultation & Requirements Gathering', priority: 'High', status: 'Core', est_cost: 0, completed: true }, // Example cost/status
-        { feature: 'Domain Name Setup/Configuration', priority: 'High', status: 'Core', est_cost: 15 },
-        { feature: 'Hosting Setup & Configuration', priority: 'High', status: 'Core', est_cost: 100 },
-        { feature: 'Basic Website Structure (Homepage, About, Contact)', priority: 'High', status: 'Core', est_cost: 250 },
-        { feature: 'Responsive Design (Mobile/Tablet)', priority: 'High', status: 'Core', est_cost: 150 },
-        { feature: 'Contact Form Setup', priority: 'Medium', status: 'Core', est_cost: 50 },
-        { feature: 'Basic SEO Setup (Titles, Metas)', priority: 'Medium', status: 'Core', est_cost: 75 },
-        { feature: 'Deployment to Live Server', priority: 'High', status: 'Core', est_cost: 50 },
-        { feature: 'Handover & Basic Training', priority: 'Medium', status: 'Core', est_cost: 100 },
-      ];
-
-      // Adjust type to match the data being inserted
-      const featuresToAdd: (Omit<Feature, 'id' | 'approved' | 'completed'> & { project_slug: string, completed?: boolean })[] = []; 
-      defaultFeatures.forEach(defaultFeature => {
-        const exists = existingFeatures.some(existing => existing.feature === defaultFeature.feature);
-        if (!exists) {
-          featuresToAdd.push({
-             project_slug: projectSlug, 
-             ...defaultFeature 
-            });
-        }
-      });
-
-      let finalFeatures = existingFeatures;
-      if (featuresToAdd.length > 0) {
-         console.log(`Adding ${featuresToAdd.length} default features...`);
-         const { data: addedFeatures, error: insertError } = await supabase
-           .from('project_features')
-           .insert(featuresToAdd)
-           .select('*, completed');
-
-         if (insertError) {
-           console.error("Error inserting default features:", insertError);
-           // Continue with existing features even if defaults fail to insert
-         } else if (addedFeatures) {
-           finalFeatures = [...existingFeatures, ...addedFeatures];
-         }
-      }
-      
-      setFeatures(finalFeatures);
-      setFeedback(feedbackRes.data || []);
-
-    } catch (err) {
-      console.error('Unexpected error in fetchData try block:', err);
-      setError('An unexpected error occurred while loading project data.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
     console.log('Fetching data for slug:', projectSlug);
     // -------------------------------------
     // Explicitly check for projectSlug before defining/calling fetchData
     if (projectSlug) {
+      async function fetchData() {
+        setLoading(true);
+        setError(null);
+        try {
+          // --- DEBUG LOG: Log before the fetch ---
+          console.log(`Attempting to fetch client with slug inside fetchData: ${projectSlug}`);
+          // --------------------------------------
+          const { data: coreData, error: coreError } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('slug', projectSlug)
+            .single();
+
+          // --- DEBUG LOG: Log the direct result from Supabase ---
+          console.log('Supabase core fetch result:', { coreData, coreError });
+          // ------------------------------------------------------
+
+          if (coreError || !coreData) {
+            console.error('Condition (coreError || !coreData) is TRUE. Setting error.');
+            setError('Could not load project details.');
+            setLoading(false);
+            return;
+          }
+          console.log('Condition (coreError || !coreData) is FALSE. Proceeding...');
+          setProjectData(coreData);
+
+          const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
+            supabase.from('project_treatments').select('*').eq('project_slug', projectSlug).order('sort_order', { ascending: true }),
+            supabase.from('project_timelines').select('*, is_summary, preview_image_url').eq('project_slug', projectSlug).order('sort_order', { ascending: true }),
+            supabase.from('project_features').select('*, completed').eq('project_slug', projectSlug).order('priority', { ascending: true }),
+            supabase.from('project_feedback').select('*').eq('project_slug', projectSlug).order('created_at', { ascending: false })
+          ]);
+
+          setTreatments(treatmentsRes.data || []);
+          setTimeline(timelineRes.data || []);
+          
+          // Process features - check for and add defaults
+          const existingFeatures = featuresRes.data || [];
+          const defaultFeatures = [
+            { feature: 'Initial Consultation & Requirements Gathering', priority: 'High', status: 'Core', est_cost: 0, completed: true }, // Example cost/status
+            { feature: 'Domain Name Setup/Configuration', priority: 'High', status: 'Core', est_cost: 15 },
+            { feature: 'Hosting Setup & Configuration', priority: 'High', status: 'Core', est_cost: 100 },
+            { feature: 'Basic Website Structure (Homepage, About, Contact)', priority: 'High', status: 'Core', est_cost: 250 },
+            { feature: 'Responsive Design (Mobile/Tablet)', priority: 'High', status: 'Core', est_cost: 150 },
+            { feature: 'Contact Form Setup', priority: 'Medium', status: 'Core', est_cost: 50 },
+            { feature: 'Basic SEO Setup (Titles, Metas)', priority: 'Medium', status: 'Core', est_cost: 75 },
+            { feature: 'Deployment to Live Server', priority: 'High', status: 'Core', est_cost: 50 },
+            { feature: 'Handover & Basic Training', priority: 'Medium', status: 'Core', est_cost: 100 },
+          ];
+
+          // Adjust type to match the data being inserted
+          const featuresToAdd: (Omit<Feature, 'id' | 'approved' | 'completed'> & { project_slug: string, completed?: boolean })[] = []; 
+          defaultFeatures.forEach(defaultFeature => {
+            const exists = existingFeatures.some(existing => existing.feature === defaultFeature.feature);
+            if (!exists) {
+              featuresToAdd.push({
+                 project_slug: projectSlug, 
+                 ...defaultFeature 
+                });
+            }
+          });
+
+          let finalFeatures = existingFeatures;
+          if (featuresToAdd.length > 0) {
+             console.log(`Adding ${featuresToAdd.length} default features...`);
+             const { data: addedFeatures, error: insertError } = await supabase
+               .from('project_features')
+               .insert(featuresToAdd)
+               .select('*, completed');
+
+             if (insertError) {
+               console.error("Error inserting default features:", insertError);
+               // Continue with existing features even if defaults fail to insert
+             } else if (addedFeatures) {
+               finalFeatures = [...existingFeatures, ...addedFeatures];
+             }
+          }
+          
+          // Sort features maybe? (Optional, e.g., by priority then name)
+          // finalFeatures.sort(...);
+
+          setFeatures(finalFeatures);
+          setFeedback(feedbackRes.data || []);
+
+        } catch (err) {
+          console.error('Unexpected error in fetchData try block:', err);
+          setError('An unexpected error occurred while loading project data.');
+        } finally {
+          setLoading(false);
+        }
+      }
       fetchData(); // Call fetchData only if projectSlug is truthy
     } else {
       // Handle the case where slug is initially missing or becomes undefined
@@ -334,7 +331,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         logo_url: string | undefined;
         phone: string | undefined;
         github_repo_url: string | null | undefined;
-        // Remove non-existent columns
+        // Add other ACTUAL columns if needed, e.g., repo_url if form had it
     }> = {
       name: updatedFormData.name, 
       email: updatedFormData.email, 
@@ -377,9 +374,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         setProjectData(prev => prev ? { ...prev, ...updatedClientData } : null);
         setFeedbackSuccess("Project details updated successfully!"); // Show success message
         setIsEditing(false);
-        
-        // Force refresh data to ensure all components reflect the latest changes
-        fetchData(); 
       } else {
          // Handle case where update succeeded but no data was returned (shouldn't happen with .single() unless row deleted)
          console.warn("Update seemed successful but no data returned.");
@@ -416,9 +410,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   if (!projectData) {
      return <div className="w-full px-4 py-8 text-center">Project details could not be loaded.</div>;
   }
-
-  // Log the website URL being used for the iframe
-  console.log('Live site URL for iframe:', projectData?.website);
 
   return (
     <div className="w-full px-4 md:px-8 lg:px-12 py-8">
@@ -572,33 +563,24 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                              height: '252px' // = 720 * 0.35
                           }}
                         >
-                          {projectData.website ? (
-                            <iframe
-                              src={projectData.website} // Use ONLY the client's specified website URL
-                              title={`${phase.label} Live Site Preview for ${projectData.client_name}`}
-                              style={{
-                                width: '1280px',
-                                height: '720px',
-                                transform: 'scale(0.35)',
-                                transformOrigin: '0 0',
-                                border: 'none',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                              }}
-                              sandbox="allow-scripts allow-same-origin"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                              {/* Display text placeholder instead of trying to load an image */}
-                              <p className="text-gray-400 italic text-center">
-                                Preview Placeholder
-                                <br />
-                                <span className="text-xs">(No live website URL specified)</span>
-                              </p>
-                            </div>
-                          )}
+                          {/* Use iframe for the live site, with transform for zoom-out */}
+                          {/* Adjust width, height, and scale factor as needed */}
+                          <iframe
+                             src="https://robust-ae.com/"
+                             title={`${phase.label} Live Site Preview for ${projectSlug}`}
+                             style={{
+                               width: '1280px', // Target width to scale down from
+                               height: '720px', // Target height (maintaining 16:9 ratio)
+                               transform: 'scale(0.35)', // Adjust scale factor (0.35 = 35%)
+                               transformOrigin: '0 0', // Scale from top-left corner
+                               border: 'none',
+                               position: 'absolute', // Position within the container
+                               top: 0,
+                               left: 0,
+                             }}
+                             sandbox="allow-scripts allow-same-origin"
+                             loading="lazy"
+                           />
                         </div>
 
                         {/* --- Feature Request Form Start --- */}
@@ -772,33 +754,26 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
 
                         {/* Preview Panel - Conditional Rendering */}
                         <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden border border-gray-700">
-                          {/* IFRAME for 'next' phase - uses preview_deployment_url from DB */}
+                          {/* IFRAME for 'next' phase */}
                           {phase.key === 'next' ? (
-                            projectData.preview_deployment_url ? (
-                              <iframe
-                                src={projectData.preview_deployment_url} // Use the URL from DB
-                                title={`${phase.label} Preview for ${projectSlug}`}
-                                style={{ 
-                                  width: '100%', 
-                                  height: '100%', 
-                                  border: 'none' 
-                                }}
-                                loading="lazy"
-                                sandbox="allow-scripts allow-same-origin"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                                <p className="text-gray-400 italic text-center">
-                                  Preview URL not set
-                                  <br />
-                                  <span className="text-xs">(Set via Admin Panel)</span>
-                                </p>
-                              </div>
-                            )
+                             <iframe
+                                src={`/previews/${projectSlug}`} 
+                                title={`${phase.label} Live Preview for ${projectSlug}`}
+                                style={{ width: '100%', height: '100%', border: 'none' }}
+                                loading="lazy" 
+                             />
                           ) : (
-                          /* TBD placeholder for 'roadmap' phase */
+                          /* TBD placeholder for 'roadmap' phase (or any other future phase) */
                           <span className="text-sm italic">TBD</span>
                           )}
+                          {/* Original logic for images/TBD - can be removed or kept commented */}
+                          {/* 
+                          {previewUrl ? ( 
+                             <img src={previewUrl} alt={`${phase.label} Preview`} className="object-cover w-full h-full"/> 
+                          ) : ( 
+                             <span className="text-sm italic">TBD</span> 
+                          )} 
+                          */}
                         </div>
         
                         {/* --- Feature Request Form Start --- */}
@@ -833,6 +808,9 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                               </button>
                             </div>
                           </form>
+                          {/* Potentially show success message specific to this card if needed, 
+                              but global success message might be sufficient. 
+                              Keeping global for now. */}
                         </div>
                         {/* --- Feature Request Form End --- */}
                         

@@ -68,7 +68,6 @@ interface ProjectData {
   github_repo_url?: string | null;
   preview_url?: string | null;
   website?: string | null;
-  preview_deployment_url?: string | null;
 }
 
 interface ClientFormData {
@@ -113,20 +112,13 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
 
       console.log('Supabase core fetch result:', { coreData, coreError });
 
-      if (coreError) {
-        console.error('Supabase error fetching client:', coreError);
-        setError(`Error loading project details: ${coreError.message}`);
-        setLoading(false);
-        return;
-      } 
-      if (!coreData) {
-        console.error('No client data returned from Supabase for slug:', projectSlug);
-        setError('Could not find project details for this slug.');
+      if (coreError || !coreData) {
+        console.error('Condition (coreError || !coreData) is TRUE. Setting error.');
+        setError('Could not load project details.');
         setLoading(false);
         return;
       }
-
-      console.log('Successfully fetched core project data.');
+      console.log('Condition (coreError || !coreData) is FALSE. Proceeding...');
       setProjectData(coreData);
 
       const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
@@ -417,9 +409,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
      return <div className="w-full px-4 py-8 text-center">Project details could not be loaded.</div>;
   }
 
-  // Log the website URL being used for the iframe
-  console.log('Live site URL for iframe:', projectData?.website);
-
   return (
     <div className="w-full px-4 md:px-8 lg:px-12 py-8">
       <div className="mb-8 flex flex-wrap justify-end gap-4">
@@ -588,6 +577,10 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                               }}
                               sandbox="allow-scripts allow-same-origin"
                               loading="lazy"
+                              onError={(e) => {
+                                const target = e.target as HTMLIFrameElement;
+                                console.error(`Error loading iframe for ${projectData.website}`, e);
+                              }}
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-800">
@@ -772,11 +765,10 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
 
                         {/* Preview Panel - Conditional Rendering */}
                         <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden border border-gray-700">
-                          {/* IFRAME for 'next' phase - uses preview_deployment_url from DB */}
+                          {/* IFRAME for 'next' phase - preview we're building */}
                           {phase.key === 'next' ? (
-                            projectData.preview_deployment_url ? (
-                              <iframe
-                                src={projectData.preview_deployment_url} // Use the URL from DB
+                             <iframe
+                                src={`/previews/${projectSlug}`}
                                 title={`${phase.label} Preview for ${projectSlug}`}
                                 style={{ 
                                   width: '100%', 
@@ -785,18 +777,9 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                                 }}
                                 loading="lazy"
                                 sandbox="allow-scripts allow-same-origin"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                                <p className="text-gray-400 italic text-center">
-                                  Preview URL not set
-                                  <br />
-                                  <span className="text-xs">(Set via Admin Panel)</span>
-                                </p>
-                              </div>
-                            )
+                             />
                           ) : (
-                          /* TBD placeholder for 'roadmap' phase */
+                          /* TBD placeholder for 'roadmap' phase (or any other future phase) */
                           <span className="text-sm italic">TBD</span>
                           )}
                         </div>

@@ -4,32 +4,34 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 
-// Ensure these are loaded correctly
+// Ensure these are loaded correctly, potentially from a shared config or env variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Define an interface for the project data we expect - using correct field names
+// Define an interface for the project data we expect
 interface Project {
   id: string;
   slug: string;
-  name: string; // Client/Project Name (from form)
-  email: string | null; // Client Email (from form)
-  status: string;
-  preview_deployment_url: string | null;
-  website: string | null;
-  notes: string | null; // Actual column name for brief/description
-  // Add other fields from 'clients' table if needed
+  project_name: string;
+  client_name: string;
+  status: string; // From the migration
+  preview_deployment_url: string | null; // From the migration
+  website: string | null; // Added website field
+  // Add other fields as needed
+  client_email?: string | null;
+  project_description?: string | null;
 }
 
-// Define the shape of the form data for editing - using correct field names
+// Define the shape of the form data for editing
 interface EditFormData {
-  name: string;
-  email: string | null;
+  project_name: string;
+  client_name: string;
+  client_email?: string | null;
   website: string | null;
   preview_deployment_url: string | null;
-  notes: string | null; // Use 'notes' here as well
-  // Add other editable fields if necessary
+  project_description?: string | null;
+  // Add other editable fields
 }
 
 // --- Edit Project Modal Component ---
@@ -44,40 +46,29 @@ function EditProjectModal({
   onCancel: () => void;
   isOpen: boolean;
 }) {
-  const [formData, setFormData] = useState<EditFormData>({
-    name: '',
-    email: null,
-    website: null,
-    preview_deployment_url: null,
-    notes: null
-  });
+  const [formData, setFormData] = useState<EditFormData>({ project_name: '', client_name: '', website: null, preview_deployment_url: null });
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Pre-fill form when project data changes
     if (project) {
       setFormData({
-        name: project.name || '',
-        email: project.email || null,
+        project_name: project.project_name || '',
+        client_name: project.client_name || '',
+        client_email: project.client_email || null,
         website: project.website || null,
         preview_deployment_url: project.preview_deployment_url || null,
-        notes: project.notes || null,
+        project_description: project.project_description || null,
       });
     } else {
-      // Reset form
-      setFormData({
-        name: '',
-        email: null,
-        website: null,
-        preview_deployment_url: null,
-        notes: null
-      });
+      // Reset form if no project is selected (modal closed)
+      setFormData({ project_name: '', client_name: '', website: null, preview_deployment_url: null });
     }
   }, [project]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value || null }));
+    setFormData(prev => ({ ...prev, [name]: value || null })); // Store empty strings as null
   };
 
   const handleSave = async () => {
@@ -92,16 +83,21 @@ function EditProjectModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50 p-4">
       <div className="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Edit Project: {project.name}</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-white">Edit Project: {project.project_name}</h2>
         
+        {/* Form Fields - Add more as needed */}
         <div className="space-y-4 mb-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">Client/Project Name</label>
-            <input type="text" id="name" name="name" value={formData.name || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
+            <label htmlFor="project_name" className="block text-sm font-medium text-gray-300 mb-1">Project Name</label>
+            <input type="text" id="project_name" name="project_name" value={formData.project_name || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
+          </div>
+          <div>
+            <label htmlFor="client_name" className="block text-sm font-medium text-gray-300 mb-1">Client Name</label>
+            <input type="text" id="client_name" name="client_name" value={formData.client_name || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
           </div>
            <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Client Email</label>
-            <input type="email" id="email" name="email" value={formData.email || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
+            <label htmlFor="client_email" className="block text-sm font-medium text-gray-300 mb-1">Client Email</label>
+            <input type="email" id="client_email" name="client_email" value={formData.client_email || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
           </div>
           <div>
             <label htmlFor="website" className="block text-sm font-medium text-gray-300 mb-1">Live Website URL</label>
@@ -112,11 +108,12 @@ function EditProjectModal({
             <input type="url" id="preview_deployment_url" name="preview_deployment_url" placeholder="https://project-preview.vercel.app" value={formData.preview_deployment_url || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
           </div>
            <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-300 mb-1">Notes/Project Brief</label>
-            <textarea id="notes" name="notes" rows={3} value={formData.notes || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"></textarea>
+            <label htmlFor="project_description" className="block text-sm font-medium text-gray-300 mb-1">Project Description</label>
+            <textarea id="project_description" name="project_description" rows={3} value={formData.project_description || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"></textarea>
           </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex justify-end gap-4">
           <button 
             onClick={onCancel}
@@ -150,10 +147,10 @@ export default function AdminProjectsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Select correct columns based on form and likely schema
+      // Select necessary columns, including website
       const { data, error: fetchError } = await supabase
         .from('clients')
-        .select('id, slug, name, email, status, preview_deployment_url, website, notes')
+        .select('id, slug, project_name, client_name, client_email, status, preview_deployment_url, website, project_description') // Added more fields
         .order('created_at', { ascending: false });
 
       if (fetchError) {
@@ -186,13 +183,15 @@ export default function AdminProjectsPage() {
   const handleSaveEdit = async (id: string, formData: EditFormData) => {
     setError(null);
     try {
-      // Prepare payload with correct fields matching EditFormData and Project interface
-      const updatePayload: Partial<Omit<Project, 'id' | 'slug' | 'status'>> = {
-        name: formData.name,
-        email: formData.email,
+      // Prepare payload - only include fields we want to update
+      const updatePayload: Partial<Project> = {
+        project_name: formData.project_name,
+        client_name: formData.client_name,
+        client_email: formData.client_email,
         website: formData.website,
         preview_deployment_url: formData.preview_deployment_url,
-        notes: formData.notes,
+        project_description: formData.project_description,
+        // Add other fields if they are part of EditFormData
       };
 
       const { error: updateError } = await supabase
@@ -204,35 +203,16 @@ export default function AdminProjectsPage() {
         throw updateError;
       }
 
+      // Optimistically update local state or refetch
+      // Refetching is simpler for now
       await fetchProjects(); 
-      handleCancelEdit();
+
+      handleCancelEdit(); // Close modal on success
 
     } catch (err: any) {
       console.error("Error saving project:", err);
       setError(`Failed to save project: ${err.message}`);
-    }
-  };
-
-  const handleDeleteClick = async (project: Project) => {
-    setError(null);
-    if (window.confirm(`Are you sure you want to delete the project "${project.name}"? This cannot be undone.`)) {
-      try {
-        const { error: deleteError } = await supabase
-          .from('clients')
-          .delete()
-          .eq('id', project.id);
-
-        if (deleteError) {
-          throw deleteError;
-        }
-
-        // Refresh the list after successful deletion
-        await fetchProjects();
-
-      } catch (err: any) {
-        console.error("Error deleting project:", err);
-        setError(`Failed to delete project: ${err.message}`);
-      }
+      // Optionally keep modal open on error, or show message
     }
   };
 
@@ -248,6 +228,7 @@ export default function AdminProjectsPage() {
       </div>
 
       {loading && <p>Loading projects...</p>}
+      {/* Display general error for the page */}
       {error && !isEditModalOpen && <p className="text-red-500 mb-4">Error: {error}</p>}
 
       {!loading && (
@@ -255,7 +236,8 @@ export default function AdminProjectsPage() {
           <table className="w-full table-auto text-left">
             <thead className="bg-gray-700/50 text-xs text-gray-300 uppercase tracking-wider">
               <tr>
-                <th className="px-6 py-3">Client/Project Name</th>
+                <th className="px-6 py-3">Project Name</th>
+                <th className="px-6 py-3">Client Name</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Preview URL</th>
                 <th className="px-6 py-3">Actions</th>
@@ -264,12 +246,13 @@ export default function AdminProjectsPage() {
             <tbody className="divide-y divide-gray-700/50">
               {projects.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-400 italic">No projects found.</td>
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-400 italic">No projects found.</td>
                 </tr>
               ) : (
                 projects.map((project) => (
                   <tr key={project.id} className="hover:bg-gray-700/30">
-                    <td className="px-6 py-4 whitespace-nowrap font-medium">{project.name || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap font-medium">{project.project_name || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-300">{project.client_name || 'N/A'}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full 
                         ${project.status === 'approved' ? 'bg-green-700 text-green-100' : 
@@ -289,18 +272,12 @@ export default function AdminProjectsPage() {
                         <span className="text-gray-500 italic">Not set</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap space-x-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <button 
-                        onClick={() => handleEditClick(project)} 
+                        onClick={() => handleEditClick(project)} // Call handler on click
                         className="text-indigo-400 hover:text-indigo-300 font-medium text-sm"
                       >
                         Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteClick(project)}
-                        className="text-red-500 hover:text-red-400 font-medium text-sm"
-                      >
-                        Delete
                       </button>
                     </td>
                   </tr>
@@ -311,6 +288,7 @@ export default function AdminProjectsPage() {
         </div>
       )}
 
+      {/* Edit Modal - Rendered conditionally */}
       <EditProjectModal 
         isOpen={isEditModalOpen} 
         project={editingProject}

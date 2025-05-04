@@ -213,29 +213,6 @@ export default function AdminProjectsPage() {
     }
   };
 
-  const handleDeleteClick = async (project: Project) => {
-    setError(null);
-    if (window.confirm(`Are you sure you want to delete the project "${project.name}"? This cannot be undone.`)) {
-      try {
-        const { error: deleteError } = await supabase
-          .from('clients')
-          .delete()
-          .eq('id', project.id);
-
-        if (deleteError) {
-          throw deleteError;
-        }
-
-        // Refresh the list after successful deletion
-        await fetchProjects();
-
-      } catch (err: any) {
-        console.error("Error deleting project:", err);
-        setError(`Failed to delete project: ${err.message}`);
-      }
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-950 text-white p-8 relative">
       <div className="flex justify-between items-center mb-6">
@@ -289,18 +266,12 @@ export default function AdminProjectsPage() {
                         <span className="text-gray-500 italic">Not set</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap space-x-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <button 
                         onClick={() => handleEditClick(project)} 
                         className="text-indigo-400 hover:text-indigo-300 font-medium text-sm"
                       >
                         Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteClick(project)}
-                        className="text-red-500 hover:text-red-400 font-medium text-sm"
-                      >
-                        Delete
                       </button>
                     </td>
                   </tr>

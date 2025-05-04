@@ -68,7 +68,6 @@ interface ProjectData {
   github_repo_url?: string | null;
   preview_url?: string | null;
   website?: string | null;
-  preview_deployment_url?: string | null;
 }
 
 interface ClientFormData {
@@ -772,11 +771,10 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
 
                         {/* Preview Panel - Conditional Rendering */}
                         <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden border border-gray-700">
-                          {/* IFRAME for 'next' phase - uses preview_deployment_url from DB */}
+                          {/* IFRAME for 'next' phase - preview we're building */}
                           {phase.key === 'next' ? (
-                            projectData.preview_deployment_url ? (
-                              <iframe
-                                src={projectData.preview_deployment_url} // Use the URL from DB
+                             <iframe
+                                src={`/previews/${projectSlug}`}
                                 title={`${phase.label} Preview for ${projectSlug}`}
                                 style={{ 
                                   width: '100%', 
@@ -785,18 +783,9 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                                 }}
                                 loading="lazy"
                                 sandbox="allow-scripts allow-same-origin"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                                <p className="text-gray-400 italic text-center">
-                                  Preview URL not set
-                                  <br />
-                                  <span className="text-xs">(Set via Admin Panel)</span>
-                                </p>
-                              </div>
-                            )
+                             />
                           ) : (
-                          /* TBD placeholder for 'roadmap' phase */
+                          /* TBD placeholder for 'roadmap' phase (or any other future phase) */
                           <span className="text-sm italic">TBD</span>
                           )}
                         </div>

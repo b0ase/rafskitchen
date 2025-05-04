@@ -18,7 +18,7 @@ interface Project {
   status: string;
   preview_deployment_url: string | null;
   website: string | null;
-  notes: string | null; // Actual column name for brief/description
+  project_brief: string | null; // (from form)
   // Add other fields from 'clients' table if needed
 }
 
@@ -28,7 +28,7 @@ interface EditFormData {
   email: string | null;
   website: string | null;
   preview_deployment_url: string | null;
-  notes: string | null; // Use 'notes' here as well
+  project_brief: string | null;
   // Add other editable fields if necessary
 }
 
@@ -49,7 +49,7 @@ function EditProjectModal({
     email: null,
     website: null,
     preview_deployment_url: null,
-    notes: null
+    project_brief: null
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -61,7 +61,7 @@ function EditProjectModal({
         email: project.email || null,
         website: project.website || null,
         preview_deployment_url: project.preview_deployment_url || null,
-        notes: project.notes || null,
+        project_brief: project.project_brief || null,
       });
     } else {
       // Reset form
@@ -70,7 +70,7 @@ function EditProjectModal({
         email: null,
         website: null,
         preview_deployment_url: null,
-        notes: null
+        project_brief: null
       });
     }
   }, [project]);
@@ -112,8 +112,8 @@ function EditProjectModal({
             <input type="url" id="preview_deployment_url" name="preview_deployment_url" placeholder="https://project-preview.vercel.app" value={formData.preview_deployment_url || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
           </div>
            <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-300 mb-1">Notes/Project Brief</label>
-            <textarea id="notes" name="notes" rows={3} value={formData.notes || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"></textarea>
+            <label htmlFor="project_brief" className="block text-sm font-medium text-gray-300 mb-1">Project Brief/Description</label>
+            <textarea id="project_brief" name="project_brief" rows={3} value={formData.project_brief || ''} onChange={handleChange} className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"></textarea>
           </div>
         </div>
 
@@ -153,7 +153,7 @@ export default function AdminProjectsPage() {
       // Select correct columns based on form and likely schema
       const { data, error: fetchError } = await supabase
         .from('clients')
-        .select('id, slug, name, email, status, preview_deployment_url, website, notes')
+        .select('id, slug, name, email, status, preview_deployment_url, website, project_brief')
         .order('created_at', { ascending: false });
 
       if (fetchError) {
@@ -192,7 +192,7 @@ export default function AdminProjectsPage() {
         email: formData.email,
         website: formData.website,
         preview_deployment_url: formData.preview_deployment_url,
-        notes: formData.notes,
+        project_brief: formData.project_brief,
       };
 
       const { error: updateError } = await supabase
@@ -210,29 +210,6 @@ export default function AdminProjectsPage() {
     } catch (err: any) {
       console.error("Error saving project:", err);
       setError(`Failed to save project: ${err.message}`);
-    }
-  };
-
-  const handleDeleteClick = async (project: Project) => {
-    setError(null);
-    if (window.confirm(`Are you sure you want to delete the project "${project.name}"? This cannot be undone.`)) {
-      try {
-        const { error: deleteError } = await supabase
-          .from('clients')
-          .delete()
-          .eq('id', project.id);
-
-        if (deleteError) {
-          throw deleteError;
-        }
-
-        // Refresh the list after successful deletion
-        await fetchProjects();
-
-      } catch (err: any) {
-        console.error("Error deleting project:", err);
-        setError(`Failed to delete project: ${err.message}`);
-      }
     }
   };
 
@@ -289,18 +266,12 @@ export default function AdminProjectsPage() {
                         <span className="text-gray-500 italic">Not set</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap space-x-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <button 
                         onClick={() => handleEditClick(project)} 
                         className="text-indigo-400 hover:text-indigo-300 font-medium text-sm"
                       >
                         Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteClick(project)}
-                        className="text-red-500 hover:text-red-400 font-medium text-sm"
-                      >
-                        Delete
                       </button>
                     </td>
                   </tr>
