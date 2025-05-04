@@ -6,12 +6,6 @@ import ClientSignupForm from '@/app/components/ClientSignupForm';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-// --- DEBUG LOG: Check if env vars are loaded client-side ---
-console.log('Supabase URL:', supabaseUrl ? 'Loaded' : 'MISSING!');
-console.log('Supabase Anon Key:', supabaseAnonKey ? 'Loaded' : 'MISSING!');
-// -----------------------------------------------------------
-
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface Treatment {
@@ -75,33 +69,22 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // --- DEBUG LOG: Check received slug ---
-    console.log('Fetching data for slug:', projectSlug);
-    // -------------------------------------
     async function fetchData() {
       setLoading(true);
       setError(null);
       try {
-        // --- DEBUG LOG: Log before the fetch ---
-        console.log(`Attempting to fetch client with slug: ${projectSlug}`);
-        // --------------------------------------
         const { data: coreData, error: coreError } = await supabase
           .from('clients')
           .select('*')
           .eq('slug', projectSlug)
           .single();
 
-        // --- DEBUG LOG: Log the direct result from Supabase ---
-        console.log('Supabase core fetch result:', { coreData, coreError });
-        // ------------------------------------------------------
-
         if (coreError || !coreData) {
-          console.error('Condition (coreError || !coreData) is TRUE. Setting error.');
+          console.error('Error fetching core project data:', coreError);
           setError('Could not load project details.');
           setLoading(false);
           return;
         }
-        console.log('Condition (coreError || !coreData) is FALSE. Proceeding...');
         setProjectData(coreData);
 
         const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
@@ -117,7 +100,7 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
         setFeedback(feedbackRes.data || []);
 
       } catch (err) {
-        console.error('Unexpected error in fetchData try block:', err);
+        console.error('Unexpected error fetching data:', err);
         setError('An unexpected error occurred while loading project data.');
       } finally {
         setLoading(false);
