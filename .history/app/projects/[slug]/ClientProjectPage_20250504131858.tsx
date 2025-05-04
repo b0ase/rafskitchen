@@ -209,84 +209,80 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
             const items = treatments.filter(t => t.phase === phase);
             if (items.length === 0) return null;
             return (
-              <section className="mb-8" key={`${phase}-treatments`}>
+              <section className="mb-8" key={phase}>
                 <h2 className="text-2xl font-semibold mb-4">{phaseLabels[phase]}</h2>
                 {items.map(item => (
                   <div key={item.id} className="mb-2">
                     {item.title && <h3 className="text-lg font-bold mb-1">{item.title}</h3>}
-                    <p className="text-gray-600 dark:text-gray-300 mb-2">{item.description}</p>
+                    <p className="text-gray-600 mb-2">{item.description}</p>
                   </div>
                 ))}
               </section>
             );
           })}
 
-          <section className="mb-8" key="timeline-section">
-              <h2 className="text-2xl font-semibold mb-4">Development Timeline</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {phases.map(phase => (
-                  <div key={phase.key} className="bg-gray-900 p-4 rounded shadow">
-                    <h3 className="text-lg font-bold mb-2 text-white">{phase.label}</h3>
-                    <ul className="list-disc pl-4 space-y-1">
-                      {(() => {
-                        const phaseTimeline = timeline.filter(t => t.phase === phase.key);
-                        if (phaseTimeline.length === 0) {
-                           return <li className="text-gray-500 italic">No items yet.</li>;
-                        }
-                        return phaseTimeline.map(t => (
-                          <li key={t.id} className="text-gray-300">
-                            <strong>{t.title}</strong>
-                            {t.description && <span className="ml-1 text-gray-400"> - {t.description}</span>}
-                          </li>
-                        ));
-                      })()}
-                    </ul>
-                  </div>
-                ))}
-              </div>
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Development Timeline</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {phases.map(phase => (
+                <div key={phase.key} className="bg-gray-900 p-4 rounded shadow">
+                  <h3 className="text-lg font-bold mb-2">{phase.label}</h3>
+                  <ul className="list-disc pl-4 space-y-1">
+                    {timeline.filter(t => t.phase === phase.key).length === 0 && (
+                      <li className="text-gray-500 italic">No items yet.</li>
+                    )}
+                    {timeline.filter(t => t.phase === phase.key).map(t => (
+                      <li key={t.id}>
+                        <strong>{t.title}</strong>
+                        {t.description && <span className="ml-1 text-gray-400">{t.description}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </section>
 
-          <section className="mb-8" key="features-section">
+          <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Feature & Budget Collaboration</h2>
-            <div className="overflow-x-auto bg-gray-900 p-4 rounded shadow">
+            <div className="overflow-x-auto">
               <table className="w-full text-left mb-4">
-                <thead className="border-b border-gray-700">
+                <thead>
                   <tr>
-                    <th className="py-2 px-3 text-gray-400">Feature</th>
-                    <th className="py-2 px-3 text-gray-400">Priority</th>
-                    <th className="py-2 px-3 text-gray-400">Est. Cost</th>
-                    <th className="py-2 px-3 text-gray-400">Status</th>
-                    <th className="py-2 px-3 text-gray-400">Approved</th>
+                    <th>Feature</th>
+                    <th>Priority</th>
+                    <th>Est. Cost</th>
+                    <th>Status</th>
+                    <th>Approved</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {features.length === 0 ? (
+                  {features.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="text-gray-500 italic py-2 px-3">No features yet.</td>
+                      <td colSpan={5} className="text-gray-500 italic">No features yet.</td>
                     </tr>
-                  ) : (
-                    features.map(f => (
-                      <tr key={f.id} className="border-b border-gray-800 hover:bg-gray-800">
-                        <td className="py-2 px-3 text-gray-300">{f.feature}</td>
-                        <td className="py-2 px-3 text-gray-300">{f.priority}</td>
-                        <td className="py-2 px-3 text-gray-300">{f.est_cost ? `£${f.est_cost}` : '-'}</td>
-                        <td className="py-2 px-3 text-gray-300">{f.status}</td>
-                        <td className="py-2 px-3 text-center">{f.approved ? '✅' : '-'}</td>
-                      </tr>
-                    ))
                   )}
+                  {features.map(f => (
+                    <tr key={f.id}>
+                      <td>{f.feature}</td>
+                      <td>{f.priority}</td>
+                      <td>{f.est_cost ? `£${f.est_cost}` : '-'}</td>
+                      <td>{f.status}</td>
+                      <td>{f.approved ? '✅' : ''}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </section>
 
-          <section className="mb-8" key="feedback-section">
+          <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">Requirements & Feedback</h2>
             <form onSubmit={handleFeedbackSubmit} className="flex flex-col md:flex-row gap-3 mb-4">
               <input
                 type="email"
                 placeholder="Your Email"
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded w-full md:w-1/3 text-white"
+                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded w-full md:w-1/3"
                 value={feedbackForm.email}
                 onChange={e => setFeedbackForm(f => ({ ...f, email: e.target.value }))}
                 required
@@ -294,7 +290,7 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
               <input
                 type="text"
                 placeholder="Your Feedback or Requirement"
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded w-full md:w-2/3 text-white"
+                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded w-full md:w-2/3"
                 value={feedbackForm.message}
                 onChange={e => setFeedbackForm(f => ({ ...f, message: e.target.value }))}
                 required
@@ -307,31 +303,27 @@ export default function ClientProjectPage({ projectSlug, notionUrl }: { projectS
               </button>
             </form>
             {feedbackSuccess && <p className="text-green-400 mb-2">{feedbackSuccess}</p>}
-            <div className="mt-6 bg-gray-900 p-4 rounded shadow">
-              <h3 className="text-lg font-semibold mb-2 text-white">Recent Feedback</h3>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Recent Feedback</h3>
               <ul className="space-y-2">
-                {feedback.length === 0 ? (
-                   <li className="text-gray-500 italic">No feedback yet.</li>
-                ) : (
-                  feedback.map(fb => (
-                    <li key={fb.id} className="bg-gray-800 p-3 rounded">
-                      <p className="text-gray-300"><strong className="text-white">{fb.email}:</strong> {fb.message}</p>
-                      <p className="mt-1 text-xs text-gray-500 text-right">{new Date(fb.created_at).toLocaleString()}</p>
-                    </li>
-                  ))
-                )}
+                {feedback.length === 0 && <li className="text-gray-500 italic">No feedback yet.</li>}
+                {feedback.map(fb => (
+                  <li key={fb.id} className="bg-gray-800 p-2 rounded">
+                    <span className="font-bold">{fb.email}:</span> {fb.message}
+                    <span className="ml-2 text-xs text-gray-500">{new Date(fb.created_at).toLocaleString()}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </section>
 
           {notionUrl && (
-            <section className="mb-8" key="notion-section">
+            <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Project Docs & Collaboration (Notion)</h2>
               <iframe
                 src={notionUrl}
                 style={{ width: '100%', height: 600, border: 'none', borderRadius: 8 }}
                 allowFullScreen
-                title="Project Documentation (Notion)"
               />
             </section>
           )}

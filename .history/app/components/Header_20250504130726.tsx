@@ -86,11 +86,10 @@ export default function Header() {
                 <Link href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
                   {link.name}
                 </Link>
-                {/* Show flashing green light next to 'New Clients' ONLY if backend is connected */}
-                {link.name === 'New Clients' && backendConnected && (
-                  <span className="relative flex h-2.5 w-2.5 ml-1" title="Backend Connected">
-                    {/* Apply the slower ping animation */}
-                    <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                {/* Show flashing green light next to 'New Clients' */}
+                {link.name === 'New Clients' && (
+                  <span className="relative flex h-2.5 w-2.5 ml-1">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
                   </span>
                 )}
