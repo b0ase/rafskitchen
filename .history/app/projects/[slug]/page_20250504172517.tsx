@@ -441,247 +441,157 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                   const previewItem = timeline.find(t => t.phase === phase.key && t.preview_image_url);
                   const previewUrl = previewItem?.preview_image_url;
 
-                  if (phase.key === 'now') {
-                    // Render 'now' phase card differently
-                    return (
-                      <div key={phase.key} className="bg-gray-900 p-4 rounded shadow flex flex-col">
-                        <h3 className="text-lg font-bold mb-3 text-white">{phase.label}</h3>
-                        
-                        {/* Preview Panel */}
-                        <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden">
-                          {previewUrl ? (
-                            <img 
-                              src={previewUrl} 
-                              alt={`${phase.label} Preview`} 
-                              className="object-cover w-full h-full"
-                            />
-                          ) : (
-                            <span className="text-sm italic">TBD</span>
-                          )}
-                        </div>
-
-                        {/* --- Feature Request Form Start --- */}
-                        <div className="my-4 pt-4 border-t border-gray-700">
-                          <h4 className="text-md font-semibold mb-2 text-white">Request Feature for {phase.label}</h4>
-                          {/* Note: Submission still goes to the main features list, not tied to phase here */}
-                          <form onSubmit={handleNewFeatureSubmit} className="flex flex-col gap-2">
-                            <input
-                              type="text"
-                              placeholder="Feature Name / Description"
-                              value={newFeatureForm.name}
-                              onChange={(e) => setNewFeatureForm(f => ({ ...f, name: e.target.value }))}
-                              className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded w-full text-white" 
-                              required
-                            />
-                            <div className="flex gap-2 items-center">
-                              <select
-                                value={newFeatureForm.priority}
-                                onChange={(e) => setNewFeatureForm(f => ({ ...f, priority: e.target.value }))}
-                                className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded w-auto text-white flex-grow"
-                              >
-                                <option value="Low">Low Priority</option>
-                                <option value="Medium">Medium Priority</option>
-                                <option value="High">High Priority</option>
-                              </select>
-                              <button
-                                type="submit"
-                                disabled={loading} // Disable button while loading
-                                className="bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {loading ? '...' : 'Request'}
-                              </button>
-                            </div>
-                          </form>
-                          {/* Potentially show success message specific to this card if needed, 
-                              but global success message might be sufficient. 
-                              Keeping global for now. */}
-                        </div>
-                        {/* --- Feature Request Form End --- */}
-                        
-                        {/* Rest of the card content (Summary/Items) */}
-                        <div className="flex-grow">
-                          {/* Render Summary Items First */}
-                          {timeline.filter(t => t.phase === phase.key && t.is_summary).map(t => (
-                            <div key={`${t.id}-summary`} className="mb-3 pb-3 border-b border-gray-700 last:border-b-0 last:pb-0 last:mb-0">
-                              <h4 className="text-md font-semibold text-cyan-300 mb-1">{t.title}</h4>
-                              {t.description && <p className="text-sm text-gray-400 italic">{t.description}</p>}
-                            </div>
-                          ))}
-                          
-                          {/* Render Regular Timeline Items */}
-                          <ul className="list-disc pl-4 space-y-1">
-                            {(() => {
-                              const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
-                              // Original simple emptiness check for timeline items
-                              if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
-                                 return <li className="text-gray-500 italic">No items yet.</li>;
-                              }
-                              return regularTimeline.map(t => (
-                                <li key={t.id} className="text-gray-300">
-                                  <strong>{t.title}</strong>
-                                  {t.description && <span className="ml-1 text-gray-400"> - {t.description}</span>}
-                                </li>
-                              ));
-                            })()}
-                          </ul>
-                        </div>
-
-                        {/* --- Features Table (Conditionally Rendered for 'now' phase AFTER timeline items) --- */}
-                        {phase.key === 'now' && (
-                          <div className="mt-4 pt-4 border-t border-gray-700">
-                            <h4 className="text-md font-semibold mb-3 text-white">Feature & Budget Collaboration</h4>
-                            <div className="overflow-x-auto bg-gray-900">
-                              <table className="w-full text-left text-sm"> 
-                                <thead className="border-b border-gray-700">
-                                  <tr>
-                                    <th className="py-2 px-3 text-gray-400">Feature</th>
-                                    <th className="py-2 px-3 text-gray-400">Priority</th>
-                                    <th className="py-2 px-3 text-gray-400">Est. Cost</th>
-                                    <th className="py-2 px-3 text-gray-400">Status</th>
-                                    <th className="py-2 px-3 text-gray-400">Approved</th>
-                                    <th className="py-2 px-3 text-gray-400">Completed</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {features.length === 0 ? (
-                                    <tr>
-                                      <td colSpan={6} className="text-gray-500 italic py-2 px-3">No features yet.</td>
-                                    </tr>
-                                  ) : (
-                                    features.map(f => (
-                                      <tr key={f.id} className="border-b border-gray-800 hover:bg-gray-800">
-                                        <td className="py-2 px-3 text-gray-300">{f.feature}</td>
-                                        <td className="py-2 px-3 text-gray-300">
-                                          <span className={`px-2 py-0.5 rounded text-xs font-medium 
-                                            ${f.priority === 'High' ? 'bg-red-800 text-red-100' : 
-                                              f.priority === 'Medium' ? 'bg-yellow-800 text-yellow-100' : 
-                                              f.priority === 'Low' ? 'bg-green-800 text-green-100' : 
-                                              'bg-gray-700 text-gray-200' 
-                                            }`}>
-                                            {f.priority}
-                                          </span>
-                                        </td>
-                                        <td className="py-2 px-3 text-gray-300">{f.est_cost ? `£${f.est_cost}` : '-'}</td>
-                                        <td className="py-2 px-3 text-gray-300">{f.status}</td>
-                                        <td className="py-2 px-3 text-center">
-                                          <input 
-                                            type="checkbox" 
-                                            checked={f.approved}
-                                            onChange={() => handleToggleFeatureApproval(f.id, f.approved)}
-                                            className="form-checkbox h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 cursor-pointer"
-                                            aria-label={`Approve feature ${f.feature}`}
-                                          />
-                                        </td>
-                                        <td className="py-2 px-3 text-center">
-                                          <input 
-                                            type="checkbox" 
-                                            checked={!!f.completed} 
-                                            onChange={() => handleToggleFeatureCompleted(f.id, f.completed)}
-                                            className="form-checkbox h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 cursor-pointer"
-                                            aria-label={`Mark feature ${f.feature} as completed`}
-                                          />
-                                        </td>
-                                      </tr>
-                                    ))
-                                  )}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
+                  return (
+                    <div key={phase.key} className="bg-gray-900 p-4 rounded shadow flex flex-col">
+                      <h3 className="text-lg font-bold mb-3 text-white">{phase.label}</h3>
+                      
+                      {/* Preview Panel */}
+                      <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden">
+                        {previewUrl ? (
+                          <img 
+                            src={previewUrl} 
+                            alt={`${phase.label} Preview`} 
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <span className="text-sm italic">TBD</span>
                         )}
-                        {/* --- END Features Table --- */}
+                      </div>
 
+                      {/* --- Feature Request Form Start --- */}
+                      <div className="my-4 pt-4 border-t border-gray-700">
+                        <h4 className="text-md font-semibold mb-2 text-white">Request Feature for {phase.label}</h4>
+                        {/* Note: Submission still goes to the main features list, not tied to phase here */}
+                        <form onSubmit={handleNewFeatureSubmit} className="flex flex-col gap-2">
+                          <input
+                            type="text"
+                            placeholder="Feature Name / Description"
+                            value={newFeatureForm.name}
+                            onChange={(e) => setNewFeatureForm(f => ({ ...f, name: e.target.value }))}
+                            className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded w-full text-white" 
+                            required
+                          />
+                          <div className="flex gap-2 items-center">
+                            <select
+                              value={newFeatureForm.priority}
+                              onChange={(e) => setNewFeatureForm(f => ({ ...f, priority: e.target.value }))}
+                              className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded w-auto text-white flex-grow"
+                            >
+                              <option value="Low">Low Priority</option>
+                              <option value="Medium">Medium Priority</option>
+                              <option value="High">High Priority</option>
+                            </select>
+                            <button
+                              type="submit"
+                              disabled={loading} // Disable button while loading
+                              className="bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {loading ? '...' : 'Request'}
+                            </button>
+                          </div>
+                        </form>
+                        {/* Potentially show success message specific to this card if needed, 
+                            but global success message might be sufficient. 
+                            Keeping global for now. */}
                       </div>
-                    );
-                  } else {
-                    // Render other phase cards normally
-                    return (
-                      <div key={phase.key} className="bg-gray-900 p-4 rounded shadow flex flex-col">
-                        <h3 className="text-lg font-bold mb-3 text-white">{phase.label}</h3>
+                      {/* --- Feature Request Form End --- */}
+                      
+                      {/* Rest of the card content (Summary/Items) */}
+                      <div className="flex-grow">
+                        {/* Render Summary Items First */}
+                        {timeline.filter(t => t.phase === phase.key && t.is_summary).map(t => (
+                          <div key={`${t.id}-summary`} className="mb-3 pb-3 border-b border-gray-700 last:border-b-0 last:pb-0 last:mb-0">
+                            <h4 className="text-md font-semibold text-cyan-300 mb-1">{t.title}</h4>
+                            {t.description && <p className="text-sm text-gray-400 italic">{t.description}</p>}
+                          </div>
+                        ))}
                         
-                        {/* Preview Panel */}
-                        <div className="mb-4 aspect-video bg-gray-800 rounded flex items-center justify-center text-gray-500 overflow-hidden">
-                          {previewUrl ? (
-                            <img 
-                              src={previewUrl} 
-                              alt={`${phase.label} Preview`} 
-                              className="object-cover w-full h-full"
-                            />
-                          ) : (
-                            <span className="text-sm italic">TBD</span>
-                          )}
-                        </div>
-        
-                        {/* --- Feature Request Form Start --- */}
-                        <div className="my-4 pt-4 border-t border-gray-700">
-                          <h4 className="text-md font-semibold mb-2 text-white">Request Feature for {phase.label}</h4>
-                          {/* Note: Submission still goes to the main features list, not tied to phase here */}
-                          <form onSubmit={handleNewFeatureSubmit} className="flex flex-col gap-2">
-                            <input
-                              type="text"
-                              placeholder="Feature Name / Description"
-                              value={newFeatureForm.name}
-                              onChange={(e) => setNewFeatureForm(f => ({ ...f, name: e.target.value }))}
-                              className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded w-full text-white" 
-                              required
-                            />
-                            <div className="flex gap-2 items-center">
-                              <select
-                                value={newFeatureForm.priority}
-                                onChange={(e) => setNewFeatureForm(f => ({ ...f, priority: e.target.value }))}
-                                className="px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded w-auto text-white flex-grow"
-                              >
-                                <option value="Low">Low Priority</option>
-                                <option value="Medium">Medium Priority</option>
-                                <option value="High">High Priority</option>
-                              </select>
-                              <button
-                                type="submit"
-                                disabled={loading} // Disable button while loading
-                                className="bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-3 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {loading ? '...' : 'Request'}
-                              </button>
-                            </div>
-                          </form>
-                          {/* Potentially show success message specific to this card if needed, 
-                              but global success message might be sufficient. 
-                              Keeping global for now. */}
-                        </div>
-                        {/* --- Feature Request Form End --- */}
-                        
-                        {/* Rest of the card content (Summary/Items) */}
-                        <div className="flex-grow">
-                          {/* Render Summary Items First */}
-                          {timeline.filter(t => t.phase === phase.key && t.is_summary).map(t => (
-                            <div key={`${t.id}-summary`} className="mb-3 pb-3 border-b border-gray-700 last:border-b-0 last:pb-0 last:mb-0">
-                              <h4 className="text-md font-semibold text-cyan-300 mb-1">{t.title}</h4>
-                              {t.description && <p className="text-sm text-gray-400 italic">{t.description}</p>}
-                            </div>
-                          ))}
-                          
-                          {/* Render Regular Timeline Items */}
-                          <ul className="list-disc pl-4 space-y-1">
-                            {(() => {
-                              const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
-                              // Original simple emptiness check for timeline items
-                              if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
-                                 return <li className="text-gray-500 italic">No items yet.</li>;
-                              }
-                              return regularTimeline.map(t => (
-                                <li key={t.id} className="text-gray-300">
-                                  <strong>{t.title}</strong>
-                                  {t.description && <span className="ml-1 text-gray-400"> - {t.description}</span>}
-                                </li>
-                              ));
-                            })()}
-                          </ul>
-                        </div>
+                        {/* Render Regular Timeline Items */}
+                        <ul className="list-disc pl-4 space-y-1">
+                          {(() => {
+                            const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
+                            if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
+                               // Show "No items yet" only if there are NEITHER regular items NOR summary items for this phase
+                               return <li className="text-gray-500 italic">No items yet.</li>;
+                            }
+                            return regularTimeline.map(t => (
+                              <li key={t.id} className="text-gray-300">
+                                <strong>{t.title}</strong>
+                                {t.description && <span className="ml-1 text-gray-400"> - {t.description}</span>}
+                              </li>
+                            ));
+                          })()}
+                        </ul>
                       </div>
-                    );
-                  }
+                      
+                    </div>
+                  );
                 })}
               </div>
+          </section>
+
+          <section className="mb-8" key="features-section">
+            <h2 className="text-2xl font-semibold mb-4 text-cyan-400">Feature & Budget Collaboration</h2>
+            <div className="overflow-x-auto bg-gray-900 p-4 rounded shadow">
+              <table className="w-full text-left mb-4">
+                <thead className="border-b border-gray-700">
+                  <tr>
+                    <th className="py-2 px-3 text-gray-400">Feature</th>
+                    <th className="py-2 px-3 text-gray-400">Priority</th>
+                    <th className="py-2 px-3 text-gray-400">Est. Cost</th>
+                    <th className="py-2 px-3 text-gray-400">Status</th>
+                    <th className="py-2 px-3 text-gray-400">Approved</th>
+                    <th className="py-2 px-3 text-gray-400">Completed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {features.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="text-gray-500 italic py-2 px-3">No features yet.</td>
+                    </tr>
+                  ) : (
+                    features.map(f => (
+                      <tr key={f.id} className="border-b border-gray-800 hover:bg-gray-800">
+                        <td className="py-2 px-3 text-gray-300">{f.feature}</td>
+                        {/* Priority Cell with Color Coding */}
+                        <td className="py-2 px-3 text-gray-300">
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium 
+                            ${f.priority === 'High' ? 'bg-red-800 text-red-100' : 
+                              f.priority === 'Medium' ? 'bg-yellow-800 text-yellow-100' : 
+                              f.priority === 'Low' ? 'bg-green-800 text-green-100' : 
+                              'bg-gray-700 text-gray-200' // Default fallback style
+                            }`}>
+                            {f.priority}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3 text-gray-300">{f.est_cost ? `£${f.est_cost}` : '-'}</td>
+                        <td className="py-2 px-3 text-gray-300">{f.status}</td>
+                        {/* Interactive Approval Checkbox */}
+                        <td className="py-2 px-3 text-center">
+                          <input 
+                            type="checkbox" 
+                            checked={f.approved}
+                            onChange={() => handleToggleFeatureApproval(f.id, f.approved)}
+                            className="form-checkbox h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 cursor-pointer"
+                            aria-label={`Approve feature ${f.feature}`}
+                          />
+                        </td>
+                        {/* Completed Checkbox */}
+                        <td className="py-2 px-3 text-center">
+                          <input 
+                            type="checkbox" 
+                            checked={!!f.completed} // Handle undefined/null
+                            onChange={() => handleToggleFeatureCompleted(f.id, f.completed)}
+                            className="form-checkbox h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 cursor-pointer"
+                            aria-label={`Mark feature ${f.feature} as completed`}
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section className="mb-8" key="feedback-section">

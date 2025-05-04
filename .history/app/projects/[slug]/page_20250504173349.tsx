@@ -512,8 +512,8 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                           <ul className="list-disc pl-4 space-y-1">
                             {(() => {
                               const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
-                              // Original simple emptiness check for timeline items
                               if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
+                                 // Show "No items yet" only if there are NEITHER regular items NOR summary items for this phase
                                  return <li className="text-gray-500 italic">No items yet.</li>;
                               }
                               return regularTimeline.map(t => (
@@ -525,72 +525,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                             })()}
                           </ul>
                         </div>
-
-                        {/* --- Features Table (Conditionally Rendered for 'now' phase AFTER timeline items) --- */}
-                        {phase.key === 'now' && (
-                          <div className="mt-4 pt-4 border-t border-gray-700">
-                            <h4 className="text-md font-semibold mb-3 text-white">Feature & Budget Collaboration</h4>
-                            <div className="overflow-x-auto bg-gray-900">
-                              <table className="w-full text-left text-sm"> 
-                                <thead className="border-b border-gray-700">
-                                  <tr>
-                                    <th className="py-2 px-3 text-gray-400">Feature</th>
-                                    <th className="py-2 px-3 text-gray-400">Priority</th>
-                                    <th className="py-2 px-3 text-gray-400">Est. Cost</th>
-                                    <th className="py-2 px-3 text-gray-400">Status</th>
-                                    <th className="py-2 px-3 text-gray-400">Approved</th>
-                                    <th className="py-2 px-3 text-gray-400">Completed</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {features.length === 0 ? (
-                                    <tr>
-                                      <td colSpan={6} className="text-gray-500 italic py-2 px-3">No features yet.</td>
-                                    </tr>
-                                  ) : (
-                                    features.map(f => (
-                                      <tr key={f.id} className="border-b border-gray-800 hover:bg-gray-800">
-                                        <td className="py-2 px-3 text-gray-300">{f.feature}</td>
-                                        <td className="py-2 px-3 text-gray-300">
-                                          <span className={`px-2 py-0.5 rounded text-xs font-medium 
-                                            ${f.priority === 'High' ? 'bg-red-800 text-red-100' : 
-                                              f.priority === 'Medium' ? 'bg-yellow-800 text-yellow-100' : 
-                                              f.priority === 'Low' ? 'bg-green-800 text-green-100' : 
-                                              'bg-gray-700 text-gray-200' 
-                                            }`}>
-                                            {f.priority}
-                                          </span>
-                                        </td>
-                                        <td className="py-2 px-3 text-gray-300">{f.est_cost ? `£${f.est_cost}` : '-'}</td>
-                                        <td className="py-2 px-3 text-gray-300">{f.status}</td>
-                                        <td className="py-2 px-3 text-center">
-                                          <input 
-                                            type="checkbox" 
-                                            checked={f.approved}
-                                            onChange={() => handleToggleFeatureApproval(f.id, f.approved)}
-                                            className="form-checkbox h-5 w-5 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 cursor-pointer"
-                                            aria-label={`Approve feature ${f.feature}`}
-                                          />
-                                        </td>
-                                        <td className="py-2 px-3 text-center">
-                                          <input 
-                                            type="checkbox" 
-                                            checked={!!f.completed} 
-                                            onChange={() => handleToggleFeatureCompleted(f.id, f.completed)}
-                                            className="form-checkbox h-5 w-5 text-green-600 bg-gray-700 border-gray-600 rounded focus:ring-green-500 cursor-pointer"
-                                            aria-label={`Mark feature ${f.feature} as completed`}
-                                          />
-                                        </td>
-                                      </tr>
-                                    ))
-                                  )}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
-                        {/* --- END Features Table --- */}
-
                       </div>
                     );
                   } else {
@@ -664,8 +598,8 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                           <ul className="list-disc pl-4 space-y-1">
                             {(() => {
                               const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
-                              // Original simple emptiness check for timeline items
                               if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
+                                 // Show "No items yet" only if there are NEITHER regular items NOR summary items for this phase
                                  return <li className="text-gray-500 italic">No items yet.</li>;
                               }
                               return regularTimeline.map(t => (

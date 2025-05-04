@@ -512,7 +512,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                           <ul className="list-disc pl-4 space-y-1">
                             {(() => {
                               const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
-                              // Original simple emptiness check for timeline items
+                              // Simplified emptiness check - only considers timeline items
                               if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
                                  return <li className="text-gray-500 italic">No items yet.</li>;
                               }
@@ -526,12 +526,12 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                           </ul>
                         </div>
 
-                        {/* --- Features Table (Conditionally Rendered for 'now' phase AFTER timeline items) --- */}
+                        {/* --- Features Table (Moved Here, Conditionally Rendered for 'now' phase) --- */}
                         {phase.key === 'now' && (
                           <div className="mt-4 pt-4 border-t border-gray-700">
                             <h4 className="text-md font-semibold mb-3 text-white">Feature & Budget Collaboration</h4>
                             <div className="overflow-x-auto bg-gray-900">
-                              <table className="w-full text-left text-sm"> 
+                              <table className="w-full text-left text-sm"> {/* Adjusted text size potentially */}
                                 <thead className="border-b border-gray-700">
                                   <tr>
                                     <th className="py-2 px-3 text-gray-400">Feature</th>
@@ -545,6 +545,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                                 <tbody>
                                   {features.length === 0 ? (
                                     <tr>
+                                      {/* Changed colspan to 6 */}
                                       <td colSpan={6} className="text-gray-500 italic py-2 px-3">No features yet.</td>
                                     </tr>
                                   ) : (
@@ -664,7 +665,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                           <ul className="list-disc pl-4 space-y-1">
                             {(() => {
                               const regularTimeline = timeline.filter(t => t.phase === phase.key && !t.is_summary);
-                              // Original simple emptiness check for timeline items
+                              // Simplified emptiness check - only considers timeline items
                               if (regularTimeline.length === 0 && !timeline.some(t => t.phase === phase.key && t.is_summary)) {
                                  return <li className="text-gray-500 italic">No items yet.</li>;
                               }
