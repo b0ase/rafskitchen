@@ -141,8 +141,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
       
       // Process features - check for and add defaults
       const existingFeatures = featuresRes.data || [];
-      console.log(`Fetched ${existingFeatures.length} existing features for slug ${projectSlug}:`, existingFeatures.map(f => f.feature)); // Log existing feature names
-
       const defaultFeatures = [
         { feature: 'Initial Consultation & Requirements Gathering', priority: 'High', status: 'Core', est_cost: 0, completed: true }, // Example cost/status
         { feature: 'Domain Name Setup/Configuration', priority: 'High', status: 'Core', est_cost: 15 },
@@ -159,49 +157,37 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
       const featuresToAdd: (Omit<Feature, 'id' | 'approved' | 'completed'> & { project_slug: string, completed?: boolean })[] = []; 
       defaultFeatures.forEach(defaultFeature => {
         // More robust existence check: trim whitespace and compare lowercase
-        const currentSlug = projectSlug; // Capture slug for this iteration
         const exists = existingFeatures.some(existing => 
            existing.feature?.trim().toLowerCase() === defaultFeature.feature.trim().toLowerCase()
         );
-        
         if (!exists) {
-          console.log(`[${currentSlug}] Default feature "${defaultFeature.feature}" does not exist, preparing to add.`);
+          console.log(`Default feature "${defaultFeature.feature}" does not exist, adding.`);
           featuresToAdd.push({
-             project_slug: currentSlug, // Use captured slug
+             project_slug: projectSlug, 
              ...defaultFeature 
             });
         } else {
-          console.log(`[${currentSlug}] Default feature "${defaultFeature.feature}" already exists.`);
+          console.log(`Default feature "${defaultFeature.feature}" already exists.`);
         }
       });
 
-      let finalFeatures = [...existingFeatures]; // Start with existing
+      let finalFeatures = existingFeatures;
       if (featuresToAdd.length > 0) {
-         console.log(`[${projectSlug}] Attempting to insert ${featuresToAdd.length} new default features...`);
+         console.log(`Adding ${featuresToAdd.length} default features...`);
          const { data: addedFeatures, error: insertError } = await supabase
            .from('project_features')
            .insert(featuresToAdd)
-           .select('*, completed'); // Select the newly added features
+           .select('*, completed');
 
          if (insertError) {
-           console.error(`[${projectSlug}] Error inserting default features:`, insertError);
-           // Don't modify finalFeatures if insert fails
-         } else if (addedFeatures && addedFeatures.length > 0) {
-           console.log(`[${projectSlug}] Successfully inserted ${addedFeatures.length} features:`, addedFeatures.map(f => f.feature));
-           // Add ONLY the newly inserted features to the list
-           finalFeatures = [...finalFeatures, ...addedFeatures]; // Combine
-         } else {
-            console.log(`[${projectSlug}] Insert call succeeded but returned no added features.`);
+           console.error("Error inserting default features:", insertError);
+           // Continue with existing features even if defaults fail to insert
+         } else if (addedFeatures) {
+           finalFeatures = [...existingFeatures, ...addedFeatures];
          }
-      } else {
-          console.log(`[${projectSlug}] No new default features needed insertion.`);
       }
-
-      // Deduplicate finalFeatures just in case something went wrong
-      const uniqueFeatures = Array.from(new Map(finalFeatures.map(f => [f.feature?.trim().toLowerCase(), f])).values());
-      console.log(`[${projectSlug}] Total features after processing: ${finalFeatures.length}, Unique features set: ${uniqueFeatures.length}`);
-
-      setFeatures(uniqueFeatures); // Set the state with the deduplicated list
+      
+      setFeatures(finalFeatures);
       setFeedback(feedbackRes.data || []);
 
     } catch (err) {
