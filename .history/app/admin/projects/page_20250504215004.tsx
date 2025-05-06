@@ -13,7 +13,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 interface Project {
   id: string;
   slug: string;
-  name: string; // Client/Project Name
+  name: string; // Client Name
+  project_name: string | null; // Actual Project Name
   email: string | null; // Client Email (from form)
   status: string;
   preview_deployment_url: string | null;
@@ -155,8 +156,8 @@ export default function AdminProjectsPage() {
       // Select correct columns based on form and likely schema
       const { data, error: fetchError } = await supabase
         .from('clients')
-        // Remove project_name from select
-        .select('id, slug, name, email, status, preview_deployment_url, website, notes, github_repo_url, created_at') 
+        // Add project_name to select
+        .select('id, slug, name, project_name, email, status, preview_deployment_url, website, notes, github_repo_url, created_at') 
         .order('created_at', { ascending: false });
 
       if (fetchError) {
@@ -257,7 +258,8 @@ export default function AdminProjectsPage() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-800 border-b border-gray-700">
             <tr>
-              <th className="py-3 px-4 font-semibold">CLIENT/PROJECT NAME</th>
+              <th className="py-3 px-4 font-semibold">CLIENT NAME</th>
+              <th className="py-3 px-4 font-semibold">PROJECT NAME</th>
               <th className="py-3 px-4 font-semibold">EMAIL</th>
               <th className="py-3 px-4 font-semibold">STATUS</th>
               <th className="py-3 px-4 font-semibold">LIVE URL</th>
@@ -270,15 +272,16 @@ export default function AdminProjectsPage() {
           <tbody className="divide-y divide-gray-700">
             {projects.length === 0 && !loading ? (
               <tr>
-                <td colSpan={8} className="py-4 px-4 text-center text-gray-500 italic">No projects found.</td>
+                <td colSpan={9} className="py-4 px-4 text-center text-gray-500 italic">No projects found.</td>
               </tr>
             ) : (
               projects.map((project) => (
                 <tr key={project.id} className="hover:bg-gray-800">
+                  <td className="py-3 px-4 font-medium">{project.name}</td>
                   <td className="py-3 px-4 font-medium">
-                     {/* Link the name using the slug */}
+                     {/* Link the project name, fallback to slug if project_name is missing */}
                     <Link href={`/projects/${project.slug}`} className="hover:underline">
-                      {project.name}
+                      {project.project_name || `(${project.slug || 'view'})`}
                     </Link>
                   </td>
                   <td className="py-3 px-4 text-gray-400">{project.email || 'N/A'}</td>

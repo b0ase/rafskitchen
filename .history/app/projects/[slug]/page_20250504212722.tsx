@@ -81,7 +81,6 @@ interface ClientFormData {
   project_types?: string[];
   requested_budget?: number | string | null;
   github_links?: string | null;
-  live_website_url?: string | null;
 }
 
 export default function ProjectPage({ params, searchParams }: { params: { slug: string }, searchParams?: { [key: string]: string | string[] | undefined } }) {
@@ -347,7 +346,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     setError(null);
 
     // Map form data ONLY to columns that EXIST in the clients table schema
-    // Use the simplified ClientFormData from the form component
     const updatePayload: Partial<{
         name: string | undefined;
         email: string | undefined;
@@ -356,14 +354,15 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         logo_url: string | undefined;
         phone: string | undefined;
         github_repo_url: string | null | undefined;
+        // Remove non-existent columns
     }> = {
       name: updatedFormData.name, 
       email: updatedFormData.email, 
-      website: updatedFormData.website, 
-      notes: updatedFormData.project_brief, 
+      website: updatedFormData.website,
+      notes: updatedFormData.project_brief, // Map project_brief -> notes
       logo_url: updatedFormData.logo_url,
       phone: updatedFormData.phone,
-      github_repo_url: updatedFormData.github_links, 
+      github_repo_url: updatedFormData.github_links, // Map github_links -> github_repo_url
     };
 
     // Remove undefined fields to avoid errors during update

@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 interface Project {
   id: string;
   slug: string;
-  name: string; // Client/Project Name
+  name: string; // Client/Project Name (from form)
   email: string | null; // Client Email (from form)
   status: string;
   preview_deployment_url: string | null;
@@ -155,7 +155,7 @@ export default function AdminProjectsPage() {
       // Select correct columns based on form and likely schema
       const { data, error: fetchError } = await supabase
         .from('clients')
-        // Remove project_name from select
+        // Add email, github_repo_url, created_at to select
         .select('id, slug, name, email, status, preview_deployment_url, website, notes, github_repo_url, created_at') 
         .order('created_at', { ascending: false });
 
@@ -276,7 +276,6 @@ export default function AdminProjectsPage() {
               projects.map((project) => (
                 <tr key={project.id} className="hover:bg-gray-800">
                   <td className="py-3 px-4 font-medium">
-                     {/* Link the name using the slug */}
                     <Link href={`/projects/${project.slug}`} className="hover:underline">
                       {project.name}
                     </Link>

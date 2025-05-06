@@ -12,7 +12,7 @@ interface ClientFormData {
   name: string;
   email: string;
   phone: string;
-  website: string; // Project's Live Website URL
+  website: string;
   logo_url: string;
   project_brief: string;
   requested_budget: string | number; // Allow string for input, number for processing
@@ -21,6 +21,7 @@ interface ClientFormData {
   github_links: string;
   inspiration_links: string;
   project_types: string[];
+  // Add other fields corresponding to the ProjectData type if needed for editing
   id?: string; // Optional id if editing
   slug?: string; // Optional slug if editing
 }
@@ -37,7 +38,7 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
     name: initialData?.name || "",
     email: initialData?.email || "",
     phone: initialData?.phone || "",
-    website: initialData?.website || "", // Project Live Website URL
+    website: initialData?.website || "",
     logo_url: initialData?.logo_url || "",
     project_brief: initialData?.project_brief || "",
     requested_budget: initialData?.requested_budget || "",
@@ -61,7 +62,7 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
         name: initialData.name || "",
         email: initialData.email || "",
         phone: initialData.phone || "",
-        website: initialData.website || "", // Project Live Website URL
+        website: initialData.website || "",
         logo_url: initialData.logo_url || "",
         project_brief: initialData.project_brief || "",
         requested_budget: initialData.requested_budget || "",
@@ -215,7 +216,7 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
               name: "", email: "", phone: "", website: "", logo_url: "", 
               project_brief: "", requested_budget: "", how_heard: "", 
               socials: "", github_links: "", inspiration_links: "", 
-              project_types: [],
+              project_types: [] 
           });
         } else {
           setError(`Submission failed: ${data.error || 'Unknown error occurred'}`);
@@ -280,36 +281,46 @@ export default function ClientSignupForm({ initialData, onSave }: ClientSignupFo
         <div>
           <h3 className="text-lg font-semibold mb-2">Contact Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input required className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-            <input required type="email" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+            <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+            <input type="email" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Your Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
             <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Phone (Optional)" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
-            <input 
-              type="url" 
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" 
-              placeholder="Project Live Website URL (Optional)"
-              value={form.website} 
-              onChange={e => setForm(f => ({ ...f, website: e.target.value }))} 
-            />
-          </div>
+            <input className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded" placeholder="Current Website (Optional)" value={form.website} onChange={e => setForm(f => ({ ...f, website: e.target.value }))} />
             
-          {/* Logo Upload Input */}
-          <div className="md:col-span-2">
-              <label htmlFor="logo-upload" className="block text-sm font-medium text-gray-300 mb-1">Upload Logo (Optional)</label>
-              <input 
-                  type="file" 
-                  id="logo-upload"
-                  accept="image/png, image/jpeg, image/gif, image/svg+xml" // Specify acceptable image types
-                  onChange={handleLogoUpload} 
-                  className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 disabled:opacity-50"
-                  disabled={uploading}
+            {/* Live Website URL Input */}
+            <div>
+              <label htmlFor="website" className="block text-sm font-medium text-gray-300 mb-1">
+                Live Website URL (if applicable)
+              </label>
+              <input
+                type="url" // Use URL type for better validation/input methods
+                id="website"
+                name="website"
+                value={form.website}
+                onChange={(e) => setForm(f => ({ ...f, website: e.target.value }))}
+                placeholder="https://yourproject.live"
+                className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
-              {uploading && <p className="text-xs text-blue-400 mt-1">Uploading...</p>}
-              {/* Display uploaded logo preview */}
-              {form.logo_url && (
-                  <div className="mt-2">
-                      <img src={form.logo_url} alt="Uploaded logo preview" className="h-16 w-auto object-contain bg-gray-700 p-1 rounded" />
-                  </div>
-              )}
+            </div>
+            
+            {/* Logo Upload Input */}
+            <div className="md:col-span-2">
+                <label htmlFor="logo-upload" className="block text-sm font-medium text-gray-300 mb-1">Upload Logo (Optional)</label>
+                <input 
+                    type="file" 
+                    id="logo-upload"
+                    accept="image/png, image/jpeg, image/gif, image/svg+xml" // Specify acceptable image types
+                    onChange={handleLogoUpload} 
+                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 disabled:opacity-50"
+                    disabled={uploading}
+                />
+                {uploading && <p className="text-xs text-blue-400 mt-1">Uploading...</p>}
+                {/* Display uploaded logo preview */}
+                {form.logo_url && (
+                    <div className="mt-2">
+                        <img src={form.logo_url} alt="Uploaded logo preview" className="h-16 w-auto object-contain bg-gray-700 p-1 rounded" />
+                    </div>
+                )}
+            </div>
           </div>
         </div>
 

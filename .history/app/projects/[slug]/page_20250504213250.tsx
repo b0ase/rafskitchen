@@ -351,19 +351,23 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     const updatePayload: Partial<{
         name: string | undefined;
         email: string | undefined;
-        website: string | undefined;
+        website: string | undefined; // This now maps to the project's live URL
+        // live_website_url: string | undefined; // REMOVED
         notes: string | undefined;
         logo_url: string | undefined;
         phone: string | undefined;
         github_repo_url: string | null | undefined;
+        // preview_deployment_url: string | null | undefined; // REMOVED - Not updated via this form
+        // Remove non-existent columns
     }> = {
-      name: updatedFormData.name, 
       email: updatedFormData.email, 
-      website: updatedFormData.website, 
-      notes: updatedFormData.project_brief, 
+      website: updatedFormData.website, // Map form's 'website' to DB 'website'
+      // live_website_url: updatedFormData.live_website_url, // REMOVED
+      notes: updatedFormData.project_brief, // Map project_brief -> notes
       logo_url: updatedFormData.logo_url,
       phone: updatedFormData.phone,
-      github_repo_url: updatedFormData.github_links, 
+      github_repo_url: updatedFormData.github_links, // Map github_links -> github_repo_url
+      // preview_deployment_url: updatedFormData.preview_deployment_url, // REMOVED
     };
 
     // Remove undefined fields to avoid errors during update
