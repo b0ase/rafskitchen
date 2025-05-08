@@ -56,11 +56,6 @@ export default function GigsPage() {
           <h2 className="text-xl font-semibold mb-2 text-red-400">Work Path</h2>
           <p className="text-gray-400">Manage your daily workflow and balance client work with skill development.</p>
         </Link>
-
-        <Link href="/gigs/calendar" className="block p-6 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors border-blue-500/30">
-          <h2 className="text-xl font-semibold mb-2 text-blue-500">Calendar</h2>
-          <p className="text-gray-400">Visualize deadlines, learning sessions, and financial check-ins in calendar view.</p>
-        </Link>
       </div>
     </div>
   );
