@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { FaCode, FaLaptopCode, FaMobileAlt, FaServer, FaShoppingCart, FaChartLine } from 'react-icons/fa';
-import ProjectImage from '@/app/components/ProjectImage';
 
 export default function WebDevelopmentPage() {
   return (
@@ -82,76 +81,39 @@ export default function WebDevelopmentPage() {
       <section className="px-4 md:px-8 py-8 mb-16">
         <h2 className="text-2xl font-bold mb-6">Featured Work</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Project 1: E-commerce Platform */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="web-development"
-              projectId="ecommerce-platform"
-              title="E-commerce Platform"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">E-commerce Platform</h3>
-              <p className="text-gray-400 mb-3">
-                E-commerce platform with integrated payment processing and inventory management.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['React', 'Node.js', 'MongoDB', 'Stripe'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="bg-black border border-gray-800 shadow-xl overflow-hidden">
+              <div className="h-48 bg-gray-800 relative">
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                  <span className="text-gray-600 text-lg">[Project Image]</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="font-bold text-xl mb-2">Project Example {item}</h3>
+                <p className="text-gray-400 mb-3">
+                  {item === 1 && "E-commerce platform with integrated payment processing and inventory management."}
+                  {item === 2 && "Corporate web portal with secure document management and collaboration tools."}
+                  {item === 3 && "Progressive web app with offline functionality and real-time data synchronization."}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    item === 1 ? ['React', 'Node.js', 'MongoDB', 'Stripe'] : 
+                    item === 2 ? ['Next.js', 'Firebase', 'Auth0', 'Material UI'] :
+                    ['Vue.js', 'PWA', 'IndexedDB', 'WebSockets']
+                  ].map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Project 2: Corporate Web Portal */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="web-development"
-              projectId="corporate-portal"
-              title="Corporate Web Portal"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">Corporate Web Portal</h3>
-              <p className="text-gray-400 mb-3">
-                Corporate web portal with secure document management and collaboration tools.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['Next.js', 'Firebase', 'Auth0', 'Material UI'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Project 3: Progressive Web App */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="web-development"
-              projectId="progressive-app"
-              title="Progressive Web App"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">Progressive Web App</h3>
-              <p className="text-gray-400 mb-3">
-                Progressive web app with offline functionality and real-time data synchronization.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['Vue.js', 'PWA', 'IndexedDB', 'WebSockets'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* Process Steps */}
-      <section className="px-4 md:px-8 py-8 mb-16 bg-black border border-gray-800 shadow-xl">
+      <section className="px-4 md:px-8 py-8 mb-16 bg-gray-900">
         <h2 className="text-2xl font-bold mb-6">Our Development Process</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="p-6 border-l-2 border-cyan-500">

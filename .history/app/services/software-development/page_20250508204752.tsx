@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { FaCode, FaMobileAlt, FaServer, FaDatabase, FaRobot, FaBitcoin } from 'react-icons/fa';
-import ProjectImage from '@/app/components/ProjectImage';
 
 export default function SoftwareDevelopmentPage() {
   return (
@@ -82,71 +81,38 @@ export default function SoftwareDevelopmentPage() {
       <section className="px-4 md:px-8 py-8 mb-16">
         <h2 className="text-2xl font-bold mb-6">Featured Projects</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Project 1: Crypto Trading Platform */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="software-development"
-              projectId="crypto-trading"
-              title="Crypto Trading Platform"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">Crypto Trading Platform</h3>
-              <p className="text-gray-400 mb-3">
-                Secure and user-friendly cryptocurrency trading platform with real-time market data and advanced order types.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['React', 'Node.js', 'WebSockets', 'Blockchain APIs'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="bg-black border border-gray-800 shadow-xl overflow-hidden">
+              <div className="h-48 bg-gray-800 relative">
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                  <span className="text-gray-600 text-lg">[Project Image]</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="font-bold text-xl mb-2">
+                  {item === 1 && "Crypto Trading Platform"}
+                  {item === 2 && "Smart Contract Audit Tool"}
+                  {item === 3 && "AI-Powered Analytics Dashboard"}
+                </h3>
+                <p className="text-gray-400 mb-3">
+                  {item === 1 && "Secure and user-friendly cryptocurrency trading platform with real-time market data and advanced order types."}
+                  {item === 2 && "Automated tool for analyzing and validating smart contracts across multiple blockchain networks."}
+                  {item === 3 && "Business intelligence dashboard using machine learning to predict trends and provide actionable insights."}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    item === 1 ? ['React', 'Node.js', 'WebSockets', 'Blockchain APIs'] : 
+                    item === 2 ? ['Solidity', 'Python', 'Web3.js', 'Ethereum'] :
+                    ['TensorFlow', 'Python', 'D3.js', 'Docker']
+                  ].map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Project 2: Smart Contract Audit Tool */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="software-development"
-              projectId="smart-contract-audit"
-              title="Smart Contract Audit Tool"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">Smart Contract Audit Tool</h3>
-              <p className="text-gray-400 mb-3">
-                Automated tool for analyzing and validating smart contracts across multiple blockchain networks.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['Solidity', 'Python', 'Web3.js', 'Ethereum'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Project 3: AI-Powered Analytics Dashboard */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="software-development"
-              projectId="ai-analytics"
-              title="AI-Powered Analytics Dashboard"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">AI-Powered Analytics Dashboard</h3>
-              <p className="text-gray-400 mb-3">
-                Business intelligence dashboard using machine learning to predict trends and provide actionable insights.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['TensorFlow', 'Python', 'D3.js', 'Docker'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 

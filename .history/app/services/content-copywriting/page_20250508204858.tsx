@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { FaPen, FaNewspaper, FaFileAlt, FaSearchDollar, FaComments, FaBullhorn } from 'react-icons/fa';
-import ProjectImage from '@/app/components/ProjectImage';
 
 export default function ContentCopywritingPage() {
   return (
@@ -81,71 +80,38 @@ export default function ContentCopywritingPage() {
       <section className="px-4 md:px-8 py-8 mb-16">
         <h2 className="text-2xl font-bold mb-6">Content Samples</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Sample 1: Tech Industry Whitepaper */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="content-copywriting"
-              projectId="tech-whitepaper"
-              title="Tech Industry Whitepaper"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">Tech Industry Whitepaper</h3>
-              <p className="text-gray-400 mb-3">
-                Comprehensive analysis of emerging technologies in the blockchain space, translating complex concepts for executive audiences.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['Whitepaper', 'Technical', 'B2B', 'Blockchain'].map((tag, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tag}
-                  </span>
-                ))}
+          {[1, 2, 3].map((item) => (
+            <div key={item} className="bg-black border border-gray-800 shadow-xl overflow-hidden">
+              <div className="h-48 bg-gray-800 relative">
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                  <span className="text-gray-600 text-lg">[Content Sample]</span>
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="font-bold text-xl mb-2">
+                  {item === 1 && "Tech Industry Whitepaper"}
+                  {item === 2 && "E-commerce Product Descriptions"}
+                  {item === 3 && "Finance Blog Series"}
+                </h3>
+                <p className="text-gray-400 mb-3">
+                  {item === 1 && "Comprehensive analysis of emerging technologies in the blockchain space, translating complex concepts for executive audiences."}
+                  {item === 2 && "Persuasive product descriptions for a luxury retail brand that increased conversions by 32% within three months."}
+                  {item === 3 && "Educational blog series on personal finance that established the client as a thought leader and increased organic traffic by 45%."}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    item === 1 ? ['Whitepaper', 'Technical', 'B2B', 'Blockchain'] : 
+                    item === 2 ? ['E-commerce', 'Conversion', 'Product Copy', 'B2C'] :
+                    ['Finance', 'Education', 'SEO', 'Series']
+                  ].map((tag, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Sample 2: E-commerce Product Descriptions */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="content-copywriting"
-              projectId="product-descriptions"
-              title="E-commerce Product Descriptions"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">E-commerce Product Descriptions</h3>
-              <p className="text-gray-400 mb-3">
-                Persuasive product descriptions for a luxury retail brand that increased conversions by 32% within three months.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['E-commerce', 'Conversion', 'Product Copy', 'B2C'].map((tag, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Sample 3: Finance Blog Series */}
-          <div className="bg-black border border-gray-800 shadow-xl overflow-hidden">
-            <ProjectImage 
-              service="content-copywriting"
-              projectId="finance-blog"
-              title="Finance Blog Series"
-            />
-            <div className="p-6">
-              <h3 className="font-bold text-xl mb-2">Finance Blog Series</h3>
-              <p className="text-gray-400 mb-3">
-                Educational blog series on personal finance that established the client as a thought leader and increased organic traffic by 45%.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {['Finance', 'Education', 'SEO', 'Series'].map((tag, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
