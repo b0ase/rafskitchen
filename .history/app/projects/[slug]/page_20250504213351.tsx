@@ -101,13 +101,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Define phases directly within the component
-  const phases = [
-    { key: 'now', label: 'LIVE' },
-    { key: 'next', label: 'PREVIEW' },
-    { key: 'roadmap', label: 'Roadmap (1-6 Months)' }
-  ];
-
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -426,6 +419,12 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     next: 'Next State (Quick Wins)',
     ultimate: 'Ultimate State (Vision)',
   };
+
+  const phases = [
+    { key: 'now', label: 'Now (Live)' },
+    { key: 'next', label: 'Next (1-4 Weeks)' },
+    { key: 'roadmap', label: 'Roadmap (1-6 Months)' },
+  ] as const;
 
   if (loading) {
     return <div className="w-full px-4 py-8 text-center">Loading project details...</div>;
