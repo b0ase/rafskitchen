@@ -171,29 +171,6 @@ const projectImages = [
     serviceName: 'SEO Marketing',
     projectName: 'Local Business SEO',
     projectId: 'local-business-seo'
-  },
-
-  // Social Media Management Projects (New)
-  {
-    prompt: "Vibrant Instagram grid layout for a retail brand, showcasing significant follower growth and high engagement rates on visually appealing posts, with analytics overlay, photorealistic rendering",
-    outputPath: 'public/images/services/social-media-management/retail-brand-growth.png',
-    serviceName: 'Social Media Management',
-    projectName: 'Retail Brand Growth',
-    projectId: 'retail-brand-growth'
-  },
-  {
-    prompt: "Professional LinkedIn article and profile mockup for a B2B SaaS company, highlighting thought leadership content, increased lead generation form, and industry engagement, photorealistic rendering",
-    outputPath: 'public/images/services/social-media-management/b2b-thought-leadership.png',
-    serviceName: 'Social Media Management',
-    projectName: 'B2B Thought Leadership',
-    projectId: 'b2b-thought-leadership'
-  },
-  {
-    prompt: "Collage of diverse social media posts (Twitter, Facebook, Instagram) for a tech startup, showing community building efforts, high engagement metrics, and a growing follower count, photorealistic rendering",
-    outputPath: 'public/images/services/social-media-management/startup-community-building.png',
-    serviceName: 'Social Media Management',
-    projectName: 'Startup Community Building',
-    projectId: 'startup-community-building'
   }
 ];
 
