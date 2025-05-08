@@ -461,7 +461,7 @@ export default function CalendarPage() {
     return days;
   };
   
-  // This is the Day Modal Component with fixed JSX syntax
+  // Day Modal Component
   const DayModal = () => {
     if (!selectedDay) return null;
     
@@ -474,34 +474,45 @@ export default function CalendarPage() {
       year: 'numeric'
     });
     
+    // Add state for event form visibility and editing
     const [showEventForm, setShowEventForm] = useState(false);
     const [currentEditingEvent, setCurrentEditingEvent] = useState<any>(null);
     
+    // Add calendar integration for a specific event
     const addEventToCalendar = (event: any, calendarType: 'google' | 'ical') => {
       if (calendarType === 'google') {
+        // In a real implementation, this would add the event to Google Calendar
+        // For now, we'll just simulate it
         alert(`Event "${event.title}" would be added to Google Calendar (simulated)`);
       } else {
+        // Generate and download an .ics file for this specific event
         alert(`Event "${event.title}" would be exported as .ics file (simulated)`);
       }
     };
     
+    // Function to create a new event
     const createNewEvent = () => {
       setCurrentEditingEvent(null);
       setShowEventForm(true);
     };
     
+    // Function to edit an existing event
     const editEvent = (event: any) => {
       setCurrentEditingEvent(event);
       setShowEventForm(true);
     };
     
+    // Function to save an event
     const saveEvent = (eventData: any) => {
+      // In a real implementation, this would update your state management or database
+      // For this simulation, we'll just show an alert
       if (currentEditingEvent) {
         alert(`Event "${eventData.title}" would be updated (simulated)`);
       } else {
         alert(`Event "${eventData.title}" would be created (simulated)`);
       }
       
+      // If Google sync is enabled and we're connected
       if (eventData.syncWithGoogle && isGoogleCalendarConnected) {
         alert(`Event would be synced to Google Calendar (simulated)`);
       }
@@ -607,6 +618,7 @@ export default function CalendarPage() {
           <div className="p-4 border-t border-gray-700 bg-gray-850 flex justify-between">
             <button
               onClick={() => {
+                // In a real implementation, this would export all events for this day
                 alert(`All events for ${formattedDate} would be exported (simulated)`);
               }}
               className="py-2 px-3 bg-gray-700 hover:bg-gray-600 text-white rounded font-medium transition-colors text-sm"

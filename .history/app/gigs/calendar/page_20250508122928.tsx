@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import EventForm from './components/EventForm';
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -461,7 +460,7 @@ export default function CalendarPage() {
     return days;
   };
   
-  // This is the Day Modal Component with fixed JSX syntax
+  // Day Modal Component
   const DayModal = () => {
     if (!selectedDay) return null;
     
@@ -474,39 +473,23 @@ export default function CalendarPage() {
       year: 'numeric'
     });
     
-    const [showEventForm, setShowEventForm] = useState(false);
-    const [currentEditingEvent, setCurrentEditingEvent] = useState<any>(null);
-    
+    // Add calendar integration for a specific event
     const addEventToCalendar = (event: any, calendarType: 'google' | 'ical') => {
       if (calendarType === 'google') {
+        // In a real implementation, this would add the event to Google Calendar
+        // For now, we'll just simulate it
         alert(`Event "${event.title}" would be added to Google Calendar (simulated)`);
       } else {
+        // Generate and download an .ics file for this specific event
         alert(`Event "${event.title}" would be exported as .ics file (simulated)`);
       }
     };
     
+    // Function to create a new event
     const createNewEvent = () => {
-      setCurrentEditingEvent(null);
-      setShowEventForm(true);
-    };
-    
-    const editEvent = (event: any) => {
-      setCurrentEditingEvent(event);
-      setShowEventForm(true);
-    };
-    
-    const saveEvent = (eventData: any) => {
-      if (currentEditingEvent) {
-        alert(`Event "${eventData.title}" would be updated (simulated)`);
-      } else {
-        alert(`Event "${eventData.title}" would be created (simulated)`);
-      }
-      
-      if (eventData.syncWithGoogle && isGoogleCalendarConnected) {
-        alert(`Event would be synced to Google Calendar (simulated)`);
-      }
-      
-      setShowEventForm(false);
+      // This would open a form to create a new event
+      // In a real implementation, this would integrate with your state management
+      alert('Creating a new event (simulated)');
     };
     
     return (
@@ -524,20 +507,7 @@ export default function CalendarPage() {
           </div>
           
           <div className="flex-1 overflow-y-auto p-4">
-            {showEventForm ? (
-              <div>
-                <h4 className="text-lg font-medium text-white mb-4">
-                  {currentEditingEvent ? 'Edit Event' : 'Create New Event'}
-                </h4>
-                <EventForm 
-                  date={selectedDate}
-                  event={currentEditingEvent}
-                  onSave={saveEvent}
-                  onCancel={() => setShowEventForm(false)}
-                  categories={categories}
-                />
-              </div>
-            ) : dayEvents.length === 0 ? (
+            {dayEvents.length === 0 ? (
               <div className="text-center py-6">
                 <p className="text-gray-400 mb-4">No events scheduled for this day.</p>
                 <button 
@@ -563,14 +533,8 @@ export default function CalendarPage() {
                     const category = categories.find(cat => cat.id === event.category);
                     return (
                       <div key={event.id} className="border border-gray-700 rounded-lg overflow-hidden">
-                        <div className={`${category?.color || 'bg-gray-600'} py-1 px-3 flex justify-between items-center`}>
+                        <div className={`${category?.color || 'bg-gray-600'} py-1 px-3`}>
                           <h4 className="font-medium text-white">{event.title}</h4>
-                          <button 
-                            onClick={() => editEvent(event)}
-                            className="text-xs text-white/80 hover:text-white"
-                          >
-                            Edit
-                          </button>
                         </div>
                         <div className="p-3 bg-gray-800">
                           <p className="text-gray-300 text-sm mb-2">{event.description}</p>
@@ -607,6 +571,7 @@ export default function CalendarPage() {
           <div className="p-4 border-t border-gray-700 bg-gray-850 flex justify-between">
             <button
               onClick={() => {
+                // In a real implementation, this would export all events for this day
                 alert(`All events for ${formattedDate} would be exported (simulated)`);
               }}
               className="py-2 px-3 bg-gray-700 hover:bg-gray-600 text-white rounded font-medium transition-colors text-sm"
@@ -827,7 +792,7 @@ export default function CalendarPage() {
                       </div>
                     </div>
                   );
-                })}
+              })}
             </div>
           )}
         </div>
