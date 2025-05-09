@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import ProjectCardImage from './components/ProjectCardImage';
 import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
 import { portfolioData, Project } from '@/lib/data';
-import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode } from 'react-icons/fa';
 import { BsCurrencyBitcoin } from "react-icons/bs";
 import CharacterCycle from './components/CharacterCycle';
 
@@ -17,81 +17,6 @@ const GitHubIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0
 const XIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
 const NotionIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>; 
 const TokenIcon = () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1.143A6.857 6.857 0 1 1 8 1.143a6.857 6.857 0 0 1 0 13.714z"/><path d="M6.29 8.51H4.844V6.66h.33L6.29 8.51zm2.47-1.615c0-.58-.4-1.047-1.063-1.047H6.42v4.33h1.374c.68 0 1.086-.467 1.086-1.08V6.895zm-1.22 1.857H6.81V6.24h.74c.39 0 .625.246.625.6v1.867c0 .348-.248.602-.64.602zM11.156 8.51h-1.45v-1.85h.33l1.12 1.85z"/></svg>; 
-
-const services = [
-  {
-    id: 'web-design-development',
-    slug: 'web-development', // Keep slug for routing if web-development page uses this data
-    title: 'Web Design & Development',
-    description: 'Building responsive, performant websites & applications using modern tech, including Web3, crypto & blockchain integrations.',
-    Icon: FaLaptopCode,
-    priceInfo: 'Est. Rate: £120/hr | £480/day'
-  },
-  {
-    id: 'software-development',
-    slug: 'software-development',
-    title: 'Software Development',
-    description: 'App development and technical support for start-ups, with a special focus on crypto, blockchain, and AI innovation.',
-    Icon: FaCog, // Using FaCog as a general software icon
-    priceInfo: 'Est. Rate: £120/hr | £480/day'
-  },
-  {
-    id: 'content-copywriting',
-    slug: 'content-copywriting',
-    title: 'Content & Copywriting',
-    description: 'Crafting compelling narratives, articles, and website copy tailored to your audience.',
-    Icon: FaPencilRuler, // Using FaPencilRuler as it relates to creation/design
-    priceInfo: 'Est. Rate: £100/hr | £400/day'
-  },
-  {
-    id: 'video-production-photography',
-    slug: 'video-production',
-    title: 'Video Production & Photography',
-    description: 'From concept and shooting to editing and final delivery for promotional or creative needs, including high-quality photography.',
-    Icon: FaVideo,
-    priceInfo: 'Est. Rate: £110/hr | £450/day'
-  },
-  {
-    id: 'logo-design-branding',
-    slug: 'logo-branding',
-    title: 'Logo Design & Branding',
-    description: 'Crafting unique logos and visual identities that effectively represent your brand.',
-    Icon: FaPencilRuler, // Re-using FaPencilRuler or consider a more specific branding icon
-    priceInfo: 'Est. Rate: £90/hr | Project-based'
-  },
-  {
-    id: 'seo-digital-marketing',
-    slug: 'seo-marketing',
-    title: 'SEO & Digital Marketing',
-    description: 'Optimizing online presence and content strategy to drive organic growth.',
-    Icon: FaBullhorn,
-    priceInfo: 'Est. Rate: £110/hr | £450/day'
-  },
-  {
-    id: 'social-media-management',
-    slug: 'social-media-management',
-    title: 'Social Media Management',
-    description: 'Developing strategies, creating content, and managing social media presence to grow engagement and reach.',
-    Icon: FaComments,
-    priceInfo: 'Est. Rate: £80/hr | Retainer'
-  },
-  {
-    id: 'technical-consulting',
-    slug: 'technical-consulting',
-    title: 'Technical Consulting',
-    description: 'Providing expert advice and strategy for your digital projects and technical challenges.',
-    Icon: FaTools, // Using FaTools as a general consulting/technical icon
-    priceInfo: 'Est. Rate: £150/hr'
-  },
-  {
-    id: 'support-maintenance',
-    slug: 'support-maintenance',
-    title: 'Support & Maintenance',
-    description: 'Ongoing technical support, updates, and optimization to ensure your digital assets run smoothly and securely.',
-    Icon: FaHandsHelping,
-    priceInfo: 'Retainer-based | Ad-hoc rates available'
-  }
-];
 
 export default function PortfolioPage() {
   const projects: Project[] = portfolioData.projects as Project[];
@@ -160,7 +85,7 @@ export default function PortfolioPage() {
             <span className="text-blue-500 dark:text-blue-400">//</span> Services
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service) => (
+            {portfolioData.services.map((service) => (
               <Link 
                 key={service.id} 
                 href={`/services/${service.slug}`}
