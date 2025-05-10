@@ -1,0 +1,5 @@
+OK now make the three content sample cards on http://localhost:3000/services/content-copywriting  buttons please: Tech Industry Whitepaper
+, E-commerce Product Descriptions, Finance Blog Series and creat pages for each expanding and extrapolating on those three things 
+
+OK Context switch: Part of our work here includes scraping fiverr.com to find out what gigs we should be offering on fiverr.com. TO do this, we've created a whole section called /gigs but one issue we had was that we couldn't scrape fiverr.com directly and had to infer from googlesearch results. To fix this, I've found something called @https://pypi.org/project/fiverr-api/ 
+
