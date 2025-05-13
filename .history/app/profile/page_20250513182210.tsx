@@ -154,110 +154,110 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="bg-white shadow-xl rounded-lg p-6 sm:p-8 md:p-10 w-full mx-auto">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-12 text-center">Your Profile</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Your Profile</h1>
 
-        <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-300">
+        <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 rounded-full mr-0 sm:mr-6 mb-4 sm:mb-0 border-4 border-sky-500 object-cover shadow-md" />
+            <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 rounded-full mr-0 sm:mr-6 mb-4 sm:mb-0 border-4 border-sky-600 object-cover shadow-md" />
           ) : (
-            <FaUserCircle className="text-7xl text-sky-600 mr-0 sm:mr-6 mb-4 sm:mb-0" />
+            <FaUserCircle className="text-7xl text-sky-500 mr-0 sm:mr-6 mb-4 sm:mb-0" />
           )}
           <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-semibold text-gray-800">{profile?.display_name || profile?.username || 'Your Details'}</h2>
-            <p className="text-lg text-gray-600 mt-1">Manage your public identity, personal information, and online presence.</p>
+            <h2 className="text-3xl font-semibold text-white">{profile?.display_name || profile?.username || 'Your Details'}</h2>
+            <p className="text-lg text-gray-400 mt-1">Manage your public identity, personal information, and online presence.</p>
           </div>
         </div>
 
-        {error && <p className="text-red-700 bg-red-100 p-4 rounded-md mb-8 text-sm shadow">{error}</p>}
-        {successMessage && <p className="text-green-700 bg-green-100 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}
+        {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error}</p>}
+        {successMessage && <p className="text-green-400 bg-green-900/30 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}
         
         {!user || !profile ? (
-          <p className="text-center text-gray-500 py-10">Could not load profile information. Please try again later.</p>
+          <p className="text-center text-gray-400 py-10">Could not load profile information. Please try again later.</p>
         ) : (
           <form onSubmit={handleUpdateProfile} className="space-y-8">
             <section>
-              <h3 className="text-xl font-semibold text-sky-600 mb-4 pb-2 border-b border-gray-300">Identity</h3>
+              <h3 className="text-xl font-semibold text-sky-400 mb-4 pb-2 border-b border-gray-700">Identity</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-400" /> Display Name
+                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Display Name
                   </label>
                   <input
                     type="text" id="displayName" value={newDisplayName} onChange={(e) => setNewDisplayName(e.target.value)}
                     maxLength={50} placeholder="e.g., Jane M. Doe"
-                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-400" /> Username
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Username
                   </label>
                   <input
                     type="text" id="username" value={newUsername} onChange={(e) => setNewUsername(e.target.value)}
                     required minLength={3} maxLength={20} placeholder="e.g., janedoe (publicly visible)"
-                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
                   <p className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
                 </div>
                 <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    <FaSignature className="inline mr-2 mb-0.5 text-gray-400" /> Full Name (Optional)
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaSignature className="inline mr-2 mb-0.5 text-gray-500" /> Full Name (Optional)
                   </label>
                   <input
                     type="text" id="fullName" value={newFullName} onChange={(e) => setNewFullName(e.target.value)}
                     maxLength={100} placeholder="Your full legal name (private)"
-                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-400" /> Email Address
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Email Address
                   </label>
                   <input type="email" id="email" value={user.email || 'Not available'} disabled
-                    className="w-full px-4 py-2.5 bg-gray-100 border-gray-300 rounded-md text-gray-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-300 shadow-sm"
+                    className="w-full px-4 py-2.5 bg-gray-800 border-gray-700 rounded-md text-gray-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-600 shadow-sm"
                   />
                 </div>
               </div>
             </section>
 
             <section>
-              <h3 className="text-xl font-semibold text-sky-600 mb-4 pb-2 border-b border-gray-300">Online Presence</h3>
+              <h3 className="text-xl font-semibold text-sky-400 mb-4 pb-2 border-b border-gray-700">Online Presence</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="avatarUrl" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    <FaImage className="inline mr-2 mb-0.5 text-gray-400" /> Avatar URL
+                  <label htmlFor="avatarUrl" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaImage className="inline mr-2 mb-0.5 text-gray-500" /> Avatar URL
                   </label>
                   <input
                     type="url" id="avatarUrl" value={newAvatarUrl} onChange={(e) => setNewAvatarUrl(e.target.value)}
                     placeholder="https://example.com/your-avatar.png"
-                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
-                  {newAvatarUrl && <img src={newAvatarUrl} alt="Avatar Preview" className="mt-3 w-20 h-20 rounded-full object-cover border-2 border-gray-300 shadow-sm" />}
+                  {newAvatarUrl && <img src={newAvatarUrl} alt="Avatar Preview" className="mt-3 w-20 h-20 rounded-full object-cover border-2 border-gray-700 shadow-sm" />}
                 </div>
                 <div>
-                  <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-700 mb-1.5">
-                    <FaLink className="inline mr-2 mb-0.5 text-gray-400" /> Website URL
+                  <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaLink className="inline mr-2 mb-0.5 text-gray-500" /> Website URL
                   </label>
                   <input
                     type="url" id="websiteUrl" value={newWebsiteUrl} onChange={(e) => setNewWebsiteUrl(e.target.value)}
                     placeholder="https://your-portfolio.com"
-                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
                 </div>
               </div>
               <div className="mt-6">
-                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1.5">
-                  <FaInfoCircle className="inline mr-2 mb-0.5 text-gray-400" /> Bio / About Me
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <FaInfoCircle className="inline mr-2 mb-0.5 text-gray-500" /> Bio / About Me
                 </label>
                 <textarea
                   id="bio" value={newBio} onChange={(e) => setNewBio(e.target.value)}
                   rows={5} maxLength={500} placeholder="Share a bit about yourself, your skills, or interests (max 500 characters)."
-                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                 />
               </div>
             </section>
             
-            <div className="pt-6 border-t border-gray-300">
+            <div className="pt-6 border-t border-gray-700">
               <button
                 type="submit"
                 disabled={saving 
@@ -269,7 +269,7 @@ export default function ProfilePage() {
                     && (newBio === (profile?.bio || ''))
                     && (newWebsiteUrl === (profile?.website_url || ''))
                 }
-                className="w-full sm:w-auto float-right inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto float-right inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
               >
                 <FaSave className="mr-2.5 h-5 w-5" />
                 {saving ? 'Saving Profile...' : 'Save Profile Changes'}

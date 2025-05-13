@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import {
-  FaUserCircle, FaBookOpen, FaTasks, FaCalendarAlt, FaSignOutAlt, FaDollarSign, FaChartLine, FaLightbulb, FaListAlt, FaBullseye, FaChalkboardTeacher, FaRoute, FaSearchDollar, FaProjectDiagram
+  FaUserCircle, FaBookOpen, FaTasks, FaCalendarAlt, FaSignOutAlt, FaDollarSign, FaChartLine, FaLightbulb, FaListAlt, FaBullseye, FaChalkboardTeacher, FaRoute, FaSearchDollar
 } from 'react-icons/fa';
 
 interface NavLink {
@@ -63,7 +63,6 @@ export default function UserSidebar() {
 
   const navLinks: NavLink[] = [
     { title: 'My Profile', href: '/profile', icon: FaUserCircle },
-    { title: 'My Projects', href: '/myprojects', icon: FaProjectDiagram },
     { title: 'Diary', href: '/diary', icon: FaBookOpen },
     { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
     { title: 'Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
