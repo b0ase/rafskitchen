@@ -19,7 +19,7 @@ export default function LoginPage() {
       const { error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/login`,
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login`,
         },
       });
 
@@ -36,24 +36,24 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    const handleSession = (currentSession: Session | null) => {
-      if (currentSession) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');
         router.push(redirectedFrom || '/profile');
       }
-    };
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSession(session);
     });
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      handleSession(session);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const searchParams = new URLSearchParams(window.location.search);
+        const redirectedFrom = searchParams.get('redirectedFrom');
+        router.push(redirectedFrom || '/profile');
+      }
     });
 
     return () => {
-      authListener?.subscription.unsubscribe();
+      authListener.subscription.unsubscribe();
     };
   }, [supabase, router]);
 
@@ -62,7 +62,7 @@ export default function LoginPage() {
       <div className="bg-gray-900 p-8 md:p-12 border border-gray-700 shadow-2xl rounded-lg text-center max-w-md w-full">
         <h1 className="text-3xl font-bold text-white mb-6">Login Required</h1>
         <p className="text-gray-400 mb-8">
-          You need to be logged in to access your profile and application tools.
+          You need to be logged in to access private areas like your profile and tools.
         </p>
         <div className="space-y-4">
           <button

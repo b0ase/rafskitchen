@@ -13,7 +13,6 @@ interface ConditionalLayoutProps {
 }
 
 export default function ConditionalLayout({ session, children }: ConditionalLayoutProps) {
-  console.log('[ConditionalLayout] Received session prop:', session);
   const isAuthenticated = !!session;
 
   if (isAuthenticated) {
