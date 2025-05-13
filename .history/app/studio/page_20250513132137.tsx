@@ -2,34 +2,30 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useRouter } from 'next/navigation';
 
 export default function StudioPage() {
-  const supabase = createClientComponentClient();
-  const router = useRouter();
+  // All old password-based authentication state and logic is removed.
+  // Authentication is now handled by middleware.ts redirecting to /login
+  // which uses Supabase Google OAuth.
 
-  const handleSupabaseLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error logging out:', error.message);
-      alert(`Error logging out: ${error.message}`);
-    } else {
-      router.push('/');
-    }
-  };
+  // If we reach this page, the middleware has allowed it (meaning a session should exist).
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Studio</h1>
-          <button 
-            onClick={handleSupabaseLogout}
-            className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-          >
-            Logout
-          </button>
+          {/* 
+            TODO: Add a Supabase-based Logout button here later.
+            This would typically call supabase.auth.signOut() and redirect.
+            Example:
+            const supabase = createClientComponentClient();
+            const router = useRouter(); // from next/navigation
+            const handleSupabaseLogout = async () => {
+              await supabase.auth.signOut();
+              router.push('/'); // or /login
+            };
+          */}
         </div>
         
         <div className="bg-gray-900 p-6 md:p-8 border border-gray-800 shadow-lg">

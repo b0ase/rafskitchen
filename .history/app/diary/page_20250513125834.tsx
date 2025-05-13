@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
-import { FaArrowLeft, FaPlusCircle, FaRegSquare, FaCheckSquare, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaPlusCircle, FaRegSquare, FaCheckSquare, FaTimes } from 'react-icons/fa';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface ActionItem {
@@ -37,8 +37,6 @@ export default function DiaryPage() {
   const [showAddEntryModal, setShowAddEntryModal] = useState(false);
   const [newEntryTitle, setNewEntryTitle] = useState('');
   const [newEntrySummary, setNewEntrySummary] = useState('');
-  const [newEntryActionItemTexts, setNewEntryActionItemTexts] = useState<string[]>(['']);
-  const [isSubmittingEntry, setIsSubmittingEntry] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -112,89 +110,12 @@ export default function DiaryPage() {
     }
   };
 
-  const handleActionItemTextChange = (index: number, value: string) => {
-    const updatedTexts = [...newEntryActionItemTexts];
-    updatedTexts[index] = value;
-    setNewEntryActionItemTexts(updatedTexts);
-  };
-
-  const addActionItemInput = () => {
-    setNewEntryActionItemTexts([...newEntryActionItemTexts, '']);
-  };
-
-  const removeActionItemInput = (index: number) => {
-    if (newEntryActionItemTexts.length > 1) {
-      const updatedTexts = newEntryActionItemTexts.filter((_, i) => i !== index);
-      setNewEntryActionItemTexts(updatedTexts);
-    }
-  };
-
-  const handleAddEntryModalSubmit = async (e: FormEvent) => {
+  const handleAddEntryModalSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setIsSubmittingEntry(true);
-
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData.session) {
-      alert('Authentication error. Please log in and try again.');
-      setIsSubmittingEntry(false);
-      return;
-    }
-    const userId = sessionData.session.user.id;
-
-    try {
-      const { data: diaryEntryData, error: diaryEntryError } = await supabase
-        .from('diary_entries')
-        .insert({
-          title: newEntryTitle,
-          summary: newEntrySummary,
-          user_id: userId,
-          entry_timestamp: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (diaryEntryError) {
-        throw diaryEntryError;
-      }
-
-      if (!diaryEntryData) {
-        throw new Error('Failed to create diary entry, no data returned.');
-      }
-
-      const newDiaryEntryId = diaryEntryData.id;
-
-      const validActionItemTexts = newEntryActionItemTexts.map(text => text.trim()).filter(text => text !== '');
-      if (validActionItemTexts.length > 0) {
-        const actionItemsToInsert = validActionItemTexts.map(text => ({
-          diary_entry_id: newDiaryEntryId,
-          user_id: userId,
-          text: text,
-          is_completed: false,
-        }));
-
-        const { error: actionItemsError } = await supabase
-          .from('diary_action_items')
-          .insert(actionItemsToInsert);
-
-        if (actionItemsError) {
-          console.error('Error inserting action items, main entry created but orphaned items might exist:', actionItemsError);
-          throw new Error(`Main entry created, but failed to add action items: ${actionItemsError.message}`);
-        }
-      }
-
-      setShowAddEntryModal(false);
-      setNewEntryTitle('');
-      setNewEntrySummary('');
-      setNewEntryActionItemTexts(['']);
-      fetchDiaryEntries();
-      alert('Diary entry added successfully!');
-
-    } catch (error: any) {
-      console.error('Error adding diary entry:', error);
-      alert(`Failed to add diary entry: ${error.message}`);
-    } finally {
-      setIsSubmittingEntry(false);
-    }
+    console.log('New Entry Data:', { title: newEntryTitle, summary: newEntrySummary });
+    setShowAddEntryModal(false);
+    setNewEntryTitle('');
+    setNewEntrySummary('');
   };
 
   const allActionItems = entries.reduce((acc, entry) => {
@@ -304,11 +225,11 @@ export default function DiaryPage() {
       </main>
 
       {showAddEntryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-gray-850 p-6 md:p-8 rounded-lg shadow-2xl w-full max-w-2xl border border-gray-700 my-8">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-850 p-6 md:p-8 rounded-lg shadow-2xl w-full max-w-lg border border-gray-700">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold text-white">Add New Diary Entry</h2>
-              <button onClick={() => setShowAddEntryModal(false)} className="text-gray-400 hover:text-gray-200" disabled={isSubmittingEntry}>
+              <button onClick={() => setShowAddEntryModal(false)} className="text-gray-400 hover:text-gray-200">
                 <FaTimes size={20} />
               </button>
             </div>
@@ -324,66 +245,34 @@ export default function DiaryPage() {
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"
                 />
               </div>
-              <div className="mb-4">
+              <div className="mb-6">
                 <label htmlFor="newEntrySummary" className="block text-sm font-medium text-gray-300 mb-1">Summary (Your Narrative)</label>
                 <textarea 
                   id="newEntrySummary"
                   value={newEntrySummary}
                   onChange={(e) => setNewEntrySummary(e.target.value)}
                   required
-                  rows={5}
+                  rows={6}
                   className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none"
                   placeholder="Describe the discussion, decisions, and context..."
                 />
               </div>
-
-              <div className="mb-4">
-                <h3 className="text-lg font-medium text-gray-200 mb-2">Action Items</h3>
-                {newEntryActionItemTexts.map((text, index) => (
-                  <div key={index} className="flex items-center space-x-2 mb-2">
-                    <input 
-                      type="text"
-                      value={text}
-                      onChange={(e) => handleActionItemTextChange(index, e.target.value)}
-                      placeholder={`Action Item ${index + 1}`}
-                      className="flex-grow px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none text-sm"
-                    />
-                    {newEntryActionItemTexts.length > 1 && (
-                      <button 
-                        type="button"
-                        onClick={() => removeActionItemInput(index)}
-                        className="p-2 text-red-500 hover:text-red-400"
-                        aria-label="Remove Action Item"
-                      >
-                        <FaTrash />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button 
-                  type="button"
-                  onClick={addActionItemInput}
-                  className="mt-1 text-sm text-sky-400 hover:text-sky-300 inline-flex items-center"
-                >
-                  <FaPlusCircle className="mr-1.5" /> Add Action Item
-                </button>
+              <div className="mb-6 p-3 bg-gray-800 border border-dashed border-gray-700 rounded-md">
+                <p className="text-sm text-gray-500 italic text-center">Action item input form will go here in the next update.</p>
               </div>
-              
-              <div className="flex justify-end space-x-3 mt-8">
+              <div className="flex justify-end space-x-3">
                 <button 
                   type="button" 
                   onClick={() => setShowAddEntryModal(false)} 
-                  disabled={isSubmittingEntry}
-                  className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  disabled={isSubmittingEntry || !newEntryTitle.trim() || !newEntrySummary.trim()}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-500 rounded-md transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-500 rounded-md transition-colors"
                 >
-                  {isSubmittingEntry ? 'Saving...' : 'Save Entry'}
+                  Save Entry (Basic)
                 </button>
               </div>
             </form>
