@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import ConditionalLayout from './components/ConditionalLayout'; // Corrected path
+import ConditionalLayout from '@/components/ConditionalLayout'; // Adjusted path
 
 const inter = Inter({ subsets: ['latin'] });
 

@@ -55,27 +55,30 @@ export default function ProfilePage() {
           setNewUsername(profileData.username || '');
           setNewDisplayName(profileData.display_name || profileData.username || '');
 
+          // Fetch client projects associated with this user
           setLoadingProjects(true);
-          let currentError = null;
-          const { data: projectData, error: projectFetchError } = await supabase
+          const { data: projectData, error: projectError } = await supabase
             .from('clients') 
-            .select('id, name, project_slug, status, project_brief')
+            .select('id, name, project_slug, status')
             .eq('user_id', authUser.id)
             .order('created_at', { ascending: false });
 
-          if (projectFetchError) {
-            console.error('Error fetching projects:', projectFetchError); 
-            currentError = `Could not load projects. DB Error: ${projectFetchError.message}`;
-            setError(currentError);
+          if (projectError) {
+            console.error('Error fetching projects:', projectError); // Ensure the actual error object is logged
+            setError(error ? `${error}\nCould not load projects. DB Error: ${projectError.message}` : `Could not load projects. DB Error: ${projectError.message}`);
           } else {
             setProjects(projectData || []);
           }
           setLoadingProjects(false);
         } else {
+           // This case means the profile row doesn\'t exist yet for this authenticated user
+           // This shouldn\'t happen if the trigger is working correctly for new signups.
+           // For existing users before trigger, they might not have a profile.
             setError('Profile not found. If you are a new user, please try refreshing. If this persists, contact support.');
         }
       } else {
         setError('You must be logged in to view your profile.');
+        // Optionally redirect to login: router.push('/login');
       }
       setLoading(false);
     };
@@ -145,12 +148,12 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">My Profile</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center pt-8">My Profile</h1>
 
         <div className="bg-gray-900 p-6 md:p-8 border border-gray-800 shadow-lg rounded-lg max-w-lg mx-auto">
           <div className="flex items-center mb-6">
             <FaUserCircle className="text-3xl text-sky-400 mr-3" />
-            <h2 className="text-2xl font-semibold text-white">Profile Details</h2>
+            <h1 className="text-3xl font-bold text-white">My Profile</h1>
           </div>
 
           {error && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm">{error}</p>}

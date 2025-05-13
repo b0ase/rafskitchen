@@ -2,31 +2,34 @@
 
 import React from 'react';
 import Link from 'next/link';
-// Logout functionality is now handled by the persistent UserSidebar
-// import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-// import { useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function StudioPage() {
-  // const supabase = createClientComponentClient(); // No longer needed here
-  // const router = useRouter(); // No longer needed here
+  const supabase = createClientComponentClient();
+  const router = useRouter();
 
-  // const handleSupabaseLogout = async () => { // No longer needed here
-  //   const { error } = await supabase.auth.signOut();
-  //   if (error) {
-  //     console.error('Error logging out:', error.message);
-  //     alert(`Error logging out: ${error.message}`);
-  //   } else {
-  //     window.location.href = '/';
-  //   }
-  // };
+  const handleSupabaseLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error logging out:', error.message);
+      alert(`Error logging out: ${error.message}`);
+    } else {
+      window.location.href = '/';
+    }
+  };
 
   return (
-    // ml-64 is removed as ConditionalLayout handles it
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
-      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16 ml-64">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Studio</h1>
-          {/* Logout button removed, UserSidebar has it now */}
+          <button 
+            onClick={handleSupabaseLogout}
+            className="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+          >
+            Logout
+          </button>
         </div>
         
         <div className="bg-gray-900 p-6 md:p-8 border border-gray-800 shadow-lg">

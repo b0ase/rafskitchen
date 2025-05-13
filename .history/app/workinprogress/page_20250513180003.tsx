@@ -132,7 +132,7 @@ export default function WorkInProgressPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-10 text-center">Work In Progress Dashboard</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-10 text-center pt-8">Work In Progress Dashboard</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* B0ase.com Action List */}

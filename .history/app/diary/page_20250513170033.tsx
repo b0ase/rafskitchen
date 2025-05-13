@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
-import { FaPlusCircle, FaRegSquare, FaCheckSquare, FaTimes, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaPlusCircle, FaRegSquare, FaCheckSquare, FaTimes, FaTrash } from 'react-icons/fa';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface ActionItem {
@@ -208,8 +208,12 @@ export default function DiaryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
-      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
-        <div className="mb-8 flex justify-end items-center">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16 ml-64">
+        <div className="mb-8 flex justify-between items-center">
+          <Link href="/studio" className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors">
+            <FaArrowLeft className="mr-2" />
+            Back to Studio
+          </Link>
           <button 
             onClick={() => setShowAddEntryModal(true)}
             className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-medium py-2 px-4 rounded-md transition-colors"

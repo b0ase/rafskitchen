@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
+import { FaArrowLeft } from 'react-icons/fa'; // Using react-icons for the back arrow
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // Define the types for our tasks
@@ -132,6 +133,13 @@ export default function WorkInProgressPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="mb-8">
+          <Link href="/studio" className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+            <FaArrowLeft className="mr-2" />
+            Back to Studio
+          </Link>
+        </div>
+
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-10 text-center">Work In Progress Dashboard</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">

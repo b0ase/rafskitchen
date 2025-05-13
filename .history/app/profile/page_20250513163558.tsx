@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaSave, FaUserCircle } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaUserCircle } from 'react-icons/fa';
 
 interface Profile {
   username: string | null;
@@ -14,9 +14,9 @@ interface Profile {
 interface ClientProject {
   id: string; // UUID
   name: string;
-  project_slug: string;
+  slug: string;
   status: string | null;
-  project_brief?: string | null;
+  project_brief?: string | null; // Made optional for debugging
   // Add other fields you want to display on the profile card
 }
 
@@ -55,27 +55,30 @@ export default function ProfilePage() {
           setNewUsername(profileData.username || '');
           setNewDisplayName(profileData.display_name || profileData.username || '');
 
+          // Fetch client projects associated with this user
           setLoadingProjects(true);
-          let currentError = null;
-          const { data: projectData, error: projectFetchError } = await supabase
+          const { data: projectData, error: projectError } = await supabase
             .from('clients') 
-            .select('id, name, project_slug, status, project_brief')
+            .select('id, name, slug, status')  // Temporarily removed project_brief
             .eq('user_id', authUser.id)
             .order('created_at', { ascending: false });
 
-          if (projectFetchError) {
-            console.error('Error fetching projects:', projectFetchError); 
-            currentError = `Could not load projects. DB Error: ${projectFetchError.message}`;
-            setError(currentError);
+          if (projectError) {
+            console.error('Error fetching projects:', projectError); // Ensure the actual error object is logged
+            setError(error ? `${error}\nCould not load projects. DB Error: ${projectError.message}` : `Could not load projects. DB Error: ${projectError.message}`);
           } else {
             setProjects(projectData || []);
           }
           setLoadingProjects(false);
         } else {
+           // This case means the profile row doesn\'t exist yet for this authenticated user
+           // This shouldn\'t happen if the trigger is working correctly for new signups.
+           // For existing users before trigger, they might not have a profile.
             setError('Profile not found. If you are a new user, please try refreshing. If this persists, contact support.');
         }
       } else {
         setError('You must be logged in to view your profile.');
+        // Optionally redirect to login: router.push('/login');
       }
       setLoading(false);
     };
@@ -145,12 +148,17 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">My Profile</h1>
+        <div className="mb-8">
+          <Link href="/studio" className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors">
+            <FaArrowLeft className="mr-2" />
+            Back to Studio
+          </Link>
+        </div>
 
         <div className="bg-gray-900 p-6 md:p-8 border border-gray-800 shadow-lg rounded-lg max-w-lg mx-auto">
           <div className="flex items-center mb-6">
             <FaUserCircle className="text-3xl text-sky-400 mr-3" />
-            <h2 className="text-2xl font-semibold text-white">Profile Details</h2>
+            <h1 className="text-3xl font-bold text-white">My Profile</h1>
           </div>
 
           {error && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm">{error}</p>}
@@ -220,6 +228,7 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/* My Projects Section */}
         {user && (
           <div className="bg-gray-900 p-6 md:p-8 border border-gray-800 shadow-lg rounded-lg max-w-4xl mx-auto mt-12">
             <h2 className="text-2xl font-bold text-white mb-6">My Projects</h2>
@@ -234,9 +243,9 @@ export default function ProfilePage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="text-xl font-semibold text-sky-400 mb-1">{project.name}</h3>
-                        {project.project_slug && (
-                          <Link href={`/projects/${project.project_slug}`} legacyBehavior>
-                            <a className="text-xs text-gray-500 hover:text-sky-300 hover:underline">View Project Details (/projects/{project.project_slug})</a>
+                        {project.slug && (
+                          <Link href={`/projects/${project.slug}`} legacyBehavior>
+                            <a className="text-xs text-gray-500 hover:text-sky-300 hover:underline">View Project Details (/projects/{project.slug})</a>
                           </Link>
                         )}
                       </div>

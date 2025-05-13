@@ -55,33 +55,36 @@ export default function ProfilePage() {
           setNewUsername(profileData.username || '');
           setNewDisplayName(profileData.display_name || profileData.username || '');
 
+          // Fetch client projects associated with this user
           setLoadingProjects(true);
-          let currentError = null;
-          const { data: projectData, error: projectFetchError } = await supabase
+          const { data: projectData, error: projectError } = await supabase
             .from('clients') 
             .select('id, name, project_slug, status, project_brief')
             .eq('user_id', authUser.id)
             .order('created_at', { ascending: false });
 
-          if (projectFetchError) {
-            console.error('Error fetching projects:', projectFetchError); 
-            currentError = `Could not load projects. DB Error: ${projectFetchError.message}`;
-            setError(currentError);
+          if (projectError) {
+            console.error('Error fetching projects:', projectError); // Ensure the actual error object is logged
+            setError(error ? `${error}\nCould not load projects. DB Error: ${projectError.message}` : `Could not load projects. DB Error: ${projectError.message}`);
           } else {
             setProjects(projectData || []);
           }
           setLoadingProjects(false);
         } else {
+           // This case means the profile row doesn\'t exist yet for this authenticated user
+           // This shouldn\'t happen if the trigger is working correctly for new signups.
+           // For existing users before trigger, they might not have a profile.
             setError('Profile not found. If you are a new user, please try refreshing. If this persists, contact support.');
         }
       } else {
         setError('You must be logged in to view your profile.');
+        // Optionally redirect to login: router.push('/login');
       }
       setLoading(false);
     };
 
     fetchUserAndProfile();
-  }, [supabase]);
+  }, [supabase, error]);
 
   const handleUpdateProfile = async (e: FormEvent) => {
     e.preventDefault();

@@ -1,10 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-// Link import might not be needed if this is the only Link usage at the top.
-// import Link from 'next/link'; 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import EventForm from './components/EventForm';
-// FaArrowLeft would be removed from react-icons if it was imported
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -655,16 +653,13 @@ export default function CalendarPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* "Back to Gigs Hub" Link removed from here 
       <div className="mb-6">
         <Link href="/gigs" className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
           <span>←</span> Back to Gigs Hub
         </Link>
       </div>
-      */}
       
-      {/* Added pt-8 for spacing if title was too close to top after link removal */}
-      <h1 className="text-3xl font-bold mb-6 pt-8">Gigs - Calendar</h1>
+      <h1 className="text-3xl font-bold mb-6">Gigs - Calendar</h1>
       
       <div className="mb-8">
         <p className="text-gray-400 mb-6">
