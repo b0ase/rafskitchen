@@ -133,11 +133,10 @@ export default function StudioPage() {
             {/* <h2 className="text-2xl font-bold text-white mb-6">Quick Access Tools</h2> */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {[
-                // New Order: 1. Diary, 2. Work In Progress, 3. Calendar, then the rest
-                { href: '/diary', title: 'Diary', description: 'Personal journal, daily notes, and reflections.' },
+                // Colors removed, will use static text-white
                 { href: '/workinprogress', title: 'Work In Progress', description: 'Overview of current tasks, projects, and ongoing efforts.' },
+                { href: '/diary', title: 'Diary', description: 'Personal journal, daily notes, and reflections.' },
                 { href: '/gigs/calendar', title: 'Calendar', description: 'Visualize deadlines, learning sessions, and financial check-ins.' },
-                // Remaining items in their previous relative order
                 { href: '/finances', title: 'Financial Overview', description: 'View income, expenses, and financial reports.' },
                 { href: '/gigs', title: 'Gig Management', description: 'Track freelance projects, proposals, and client interactions.' },
                 { href: '/gigs/research', title: 'Research', description: 'Explore Fiverr trends, popular gigs, pricing, and keywords.' },

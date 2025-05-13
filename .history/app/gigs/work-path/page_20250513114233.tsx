@@ -86,52 +86,6 @@ export default function WorkPathPage() {
       ]
     },
     {
-      id: 'sprint-cycle-focus',
-      title: '45/15 Sprint Cycle Day',
-      description: 'Structures the day in 45-minute focused work sprints followed by 15-minute breaks. Allocates sprints across B0ase.com, Client Work, and Personal Projects.',
-      schedule: [
-        { time: '7:00-8:30', activity: 'Morning Routine (Dog walk, exercise, shower, breakfast)', priority: 'high' },
-        { time: '8:30-9:00', activity: 'Daily Kick-off & Admin (Plan 45-min tasks for morning sprints)', priority: 'high' },
-        // B0ase.com Block (9:00 - 12:00)
-        { time: '9:00-9:45', activity: 'B0ase Sprint 1 - [Specify task, integrate Learning Path if relevant]', priority: 'high' },
-        { time: '9:45-10:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '10:00-10:45', activity: 'B0ase Sprint 2 - [Specify task, integrate Learning Path if relevant]', priority: 'high' },
-        { time: '10:45-11:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '11:00-11:45', activity: 'B0ase Sprint 3 - [Specify task, integrate Learning Path if relevant]', priority: 'high' },
-        { time: '11:45-12:00', activity: 'Break / Prep for Lunch', priority: 'medium' },
-        // Lunch (12:00 - 13:00)
-        { time: '12:00-12:45', activity: 'Lunch', priority: 'medium' },
-        { time: '12:45-13:00', activity: 'Break / Prep for Client Sprints', priority: 'medium' },
-        // Client Work Block (13:00 - 18:00, up to 5 sprints)
-        { time: '13:00-13:45', activity: 'Client Sprint 1 - [Specify client task]', priority: 'high' },
-        { time: '13:45-14:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '14:00-14:45', activity: 'Client Sprint 2 - [Specify client task]', priority: 'high' },
-        { time: '14:45-15:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '15:00-15:45', activity: 'Client Sprint 3 - [Specify client task]', priority: 'high' },
-        { time: '15:45-16:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '16:00-16:45', activity: 'Client Sprint 4 (Optional) - [Specify client task]', priority: 'high' },
-        { time: '16:45-17:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '17:00-17:45', activity: 'Client Sprint 5 (Optional) - [Specify client task]', priority: 'high' },
-        { time: '17:45-18:00', activity: 'Break / Prep for Evening', priority: 'medium' },
-        // Evening Dog Walk / Personal Time (18:00 - 19:00)
-        { time: '18:00-18:45', activity: 'Evening Dog Walk / Personal Time', priority: 'medium' },
-        { time: '18:45-19:00', activity: 'Buffer / Prep for Dinner', priority: 'medium' },
-        // Dinner (19:00 - 20:00)
-        { time: '19:00-19:45', activity: 'Dinner & Financial Review (quick check)', priority: 'high' },
-        { time: '19:45-20:00', activity: 'Break / Prep for Personal Project Sprints', priority: 'medium' },
-        // Personal Projects Block (20:00 - 23:00)
-        { time: '20:00-20:45', activity: 'Personal Project Sprint 1 - [Specify task, integrate Learning Path if relevant]', priority: 'high' },
-        { time: '20:45-21:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '21:00-21:45', activity: 'Personal Project Sprint 2 - [Specify task, integrate Learning Path if relevant]', priority: 'high' },
-        { time: '21:45-22:00', activity: 'Break / Prep', priority: 'medium' },
-        { time: '22:00-22:45', activity: 'Personal Project Sprint 3 - [Specify task, integrate Learning Path if relevant]', priority: 'high' },
-        { time: '22:45-23:00', activity: 'Break / Prep for Wrap-up', priority: 'medium' },
-        // End of Day
-        { time: '23:00-23:30', activity: 'Day Wrap-up (Review sprints, plan carry-over)', priority: 'medium' },
-        { time: '23:30-00:00', activity: 'Deliberate Wind-Down (Strictly no screens)', priority: 'high' }
-      ]
-    },
-    {
       id: 'night-owl',
       title: 'Night Owl Project Schedule',
       description: 'For focused late work on specific projects, with healthy boundaries.',

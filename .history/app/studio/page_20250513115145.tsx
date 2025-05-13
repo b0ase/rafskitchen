@@ -127,31 +127,38 @@ export default function StudioPage() {
             Welcome to the Studio. Private content, work-in-progress, or client previews will be displayed here.
           </p>
           
-          {/* Unified Links Section */}
-          <div className="mt-8">
-            {/* Optional: Add a generic title here if needed, or remove if main page title is enough */}
-            {/* <h2 className="text-2xl font-bold text-white mb-6">Quick Access Tools</h2> */}
+          {/* Links to other private pages */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <Link href="/finances" className="block bg-gray-800 hover:bg-gray-700 p-6 border border-gray-700 shadow-md transition-colors">
+              <h2 className="text-xl font-semibold text-blue-400 mb-2">Financial Overview</h2>
+              <p className="text-gray-400 text-sm">View income, expenses, and financial reports.</p>
+            </Link>
+            <Link href="/gigs" className="block bg-gray-800 hover:bg-gray-700 p-6 border border-gray-700 shadow-md transition-colors">
+              <h2 className="text-xl font-semibold text-purple-400 mb-2">Gig Management</h2>
+              <p className="text-gray-400 text-sm">Track freelance projects, proposals, and client interactions.</p>
+            </Link>
+            <Link href="/trust" className="block bg-gray-800 hover:bg-gray-700 p-6 border border-gray-700 shadow-md transition-colors">
+              <h2 className="text-xl font-semibold text-green-400 mb-2">The Boase Trust</h2>
+              <p className="text-gray-400 text-sm">View trust documents, asset ledger, and balance sheet.</p>
+            </Link>
+          </div>
+
+          {/* New Section for Planning Hub Tools */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-white mb-6">Planning Hub Tools</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {[
-                // New Order: 1. Diary, 2. Work In Progress, 3. Calendar, then the rest
-                { href: '/diary', title: 'Diary', description: 'Personal journal, daily notes, and reflections.' },
-                { href: '/workinprogress', title: 'Work In Progress', description: 'Overview of current tasks, projects, and ongoing efforts.' },
-                { href: '/gigs/calendar', title: 'Calendar', description: 'Visualize deadlines, learning sessions, and financial check-ins.' },
-                // Remaining items in their previous relative order
-                { href: '/finances', title: 'Financial Overview', description: 'View income, expenses, and financial reports.' },
-                { href: '/gigs', title: 'Gig Management', description: 'Track freelance projects, proposals, and client interactions.' },
-                { href: '/gigs/research', title: 'Research', description: 'Explore Fiverr trends, popular gigs, pricing, and keywords.' },
-                { href: '/gigs/strategy', title: 'Strategy', description: 'Define specific gig offerings, unique selling points, and target audiences.' },
-                { href: '/gigs/action', title: 'Action Plan', description: 'Detailed steps to create and launch gigs for each platform/service.' },
-                { href: '/gigs/learning-path', title: 'Learning Path', description: 'Follow a structured 3-month schedule to master each platform.' },
-                { href: '/gigs/platforms', title: 'Platforms', description: 'Review key platforms, required expertise, and potential gig ideas.' },
-                { href: '/gigs/work-path', title: 'Work Path', description: 'Manage your daily workflow and balance client work with skill development.' },
-                { href: '/gigs/fiverr-explorer', title: 'Fiverr Explorer', description: 'Browse Fiverr categories and scrape gig data for research.' },
-              ].map((item, index) => (
+                { href: '/gigs/research', title: 'Research', description: 'Explore Fiverr trends, popular gigs, pricing, and keywords.', color: 'teal' },
+                { href: '/gigs/strategy', title: 'Strategy', description: 'Define specific gig offerings, unique selling points, and target audiences.', color: 'cyan' },
+                { href: '/gigs/action', title: 'Action Plan', description: 'Detailed steps to create and launch gigs for each platform/service.', color: 'sky' },
+                { href: '/gigs/platforms', title: 'Platforms', description: 'Review key platforms, required expertise, and potential gig ideas.', color: 'indigo' },
+                { href: '/gigs/learning-path', title: 'Learning Path', description: 'Follow a structured 3-month schedule to master each platform.', color: 'pink' },
+                { href: '/gigs/work-path', title: 'Work Path', description: 'Manage your daily workflow and balance client work with skill development.', color: 'rose' },
+                { href: '/gigs/calendar', title: 'Calendar', description: 'Visualize deadlines, learning sessions, and financial check-ins.', color: 'amber' },
+                { href: '/gigs/fiverr-explorer', title: 'Fiverr Explorer', description: 'Browse Fiverr categories and scrape gig data for research.', color: 'lime' },
+              ].map((item) => (
                 <Link key={item.href} href={item.href} className={`block bg-gray-800 hover:bg-gray-700 p-6 border border-gray-700 shadow-md transition-colors group`}>
-                  <h3 className={`text-xl font-semibold text-white mb-2 group-hover:text-gray-200`}>
-                    {index + 1}. {item.title}
-                  </h3>
+                  <h3 className={`text-xl font-semibold text-sky-400 mb-2 group-hover:text-sky-300`}>{item.title}</h3>
                   <p className="text-gray-400 text-sm group-hover:text-gray-300">{item.description}</p>
                 </Link>
               ))}

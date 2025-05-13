@@ -133,23 +133,22 @@ export default function StudioPage() {
             {/* <h2 className="text-2xl font-bold text-white mb-6">Quick Access Tools</h2> */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {[
-                // New Order: 1. Diary, 2. Work In Progress, 3. Calendar, then the rest
-                { href: '/diary', title: 'Diary', description: 'Personal journal, daily notes, and reflections.' },
-                { href: '/workinprogress', title: 'Work In Progress', description: 'Overview of current tasks, projects, and ongoing efforts.' },
-                { href: '/gigs/calendar', title: 'Calendar', description: 'Visualize deadlines, learning sessions, and financial check-ins.' },
-                // Remaining items in their previous relative order
-                { href: '/finances', title: 'Financial Overview', description: 'View income, expenses, and financial reports.' },
-                { href: '/gigs', title: 'Gig Management', description: 'Track freelance projects, proposals, and client interactions.' },
-                { href: '/gigs/research', title: 'Research', description: 'Explore Fiverr trends, popular gigs, pricing, and keywords.' },
-                { href: '/gigs/strategy', title: 'Strategy', description: 'Define specific gig offerings, unique selling points, and target audiences.' },
-                { href: '/gigs/action', title: 'Action Plan', description: 'Detailed steps to create and launch gigs for each platform/service.' },
-                { href: '/gigs/learning-path', title: 'Learning Path', description: 'Follow a structured 3-month schedule to master each platform.' },
-                { href: '/gigs/platforms', title: 'Platforms', description: 'Review key platforms, required expertise, and potential gig ideas.' },
-                { href: '/gigs/work-path', title: 'Work Path', description: 'Manage your daily workflow and balance client work with skill development.' },
-                { href: '/gigs/fiverr-explorer', title: 'Fiverr Explorer', description: 'Browse Fiverr categories and scrape gig data for research.' },
+                // Simplified Rainbow color sequence for better JIT compatibility
+                { href: '/workinprogress', title: 'Work In Progress', description: 'Overview of current tasks, projects, and ongoing efforts.', color: 'red' },
+                { href: '/diary', title: 'Diary', description: 'Personal journal, daily notes, and reflections.', color: 'blue' },
+                { href: '/gigs/calendar', title: 'Calendar', description: 'Visualize deadlines, learning sessions, and financial check-ins.', color: 'green' },
+                { href: '/finances', title: 'Financial Overview', description: 'View income, expenses, and financial reports.', color: 'yellow' },
+                { href: '/gigs', title: 'Gig Management', description: 'Track freelance projects, proposals, and client interactions.', color: 'purple' },
+                { href: '/gigs/research', title: 'Research', description: 'Explore Fiverr trends, popular gigs, pricing, and keywords.', color: 'pink' },
+                { href: '/gigs/strategy', title: 'Strategy', description: 'Define specific gig offerings, unique selling points, and target audiences.', color: 'red' }, // Repeat Red
+                { href: '/gigs/action', title: 'Action Plan', description: 'Detailed steps to create and launch gigs for each platform/service.', color: 'blue' }, // Repeat Blue
+                { href: '/gigs/learning-path', title: 'Learning Path', description: 'Follow a structured 3-month schedule to master each platform.', color: 'green' }, // Repeat Green
+                { href: '/gigs/platforms', title: 'Platforms', description: 'Review key platforms, required expertise, and potential gig ideas.', color: 'yellow' }, // Repeat Yellow
+                { href: '/gigs/work-path', title: 'Work Path', description: 'Manage your daily workflow and balance client work with skill development.', color: 'purple' }, // Repeat Purple
+                { href: '/gigs/fiverr-explorer', title: 'Fiverr Explorer', description: 'Browse Fiverr categories and scrape gig data for research.', color: 'pink' }, // Repeat Pink
               ].map((item, index) => (
                 <Link key={item.href} href={item.href} className={`block bg-gray-800 hover:bg-gray-700 p-6 border border-gray-700 shadow-md transition-colors group`}>
-                  <h3 className={`text-xl font-semibold text-white mb-2 group-hover:text-gray-200`}>
+                  <h3 className={`text-xl font-semibold text-${item.color}-500 mb-2 group-hover:text-${item.color}-400`}>
                     {index + 1}. {item.title}
                   </h3>
                   <p className="text-gray-400 text-sm group-hover:text-gray-300">{item.description}</p>
