@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaArrowLeft, FaSave, FaTimesCircle, FaSpinner, FaEdit, FaProjectDiagram, FaTrash, FaPlus, FaCheckSquare, FaRegSquare, FaUsers } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaTimesCircle, FaSpinner, FaEdit, FaProjectDiagram, FaTrash, FaPlus, FaCheckSquare, FaRegSquare } from 'react-icons/fa';
 
 // Interface matching the one in MyProjectsPage (ideally share this)
 interface ClientProject {
@@ -445,59 +445,49 @@ export default function ProjectDetailPage() {
     );
   }
 
-  // Determine if the current user is the owner for conditional rendering
-  const isProjectOwner = user && project && user.id === project.user_id;
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
-      <header className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <Link href="/myprojects" legacyBehavior>
-            <a className="text-sky-500 hover:text-sky-400 inline-flex items-center"><FaArrowLeft className="mr-2" /> Back to My Projects</a>
-          </Link>
-          {isProjectOwner && (
-            <Link href={`/myprojects/${slug}/manage-members`} passHref legacyBehavior>
-              <a className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm shadow-md transition-colors">
-                <FaUsers className="mr-2" /> Invite Members
-              </a>
-            </Link>
-          )}
-        </div>
-        <div className="flex items-center space-x-3">
-          {isEditingName ? (
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <input 
-                type="text"
-                value={editableName}
-                onChange={(e) => setEditableName(e.target.value)}
-                className="bg-slate-700 text-2xl font-semibold text-white p-2 rounded-md border border-slate-600 focus:ring-sky-500 focus:border-sky-500 flex-grow"
-                autoFocus
-              />
-              <button onClick={handleSaveName} disabled={updatingField === 'name'} className="p-2 bg-green-600 hover:bg-green-500 rounded-md text-white disabled:opacity-50">
-                {updatingField === 'name' ? <FaSpinner className="animate-spin" /> : <FaSave />}
-              </button>
-              <button onClick={() => { setIsEditingName(false); setEditableName(project.name); }} className="p-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">
-                <FaTimesCircle />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <FaProjectDiagram className="text-3xl text-sky-400" />
-              <h1 className="text-3xl md:text-4xl font-bold text-white break-all">{project.name}</h1>
-              <button onClick={() => setIsEditingName(true)} className="text-sky-400 hover:text-sky-300">
-                <FaEdit />
-              </button>
-            </div>
-          )}
-        </div>
-        <p className="text-xs text-gray-500 mb-6">Project ID: {project.id}</p>
-      </header>
-
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
+        {/* REMOVED THIS BLOCK
+        <div className="mb-8">
+          <Link href="/myprojects" legacyBehavior>
+            <a className="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors group">
+              <FaArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" />
+              Back to My Projects
+            </a>
+          </Link>
+        </div>
+        */}
+
         {/* Project Header */}
         <div className="bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-            {/* Display Original Status/Badge1 if needed or a primary badge display here */}
+            {isEditingName ? (
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <input 
+                  type="text"
+                  value={editableName}
+                  onChange={(e) => setEditableName(e.target.value)}
+                  className="bg-slate-700 text-2xl font-semibold text-white p-2 rounded-md border border-slate-600 focus:ring-sky-500 focus:border-sky-500 flex-grow"
+                  autoFocus
+                />
+                <button onClick={handleSaveName} disabled={updatingField === 'name'} className="p-2 bg-green-600 hover:bg-green-500 rounded-md text-white disabled:opacity-50">
+                  {updatingField === 'name' ? <FaSpinner className="animate-spin" /> : <FaSave />}
+                </button>
+                <button onClick={() => { setIsEditingName(false); setEditableName(project.name); }} className="p-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">
+                  <FaTimesCircle />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <FaProjectDiagram className="text-3xl text-sky-400" />
+                <h1 className="text-3xl md:text-4xl font-bold text-white break-all">{project.name}</h1>
+                <button onClick={() => setIsEditingName(true)} className="text-sky-400 hover:text-sky-300">
+                  <FaEdit />
+                </button>
+              </div>
+            )}
+             {/* Display Original Status/Badge1 if needed or a primary badge display here */}
           </div>
           <p className="text-xs text-gray-500 mb-6">Project ID: {project.id}</p>
 
