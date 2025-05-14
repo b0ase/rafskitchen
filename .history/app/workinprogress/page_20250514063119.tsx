@@ -185,77 +185,23 @@ export default function WorkInProgressPage() {
 
   // NEW: useEffect to combine myProjects and projectScopes for the dropdown
   useEffect(() => {
-    if (!user) { // Don't run if user is not yet available
+    if (myProjects.length > 0 && projectScopes.length > 0) {
+      const options: ScopeOption[] = myProjects.map(project => {
+        const matchingScope = projectScopes.find(scope => scope.name === project.name);
+        return matchingScope ? { label: project.name, value: matchingScope.id } : null;
+      }).filter(option => option !== null) as ScopeOption[];
+      setScopeDropdownOptions(options);
+      
+      // Set default selected scope if not already set and options are available
+      if (!selectedScopeForNewTask && options.length > 0) {
+        setSelectedScopeForNewTask(options[0].value);
+      }
+    } else if (myProjects.length === 0 || projectScopes.length === 0) {
+      // If either is empty, or becomes empty, clear the options and selection
       setScopeDropdownOptions([]);
       setSelectedScopeForNewTask(null);
-      return;
     }
-
-    console.log('[Debug] Recalculating scopeDropdownOptions for user:', user.id);
-    console.log('[Debug] myProjects:', myProjects);
-    console.log('[Debug] projectScopes:', projectScopes);
-
-    const options: ScopeOption[] = [];
-    const addedScopeValues = new Set<string>(); // To track added scope values (project_scope_id) to prevent duplicates
-
-    // 1. Process myProjects (client projects) and find their corresponding project_scope_id
-    if (myProjects.length > 0) {
-      myProjects.forEach(project => {
-        // Ensure we are only looking for scopes belonging to the current user
-        const matchingScope = projectScopes.find(scope => scope.name === project.name && scope.user_id === user.id);
-        if (matchingScope) {
-          if (!addedScopeValues.has(matchingScope.id)) {
-            console.log(`[Debug] Matched myProject '${project.name}' with projectScope '${matchingScope.name}' (ID: ${matchingScope.id})`);
-            options.push({ label: project.name, value: matchingScope.id });
-            addedScopeValues.add(matchingScope.id);
-          }
-        } else {
-          console.log(`[Debug] No matching projectScope found for myProject '${project.name}'. It will not be added via this path.`);
-        }
-      });
-    }
-
-    // 2. Add other projectScopes that are for the current user and weren't already added via myProjects match
-    if (projectScopes.length > 0) {
-      projectScopes.forEach(scope => {
-        if (scope.user_id === user.id && !addedScopeValues.has(scope.id)) {
-          console.log(`[Debug] Adding user-specific non-client projectScope '${scope.name}' (ID: ${scope.id})`);
-          options.push({ label: scope.name, value: scope.id });
-          addedScopeValues.add(scope.id); // Should be redundant if first loop uses value, but good for safety
-        }
-      });
-    }
-    
-    options.sort((a, b) => a.label.localeCompare(b.label));
-
-    console.log('[Debug] Generated scopeDropdownOptions:', options);
-    setScopeDropdownOptions(options);
-
-    // Default selection logic
-    if (options.length > 0) {
-      if (selectedScopeForNewTask === null || !options.find(opt => opt.value === selectedScopeForNewTask)) {
-        // If current selection is null or no longer valid, try to set a default
-        const preferredDefault = options.find(opt => opt.label === "b0ase.com Platform") || options[0];
-        if (preferredDefault) {
-            console.log('[Debug] Setting/adjusting default selectedScopeForNewTask to:', preferredDefault.label, preferredDefault.value);
-            setSelectedScopeForNewTask(preferredDefault.value);
-        }
-      }
-    } else if (options.length === 0 && selectedScopeForNewTask !== null) {
-        console.log('[Debug] No options available, clearing selectedScopeForNewTask.');
-        setSelectedScopeForNewTask(null);
-    }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myProjects, projectScopes, user]); // Added user to dependencies
-
-  // Separate useEffect for debugging all relevant states
-  useEffect(() => {
-    console.log('[State Snapshot] myProjects:', myProjects);
-    console.log('[State Snapshot] projectScopes:', projectScopes);
-    console.log('[State Snapshot] scopeDropdownOptions:', scopeDropdownOptions);
-    console.log('[State Snapshot] selectedScopeForNewTask:', selectedScopeForNewTask);
-  }, [myProjects, projectScopes, scopeDropdownOptions, selectedScopeForNewTask]);
+  }, [myProjects, projectScopes]); // Removed selectedScopeForNewTask from deps to avoid loop
 
   const handleAddBoaseTask = async (e: FormEvent) => {
     e.preventDefault();
@@ -427,19 +373,16 @@ export default function WorkInProgressPage() {
             value={selectedScopeForNewTask || ''} // Handle null state
             onChange={(e) => setSelectedScopeForNewTask(e.target.value || null)} // Set to null if "(None)" selected
             className="w-full bg-gray-700 border border-gray-600 text-gray-200 px-3 py-2 rounded-md focus:ring-purple-500 focus:border-purple-500 text-sm"
-            disabled={isLoadingScopes || isLoadingMyProjects || (scopeDropdownOptions.length === 0 && !isLoadingScopes && !isLoadingMyProjects) }
           >
             <option value="" className="bg-gray-800 text-gray-400">(None - No Specific Scope)</option>
-            {(isLoadingScopes || isLoadingMyProjects) && <option value="" disabled>Loading projects...</option>}
-            {!isLoadingScopes && !isLoadingMyProjects && scopeDropdownOptions.length === 0 && <option value="" disabled>No projects available</option>}
-            {scopeDropdownOptions.map(option => (
-              <option key={option.value} value={option.value} className="bg-gray-800 text-gray-200">
-                {option.label}
+            {isLoadingScopes && <option value="" disabled>Loading scopes...</option>}
+            {projectScopes.map(scope => (
+              <option key={scope.id} value={scope.id} className="bg-gray-800 text-gray-200">
+                {scope.name}
               </option>
             ))}
           </select>
           {errorLoadingScopes && <p className="text-red-400 text-xs mt-1">{errorLoadingScopes}</p>}
-          {errorLoadingMyProjects && <p className="text-red-400 text-xs mt-1">{errorLoadingMyProjects}</p>}
         </div>
 
         {/* Single section for all tasks */}
@@ -464,15 +407,13 @@ export default function WorkInProgressPage() {
                         value={item.project_scope_id || ''} // Handle null scope_id
                         onChange={(e) => handleProjectScopeChange(item.id, e.target.value || null)}
                         className={`px-2 py-1 text-xs font-medium rounded-md border-none focus:ring-1 focus:ring-indigo-500 bg-gray-700 hover:bg-gray-600 text-indigo-300 w-40 truncate`}
-                        title={scopeDropdownOptions.find(s => s.value === item.project_scope_id)?.label || (item.project_scope_id === null || item.project_scope_id === '' ? '(None)' : 'Assign Scope')}
-                        disabled={isLoadingScopes || isLoadingMyProjects || (scopeDropdownOptions.length === 0 && !isLoadingScopes && !isLoadingMyProjects) }
+                        title={projectScopes.find(s => s.id === item.project_scope_id)?.name || "Assign Scope"}
                       >
                         <option value="" className="bg-gray-800 text-gray-400">(None)</option>
-                        {(isLoadingScopes || isLoadingMyProjects) && <option value="" disabled>Loading...</option>}
-                        {!isLoadingScopes && !isLoadingMyProjects && scopeDropdownOptions.length === 0 && <option value="" disabled>No projects available</option>}
-                        {scopeDropdownOptions.map(option => (
-                          <option key={option.value} value={option.value} className="bg-gray-800 text-gray-200">
-                            {option.label}
+                        {isLoadingScopes && <option value="" disabled>Loading...</option>}
+                        {projectScopes.map(scope => (
+                          <option key={scope.id} value={scope.id} className="bg-gray-800 text-gray-200">
+                            {scope.name}
                           </option>
                         ))}
                       </select>
@@ -509,44 +450,21 @@ export default function WorkInProgressPage() {
           </div>
           
           <form onSubmit={handleAddBoaseTask} className="mt-6">
-            <div className="flex flex-col sm:flex-row gap-2 mb-2"> {/* Added this div from original unseen form structure */}
-              <input
-                type="text"
-                value={newBoaseTaskText}
-                onChange={(e) => setNewBoaseTaskText(e.target.value)}
-                placeholder="Add a new task..." // Changed placeholder to be more generic
-                className="flex-grow p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white placeholder-gray-400" // Copied classes from previous attempt
-              />
-              {/* This is the select that was correctly updated before, now just ensuring classes match */}
-              <select 
-                value={selectedScopeForNewTask || ''} 
-                onChange={(e) => setSelectedScopeForNewTask(e.target.value || null)}
-                className="p-2 border rounded-md shadow-sm bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500" // Copied classes from previous attempt
-                disabled={isLoadingScopes || isLoadingMyProjects || (scopeDropdownOptions.length === 0 && !isLoadingScopes && !isLoadingMyProjects) }
-              >
-                <option value="" disabled={scopeDropdownOptions.length > 0 && !!selectedScopeForNewTask }>(Select Project Scope)</option> 
-                <option value="">(None - No Specific Scope)</option> {/* Added explicit None option here too */}
-                {(isLoadingScopes || isLoadingMyProjects) ? (
-                  <option value="" disabled>Loading projects...</option>
-                ) : scopeDropdownOptions.length === 0 ? (
-                  <option value="" disabled>No projects available</option>
-                ) : (
-                  scopeDropdownOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))
-                )}
-              </select>
-              <button 
-                type="submit" 
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md shadow-sm disabled:opacity-50" // Copied classes from previous attempt
-                disabled={!newBoaseTaskText.trim() || (!selectedScopeForNewTask && scopeDropdownOptions.length > 0 && selectedScopeForNewTask !== '')} // Ensure (None) is a valid selection for enabling button
-              >
-                Add Task
-              </button>
-            </div>
-            {errorAddingTask && <p className="text-red-400 text-xs mt-1">{errorAddingTask}</p>} {/* Changed text-red-500 to text-red-400 */}
+            <input
+              type="text"
+              value={newBoaseTaskText}
+              onChange={(e) => setNewBoaseTaskText(e.target.value)}
+              placeholder="Add a new task..."
+              className="w-full bg-gray-800 border border-gray-700 text-gray-300 placeholder-gray-500 px-4 py-2 rounded-md focus:ring-purple-500 focus:border-purple-500"
+            />
+            {errorAddingTask && <p className="text-red-400 text-xs mt-1">{errorAddingTask}</p>}
+            <button 
+              type="submit"
+              className="mt-3 w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50"
+              disabled={!newBoaseTaskText.trim()}
+            >
+              Add Task
+            </button>
           </form>
         </section>
       </main>

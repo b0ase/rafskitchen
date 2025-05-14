@@ -155,6 +155,20 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="bg-gray-900 shadow-2xl rounded-lg p-6 sm:p-8 md:p-10 w-full mx-auto border border-gray-700/50">
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Your Profile</h1>
+
+        <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 rounded-full mr-0 sm:mr-6 mb-4 sm:mb-0 border-4 border-sky-600 object-cover shadow-md" />
+          ) : (
+            <FaUserCircle className="text-7xl text-sky-500 mr-0 sm:mr-6 mb-4 sm:mb-0" />
+          )}
+          <div className="text-center sm:text-left">
+            <h2 className="text-3xl font-semibold text-white">{profile?.display_name || profile?.username || 'Welcome to b0ase.com!'}</h2>
+            <p className="text-lg text-gray-400 mt-1">Manage your public identity, personal information, and online presence.</p>
+          </div>
+        </div>
+
         {/* New Project Initiation Section */}
         <section className="mb-12 p-6 bg-gradient-to-r from-sky-800 via-sky-700 to-cyan-600 rounded-lg shadow-lg text-white border border-sky-500/50">
           <div className="flex flex-col md:flex-row items-center">
@@ -174,20 +188,6 @@ export default function ProfilePage() {
             </div>
           </div>
         </section>
-
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Your Profile</h1>
-
-        <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
-          {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 rounded-full mr-0 sm:mr-6 mb-4 sm:mb-0 border-4 border-sky-600 object-cover shadow-md" />
-          ) : (
-            <FaUserCircle className="text-7xl text-sky-500 mr-0 sm:mr-6 mb-4 sm:mb-0" />
-          )}
-          <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-semibold text-white">{profile?.display_name || profile?.username || 'Welcome to b0ase.com!'}</h2>
-            <p className="text-lg text-gray-400 mt-1">Manage your public identity, personal information, and online presence.</p>
-          </div>
-        </div>
 
         {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error}</p>}
         {successMessage && <p className="text-green-400 bg-green-900/30 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}

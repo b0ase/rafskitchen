@@ -185,77 +185,30 @@ export default function WorkInProgressPage() {
 
   // NEW: useEffect to combine myProjects and projectScopes for the dropdown
   useEffect(() => {
-    if (!user) { // Don't run if user is not yet available
-      setScopeDropdownOptions([]);
-      setSelectedScopeForNewTask(null);
-      return;
-    }
-
-    console.log('[Debug] Recalculating scopeDropdownOptions for user:', user.id);
-    console.log('[Debug] myProjects:', myProjects);
-    console.log('[Debug] projectScopes:', projectScopes);
-
-    const options: ScopeOption[] = [];
-    const addedScopeValues = new Set<string>(); // To track added scope values (project_scope_id) to prevent duplicates
-
-    // 1. Process myProjects (client projects) and find their corresponding project_scope_id
-    if (myProjects.length > 0) {
-      myProjects.forEach(project => {
-        // Ensure we are only looking for scopes belonging to the current user
-        const matchingScope = projectScopes.find(scope => scope.name === project.name && scope.user_id === user.id);
-        if (matchingScope) {
-          if (!addedScopeValues.has(matchingScope.id)) {
-            console.log(`[Debug] Matched myProject '${project.name}' with projectScope '${matchingScope.name}' (ID: ${matchingScope.id})`);
-            options.push({ label: project.name, value: matchingScope.id });
-            addedScopeValues.add(matchingScope.id);
-          }
-        } else {
-          console.log(`[Debug] No matching projectScope found for myProject '${project.name}'. It will not be added via this path.`);
-        }
-      });
-    }
-
-    // 2. Add other projectScopes that are for the current user and weren't already added via myProjects match
-    if (projectScopes.length > 0) {
-      projectScopes.forEach(scope => {
-        if (scope.user_id === user.id && !addedScopeValues.has(scope.id)) {
-          console.log(`[Debug] Adding user-specific non-client projectScope '${scope.name}' (ID: ${scope.id})`);
-          options.push({ label: scope.name, value: scope.id });
-          addedScopeValues.add(scope.id); // Should be redundant if first loop uses value, but good for safety
-        }
-      });
-    }
-    
-    options.sort((a, b) => a.label.localeCompare(b.label));
-
-    console.log('[Debug] Generated scopeDropdownOptions:', options);
-    setScopeDropdownOptions(options);
-
-    // Default selection logic
-    if (options.length > 0) {
-      if (selectedScopeForNewTask === null || !options.find(opt => opt.value === selectedScopeForNewTask)) {
-        // If current selection is null or no longer valid, try to set a default
-        const preferredDefault = options.find(opt => opt.label === "b0ase.com Platform") || options[0];
-        if (preferredDefault) {
-            console.log('[Debug] Setting/adjusting default selectedScopeForNewTask to:', preferredDefault.label, preferredDefault.value);
-            setSelectedScopeForNewTask(preferredDefault.value);
-        }
+    if (myProjects.length > 0 && projectScopes.length > 0) {
+      const options: ScopeOption[] = myProjects.map(project => {
+        const matchingScope = projectScopes.find(scope => scope.name === project.name);
+        return matchingScope ? { label: project.name, value: matchingScope.id } : null;
+      }).filter(option => option !== null) as ScopeOption[];
+      setScopeDropdownOptions(options);
+      
+      // Set default selected scope if not already set and options are available
+      if (selectedScopeForNewTask === undefined && options.length > 0) {
+        setSelectedScopeForNewTask(options[0].value);
+      } else if (selectedScopeForNewTask === null && options.length > 0 && !options.find(opt => opt.value === '')) {
+        // If current selection is null (no specific scope) and (None) is not an option, default to first project.
+        // This logic might need refinement based on desired UX for "None"
       }
-    } else if (options.length === 0 && selectedScopeForNewTask !== null) {
-        console.log('[Debug] No options available, clearing selectedScopeForNewTask.');
+
+    } else if (myProjects.length === 0 || projectScopes.length === 0) {
+      // If either is empty, or becomes empty, clear the options and selection
+      setScopeDropdownOptions([]);
+      // Only set to null if it wasn't already explicitly set to empty string for "(None)"
+      if (selectedScopeForNewTask !== '') {
         setSelectedScopeForNewTask(null);
+      }
     }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myProjects, projectScopes, user]); // Added user to dependencies
-
-  // Separate useEffect for debugging all relevant states
-  useEffect(() => {
-    console.log('[State Snapshot] myProjects:', myProjects);
-    console.log('[State Snapshot] projectScopes:', projectScopes);
-    console.log('[State Snapshot] scopeDropdownOptions:', scopeDropdownOptions);
-    console.log('[State Snapshot] selectedScopeForNewTask:', selectedScopeForNewTask);
-  }, [myProjects, projectScopes, scopeDropdownOptions, selectedScopeForNewTask]);
+  }, [myProjects, projectScopes, selectedScopeForNewTask]); // Re-added selectedScopeForNewTask to allow dynamic default setting or clearing
 
   const handleAddBoaseTask = async (e: FormEvent) => {
     e.preventDefault();

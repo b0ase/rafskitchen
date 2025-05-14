@@ -23,12 +23,6 @@ interface TeamMember {
   // Add other relevant user fields if needed
 }
 
-// For the dropdown of all platform users
-interface PlatformUser {
-  id: string;
-  display_name: string; // Or username, whatever is best for display
-}
-
 // Enum for roles (mirroring the SQL ENUM)
 enum ProjectRole {
   ProjectManager = 'project_manager',
@@ -52,9 +46,7 @@ export default function TeamPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // State for adding a new member
-  const [platformUsers, setPlatformUsers] = useState<PlatformUser[]>([]);
-  const [isLoadingPlatformUsers, setIsLoadingPlatformUsers] = useState(false);
-  const [selectedPlatformUserId, setSelectedPlatformUserId] = useState<string>(''); // For the dropdown
+  const [newMemberUsername, setNewMemberUsername] = useState('');
   const [newMemberRole, setNewMemberRole] = useState<ProjectRole>(ProjectRole.Collaborator);
   const [isAddingMember, setIsAddingMember] = useState(false);
 
@@ -176,37 +168,18 @@ export default function TeamPage() {
     }
   }, [supabase]);
 
-  const fetchPlatformUsers = useCallback(async () => {
-    setIsLoadingPlatformUsers(true);
-    setError(null);
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, display_name, username') // Fetch fields needed for display and ID
-        .order('display_name', { ascending: true }); // Optional: order them
-
-      if (error) throw error;
-      setPlatformUsers(data?.map(p => ({ id: p.id, display_name: p.display_name || p.username || p.id.substring(0,8) })) || []);
-    } catch (e: any) {
-      console.error('Error fetching platform users:', e);
-      setError(`Failed to load users for dropdown: ${e.message}`);
-      setPlatformUsers([]);
-    } finally {
-      setIsLoadingPlatformUsers(false);
-    }
-  }, [supabase]);
 
   useEffect(() => {
     if (user?.id) {
       fetchManagedProjects(user.id);
-      fetchPlatformUsers(); // Fetch all users once the main user is loaded
     }
-  }, [user, fetchManagedProjects, fetchPlatformUsers]);
+  }, [user, fetchManagedProjects]);
 
   useEffect(() => {
     if (selectedProjectId) {
       fetchTeamMembers(selectedProjectId);
-      setSelectedPlatformUserId(''); // Reset selected user in dropdown
+      // Clear add member form when project changes
+      setNewMemberUsername('');
       setNewMemberRole(ProjectRole.Collaborator);
       setSuccessMessage(null);
       setError(null);
@@ -217,8 +190,8 @@ export default function TeamPage() {
 
   const handleAddNewMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedProjectId || !selectedPlatformUserId) {
-      setError('Please select a project and a user to add.');
+    if (!selectedProjectId || !newMemberUsername) {
+      setError('Please select a project and enter a username or display name.');
       return;
     }
     setIsAddingMember(true);
@@ -226,25 +199,54 @@ export default function TeamPage() {
     setSuccessMessage(null);
 
     try {
+      // Step 1: Find user by username OR display_name in 'profiles' table
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        // Search where username OR display_name matches the input
+        // Note: Case sensitivity depends on your database collation. Default is often case-sensitive.
+        // For case-insensitive, you might use .ilike() but that requires pattern matching operators (e.g., %)
+        // or changing DB collation, or using lower() on both sides.
+        // Keeping it simple with .eq() for exact match for now.
+        .or(`username.eq.${newMemberUsername},display_name.eq.${newMemberUsername}`)
+        .limit(1) // Take the first match if multiple (e.g., non-unique display names)
+        .single(); // .single() expects at most one row. If limit(1) finds one, it works.
+
+      if (profileError || !profile) {
+        // Refine error message if .single() fails due to multiple matches vs. no matches
+        if (profileError && profileError.details.includes('Results contain 0 rows')) {
+          throw new Error(`User with username or display name matching "${newMemberUsername}" not found.`);
+        } else if (profileError) {
+           throw new Error(`Error fetching profile for "${newMemberUsername}": ${profileError.message}. Multiple users might have this display name.`);
+        } else {
+          throw new Error(`User with username or display name matching "${newMemberUsername}" not found.`);
+        }
+      }
+
+      const memberUserId = profile.id;
+
+      // Step 2: Insert into project_users
       const { error: insertError } = await supabase
         .from('project_users')
         .insert({
           project_id: selectedProjectId,
-          user_id: selectedPlatformUserId,
+          user_id: memberUserId,
           role: newMemberRole,
         });
 
       if (insertError) {
-        if (insertError.code === '23505') { 
-          throw new Error(`This user is already a member of this project.`);
+        // Handle specific errors like unique constraint violation (user already in project)
+        if (insertError.code === '23505') { // Unique violation
+          throw new Error(`User "${newMemberUsername}" is already a member of this project.`);
         } else {
           throw insertError;
         }
       }
-      const addedUser = platformUsers.find(u => u.id === selectedPlatformUserId);
-      setSuccessMessage(`Successfully added ${addedUser?.display_name || 'user'} to the project as ${newMemberRole.replace('_',' ')}.`);
-      setSelectedPlatformUserId(''); 
-      fetchTeamMembers(selectedProjectId); 
+
+      setSuccessMessage(`Successfully added ${newMemberUsername} to the project as ${newMemberRole.replace('_',' ')}.`);
+      setNewMemberUsername(''); // Clear form
+      fetchTeamMembers(selectedProjectId); // Refresh team member list
+
     } catch (e: any) {
       console.error('Error adding new member:', e);
       setError(`Failed to add member: ${e.message}`);
@@ -252,6 +254,7 @@ export default function TeamPage() {
       setIsAddingMember(false);
     }
   };
+
 
   if (loadingUser || (user && isLoadingProjects)) {
     return (
@@ -351,24 +354,19 @@ export default function TeamPage() {
                             <h4 className="text-lg font-semibold text-white mb-4">Add New Member to "{project.name}"</h4>
                             <form onSubmit={handleAddNewMember} className="space-y-4">
                                 <div>
-                                    <label htmlFor="platformUserSelect" className="block text-sm font-medium text-gray-300 mb-1">Select User</label>
-                                    {isLoadingPlatformUsers ? <FaSpinner className="animate-spin" /> : (
-                                      <select 
-                                          id="platformUserSelect"
-                                          value={selectedPlatformUserId}
-                                          onChange={(e) => setSelectedPlatformUserId(e.target.value)}
-                                          className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
-                                          required
-                                      >
-                                          <option value="" disabled>-- Select a user --</option>
-                                          {platformUsers.filter(pUser => pUser.id !== user?.id).map(pUser => ( // Exclude current user from list
-                                              <option key={pUser.id} value={pUser.id}>{pUser.display_name}</option>
-                                          ))}
-                                      </select>
-                                    )}
+                                    <label htmlFor="newMemberUsername" className="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                                    <input 
+                                        type="text" 
+                                        id="newMemberUsername"
+                                        value={newMemberUsername}
+                                        onChange={(e) => setNewMemberUsername(e.target.value)}
+                                        placeholder="Enter username from profiles"
+                                        className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
+                                        required
+                                    />
                                 </div>
                                 <div>
-                                    <label htmlFor="newMemberRole" className="block text-sm font-medium text-gray-300 mb-1">Assign Role</label>
+                                    <label htmlFor="newMemberRole" className="block text-sm font-medium text-gray-300 mb-1">Role</label>
                                     <select 
                                         id="newMemberRole"
                                         value={newMemberRole}
@@ -382,7 +380,7 @@ export default function TeamPage() {
                                 </div>
                                 <button 
                                     type="submit"
-                                    disabled={isAddingMember || isLoadingPlatformUsers}
+                                    disabled={isAddingMember}
                                     className="w-full flex justify-center items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isAddingMember ? <FaSpinner className="animate-spin mr-2" /> : <FaUserPlus className="mr-2" />} Add Member

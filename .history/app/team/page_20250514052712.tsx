@@ -23,12 +23,6 @@ interface TeamMember {
   // Add other relevant user fields if needed
 }
 
-// For the dropdown of all platform users
-interface PlatformUser {
-  id: string;
-  display_name: string; // Or username, whatever is best for display
-}
-
 // Enum for roles (mirroring the SQL ENUM)
 enum ProjectRole {
   ProjectManager = 'project_manager',
@@ -52,9 +46,7 @@ export default function TeamPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // State for adding a new member
-  const [platformUsers, setPlatformUsers] = useState<PlatformUser[]>([]);
-  const [isLoadingPlatformUsers, setIsLoadingPlatformUsers] = useState(false);
-  const [selectedPlatformUserId, setSelectedPlatformUserId] = useState<string>(''); // For the dropdown
+  const [newMemberUsername, setNewMemberUsername] = useState('');
   const [newMemberRole, setNewMemberRole] = useState<ProjectRole>(ProjectRole.Collaborator);
   const [isAddingMember, setIsAddingMember] = useState(false);
 
@@ -176,37 +168,18 @@ export default function TeamPage() {
     }
   }, [supabase]);
 
-  const fetchPlatformUsers = useCallback(async () => {
-    setIsLoadingPlatformUsers(true);
-    setError(null);
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, display_name, username') // Fetch fields needed for display and ID
-        .order('display_name', { ascending: true }); // Optional: order them
-
-      if (error) throw error;
-      setPlatformUsers(data?.map(p => ({ id: p.id, display_name: p.display_name || p.username || p.id.substring(0,8) })) || []);
-    } catch (e: any) {
-      console.error('Error fetching platform users:', e);
-      setError(`Failed to load users for dropdown: ${e.message}`);
-      setPlatformUsers([]);
-    } finally {
-      setIsLoadingPlatformUsers(false);
-    }
-  }, [supabase]);
 
   useEffect(() => {
     if (user?.id) {
       fetchManagedProjects(user.id);
-      fetchPlatformUsers(); // Fetch all users once the main user is loaded
     }
-  }, [user, fetchManagedProjects, fetchPlatformUsers]);
+  }, [user, fetchManagedProjects]);
 
   useEffect(() => {
     if (selectedProjectId) {
       fetchTeamMembers(selectedProjectId);
-      setSelectedPlatformUserId(''); // Reset selected user in dropdown
+      // Clear add member form when project changes
+      setNewMemberUsername('');
       setNewMemberRole(ProjectRole.Collaborator);
       setSuccessMessage(null);
       setError(null);
@@ -217,8 +190,8 @@ export default function TeamPage() {
 
   const handleAddNewMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedProjectId || !selectedPlatformUserId) {
-      setError('Please select a project and a user to add.');
+    if (!selectedProjectId || !newMemberUsername) {
+      setError('Please select a project and enter a username.');
       return;
     }
     setIsAddingMember(true);
@@ -226,25 +199,42 @@ export default function TeamPage() {
     setSuccessMessage(null);
 
     try {
+      // Step 1: Find user by username in 'profiles' table
+      // Assuming 'username' is a unique column in your 'profiles' table
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', newMemberUsername) // Or 'display_name' if that's what you intend to search by
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error(`User with username "${newMemberUsername}" not found or error fetching profile.`);
+      }
+
+      const memberUserId = profile.id;
+
+      // Step 2: Insert into project_users
       const { error: insertError } = await supabase
         .from('project_users')
         .insert({
           project_id: selectedProjectId,
-          user_id: selectedPlatformUserId,
+          user_id: memberUserId,
           role: newMemberRole,
         });
 
       if (insertError) {
-        if (insertError.code === '23505') { 
-          throw new Error(`This user is already a member of this project.`);
+        // Handle specific errors like unique constraint violation (user already in project)
+        if (insertError.code === '23505') { // Unique violation
+          throw new Error(`User "${newMemberUsername}" is already a member of this project.`);
         } else {
           throw insertError;
         }
       }
-      const addedUser = platformUsers.find(u => u.id === selectedPlatformUserId);
-      setSuccessMessage(`Successfully added ${addedUser?.display_name || 'user'} to the project as ${newMemberRole.replace('_',' ')}.`);
-      setSelectedPlatformUserId(''); 
-      fetchTeamMembers(selectedProjectId); 
+
+      setSuccessMessage(`Successfully added ${newMemberUsername} to the project as ${newMemberRole.replace('_',' ')}.`);
+      setNewMemberUsername(''); // Clear form
+      fetchTeamMembers(selectedProjectId); // Refresh team member list
+
     } catch (e: any) {
       console.error('Error adding new member:', e);
       setError(`Failed to add member: ${e.message}`);
@@ -252,6 +242,7 @@ export default function TeamPage() {
       setIsAddingMember(false);
     }
   };
+
 
   if (loadingUser || (user && isLoadingProjects)) {
     return (
@@ -315,79 +306,40 @@ export default function TeamPage() {
                   </button>
 
                   {selectedProjectId === project.id && (
-                    <div className="border-t border-gray-700 p-6">
+                    <div className="border-t border-gray-700 p-4">
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-xl font-semibold text-white">Team Members</h3>
-                        {/* The button below was the old placeholder, it's being removed as the form handles adding members now */}
-                        {/* <button 
+                        <button 
                           className="bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-md flex items-center text-sm transition-colors duration-150"
-                          onClick={() => alert(`TODO: Implement invite for project ${project.name}`)} 
+                          onClick={() => alert(`TODO: Implement invite for project ${project.name}`)}
                         >
                           <FaUserPlus className="mr-2" /> Invite Member
-                        </button> */}
+                        </button>
                       </div>
                       {isLoadingTeamMembers && <FaSpinner className="animate-spin text-sky-500 text-xl my-3" />}
                       {!isLoadingTeamMembers && teamMembers.length === 0 && (
                         <p className="text-gray-500 italic">No team members assigned to this project yet (besides you).</p>
                       )}
                       {!isLoadingTeamMembers && teamMembers.length > 0 && (
-                        <ul className="space-y-3 mb-6">
+                        <ul className="space-y-2">
                           {teamMembers.map(member => (
-                            <li key={member.user_id} className="flex justify-between items-center p-3 bg-gray-800 rounded-md shadow">
+                            <li key={member.user_id} className="flex justify-between items-center p-2 bg-gray-800 rounded">
                               <div>
-                                <span className="font-medium text-gray-100">{member.display_name || member.user_id}</span>
-                                <span className="ml-3 text-xs text-sky-300 uppercase bg-sky-700/50 px-2 py-1 rounded-full">{(member.role || 'N/A').replace('_', ' ')}</span>
+                                <span className="font-medium text-gray-200">{member.display_name || member.user_id}</span>
+                                <span className="ml-2 text-xs text-gray-400 uppercase bg-gray-700 px-2 py-0.5 rounded-full">{member.role.replace('_', ' ')}</span>
                               </div>
                               {/* TODO: Add actions like change role, remove member */}
-                              { user?.id !== member.user_id && (
-                                <button className="text-xs text-red-400 hover:text-red-300">Remove</button> // Placeholder
-                              )}
                             </li>
                           ))}
                         </ul>
                       )}
                       
-                        <div className="mt-6 pt-6 border-t border-gray-700">
-                            <h4 className="text-lg font-semibold text-white mb-4">Add New Member to "{project.name}"</h4>
-                            <form onSubmit={handleAddNewMember} className="space-y-4">
-                                <div>
-                                    <label htmlFor="platformUserSelect" className="block text-sm font-medium text-gray-300 mb-1">Select User</label>
-                                    {isLoadingPlatformUsers ? <FaSpinner className="animate-spin" /> : (
-                                      <select 
-                                          id="platformUserSelect"
-                                          value={selectedPlatformUserId}
-                                          onChange={(e) => setSelectedPlatformUserId(e.target.value)}
-                                          className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
-                                          required
-                                      >
-                                          <option value="" disabled>-- Select a user --</option>
-                                          {platformUsers.filter(pUser => pUser.id !== user?.id).map(pUser => ( // Exclude current user from list
-                                              <option key={pUser.id} value={pUser.id}>{pUser.display_name}</option>
-                                          ))}
-                                      </select>
-                                    )}
-                                </div>
-                                <div>
-                                    <label htmlFor="newMemberRole" className="block text-sm font-medium text-gray-300 mb-1">Assign Role</label>
-                                    <select 
-                                        id="newMemberRole"
-                                        value={newMemberRole}
-                                        onChange={(e) => setNewMemberRole(e.target.value as ProjectRole)}
-                                        className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
-                                    >
-                                        {Object.values(ProjectRole).map(role => (
-                                            <option key={role} value={role}>{role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <button 
-                                    type="submit"
-                                    disabled={isAddingMember || isLoadingPlatformUsers}
-                                    className="w-full flex justify-center items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isAddingMember ? <FaSpinner className="animate-spin mr-2" /> : <FaUserPlus className="mr-2" />} Add Member
-                                </button>
-                            </form>
+                        <div className="mt-6 pt-4 border-t border-gray-600">
+                            <h4 className="text-lg font-semibold text-white mb-3">Add New Member</h4>
+                            <p className="text-gray-500 italic text-sm">
+                                UI for searching users and assigning roles will go here.
+                            </p>
+                            {/* TODO: Input for user search (email/username), role selector, add button */}
                         </div>
                     </div>
                   )}
