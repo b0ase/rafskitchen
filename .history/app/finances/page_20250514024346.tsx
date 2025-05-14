@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
-import { FaUniversity, FaBitcoin, FaExchangeAlt, FaPlusCircle, FaTable, FaChartPie, FaSpinner, FaGoogle } from 'react-icons/fa';
+import { FaUniversity, FaBitcoin, FaExchangeAlt, FaPlusCircle, FaTable, FaChartPie, FaSpinner } from 'react-icons/fa';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -88,30 +88,6 @@ export default function FinancesPage() {
   const [isConnectingBank, setIsConnectingBank] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState(''); // e.g., 'Initializing...', 'Provider Loaded', 'Error'
 
-  // ADD: State for Google Auth status messages
-  const [googleAuthMessage, setGoogleAuthMessage] = useState<string | null>(null);
-  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
-
-  // ADD: useEffect to read Google Auth status from URL
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const authStatus = searchParams.get('google_auth_status');
-    const authError = searchParams.get('error'); // General error param
-    const authMessage = searchParams.get('message'); // Specific message for Google errors
-
-    if (authStatus === 'success') {
-      setGoogleAuthMessage('Successfully connected your Google account!');
-      setGoogleAuthError(null);
-      // Clean up URL params
-      router.replace('/finances', { scroll: false });
-    } else if (authError && authError.startsWith('google_')) {
-      setGoogleAuthError(authMessage || 'An error occurred with Google authentication.');
-      setGoogleAuthMessage(null);
-      // Clean up URL params
-      router.replace('/finances', { scroll: false });
-    }
-  }, [router]);
-
   // Get current user
   useEffect(() => {
     const getUser = async () => {
@@ -136,44 +112,35 @@ export default function FinancesPage() {
     try {
       console.log(`Fetching all financial data for user: ${userId}`);
 
-      // Define the select string for transactions carefully - SIMPLIFIED (NO JOINS)
-      const transactionSelect = '*'; // Select all direct columns from transactions table
-
-      const promiseResults = await Promise.all([
+      const [accountsResponse, transactionsResponse, categoriesResponse] = await Promise.all([
         supabase.from('financial_accounts').select('*').eq('user_id', userId).order('name'),
-        supabase.from('transactions').select(transactionSelect).eq('user_id', userId).order('transaction_date', { ascending: false }),
+        supabase.from('transactions')
+          .select('
+            *,
+            financial_account:financial_accounts(name),
+            transaction_category:transaction_categories(name, icon_name, color_hex)
+          ')
+          .eq('user_id', userId)
+          .order('transaction_date', { ascending: false }),
         supabase.from('transaction_categories').select('*').or(`user_id.eq.${userId},is_system_default.eq.true`).order('name')
       ]);
-
-      const accountsResponse = promiseResults[0] as { data: FinancialAccount[] | null; error: any | null };
-      // SIMPLIFIED: transactionsResponse type no longer expects nested financial_account or transaction_category
-      const transactionsResponse = promiseResults[1] as { data: Omit<Transaction, 'account_name' | 'category_name' | 'category_icon' | 'category_color'>[] | null; error: any | null };
-      const categoriesResponse = promiseResults[2] as { data: TransactionCategory[] | null; error: any | null };
 
       if (accountsResponse.error) throw accountsResponse.error;
       if (transactionsResponse.error) throw transactionsResponse.error;
       if (categoriesResponse.error) throw categoriesResponse.error;
 
-      const fetchedAccounts = accountsResponse.data || [];
-      const fetchedCategories = categoriesResponse.data || [];
-      setFinancialAccounts(fetchedAccounts);
-      setTransactionCategories(fetchedCategories);
+      setFinancialAccounts(accountsResponse.data || []);
       
-      const processedTransactions = (transactionsResponse.data || []).map(tx => {
-        // Find account name from fetchedAccounts (can be slow for many transactions, consider optimizing later if needed)
-        const account = fetchedAccounts.find(acc => acc.id === tx.financial_account_id);
-        // Find category name from fetchedCategories
-        const category = fetchedCategories.find(cat => cat.id === tx.transaction_category_id);
-
-        return {
-          ...tx,
-          account_name: account?.name || 'N/A',
-          category_name: category?.name || 'Uncategorized',
-          category_icon: category?.icon_name,
-          category_color: category?.color_hex,
-        } as Transaction; // Cast to final Transaction type
-      });
+      // Process transactions to flatten joined data for easier use
+      const processedTransactions = (transactionsResponse.data || []).map(tx => ({
+        ...tx,
+        account_name: (tx.financial_account as any)?.name || 'N/A', // Type assertion for joined data
+        category_name: (tx.transaction_category as any)?.name || 'Uncategorized',
+        category_icon: (tx.transaction_category as any)?.icon_name,
+        category_color: (tx.transaction_category as any)?.color_hex,
+      }));
       setTransactions(processedTransactions);
+      setTransactionCategories(categoriesResponse.data || []);
 
       // TODO: Calculate spending by category from processedTransactions and categoriesResponse.data
       setSpendingByCategory([]); 
@@ -194,27 +161,24 @@ export default function FinancesPage() {
   const fetchTrustAccessPermission = useCallback(async (userId: string) => {
     if (!userId) return;
     try {
-      console.log(`Checking trust access for user: ${userId} (DEBUGGING 406 ERROR)`);
-      const { data, error, status } = await supabase
+      console.log(`Checking trust access for user: ${userId}`);
+      const { data, error } = await supabase
         .from('user_trust_access')
-        .select('*') // DEBUG: Changed from 'can_access_trust_module' to '*'.
+        .select('can_access_trust_module')
         .eq('user_id', userId)
-        .maybeSingle(); // Using maybeSingle() as user might not have an entry, which is fine.
-
-      console.log('Trust access response:', { data, error, status });
+        .single();
 
       if (error && error.code !== 'PGRST116') { // PGRST116: single row expected, but 0 rows found (no explicit grant/deny for this user)
-        console.error('Supabase error fetching trust access (code != PGRST116):', error);
         throw error;
       }
       
       if (data?.can_access_trust_module) {
         setCanUserAccessTrustModule(true);
       } else {
-        setCanUserAccessTrustModule(false); // Default to false if no record, explicitly false, or column not present after select('*')
+        setCanUserAccessTrustModule(false); // Default to false if no record or explicitly false
       }
     } catch (error: any) {
-      console.error('Error fetching trust access permission (catch block):', error.message);
+      console.error('Error fetching trust access permission:', error.message);
       setCanUserAccessTrustModule(false); // Default to no access on error
     }
   }, [supabase]);
@@ -247,55 +211,6 @@ export default function FinancesPage() {
       console.error('Open Banking connection error:', err);
       setConnectionStatus(`Error: ${err.message || 'Could not connect to Open Banking provider.'}`);
       setIsConnectingBank(false);
-    }
-  };
-
-  // ADD: Function to handle Google OAuth redirection
-  const handleGoogleAuthRedirect = () => {
-    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (!googleClientId) {
-      console.error('Google Client ID not found. Make sure NEXT_PUBLIC_GOOGLE_CLIENT_ID is set.');
-      setGoogleAuthError('Configuration error: Google Client ID is missing.');
-      return;
-    }
-
-    const redirectUri = `${window.location.origin}/api/auth/google/callback`;
-
-    const scopes = [
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/spreadsheets' // Required for creating/editing sheets
-    ];
-
-    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-    authUrl.searchParams.append('client_id', googleClientId);
-    authUrl.searchParams.append('redirect_uri', redirectUri);
-    authUrl.searchParams.append('response_type', 'code');
-    authUrl.searchParams.append('scope', scopes.join(' '));
-    authUrl.searchParams.append('access_type', 'offline'); // Important to get a refresh token
-    authUrl.searchParams.append('prompt', 'consent'); // Forces consent screen, useful for dev/testing
-    // authUrl.searchParams.append('state', 'YOUR_CSRF_TOKEN_HERE'); // Optional: for CSRF protection
-
-    window.location.href = authUrl.toString();
-  };
-
-  // ADD: Placeholder for actual export function, to be called after auth
-  const handleExportToGoogleSheets = async () => {
-    setGoogleAuthMessage('Attempting to export transactions...');
-    setGoogleAuthError(null);
-    try {
-      const response = await fetch('/api/google/export-transactions', { method: 'POST' });
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || `Failed to export: ${response.statusText}`);
-      }
-      setGoogleAuthMessage(`Export successful! View your sheet: ${result.spreadsheetUrl}`);
-      console.log('Export result:', result);
-    } catch (err: any) {
-      console.error('Error exporting to Google Sheets:', err);
-      setGoogleAuthError(err.message || 'Could not export transactions.');
-      setGoogleAuthMessage(null);
     }
   };
 
@@ -333,18 +248,6 @@ export default function FinancesPage() {
         
         {dataError && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-6 text-center">{dataError}</p>}
 
-        {/* ADD: Display Google Auth Messages */}
-        {googleAuthMessage && (
-          <div className="p-3 mb-6 text-sm rounded-md bg-green-900 border border-green-700 text-green-300">
-            {googleAuthMessage}
-          </div>
-        )}
-        {googleAuthError && (
-          <div className="p-3 mb-6 text-sm rounded-md bg-red-900 border border-red-700 text-red-300">
-            {googleAuthError}
-          </div>
-        )}
-
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-white mb-6 border-b border-gray-700 pb-3">Account Connections</h2>
           <div className="mb-8 p-6 bg-gray-900 border border-gray-800 shadow-lg">
@@ -364,7 +267,7 @@ export default function FinancesPage() {
                 {connectionStatus}
               </div>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {bankAndCardAccounts.length > 0 ? (
                 bankAndCardAccounts.map(acc => (
                   <div key={acc.id} className="p-4 bg-gray-800 border border-gray-700">
@@ -376,27 +279,6 @@ export default function FinancesPage() {
               ) : (
                 <p className="text-gray-500 md:col-span-2 lg:col-span-4 italic">No bank or card accounts linked yet.</p>
               )}
-            </div>
-            {/* ADD: Google Sheets Connection & Export Button */}
-            <div className="mt-6 border-t border-gray-800 pt-6">
-              <h4 className="text-lg font-medium text-sky-400 mb-3 flex items-center">
-                <FaGoogle className="mr-2" /> Google Sheets Integration
-              </h4>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button 
-                  onClick={handleGoogleAuthRedirect}
-                  className="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed rounded-md shadow-sm w-full sm:w-auto"
-                >
-                  <FaGoogle className="mr-2" /> Connect Google Account
-                </button>
-                <button 
-                  onClick={handleExportToGoogleSheets} // This will call the backend export route
-                  className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 text-sm font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed rounded-md shadow-sm w-full sm:w-auto"
-                  // TODO: Potentially disable this button if Google account is not yet connected/tokens not available
-                >
-                  <FaTable className="mr-2" /> Export Transactions to Sheet
-                </button>
-              </div>
             </div>
           </div>
 

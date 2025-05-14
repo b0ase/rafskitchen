@@ -194,27 +194,24 @@ export default function FinancesPage() {
   const fetchTrustAccessPermission = useCallback(async (userId: string) => {
     if (!userId) return;
     try {
-      console.log(`Checking trust access for user: ${userId} (DEBUGGING 406 ERROR)`);
-      const { data, error, status } = await supabase
+      console.log(`Checking trust access for user: ${userId}`);
+      const { data, error } = await supabase
         .from('user_trust_access')
-        .select('*') // DEBUG: Changed from 'can_access_trust_module' to '*'.
+        .select('can_access_trust_module')
         .eq('user_id', userId)
-        .maybeSingle(); // Using maybeSingle() as user might not have an entry, which is fine.
-
-      console.log('Trust access response:', { data, error, status });
+        .single();
 
       if (error && error.code !== 'PGRST116') { // PGRST116: single row expected, but 0 rows found (no explicit grant/deny for this user)
-        console.error('Supabase error fetching trust access (code != PGRST116):', error);
         throw error;
       }
       
       if (data?.can_access_trust_module) {
         setCanUserAccessTrustModule(true);
       } else {
-        setCanUserAccessTrustModule(false); // Default to false if no record, explicitly false, or column not present after select('*')
+        setCanUserAccessTrustModule(false); // Default to false if no record or explicitly false
       }
     } catch (error: any) {
-      console.error('Error fetching trust access permission (catch block):', error.message);
+      console.error('Error fetching trust access permission:', error.message);
       setCanUserAccessTrustModule(false); // Default to no access on error
     }
   }, [supabase]);
