@@ -227,89 +227,6 @@ export default function DiaryPage() {
     setShowCreateTasksModal(true);
   };
 
-  const handleSubmitCreateTasks = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!currentDiaryEntryForTasks) {
-      alert('Error: No diary entry selected.');
-      return;
-    }
-
-    setIsSubmittingTasks(true);
-
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData.session) {
-      alert('Authentication error. Please log in and try again.');
-      setIsSubmittingTasks(false);
-      return;
-    }
-    const userId = sessionData.session.user.id;
-
-    try {
-      const tasksToInsert = newTaskDescriptions
-        .map(desc => desc.trim())
-        .filter(desc => desc !== '');
-
-      if (tasksToInsert.length === 0) {
-        alert('Please enter at least one task description.');
-        // setIsSubmittingTasks(false); // finally block handles this
-        return;
-      }
-
-      for (const taskDesc of tasksToInsert) {
-        // 1. Insert into b0ase_tasks
-        const { data: newTaskData, error: taskInsertError } = await supabase
-          .from('b0ase_tasks')
-          .insert({
-            task_description: taskDesc,
-            user_id: userId,
-            status: 'pending', // Default status
-            source_diary_entry_id: currentDiaryEntryForTasks.id,
-            // project_scope_id can be added later if a selector is implemented
-          })
-          .select('id')
-          .single();
-
-        if (taskInsertError) {
-          throw new Error(`Failed to create task "${taskDesc}": ${taskInsertError.message}`);
-        }
-
-        if (!newTaskData || !newTaskData.id) {
-          throw new Error(`Failed to get ID for created task "${taskDesc}".`);
-        }
-
-        const newTaskId = newTaskData.id;
-
-        // 2. Insert into diary_task_links
-        const { error: linkInsertError } = await supabase
-          .from('diary_task_links')
-          .insert({
-            diary_entry_id: currentDiaryEntryForTasks.id,
-            task_id: newTaskId,
-            user_id: userId,
-          });
-
-        if (linkInsertError) {
-          console.warn(`Failed to link task ${newTaskId} to diary entry. Attempting to delete orphaned task.`);
-          await supabase.from('b0ase_tasks').delete().eq('id', newTaskId);
-          throw new Error(`Failed to link task "${taskDesc}" to diary entry: ${linkInsertError.message}`);
-        }
-      }
-
-      alert('Tasks created and linked to diary entry successfully!');
-      setShowCreateTasksModal(false);
-      setCurrentDiaryEntryForTasks(null);
-      setNewTaskDescriptions(['']);
-      // Optionally, refresh diary entries:
-      // fetchDiaryEntries(); 
-
-    } catch (error: any) {
-      console.error('Error creating tasks from diary entry:', error);
-      alert(`An error occurred: ${error.message}`);
-    } finally {
-      setIsSubmittingTasks(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
@@ -520,7 +437,7 @@ export default function DiaryPage() {
               <p className="text-sm text-gray-400 line-clamp-3">{currentDiaryEntryForTasks.summary}</p>
             </div>
 
-            <form onSubmit={handleSubmitCreateTasks}>
+            <form onSubmit={(e) => { e.preventDefault(); alert('Submitting new tasks soon! Handle this in handleSubmitCreateTasks'); }}>
               <div className="mb-4">
                 <h3 className="text-lg font-medium text-gray-200 mb-2">New Tasks:</h3>
                 {newTaskDescriptions.map((desc, index) => (

@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState, FormEvent } from 'react';
-import Link from 'next/link'; 
+import Link from 'next/link'; // Re-added Link for the new button
+// Link is no longer needed on this page if My Projects section is removed and no other Links are present.
+// import Link from 'next/link'; 
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus, FaUsers, FaPlusSquare, FaHandshake, FaBriefcase } from 'react-icons/fa'; 
+import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus, FaUsers, FaPlusSquare, FaHandshake, FaBriefcase } from 'react-icons/fa'; // Added FaBriefcase
 
 interface Profile {
   username: string | null;
@@ -514,45 +516,67 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-300 py-8 px-4 md:px-8 lg:px-12">
       <div className="max-w-5xl mx-auto">
-        
-        <section className="mb-12 p-6 md:p-8 bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-500 rounded-xl shadow-2xl text-white border border-sky-500/60">
-          <div className="flex flex-col md:flex-row items-center">
-            <FaRocket className="text-5xl md:text-6xl text-sky-200 mr-0 md:mr-6 mb-4 md:mb-0 flex-shrink-0" />
-            <div className="text-center md:text-left flex-grow">
-              <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
-              <p className="text-sky-100 mb-6 text-lg leading-relaxed">
-                Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+        {/* Top Card: Avatar, Name, Username, Quick Actions */}
+        <div className="bg-gray-800 shadow-2xl rounded-xl p-6 md:p-8 mb-10 border border-gray-700">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start">
+            <div className="relative group mb-4 sm:mb-0 sm:mr-6">
+              <label htmlFor="avatarUploadInput" className="cursor-pointer">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar Preview" className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-sky-500 shadow-lg group-hover:opacity-80 transition-opacity" />
+                ) : profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt={profile.display_name || 'User Avatar'} className="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-sky-500 shadow-lg group-hover:opacity-80 transition-opacity" />
+                ) : (
+                  <FaUserCircle className="w-28 h-28 md:w-32 md:h-32 text-gray-500 group-hover:text-sky-400 transition-colors" />
+                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                  <FaImage className="text-white text-3xl" />
+                </div>
+              </label>
+              <input type="file" id="avatarUploadInput" accept="image/*" onChange={handleAvatarFileSelect} className="hidden" disabled={uploadingAvatar}/>
+              {uploadingAvatar && <p className="text-xs text-sky-400 mt-1 text-center">Uploading...</p>}
+            </div>
+
+            <div className="flex-grow text-center sm:text-left">
+              <input 
+                type="text" 
+                value={newDisplayName} 
+                onChange={(e) => setNewDisplayName(e.target.value)} 
+                placeholder="Your Display Name"
+                className="text-3xl md:text-4xl font-bold text-white bg-transparent border-b-2 border-transparent focus:border-sky-500 outline-none transition-colors w-full sm:w-auto mb-1"
+              />
+              {profile.username && (
+                <p className="text-lg text-gray-400 mb-4">@{profile.username}</p>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                 <Link href="/projects/new" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaRocket className="mr-2 h-4 w-4" /> Start a New Project
-                  </a>
-                </Link>
-                <Link href="/teams/new" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaPlusSquare className="mr-2 h-4 w-4" /> Start a New Team
-                  </a>
-                </Link>
-                <Link href="/projects/join" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaHandshake className="mr-2 h-4 w-4" /> Join a Project
+                  <a className="bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center text-center text-sm">
+                    <FaPlusSquare className="mr-2" /> Start New Project
                   </a>
                 </Link>
                 <Link href="/teams/join" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaUsers className="mr-2 h-4 w-4" /> Join a Team
+                  <a className="bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center text-center text-sm">
+                    <FaUsers className="mr-2" /> Join A Team
+                  </a>
+                </Link>
+                <Link href="/teams/new" passHref legacyBehavior>
+                  <a className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center text-center text-sm">
+                    <FaPlus className="mr-2" /> Start New Team
+                  </a>
+                </Link>
+                <Link href="/projects/join" passHref legacyBehavior>
+                  <a className="bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center text-center text-sm">
+                    <FaHandshake className="mr-2" /> Join A Project
                   </a>
                 </Link>
                 <Link href="/careers" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-orange-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-orange-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaBriefcase className="mr-2 h-4 w-4" /> Careers
+                  <a className="bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center text-center text-sm sm:col-span-2">
+                    <FaBriefcase className="mr-2" /> Join Our Team (Careers)
                   </a>
                 </Link>
               </div>
             </div>
           </div>
-        </section>
+        </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Your Profile</h1>
 

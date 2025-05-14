@@ -521,7 +521,8 @@ export default function ProfilePage() {
             <div className="text-center md:text-left flex-grow">
               <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
               <p className="text-sky-100 mb-6 text-lg leading-relaxed">
-                Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
+                Welcome to b0ase.com! This is your hub to bring your digital ideas to life. 
+                Start a new project to define your vision and outline features, or explore opportunities to join our growing team.
               </p>
               <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link href="/projects/new" passHref legacyBehavior>

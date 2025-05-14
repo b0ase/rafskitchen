@@ -521,27 +521,28 @@ export default function ProfilePage() {
             <div className="text-center md:text-left flex-grow">
               <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
               <p className="text-sky-100 mb-6 text-lg leading-relaxed">
-                Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
+                Welcome to b0ase.com! This is your hub to bring your digital ideas to life. 
+                Start a new project to define your vision and outline features, or explore opportunities to join our growing team.
               </p>
               <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
                 <Link href="/projects/new" passHref legacyBehavior>
                   <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaRocket className="mr-2 h-4 w-4" /> Start a New Project
+                    <FaRocket className="mr-2 h-4 w-4" /> New Project
                   </a>
                 </Link>
                 <Link href="/teams/new" passHref legacyBehavior>
                   <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaPlusSquare className="mr-2 h-4 w-4" /> Start a New Team
+                    <FaPlusSquare className="mr-2 h-4 w-4" /> New Team
                   </a>
                 </Link>
                 <Link href="/projects/join" passHref legacyBehavior>
                   <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaHandshake className="mr-2 h-4 w-4" /> Join a Project
+                    <FaHandshake className="mr-2 h-4 w-4" /> Join Project
                   </a>
                 </Link>
                 <Link href="/teams/join" passHref legacyBehavior>
                   <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                    <FaUsers className="mr-2 h-4 w-4" /> Join a Team
+                    <FaUsers className="mr-2 h-4 w-4" /> Join Team
                   </a>
                 </Link>
                 <Link href="/careers" passHref legacyBehavior>
