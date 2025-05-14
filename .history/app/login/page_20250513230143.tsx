@@ -41,7 +41,6 @@ export default function LoginPage() {
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');
         router.push(redirectedFrom || '/profile');
-        router.refresh();
       } else if (event === 'SIGNED_OUT') {
         // Optional: handle explicit sign out if user lands here somehow
         // router.push('/'); 
@@ -53,7 +52,6 @@ export default function LoginPage() {
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');
         router.push(redirectedFrom || '/profile');
-        router.refresh();
       }
     });
 

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { User } from '@supabase/supabase-js';
 import {
-  FaUserCircle, FaBookOpen, FaTasks, FaCalendarAlt, FaSignOutAlt, FaDollarSign, FaChartLine, FaLightbulb, FaListAlt, FaBullseye, FaChalkboardTeacher, FaRoute, FaSearchDollar, FaProjectDiagram, FaClipboardList
+  FaUserCircle, FaBookOpen, FaTasks, FaCalendarAlt, FaSignOutAlt, FaDollarSign, FaChartLine, FaLightbulb, FaListAlt, FaBullseye, FaChalkboardTeacher, FaRoute, FaSearchDollar, FaProjectDiagram
 } from 'react-icons/fa';
 
 interface NavLink {
@@ -136,11 +136,11 @@ export default function UserSidebar() {
   const navLinks: NavLink[] = [
     { title: 'My Profile', href: '/profile', icon: FaUserCircle },
     { title: 'My Projects', href: '/myprojects', icon: FaProjectDiagram },
-    { title: 'My Diary', href: '/diary', icon: FaBookOpen },
+    { title: 'Diary', href: '/diary', icon: FaBookOpen },
     { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
-    { title: 'My Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
-    { title: 'My Finances', href: '/finances', icon: FaDollarSign },
-    { title: 'My Gigs', href: '/gigs', icon: FaListAlt },
+    { title: 'Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
+    { title: 'Financial Overview', href: '/finances', icon: FaDollarSign },
+    { title: 'Gig Management', href: '/gigs', icon: FaListAlt },
     { title: 'Research', href: '/gigs/research', icon: FaSearchDollar },
     { title: 'Strategy', href: '/gigs/strategy', icon: FaBullseye },
     { title: 'Action Plan', href: '/gigs/action', icon: FaTasks },
