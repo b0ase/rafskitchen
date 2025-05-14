@@ -125,27 +125,21 @@ export default function UserSidebar() {
 
   const handleLogout = async () => {
     console.log('[UserSidebar] handleLogout called.');
-    const supabaseAuthTokenKey = `sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}-auth-token`; // Dynamically constructs like sb-klaputzxeqgypphzdxpr-auth-token
-    // A more specific key pattern if the above is not general enough for all Supabase instances:
-    // const specificSupabaseAuthTokenKey = 'sb-klaputzxeqgypphzdxpr.supabase.co-auth-token';
-
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('[UserSidebar] Error during signOut:', error.message);
+        // Even if there was an error, the session might be in an inconsistent state,
+        // so we should still attempt to redirect to clear client-side state.
       } else {
         console.log('[UserSidebar] supabase.auth.signOut() apparently completed without client-side error.');
       }
     } catch (e) {
       console.error('[UserSidebar] Exception during signOut call:', e);
     } finally {
-      console.log(`[UserSidebar] Attempting to remove localStorage item: ${supabaseAuthTokenKey}`);
-      localStorage.removeItem(supabaseAuthTokenKey);
-      // As an extra measure for different patterns Supabase might use or if URL has port etc.
-      // localStorage.removeItem(specificSupabaseAuthTokenKey); 
-      // Consider also clearing session storage if Supabase might use it, though less common for the main token.
-      // sessionStorage.clear(); // This is very broad, use with caution.
-
+      // Force redirect to root to clear state, regardless of signOut success or onAuthStateChange timing.
+      // The onAuthStateChange listener will also fire and clear React state, 
+      // but this ensures the navigation happens promptly from the click.
       console.log('[UserSidebar] Forcing redirect to / via window.location.assign to clear state.');
       window.location.assign('/');
     }
