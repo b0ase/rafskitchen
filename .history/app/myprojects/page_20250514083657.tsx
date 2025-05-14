@@ -15,8 +15,6 @@ interface ClientProject {
   badge2?: string | null;
   badge3?: string | null;
   is_featured?: boolean; // Added
-  badge4?: string | null; // New
-  badge5?: string | null; // New
   // Add other fields you want to display
 }
 
@@ -87,29 +85,21 @@ const getBadge3Style = (badgeValue: string | null): string => {
   }
 };
 
-// Helper function to assign a numeric priority based on badge3 value
-const getPriorityOrderValue = (badgeValue: string | null): number => {
-  if (!badgeValue) return 4; // Null or empty string is lowest priority
-  switch (badgeValue.toLowerCase()) {
-    case 'high priority': return 0;
-    case 'medium priority': return 1;
-    case 'low priority': return 2;
-    case 'needs feedback': return 3;
-    default: return 4; // All other badge values
-  }
-};
+// Helper function to get dynamic background color for project cards based on their order
+const getCardDynamicBgStyle = (index: number, totalProjects: number): string => {
+  const position = totalProjects > 1 ? index / (totalProjects - 1) : 0; // Normalized position: 0 (top) to 1 (bottom)
+  // Top cards (newest if sorted by creation date desc) are hottest (red)
+  // Bottom cards (oldest) are coolest (blue)
 
-// Helper function to get dynamic BORDER color for project cards based on their sorted order/priority
-const getCardDynamicBorderStyle = (priorityValue: number): string => {
-  let baseStyle = "p-6 shadow-lg rounded-lg hover:border-slate-500 transition-colors duration-300 relative border-2 bg-slate-900"; // Standard bg, border-2 for visibility
+  let baseStyle = "p-6 shadow-lg rounded-lg hover:border-sky-700/70 transition-colors duration-300 relative border";
 
-  switch (priorityValue) {
-    case 0: return `${baseStyle} border-red-700`;    // High Priority
-    case 1: return `${baseStyle} border-orange-700`; // Medium Priority
-    case 2: return `${baseStyle} border-sky-700`;    // Low Priority
-    case 3: return `${baseStyle} border-teal-700`;   // Needs Feedback
-    default: return `${baseStyle} border-slate-700`; // Default/Other priorities
-  }
+  if (totalProjects <= 1) return `${baseStyle} bg-red-800 border-red-700`; // Single card is hottest
+
+  if (position < 0.2) return `${baseStyle} bg-red-800 border-red-700`;        // Hottest (Top ~20%)
+  if (position < 0.4) return `${baseStyle} bg-orange-700 border-orange-600`;  // Warmer
+  if (position < 0.6) return `${baseStyle} bg-amber-700 border-amber-600`;   // Neutral Warm
+  if (position < 0.8) return `${baseStyle} bg-teal-700 border-teal-600`;      // Cooler
+  return `${baseStyle} bg-blue-800 border-blue-700`;                         // Coolest (Bottom ~20%)
 };
 
 export default function MyProjectsPage() {
@@ -123,18 +113,6 @@ export default function MyProjectsPage() {
   const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
   const [projectToDeleteName, setProjectToDeleteName] = useState<string | null>(null);
 
-  // Sort projects by badge3 priority, then by name
-  const sortedProjects = [...projects].sort((a, b) => {
-    const priorityA = getPriorityOrderValue(a.badge3);
-    const priorityB = getPriorityOrderValue(b.badge3);
-
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB; // Sort by priority value ascending (0 is highest)
-    }
-    // Secondary sort by name if priorities are the same
-    return (a.name || '').localeCompare(b.name || '');
-  });
-
   const fetchUserAndProjects = async () => {
     setLoadingProjects(true);
     setError(null); // Clear main page error
@@ -144,7 +122,7 @@ export default function MyProjectsPage() {
       setUser(authUser);
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5')
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured')
         .eq('user_id', authUser.id)
         .order('created_at', { ascending: false });
 
@@ -166,7 +144,7 @@ export default function MyProjectsPage() {
     fetchUserAndProjects();
   }, [supabase]);
 
-  const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => {
+  const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3', newValue: string | null) => {
     if (!user) return;
     setUpdatingItemId(projectId); // Indicate loading for this specific project item
     const payload: { [key: string]: string | null } = {};
@@ -299,10 +277,10 @@ export default function MyProjectsPage() {
 
         {user && projects.length > 0 && (
           <div className="space-y-6">
-            {sortedProjects.map((project) => (
-              <div key={project.id} className={getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3))}>
+            {projects.map((project, index) => (
+              <div key={project.id} className={getCardDynamicBgStyle(index, projects.length)}>
                 {updatingItemId === project.id && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-10"> {/* Slightly darker overlay */}
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg z-10"> {/* Adjusted overlay color */}
                     <FaSpinner className="animate-spin text-sky-500 text-3xl" />
                   </div>
                 )}
@@ -365,100 +343,7 @@ export default function MyProjectsPage() {
                       {badge3Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
                     </select>
                   </div>
-                  {/* New Badge 4 Dropdown */}
-                  <div className="flex-shrink-0">
-                    <label htmlFor={`badge4-${project.id}`} className="sr-only">Badge 4</label>
-                    <select 
-                      id={`badge4-${project.id}`} 
-                      value={project.badge4 || ''} 
-                      onChange={(e) => handleBadgeChange(project.id, 'badge4', e.target.value)}
-                      disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge4 || '')} // Reuse badge2 styling logic
-                    >
-                      <option value="">Badge 4...</option>
-                      {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-                    </select>
-                  </div>
-                  {/* New Badge 5 Dropdown */}
-                  <div className="flex-shrink-0">
-                    <label htmlFor={`badge5-${project.id}`} className="sr-only">Badge 5</label>
-                    <select 
-                      id={`badge5-${project.id}`} 
-                      value={project.badge5 || ''} 
-                      onChange={(e) => handleBadgeChange(project.id, 'badge5', e.target.value)}
-                      disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge5 || '')} // Reuse badge2 styling logic
-                    >
-                      <option value="">Badge 5...</option>
-                      {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-                    </select>
-                  </div>
                   <div className="flex items-center flex-shrink-0 sm:ml-0 pt-2 sm:pt-0"> {/* Removed ml-auto */}
                     <input 
                       type="checkbox" 
-                      id={`featured-${project.id}`} 
-                      checked={project.is_featured || false} 
-                      onChange={() => handleIsFeaturedToggle(project.id, project.is_featured || false)}
-                      disabled={updatingItemId === project.id}
-                      className="h-4 w-4 text-sky-600 bg-gray-700 border-gray-600 rounded focus:ring-sky-500 focus:ring-offset-gray-900 cursor-pointer"
-                    />
-                    <label htmlFor={`featured-${project.id}`} className="ml-2 text-xs text-gray-400 cursor-pointer select-none">
-                      Showcase on Landing Page
-                    </label>
-                  </div>
-                  {/* Moved Spinner logic to cover whole card: updatingItemId === project.id && <FaSpinner className="animate-spin ml-2 text-sky-500 text-xs" /> */}
-                  <div className="flex-shrink-0 ml-auto"> {/* Added ml-auto to push delete button to the right */}
-                    <button 
-                      onClick={() => openDeleteModal(project.id, project.name)}
-                      disabled={updatingItemId === project.id}
-                      className="text-xs text-red-500 hover:text-red-400 font-semibold py-1 px-2 rounded-md border border-red-500/50 hover:border-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
-                      title="Delete Project"
-                    >
-                      <FaTrash /> Delete
-                    </button>
-                  </div>
-                </div>
-                {project.project_brief ? (
-                  <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-3">
-                    {project.project_brief}
-                  </p>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">No project brief available. Click to add details.</p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-
-      {isDeleteModalOpen && projectToDeleteId && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900 p-6 md:p-8 rounded-lg shadow-xl border border-gray-700 max-w-md w-full">
-            <h3 className="text-xl font-semibold text-white mb-4">Confirm Deletion</h3>
-            <p className="text-gray-300 mb-1">
-              Are you sure you want to delete the project:
-            </p>
-            <p className="text-sky-400 font-semibold mb-6 break-words">
-              {projectToDeleteName || 'this project'}?
-            </p>
-            <p className="text-xs text-orange-400 mb-6">This action cannot be undone.</p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={closeDeleteModal}
-                className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDeleteProject}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-500 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Delete Project
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-} 
+                      id={`

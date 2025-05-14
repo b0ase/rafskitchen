@@ -12,8 +12,7 @@ interface NewProjectData {
   website_url: string; // From signup form's 'website'
   logo_url: string;
   requested_budget: string | number;
-  project_category: string;
-  custom_project_type_details: string;
+  project_types: string[];
   // Add other fields as necessary from ClientFormData or specific to new projects
   socials: string;
   github_links: string;
@@ -47,8 +46,7 @@ export default function NewProjectPage() {
     website_url: '',
     logo_url: '',
     requested_budget: '',
-    project_category: '',
-    custom_project_type_details: '',
+    project_types: [],
     socials: '',
     github_links: '',
     inspiration_links: '',
@@ -83,38 +81,14 @@ export default function NewProjectPage() {
         const pendingDataString = localStorage.getItem('pendingProjectData');
         if (pendingDataString) {
           const pendingData: PendingProjectData = JSON.parse(pendingDataString);
-          
-          let prefillCategory = '';
-          let prefillCustomDetailsArray: string[] = [];
-
-          // Define primary categories for the dropdown
-          const primaryCategories = [
-            "Website", "Mobile App", "E-Commerce Store", "SaaS Platform", "API Development",
-            "Brand Design", "UI/UX", "Video", "Motion Graphics", "3D Design",
-            "AI/ML", "Blockchain", "Web3", "Consulting", "DevOps", "Other"
-          ];
-
-          if (pendingData.project_types && pendingData.project_types.length > 0) {
-            const firstType = pendingData.project_types[0];
-            if (primaryCategories.map(c => c.toLowerCase()).includes(firstType.toLowerCase())) {
-              // Find the matching category preserving its original casing for display
-              prefillCategory = primaryCategories.find(c => c.toLowerCase() === firstType.toLowerCase()) || '';
-              prefillCustomDetailsArray = pendingData.project_types.slice(1);
-            } else {
-              prefillCategory = 'Other'; // Default to 'Other' if first type is not a primary category
-              prefillCustomDetailsArray = pendingData.project_types;
-            }
-          }
-
           setForm(prevForm => ({
             ...prevForm,
             name: pendingData.name || prevForm.name,
             project_brief: pendingData.project_brief || prevForm.project_brief,
             website_url: pendingData.website || prevForm.website_url, // map `website` to `website_url`
             logo_url: pendingData.logo_url || prevForm.logo_url,
-            requested_budget: pendingData.requested_budget || prevForm.requested_budget, // Still useful for display even if not saved to clients
-            project_category: prefillCategory || prevForm.project_category,
-            custom_project_type_details: prefillCustomDetailsArray.join(', ') || prevForm.custom_project_type_details,
+            requested_budget: pendingData.requested_budget || prevForm.requested_budget,
+            project_types: pendingData.project_types || prevForm.project_types,
             socials: pendingData.socials || prevForm.socials,
             github_links: pendingData.github_links || prevForm.github_links,
             inspiration_links: pendingData.inspiration_links || prevForm.inspiration_links,
@@ -131,11 +105,20 @@ export default function NewProjectPage() {
     }
   }, [user]); // Depend on user to ensure it runs after user is fetched
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleProjectTypeToggle = (type: string) => {
+    setForm(prev => ({
+      ...prev,
+      project_types: prev.project_types.includes(type)
+        ? prev.project_types.filter(t => t !== type)
+        : [...prev.project_types, type],
+    }));
+  };
+  
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
@@ -171,8 +154,6 @@ export default function NewProjectPage() {
       status: 'pending_setup', // Default status for new projects
       created_at: new Date().toISOString(),
       github_repo_url: form.github_links.trim() || null,
-      project_category: form.project_category.trim() || null,
-      custom_project_type_details: form.custom_project_type_details.trim() || null,
     };
 
     const { data, error: insertError } = await supabase
@@ -206,16 +187,16 @@ export default function NewProjectPage() {
   }
   
   // Placeholder for project types - ideally fetched or configured
-  const primaryCategoriesForDropdown = [
+  const availableProjectTypes = [
     "Website", "Mobile App", "E-Commerce Store", "SaaS Platform", "API Development",
     "Brand Design", "UI/UX", "Video", "Motion Graphics", "3D Design",
-    "AI/ML", "Blockchain", "Web3", "Consulting", "DevOps", "Other"
+    "AI/ML", "Blockchain", "Web3", "Consulting", "DevOps"
   ];
 
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
         <div className="bg-gray-900 shadow-2xl rounded-lg p-6 sm:p-8 md:p-10 border border-gray-700/50">
           <div className="text-center mb-10">
             <FaRocket className="text-5xl text-sky-500 mx-auto mb-4" />
@@ -247,33 +228,21 @@ export default function NewProjectPage() {
               />
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="project_category" className="block text-sm font-medium text-gray-300 mb-1.5">Project Category</label>
-                <select
-                  name="project_category"
-                  id="project_category"
-                  value={form.project_category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                >
-                  <option value="">Select a category...</option>
-                  {primaryCategoriesForDropdown.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="custom_project_type_details" className="block text-sm font-medium text-gray-300 mb-1.5">Custom Type / Specific Details</label>
-                <input
-                  type="text"
-                  name="custom_project_type_details"
-                  id="custom_project_type_details"
-                  value={form.custom_project_type_details}
-                  onChange={handleChange}
-                  placeholder="e.g., B2B Fintech, NFT Marketplace for Artists"
-                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                />
+            <div>
+              <h3 className="text-md font-medium text-gray-300 mb-2">Project Types <span className="text-xs text-gray-500">(Select all that apply)</span></h3>
+              <div className="flex flex-wrap gap-2 items-center">
+                {availableProjectTypes.map(type => (
+                  <button
+                    key={type} type="button" onClick={() => handleProjectTypeToggle(type)}
+                    className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                      form.project_types.includes(type)
+                        ? 'bg-sky-600 text-white font-semibold'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
               </div>
             </div>
 

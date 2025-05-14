@@ -15,8 +15,6 @@ interface ClientProject {
   badge2?: string | null;
   badge3?: string | null;
   is_featured?: boolean; // Added
-  badge4?: string | null; // New
-  badge5?: string | null; // New
   // Add other fields you want to display
 }
 
@@ -49,69 +47,6 @@ const getBadgeStyle = (badgeValue: string | null): string => {
   }
 };
 
-// Helper function to get badge color for Badge 2
-const getBadge2Style = (badgeValue: string | null): string => {
-  let baseStyle = "text-xs font-semibold rounded-md p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border";
-  switch (badgeValue?.toLowerCase()) {
-    case 'saas':
-      return `${baseStyle} bg-purple-700 text-purple-200 border-purple-600`;
-    case 'mobile app':
-      return `${baseStyle} bg-pink-700 text-pink-200 border-pink-600`;
-    case 'website':
-      return `${baseStyle} bg-cyan-600 text-cyan-100 border-cyan-500`;
-    case 'e-commerce':
-      return `${baseStyle} bg-lime-600 text-lime-100 border-lime-500`;
-    case 'ai/ml':
-      return `${baseStyle} bg-rose-600 text-rose-100 border-rose-500`;
-    // Add more cases for other badge2Options as needed
-    default: // Placeholder "Badge 2..." or null/undefined
-      return `${baseStyle} bg-gray-800 text-gray-300 border-gray-700`;
-  }
-};
-
-// Helper function to get badge color for Badge 3
-const getBadge3Style = (badgeValue: string | null): string => {
-  let baseStyle = "text-xs font-semibold rounded-md p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border";
-  switch (badgeValue?.toLowerCase()) {
-    case 'high priority':
-      return `${baseStyle} bg-red-700 text-red-200 border-red-600`;
-    case 'medium priority':
-      return `${baseStyle} bg-amber-600 text-amber-100 border-amber-500`;
-    case 'low priority':
-      return `${baseStyle} bg-emerald-700 text-emerald-200 border-emerald-600`;
-    case 'needs feedback':
-      return `${baseStyle} bg-fuchsia-600 text-fuchsia-100 border-fuchsia-500`;
-    // Add more cases for other badge3Options as needed
-    default: // Placeholder "Badge 3..." or null/undefined
-      return `${baseStyle} bg-gray-800 text-gray-300 border-gray-700`;
-  }
-};
-
-// Helper function to assign a numeric priority based on badge3 value
-const getPriorityOrderValue = (badgeValue: string | null): number => {
-  if (!badgeValue) return 4; // Null or empty string is lowest priority
-  switch (badgeValue.toLowerCase()) {
-    case 'high priority': return 0;
-    case 'medium priority': return 1;
-    case 'low priority': return 2;
-    case 'needs feedback': return 3;
-    default: return 4; // All other badge values
-  }
-};
-
-// Helper function to get dynamic BORDER color for project cards based on their sorted order/priority
-const getCardDynamicBorderStyle = (priorityValue: number): string => {
-  let baseStyle = "p-6 shadow-lg rounded-lg hover:border-slate-500 transition-colors duration-300 relative border-2 bg-slate-900"; // Standard bg, border-2 for visibility
-
-  switch (priorityValue) {
-    case 0: return `${baseStyle} border-red-700`;    // High Priority
-    case 1: return `${baseStyle} border-orange-700`; // Medium Priority
-    case 2: return `${baseStyle} border-sky-700`;    // Low Priority
-    case 3: return `${baseStyle} border-teal-700`;   // Needs Feedback
-    default: return `${baseStyle} border-slate-700`; // Default/Other priorities
-  }
-};
-
 export default function MyProjectsPage() {
   const supabase = createClientComponentClient();
   const [user, setUser] = useState<User | null>(null);
@@ -123,18 +58,6 @@ export default function MyProjectsPage() {
   const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
   const [projectToDeleteName, setProjectToDeleteName] = useState<string | null>(null);
 
-  // Sort projects by badge3 priority, then by name
-  const sortedProjects = [...projects].sort((a, b) => {
-    const priorityA = getPriorityOrderValue(a.badge3);
-    const priorityB = getPriorityOrderValue(b.badge3);
-
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB; // Sort by priority value ascending (0 is highest)
-    }
-    // Secondary sort by name if priorities are the same
-    return (a.name || '').localeCompare(b.name || '');
-  });
-
   const fetchUserAndProjects = async () => {
     setLoadingProjects(true);
     setError(null); // Clear main page error
@@ -144,7 +67,7 @@ export default function MyProjectsPage() {
       setUser(authUser);
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5')
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured')
         .eq('user_id', authUser.id)
         .order('created_at', { ascending: false });
 
@@ -166,7 +89,7 @@ export default function MyProjectsPage() {
     fetchUserAndProjects();
   }, [supabase]);
 
-  const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => {
+  const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3', newValue: string | null) => {
     if (!user) return;
     setUpdatingItemId(projectId); // Indicate loading for this specific project item
     const payload: { [key: string]: string | null } = {};
@@ -299,10 +222,10 @@ export default function MyProjectsPage() {
 
         {user && projects.length > 0 && (
           <div className="space-y-6">
-            {sortedProjects.map((project) => (
-              <div key={project.id} className={getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3))}>
+            {projects.map((project) => (
+              <div key={project.id} className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-lg hover:border-sky-700/70 transition-colors duration-300 relative">
                 {updatingItemId === project.id && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-10"> {/* Slightly darker overlay */}
+                  <div className="absolute inset-0 bg-gray-900/50 flex items-center justify-center rounded-lg z-10">
                     <FaSpinner className="animate-spin text-sky-500 text-3xl" />
                   </div>
                 )}
@@ -346,7 +269,7 @@ export default function MyProjectsPage() {
                       value={project.badge2 || ''} 
                       onChange={(e) => handleBadgeChange(project.id, 'badge2', e.target.value)}
                       disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge2 || '')}
+                      className="text-xs bg-gray-800 border border-gray-700 text-gray-300 rounded-md p-1.5 focus:ring-sky-500 focus:border-sky-500 appearance-none min-w-[100px]"
                     >
                       <option value="">Badge 2...</option>
                       {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
@@ -359,38 +282,10 @@ export default function MyProjectsPage() {
                       value={project.badge3 || ''} 
                       onChange={(e) => handleBadgeChange(project.id, 'badge3', e.target.value)}
                       disabled={updatingItemId === project.id}
-                      className={getBadge3Style(project.badge3 || '')}
+                      className="text-xs bg-gray-800 border border-gray-700 text-gray-300 rounded-md p-1.5 focus:ring-sky-500 focus:border-sky-500 appearance-none min-w-[100px]"
                     >
                       <option value="">Badge 3...</option>
                       {badge3Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-                    </select>
-                  </div>
-                  {/* New Badge 4 Dropdown */}
-                  <div className="flex-shrink-0">
-                    <label htmlFor={`badge4-${project.id}`} className="sr-only">Badge 4</label>
-                    <select 
-                      id={`badge4-${project.id}`} 
-                      value={project.badge4 || ''} 
-                      onChange={(e) => handleBadgeChange(project.id, 'badge4', e.target.value)}
-                      disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge4 || '')} // Reuse badge2 styling logic
-                    >
-                      <option value="">Badge 4...</option>
-                      {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-                    </select>
-                  </div>
-                  {/* New Badge 5 Dropdown */}
-                  <div className="flex-shrink-0">
-                    <label htmlFor={`badge5-${project.id}`} className="sr-only">Badge 5</label>
-                    <select 
-                      id={`badge5-${project.id}`} 
-                      value={project.badge5 || ''} 
-                      onChange={(e) => handleBadgeChange(project.id, 'badge5', e.target.value)}
-                      disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge5 || '')} // Reuse badge2 styling logic
-                    >
-                      <option value="">Badge 5...</option>
-                      {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
                     </select>
                   </div>
                   <div className="flex items-center flex-shrink-0 sm:ml-0 pt-2 sm:pt-0"> {/* Removed ml-auto */}
@@ -403,7 +298,7 @@ export default function MyProjectsPage() {
                       className="h-4 w-4 text-sky-600 bg-gray-700 border-gray-600 rounded focus:ring-sky-500 focus:ring-offset-gray-900 cursor-pointer"
                     />
                     <label htmlFor={`featured-${project.id}`} className="ml-2 text-xs text-gray-400 cursor-pointer select-none">
-                      Showcase on Landing Page
+                      Showcase
                     </label>
                   </div>
                   {/* Moved Spinner logic to cover whole card: updatingItemId === project.id && <FaSpinner className="animate-spin ml-2 text-sky-500 text-xs" /> */}

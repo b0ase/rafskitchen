@@ -15,8 +15,6 @@ interface ClientProject {
   badge2?: string | null;
   badge3?: string | null;
   is_featured?: boolean; // Added
-  badge4?: string | null; // New
-  badge5?: string | null; // New
   // Add other fields you want to display
 }
 
@@ -144,7 +142,7 @@ export default function MyProjectsPage() {
       setUser(authUser);
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5')
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured')
         .eq('user_id', authUser.id)
         .order('created_at', { ascending: false });
 
@@ -166,7 +164,7 @@ export default function MyProjectsPage() {
     fetchUserAndProjects();
   }, [supabase]);
 
-  const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => {
+  const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3', newValue: string | null) => {
     if (!user) return;
     setUpdatingItemId(projectId); // Indicate loading for this specific project item
     const payload: { [key: string]: string | null } = {};
@@ -363,34 +361,6 @@ export default function MyProjectsPage() {
                     >
                       <option value="">Badge 3...</option>
                       {badge3Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-                    </select>
-                  </div>
-                  {/* New Badge 4 Dropdown */}
-                  <div className="flex-shrink-0">
-                    <label htmlFor={`badge4-${project.id}`} className="sr-only">Badge 4</label>
-                    <select 
-                      id={`badge4-${project.id}`} 
-                      value={project.badge4 || ''} 
-                      onChange={(e) => handleBadgeChange(project.id, 'badge4', e.target.value)}
-                      disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge4 || '')} // Reuse badge2 styling logic
-                    >
-                      <option value="">Badge 4...</option>
-                      {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-                    </select>
-                  </div>
-                  {/* New Badge 5 Dropdown */}
-                  <div className="flex-shrink-0">
-                    <label htmlFor={`badge5-${project.id}`} className="sr-only">Badge 5</label>
-                    <select 
-                      id={`badge5-${project.id}`} 
-                      value={project.badge5 || ''} 
-                      onChange={(e) => handleBadgeChange(project.id, 'badge5', e.target.value)}
-                      disabled={updatingItemId === project.id}
-                      className={getBadge2Style(project.badge5 || '')} // Reuse badge2 styling logic
-                    >
-                      <option value="">Badge 5...</option>
-                      {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
                     </select>
                   </div>
                   <div className="flex items-center flex-shrink-0 sm:ml-0 pt-2 sm:pt-0"> {/* Removed ml-auto */}

@@ -215,7 +215,7 @@ export default function NewProjectPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
         <div className="bg-gray-900 shadow-2xl rounded-lg p-6 sm:p-8 md:p-10 border border-gray-700/50">
           <div className="text-center mb-10">
             <FaRocket className="text-5xl text-sky-500 mx-auto mb-4" />
