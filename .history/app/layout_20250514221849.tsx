@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  // maximumScale: 1, // You can decide if you want to restrict zooming
-  // userScalable: true, // Or allow it
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default async function RootLayout({
@@ -30,7 +30,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* The <head> tag is managed by Next.js when using the metadata and viewport exports. Do not add it manually here. */}
+      <head>
+        <meta name="viewport" content={`${viewport.width}; initial-scale=${viewport.initialScale}; maximum-scale=${viewport.maximumScale}; user-scalable=${viewport.userScalable ? 'yes' : 'no'}`} />
+      </head>
       <body className={`${inter.className} bg-black text-gray-300`}>
         <Providers>
           <ConditionalLayout session={session}>
