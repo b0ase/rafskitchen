@@ -471,7 +471,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
                 website: projectData.website || '',
                 // Add other relevant fields from ProjectData to ClientFormData if needed
               }}
-              onSave={handleUpdateProject}
+              onSubmit={handleUpdateProject}
               onCancel={() => setIsEditing(false)}
               submitButtonText="Save Changes"
               showAuthToggle={false} 
