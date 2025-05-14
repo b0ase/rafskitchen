@@ -5,7 +5,7 @@ import Link from 'next/link'; // Re-added Link for the new button
 // Link is no longer needed on this page if My Projects section is removed and no other Links are present.
 // import Link from 'next/link'; 
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus, FaUsers, FaPlusSquare, FaHandshake } from 'react-icons/fa'; // Added FaPlusSquare, FaHandshake
+import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus } from 'react-icons/fa'; // Added FaRocket and FaPlus
 
 interface Profile {
   username: string | null;
@@ -524,31 +524,11 @@ export default function ProfilePage() {
                 Start a new project to define your vision, outline features, and begin collaborating with our team. 
                 Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-                <Link href="/projects/new" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaRocket className="mr-2 -ml-1 h-5 w-5" /> Start a Project
-                  </a>
-                </Link>
-                <Link href="/teams/join" passHref legacyBehavior> 
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaUsers className="mr-2 -ml-1 h-5 w-5" /> 
-                    Join A Team
-                  </a>
-                </Link>
-                <Link href="/teams/new" passHref legacyBehavior> 
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaPlusSquare className="mr-2 -ml-1 h-5 w-5" /> 
-                    Start New Team
-                  </a>
-                </Link>
-                <Link href="/projects/join" passHref legacyBehavior> 
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaHandshake className="mr-2 -ml-1 h-5 w-5" /> 
-                    Join A Project
-                  </a>
-                </Link>
-              </div>
+              <Link href="/projects/new" passHref legacyBehavior>
+                <a className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                  <FaRocket className="mr-2 -ml-1 h-5 w-5" /> Start a New Project
+                </a>
+              </Link>
             </div>
           </div>
         </section>

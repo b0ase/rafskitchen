@@ -5,7 +5,7 @@ import Link from 'next/link'; // Re-added Link for the new button
 // Link is no longer needed on this page if My Projects section is removed and no other Links are present.
 // import Link from 'next/link'; 
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus, FaUsers, FaPlusSquare, FaHandshake } from 'react-icons/fa'; // Added FaPlusSquare, FaHandshake
+import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus } from 'react-icons/fa'; // Added FaRocket and FaPlus
 
 interface Profile {
   username: string | null;
@@ -86,14 +86,6 @@ export default function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   // --- END NEW Avatar Upload State ---
-
-  useEffect(() => {
-    console.log('[ProfilePage] Profile or Avatar Preview State Change:', { 
-      profileAvatarUrl: profile?.avatar_url,
-      avatarPreview,
-      isUploading: uploadingAvatar
-    });
-  }, [profile?.avatar_url, avatarPreview, uploadingAvatar]);
 
   // --- NEW Skills State ---
   const [allSkills, setAllSkills] = useState<Skill[]>([]);
@@ -310,40 +302,14 @@ export default function ProfilePage() {
   // --- NEW Function to Handle Avatar File Selection ---
   const handleAvatarFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    console.log('[handleAvatarFileSelect] File selected:', file);
-
     if (file) {
-      setAvatarFile(file); // Still useful to keep track of the file if needed, though upload is direct
+      setAvatarFile(file);
       const reader = new FileReader();
-
-      reader.onloadstart = () => {
-        console.log('[FileReader] onloadstart: Reading file started...');
-        setUploadingAvatar(true); // Show spinner early, as soon as reading starts
-      };
-
-      reader.onerror = (error) => {
-        console.error('[FileReader] onerror: Error reading file:', error);
-        setError('Failed to read the selected file. Please try another image.');
-        setUploadingAvatar(false);
-        setAvatarFile(null);
-        setAvatarPreview(null);
-      };
-
       reader.onloadend = () => {
-        console.log('[FileReader] onloadend: Reading file finished. Result length:', (reader.result as string)?.length);
         setAvatarPreview(reader.result as string);
-        
-        if (user) {
-          console.log('[FileReader] onloadend: User exists, calling handleAvatarUpload...');
-          handleAvatarUpload(file); 
-        } else {
-          console.error('[FileReader] onloadend: User not available, cannot start upload.');
-          setError('User session not found. Cannot upload avatar.');
-          setUploadingAvatar(false); 
-        }
       };
       reader.readAsDataURL(file);
-      setNewAvatarUrl(''); 
+      setNewAvatarUrl(''); // Clear any manually entered URL if a file is chosen
     } else {
       setAvatarFile(null);
       setAvatarPreview(null);
@@ -352,19 +318,18 @@ export default function ProfilePage() {
   // --- END NEW Function ---
 
   // --- NEW Function to Handle Avatar Upload ---
-  const handleAvatarUpload = async (fileToUpload: File) => {
-    console.log('[handleAvatarUpload] Attempting to upload file:', fileToUpload);
-    if (!fileToUpload || !user) {
-      console.error('[handleAvatarUpload] Pre-condition failed: No file or no user.', { fileToUpload, user });
-      setError('Please select an image file to upload or log in again.');
-      setUploadingAvatar(false); // Ensure spinner stops if we bail early
+  const handleAvatarUpload = async () => {
+    if (!avatarFile || !user) {
+      setError('Please select an image file to upload.');
       return;
     }
-    // setUploadingAvatar(true); // This is now set earlier in onloadstart
+    setUploadingAvatar(true);
     setError(null);
     setSuccessMessage(null);
 
-    const fileExt = fileToUpload.name.split('.').pop();
+    const fileExt = avatarFile.name.split('.').pop();
+    // Using a folder 'public' inside the bucket for the user's avatar, and a fixed name 'avatar'
+    // This means each user will have one avatar image at a known path, overwriting the previous one.
     const filePath = `public/${user.id}/avatar.${fileExt}`;
 
     try {
@@ -385,7 +350,7 @@ export default function ProfilePage() {
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, fileToUpload, {
+        .upload(filePath, avatarFile, {
           cacheControl: '3600', // Cache for 1 hour
           upsert: true, // Overwrite if file exists
         });
@@ -422,21 +387,9 @@ export default function ProfilePage() {
 
     } catch (e: any) {
       console.error('Error uploading avatar:', e);
-      setError(`Failed to upload avatar: ${e.message}. Check console for details.`);
+      setError(`Failed to upload avatar: ${e.message}`);
     } finally {
-      console.log('[handleAvatarUpload] Upload process finished. Uploading state:', uploadingAvatar);
-      // Do not setUploadingAvatar(false) here if success path already cleared it or if error is displayed.
-      // It should be set to false on actual completion or definitive error.
-      // For now, if an error occurred, it stays true to show error, success clears it.
-      // Let's ensure it's false if an error occurred and wasn't a profile update error
-      if (error && !error.includes('profileUpdateError')) { // A bit heuristic
-          // If error state is set from this function, ensure spinner stops.
-          // Note: If setError was called, uploadingAvatar might still be true.
-          // The spinner visibility depends on uploadingAvatar.
-          // The if condition here is tricky. Let's simplify: if an error is set by this function, stop uploading visual.
-          // This is now handled if setError is called. The main setUploadingAvatar(false) is after successful profile update or in catch.
-      }
-      // setUploadingAvatar(false) is called on success and in the catch block.
+      setUploadingAvatar(false);
       setTimeout(() => setSuccessMessage(null), 3000);
     }
   };
@@ -524,31 +477,11 @@ export default function ProfilePage() {
                 Start a new project to define your vision, outline features, and begin collaborating with our team. 
                 Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-                <Link href="/projects/new" passHref legacyBehavior>
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaRocket className="mr-2 -ml-1 h-5 w-5" /> Start a Project
-                  </a>
-                </Link>
-                <Link href="/teams/join" passHref legacyBehavior> 
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaUsers className="mr-2 -ml-1 h-5 w-5" /> 
-                    Join A Team
-                  </a>
-                </Link>
-                <Link href="/teams/new" passHref legacyBehavior> 
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaPlusSquare className="mr-2 -ml-1 h-5 w-5" /> 
-                    Start New Team
-                  </a>
-                </Link>
-                <Link href="/projects/join" passHref legacyBehavior> 
-                  <a className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md min-w-[180px]">
-                    <FaHandshake className="mr-2 -ml-1 h-5 w-5" /> 
-                    Join A Project
-                  </a>
-                </Link>
-              </div>
+              <Link href="/projects/new" passHref legacyBehavior>
+                <a className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                  <FaRocket className="mr-2 -ml-1 h-5 w-5" /> Start a New Project
+                </a>
+              </Link>
             </div>
           </div>
         </section>
@@ -561,22 +494,15 @@ export default function ProfilePage() {
               <img 
                 src={avatarPreview || profile.avatar_url} 
                 alt="Avatar" 
-                className={`w-24 h-24 rounded-full mr-0 sm:mr-6 mb-4 sm:mb-0 border-4 border-sky-600 object-cover shadow-md group-hover:opacity-75 transition-opacity`} 
+                className="w-24 h-24 rounded-full mr-0 sm:mr-6 mb-4 sm:mb-0 border-4 border-sky-600 object-cover shadow-md group-hover:opacity-75 transition-opacity" 
               />
             ) : (
               <FaUserCircle 
                 className="text-7xl text-sky-500 mr-0 sm:mr-6 mb-4 sm:mb-0 group-hover:opacity-75 transition-opacity" 
               />
             )}
-            <div 
-                className={`absolute inset-0 flex items-center justify-center bg-black rounded-full transition-opacity 
-                            ${uploadingAvatar ? 'bg-opacity-70 opacity-100' : 'bg-opacity-50 opacity-0 group-hover:opacity-100'}`}
-            >
-              {uploadingAvatar ? (
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-              ) : (
-                <FaImage className="text-3xl text-white" />
-              )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <FaImage className="text-3xl text-white" />
             </div>
           </label>
           {/* Visually hidden file input, triggered by the label wrapping the avatar image/icon */}
@@ -606,6 +532,25 @@ export default function ProfilePage() {
             <p className="text-lg text-gray-400 mt-1 hidden sm:block">Manage your public identity, personal information, and online presence.</p>
           </div>
         </div>
+
+        {/* Display Upload Button and Selected File Name directly under the avatar section if a file is chosen */}
+        {avatarFile && (
+          <div className="mb-8 text-center sm:text-left sm:pl-32 flex flex-col sm:flex-row items-center gap-4">
+            <p className="text-sm text-gray-300 italic">
+              Selected: {avatarFile.name} 
+              ( {(avatarFile.size / 1024).toFixed(1)} KB )
+            </p>
+            <button
+              type="button"
+              onClick={handleAvatarUpload}
+              disabled={uploadingAvatar || !avatarFile}
+              className="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow"
+            >
+              <FaSave className="mr-2 h-4 w-4" />
+              {uploadingAvatar ? 'Uploading Avatar...' : 'Upload & Save Avatar'}
+            </button>
+          </div>
+        )}
 
         {/* --- NEW Section to Display Selected Skill Badges --- */}
         <section className="mb-10 pb-6 border-b border-gray-700">
