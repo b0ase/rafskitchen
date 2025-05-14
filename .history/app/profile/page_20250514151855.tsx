@@ -5,7 +5,7 @@ import Link from 'next/link'; // Re-added Link for the new button
 // Link is no longer needed on this page if My Projects section is removed and no other Links are present.
 // import Link from 'next/link'; 
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus } from 'react-icons/fa'; // Added FaRocket and FaPlus
+import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket } from 'react-icons/fa'; // Added FaRocket
 
 interface Profile {
   username: string | null;
@@ -43,25 +43,6 @@ interface ClientProject {
 }
 */
 
-// --- NEW Skill Badge Styling Function ---
-const getSkillBadgeStyle = (category: string | null): string => {
-  const baseStyle = "px-3 py-1.5 text-xs font-semibold rounded-full shadow-md flex items-center justify-center";
-  switch (category?.toLowerCase().trim()) {
-    case 'frontend development': return `${baseStyle} bg-green-600 text-green-100 border border-green-500`;
-    case 'backend development': return `${baseStyle} bg-blue-600 text-blue-100 border border-blue-500`;
-    case 'programming': return `${baseStyle} bg-indigo-600 text-indigo-100 border border-indigo-500`;
-    case 'design': return `${baseStyle} bg-pink-600 text-pink-100 border border-pink-500`;
-    case 'management': return `${baseStyle} bg-purple-600 text-purple-100 border border-purple-500`;
-    case 'databases': return `${baseStyle} bg-yellow-500 text-yellow-900 border border-yellow-400`; // Adjusted for better contrast
-    case 'devops': return `${baseStyle} bg-red-600 text-red-100 border border-red-500`;
-    case 'cloud computing': return `${baseStyle} bg-cyan-600 text-cyan-100 border border-cyan-500`;
-    case 'marketing': return `${baseStyle} bg-orange-600 text-orange-100 border border-orange-500`;
-    case 'user-defined': return `${baseStyle} bg-teal-600 text-teal-100 border border-teal-500`; // Style for user-defined skills
-    default: return `${baseStyle} bg-gray-600 text-gray-100 border border-gray-500`; // For 'Other' or uncategorized
-  }
-};
-// --- END NEW Skill Badge Styling Function ---
-
 export default function ProfilePage() {
   const supabase = createClientComponentClient();
   const [user, setUser] = useState<User | null>(null);
@@ -87,15 +68,6 @@ export default function ProfilePage() {
   const [loadingSkills, setLoadingSkills] = useState<boolean>(true);
   const [savingSkills, setSavingSkills] = useState<boolean>(false); // For individual skill toggle operations
   // --- END NEW Skills State ---
-
-  // --- NEW State for Custom Skill Input ---
-  const [customSkillInput, setCustomSkillInput] = useState<string>('');
-  // --- END NEW State for Custom Skill Input ---
-
-  // --- State for Inline Skill Adder ---
-  // const [showSkillAdderDropdown, setShowSkillAdderDropdown] = useState<boolean>(false); // No longer needed
-  const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>(''); // To control the value of the adder select
-  // --- END State for Inline Skill Adder ---
 
   useEffect(() => {
     const fetchUserAndProfileAndSkills = async () => {
@@ -128,8 +100,8 @@ export default function ProfilePage() {
             setError(prev => prev ? `${prev}\nProfile not found.` : 'Profile not found.');
         }
 
-        // Fetch All Skills (including user-defined ones if they exist in the table)
-        const { data: allSkillsDataFromDB, error: allSkillsError } = await supabase
+        // Fetch All Skills
+        const { data: allSkillsData, error: allSkillsError } = await supabase
           .from('skills')
           .select('id, name, category, description')
           .order('category', { ascending: true })
@@ -140,7 +112,7 @@ export default function ProfilePage() {
           setError(prev => prev ? `${prev}\nSkills load error.` : 'Could not load available skills.');
           setAllSkills([]);
         } else {
-          setAllSkills(allSkillsDataFromDB || []);
+          setAllSkills(allSkillsData || []);
         }
 
         // Fetch User's Selected Skills
@@ -214,84 +186,6 @@ export default function ProfilePage() {
     setTimeout(() => setSuccessMessage(null), 2000); // Clear message after 2 seconds
   };
   // --- END NEW Function ---
-
-  // --- NEW Function to Handle Adding Custom Skill ---
-  const handleAddCustomSkill = async (skillName: string) => {
-    if (!user) {
-      setError('User not authenticated.');
-      return;
-    }
-    if (!skillName) return;
-
-    setSavingSkills(true);
-    setError(null);
-    setSuccessMessage(null);
-
-    // Normalize skill name for checking
-    const normalizedSkillName = skillName.trim().toLowerCase();
-    const existingSkill = allSkills.find(s => s.name.trim().toLowerCase() === normalizedSkillName);
-
-    if (existingSkill) {
-      if (userSkillIds.has(existingSkill.id)) {
-        setSuccessMessage(`Skill "${existingSkill.name}" is already added.`);
-        setCustomSkillInput('');
-        setSavingSkills(false);
-        setTimeout(() => setSuccessMessage(null), 2000);
-        return;
-      } else {
-        // Skill exists globally, just add it to user_skills
-        // handleSkillToggle will set savingSkills to false and clear input
-        await handleSkillToggle(existingSkill.id, false);
-        setCustomSkillInput(''); 
-        // Note: handleSkillToggle already sets savingSkills to false.
-        return; 
-      }
-    } else {
-      // Skill does not exist globally, create it and then add to user_skills
-      try {
-        const { data: newSkillData, error: newSkillError } = await supabase
-          .from('skills')
-          .insert({ name: skillName.trim(), category: 'User-defined', description: null })
-          .select('id, name, category, description')
-          .single();
-
-        if (newSkillError) {
-          console.error('Error creating new skill:', newSkillError);
-          setError(`Failed to create new skill: ${newSkillError.message}`);
-          setSavingSkills(false);
-          return;
-        }
-
-        if (newSkillData) {
-          // Add to allSkills locally so it can be rendered
-          setAllSkills(prevSkills => [...prevSkills, newSkillData]);
-          
-          const { error: insertUserSkillError } = await supabase
-            .from('user_skills')
-            .insert({ user_id: user.id, skill_id: newSkillData.id });
-
-          if (insertUserSkillError) {
-            console.error('Error adding new skill to user:', insertUserSkillError);
-            setError(`Failed to associate new skill: ${insertUserSkillError.message}`);
-            // Rollback local allSkills update
-            setAllSkills(prevSkills => prevSkills.filter(s => s.id !== newSkillData.id));
-          } else {
-            setUserSkillIds(prevIds => new Set(prevIds).add(newSkillData.id));
-            setSuccessMessage(`Custom skill "${newSkillData.name}" added!`);
-            setCustomSkillInput('');
-          }
-        }
-      } catch (e) {
-        console.error("Unexpected error in handleAddCustomSkill:", e);
-        setError("An unexpected error occurred while adding the custom skill.");
-      } finally {
-        setSavingSkills(false);
-        // Success/error message for custom skill already handled or will be, clear generic one after a delay
-        setTimeout(() => { if (!error && !successMessage) setSuccessMessage(null); }, 2000);
-      }
-    }
-  };
-  // --- END NEW Function for Custom Skill ---
 
   const handleUpdateProfile = async (e: FormEvent) => {
     e.preventDefault();
@@ -398,114 +292,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* --- NEW Section to Display Selected Skill Badges --- */}
-        <section className="mb-10 pb-6 border-b border-gray-700">
-          <div className="flex justify-between items-center mb-4">
-             <h3 className="text-xl font-semibold text-sky-400">My Skills</h3>
-          </div>
-          
-          {loadingSkills ? (
-            <p className="text-gray-400 italic">Loading your skills...</p>
-          ) : (
-            <div className="flex flex-wrap gap-3 items-center">
-              {/* Display existing skill badges */}
-              {allSkills
-                .filter(skill => userSkillIds.has(skill.id))
-                .sort((a, b) => (a.category || 'zzzz').localeCompare(b.category || 'zzzz') || a.name.localeCompare(b.name))
-                .map(skill => (
-                  <span 
-                    key={skill.id} 
-                    className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
-                    title={skill.description || skill.name}
-                  >
-                    {skill.name}
-                    <button
-                      onClick={() => handleSkillToggle(skill.id, true)}
-                      disabled={savingSkills}
-                      className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
-                      aria-label={`Remove ${skill.name} skill`}
-                    >
-                      &times;
-                    </button>
-                  </span>
-                ))}
-
-              {/* Skill Adders Area - Conditionally render if user is loaded and not saving/loading skills */}
-              {user && !loadingSkills && (
-                <>
-                  {/* Input for custom skill */}
-                  <input
-                    type="text"
-                    value={customSkillInput}
-                    onChange={(e) => setCustomSkillInput(e.target.value)}
-                    onKeyDown={async (e) => {
-                      if (e.key === 'Enter' && customSkillInput.trim()) {
-                        e.preventDefault();
-                        await handleAddCustomSkill(customSkillInput.trim());
-                      }
-                    }}
-                    placeholder="+ Type custom skill & Enter"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={savingSkills}
-                    title="Add a skill not in the list"
-                  />
-
-                  {/* Dropdown for predefined skills (only if there are any unselected predefined ones) */}
-                  {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
-                    <div className="inline-block relative animate-fadeInQuickly">
-                      <select 
-                        value={skillChoiceInAdder} // Controlled component
-                        onChange={async (e) => {
-                          const selectedValue = e.target.value;
-                          if (selectedValue) {
-                            setSkillChoiceInAdder(selectedValue); 
-                            await handleSkillToggle(selectedValue, false); 
-                            setSkillChoiceInAdder(''); 
-                          }
-                        }}
-                        disabled={savingSkills}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                                    ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
-                      >
-                        <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                        {Object.entries(
-                          allSkills
-                            .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined') // Exclude user-defined
-                            .reduce((acc, skill) => {
-                              const category = skill.category || 'Other';
-                              if (!acc[category]) acc[category] = [];
-                              acc[category].push(skill);
-                              return acc;
-                            }, {} as Record<string, Skill[]>)
-                        ).map(([category, skillsInCategory]) => (
-                          <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                            {skillsInCategory.map(skill => (
-                              <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                {skill.name}
-                              </option>
-                            ))}
-                          </optgroup>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </>
-              )}
-              
-              {/* Message for all predefined skills added */}
-              {userSkillIds.size > 0 && 
-               !loadingSkills && 
-               allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
-               allSkills.some(skill => skill.category !== 'User-defined') && // Ensure there were predefined skills to begin with
-              (
-                <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
-              )}
-            </div>
-          )}
-        </section>
-        {/* --- END NEW Section for Skill Badges --- */}
-
-        {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error.split('\n').map((line, idx) => <React.Fragment key={idx}>{line}<br/></React.Fragment>)}</p>}
+        {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error}</p>}
         {successMessage && <p className="text-green-400 bg-green-900/30 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}
         
         {!user || !profile ? (
@@ -594,6 +381,66 @@ export default function ProfilePage() {
               </div>
             </section>
             
+            {/* --- NEW Skills Section --- */}
+            <section>
+              <h3 className="text-xl font-semibold text-sky-400 mb-6 pb-2 border-b border-gray-700">My Skills & Expertise</h3>
+              {loadingSkills ? (
+                <p className="text-gray-400">Loading skills...</p>
+              ) : allSkills.length === 0 ? (
+                <p className="text-gray-500 italic">No skills available to select. Admins can add skills to the platform.</p>
+              ) : (
+                Object.entries(
+                  allSkills.reduce((acc, skill) => {
+                    const category = skill.category || 'Other';
+                    if (!acc[category]) {
+                      acc[category] = [];
+                    }
+                    acc[category].push(skill);
+                    return acc;
+                  }, {} as Record<string, Skill[]>)
+                ).map(([category, skillsInCategory]) => (
+                  <div key={category} className="mb-8 p-4 border border-gray-800 rounded-lg bg-gray-850/30">
+                    <h4 className="text-lg font-medium text-sky-300 mb-4">{category}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
+                      {skillsInCategory.map((skill) => (
+                        <label key={skill.id} className="flex items-center space-x-3 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={userSkillIds.has(skill.id)}
+                            onChange={() => handleSkillToggle(skill.id, userSkillIds.has(skill.id))}
+                            disabled={savingSkills} // Disable while any skill is being saved
+                            className="h-5 w-5 rounded bg-gray-700 border-gray-600 text-sky-500 focus:ring-sky-500 focus:ring-offset-gray-900 disabled:opacity-70 transition-all duration-150 ease-in-out group-hover:shadow-sky-500/50 group-hover:scale-105"
+                          />
+                          <span className="text-sm text-gray-300 group-hover:text-sky-300 transition-colors">
+                            {skill.name}
+                            {skill.description && (
+                              <FaInfoCircle title={skill.description} className="inline ml-1.5 mb-0.5 text-gray-500 group-hover:text-sky-400 text-xs" />
+                            )}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+              {/* Optionally display selected skills as badges here if desired */}
+              {/* <div className="mt-6">
+                <h4 className="text-md font-semibold text-gray-400 mb-2">Your Current Skills:</h4>
+                {userSkillIds.size === 0 ? (
+                  <p className="text-sm text-gray-500 italic">You haven't selected any skills yet.</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {allSkills.filter(skill => userSkillIds.has(skill.id)).map(skill => (
+                      <span key={skill.id} className="px-3 py-1 text-xs font-medium bg-sky-600 text-white rounded-full shadow-sm">
+                        {skill.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div> */}
+            </section>
+            {/* --- END NEW Skills Section --- */}
+
             <div className="pt-8 border-t border-gray-700">
               <button
                 type="submit"
