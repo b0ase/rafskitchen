@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  /* Base light theme styles */
+  @apply bg-white text-gray-900;
+}
+
+/* Define dark mode styles using the 'dark' class applied by ThemeContext */
+html.dark body {
+   @apply bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

@@ -51,9 +51,9 @@ interface ColorScheme {
 interface Team {
   id: string;
   name: string;
-  slug: string | null; // Added
-  icon_name: string | null;
-  color_scheme: ColorScheme | null;
+  // Add other fields like description, avatar_url if needed later
+  icon_name: string | null; // Added
+  color_scheme: ColorScheme | null; // Added
 }
 // --- END NEW Team Interface ---
 
@@ -134,7 +134,7 @@ export default function TeamPage() {
       // Step 2: Fetch details for these teams from the 'teams' table
       const { data: teamsData, error: teamsError } = await supabase
         .from('teams') // Assuming this is your main teams table
-        .select('id, name, slug, icon_name, color_scheme') // Added slug
+        .select('id, name, icon_name, color_scheme') // Adjust select based on your 'teams' table columns
         .in('id', teamIds);
 
       if (teamsError) {
@@ -366,170 +366,197 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-300 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* User Teams Section - Only show if user is loaded and present */}
-        {loadingUser && (
-          <div className="flex items-center justify-center h-screen">
-            <FaSpinner className="animate-spin text-4xl text-sky-500" />
-          </div>
-        )}
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
+      <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="flex justify-between items-center mb-10">
+          {/* Button to invite to a specific project could go here, enabled when a project is selected */}
+        </div>
 
-        {!loadingUser && user && (
-          <div className="mb-12">
-            <h2 className="text-3xl font-semibold text-sky-400 mb-6">My Teams</h2>
-            {isLoadingUserTeams && (
-              <div className="flex items-center text-gray-400">
-                <FaSpinner className="animate-spin mr-2" />
-                Loading your teams...
-              </div>
-            )}
-            {errorFetchingUserTeams && (
-              <p className="text-red-500 bg-red-900/30 p-3 rounded-md">{errorFetchingUserTeams}</p>
-            )}
-            {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length === 0 && (
-              <p className="text-gray-500">You are not a member of any teams yet. <Link href="/teams/join" className="text-sky-500 hover:text-sky-400 underline">Find a team to join!</Link></p>
-            )}
-            {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {userTeams.map((team) => {
-                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
-                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
-                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
-                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+        {error && !successMessage && <p className="text-red-500 bg-red-900/30 p-3 rounded-md mb-6">{error}</p>}
+        {successMessage && <p className="text-green-400 bg-green-900/30 p-3 rounded-md mb-6">{successMessage}</p>}
+        {errorFetchingUserTeams && <p className="text-red-500 bg-red-900/30 p-3 rounded-md mb-6">{errorFetchingUserTeams}</p>}
 
-                  return (
-                    <div
-                      key={team.id}
-                      className={`rounded-xl shadow-lg p-6 flex flex-col justify-between border ${borderColor} ${bgColor} transition-all duration-300 ease-in-out hover:shadow-sky-500/50 hover:scale-105`}
-                    >
-                      <div>
-                        <IconComponent className={`text-4xl mb-4 ${textColor} opacity-90`} />
-                        <h3 className={`text-2xl font-bold mb-2 ${textColor}`}>{team.name}</h3>
-                      </div>
-                       <Link href={`/teams/${team.slug || team.id}`} className={`mt-4 inline-block ${textColor} opacity-80 hover:opacity-100 font-medium`}>
-                         View Team Details &rarr;
-                       </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Managed Projects Section - Only show if user is loaded and present */}
-        {!loadingUser && user && (
-          <div className="mt-12">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-semibold text-sky-400">Managed Projects</h2>
+        {/* --- NEW "My Teams" Section --- */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-white mb-6 border-b border-gray-700 pb-3">My Teams</h2>
+          {isLoadingUserTeams && (
+            <div className="flex items-center justify-center p-6 rounded-md bg-gray-800/50 border border-gray-700">
+              <FaSpinner className="animate-spin text-sky-500 text-2xl mr-3" />
+              <p className="text-gray-300">Loading your teams...</p>
             </div>
-            {isLoadingProjects && <FaSpinner className="animate-spin text-sky-500 text-2xl my-4" />}
-            {!isLoadingProjects && managedProjects.length === 0 && (
-              <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md">
-                <p className="text-gray-500 italic">You are not managing any projects currently.</p>
-                {/* TODO: Link to create a new project or info on how to become a project manager */}
-              </div>
-            )}
-            {!isLoadingProjects && managedProjects.length > 0 && (
-              <div className="space-y-4">
-                {managedProjects.map(project => (
-                  <div key={project.id} className="bg-gray-900 border border-gray-800 shadow-lg rounded-md">
-                    <button
-                      onClick={() => handleProjectSelect(project.id)}
-                      className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-800/50 transition-colors duration-150"
-                    >
-                      <span className="text-lg font-medium text-sky-400 flex items-center">
-                        <FaProjectDiagram className="mr-3 text-sky-500" />
-                        {project.name || 'Unnamed Project'}
-                      </span>
-                      {selectedProjectId === project.id ? <FaAngleDown className="text-gray-400" /> : <FaAngleRight className="text-gray-400" />}
-                    </button>
+          )}
+          {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length === 0 && (
+            <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md text-center">
+              <p className="text-gray-500 mb-3">You are not currently a member of any teams.</p>
+              <Link href="/teams/join" passHref legacyBehavior>
+                <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-md text-sm transition-colors shadow hover:shadow-md">
+                  Explore and Join Teams
+                </a>
+              </Link>
+            </div>
+          )}
+          {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length > 0 && (
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-3xl font-semibold text-sky-400 mb-6">My Teams</h2>
+              {isLoadingUserTeams && (
+                <div className="flex items-center justify-center text-gray-400">
+                  <FaSpinner className="animate-spin mr-2" />
+                  Loading your teams...
+                </div>
+              )}
+              {errorFetchingUserTeams && <p className="text-red-500 bg-red-900/30 p-3 rounded-md">{errorFetchingUserTeams}</p>}
+              
+              {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length === 0 && (
+                <p className="text-gray-500">You are not a member of any teams yet.</p>
+              )}
 
-                    {selectedProjectId === project.id && (
-                      <div className="border-t border-gray-700 p-6">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-xl font-semibold text-white">Team Members</h3>
-                          {/* The button below was the old placeholder, it's being removed as the form handles adding members now */}
-                          {/* <button 
-                            className="bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-md flex items-center text-sm transition-colors duration-150"
-                            onClick={() => alert(`TODO: Implement invite for project ${project.name}`)} 
-                          >
-                            <FaUserPlus className="mr-2" /> Invite Member
-                          </button> */}
+              {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {userTeams.map((team) => {
+                    const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                    const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
+                    const textColor = team.color_scheme?.textColor || 'text-gray-100';
+                    const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+
+                    return (
+                      <div
+                        key={team.id}
+                        className={`rounded-lg shadow-lg p-6 flex flex-col justify-between border ${borderColor} ${bgColor} transition-all duration-300 ease-in-out hover:shadow-xl`}
+                      >
+                        <div>
+                          <IconComponent className={`text-4xl mb-4 ${textColor} opacity-90`} />
+                          <h3 className={`text-2xl font-bold mb-2 ${textColor}`}>{team.name}</h3>
+                          {/* Future: Add team description or member count here if available */}
                         </div>
-                        {isLoadingTeamMembers && <FaSpinner className="animate-spin text-sky-500 text-xl my-3" />}
-                        {!isLoadingTeamMembers && teamMembers.length === 0 && (
-                          <p className="text-gray-500 italic">No team members assigned to this project yet (besides you).</p>
-                        )}
-                        {!isLoadingTeamMembers && teamMembers.length > 0 && (
-                          <ul className="space-y-3 mb-6">
-                            {teamMembers.map(member => (
-                              <li key={member.user_id} className="flex justify-between items-center p-3 bg-gray-800 rounded-md shadow">
+                        {/* Future: Add a link to a team-specific page or manage members button */}
+                         <Link href={`/teams/${team.slug || team.id}`} className={`mt-4 inline-block ${textColor} opacity-80 hover:opacity-100`}>
+                           View Team Details &rarr;
+                         </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+        {/* --- END "My Teams" Section --- */}
+
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold text-white mb-6 border-b border-gray-700 pb-3">Managed Projects</h2>
+          {isLoadingProjects && <FaSpinner className="animate-spin text-sky-500 text-2xl my-4" />}
+          {!isLoadingProjects && managedProjects.length === 0 && (
+            <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md">
+              <p className="text-gray-500 italic">You are not managing any projects currently.</p>
+              {/* TODO: Link to create a new project or info on how to become a project manager */}
+            </div>
+          )}
+          {!isLoadingProjects && managedProjects.length > 0 && (
+            <div className="space-y-4">
+              {managedProjects.map(project => (
+                <div key={project.id} className="bg-gray-900 border border-gray-800 shadow-lg rounded-md">
+                  <button
+                    onClick={() => handleProjectSelect(project.id)}
+                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-800/50 transition-colors duration-150"
+                  >
+                    <span className="text-lg font-medium text-sky-400 flex items-center">
+                      <FaProjectDiagram className="mr-3 text-sky-500" />
+                      {project.name || 'Unnamed Project'}
+                    </span>
+                    {selectedProjectId === project.id ? <FaAngleDown className="text-gray-400" /> : <FaAngleRight className="text-gray-400" />}
+                  </button>
+
+                  {selectedProjectId === project.id && (
+                    <div className="border-t border-gray-700 p-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-semibold text-white">Team Members</h3>
+                        {/* The button below was the old placeholder, it's being removed as the form handles adding members now */}
+                        {/* <button 
+                          className="bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-md flex items-center text-sm transition-colors duration-150"
+                          onClick={() => alert(`TODO: Implement invite for project ${project.name}`)} 
+                        >
+                          <FaUserPlus className="mr-2" /> Invite Member
+                        </button> */}
+                      </div>
+                      {isLoadingTeamMembers && <FaSpinner className="animate-spin text-sky-500 text-xl my-3" />}
+                      {!isLoadingTeamMembers && teamMembers.length === 0 && (
+                        <p className="text-gray-500 italic">No team members assigned to this project yet (besides you).</p>
+                      )}
+                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
+                        <ul className="space-y-3 mb-6">
+                          {teamMembers.map(member => (
+                            <li key={member.user_id} className="flex justify-between items-center p-3 bg-gray-800 rounded-md shadow">
+                              <div>
+                                <span className="font-medium text-gray-100">{member.display_name || member.user_id}</span>
+                                <span className="ml-3 text-xs text-sky-300 uppercase bg-sky-700/50 px-2 py-1 rounded-full">{(member.role || 'N/A').replace('_', ' ')}</span>
+                              </div>
+                              {/* TODO: Add actions like change role, remove member */}
+                              { user?.id !== member.user_id && (
+                                <button className="text-xs text-red-400 hover:text-red-300">Remove</button> // Placeholder
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      
+                        <div className="mt-6 pt-6 border-t border-gray-700">
+                            <h4 className="text-lg font-semibold text-white mb-4">Add New Member to "{project.name}"</h4>
+                            <form onSubmit={handleAddNewMember} className="space-y-4">
                                 <div>
-                                  <span className="font-medium text-gray-100">{member.display_name || member.user_id}</span>
-                                  <span className="ml-3 text-xs text-sky-300 uppercase bg-sky-700/50 px-2 py-1 rounded-full">{(member.role || 'N/A').replace('_', ' ')}</span>
-                                </div>
-                                {/* TODO: Add actions like change role, remove member */}
-                                { user?.id !== member.user_id && (
-                                  <button className="text-xs text-red-400 hover:text-red-300">Remove</button> // Placeholder
-                                )}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                        
-                          <div className="mt-6 pt-6 border-t border-gray-700">
-                              <h4 className="text-lg font-semibold text-white mb-4">Add New Member to "{project.name}"</h4>
-                              <form onSubmit={handleAddNewMember} className="space-y-4">
-                                  <div>
-                                      <label htmlFor="platformUserSelect" className="block text-sm font-medium text-gray-300 mb-1">Select User</label>
-                                      {isLoadingPlatformUsers ? <FaSpinner className="animate-spin" /> : (
-                                        <select 
-                                            id="platformUserSelect"
-                                            value={selectedPlatformUserId}
-                                            onChange={(e) => setSelectedPlatformUserId(e.target.value)}
-                                            className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
-                                            required
-                                        >
-                                            <option value="" disabled>-- Select a user --</option>
-                                            {platformUsers.filter(pUser => pUser.id !== user?.id).map(pUser => ( // Exclude current user from list
-                                                <option key={pUser.id} value={pUser.id}>{pUser.display_name}</option>
-                                            ))}
-                                        </select>
-                                      )}
-                                  </div>
-                                  <div>
-                                      <label htmlFor="newMemberRole" className="block text-sm font-medium text-gray-300 mb-1">Assign Role</label>
+                                    <label htmlFor="platformUserSelect" className="block text-sm font-medium text-gray-300 mb-1">Select User</label>
+                                    {isLoadingPlatformUsers ? <FaSpinner className="animate-spin" /> : (
                                       <select 
-                                          id="newMemberRole"
-                                          value={newMemberRole}
-                                          onChange={(e) => setNewMemberRole(e.target.value as ProjectRole)}
+                                          id="platformUserSelect"
+                                          value={selectedPlatformUserId}
+                                          onChange={(e) => setSelectedPlatformUserId(e.target.value)}
                                           className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
+                                          required
                                       >
-                                          {Object.values(ProjectRole).map(role => (
-                                              <option key={role} value={role}>{role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
+                                          <option value="" disabled>-- Select a user --</option>
+                                          {platformUsers.filter(pUser => pUser.id !== user?.id).map(pUser => ( // Exclude current user from list
+                                              <option key={pUser.id} value={pUser.id}>{pUser.display_name}</option>
                                           ))}
                                       </select>
-                                  </div>
-                                  <button 
-                                      type="submit"
-                                      disabled={isAddingMember || isLoadingPlatformUsers}
-                                      className="w-full flex justify-center items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                      {isAddingMember ? <FaSpinner className="animate-spin mr-2" /> : <FaUserPlus className="mr-2" />} Add Member
-                                  </button>
-                              </form>
-                          </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                                    )}
+                                </div>
+                                <div>
+                                    <label htmlFor="newMemberRole" className="block text-sm font-medium text-gray-300 mb-1">Assign Role</label>
+                                    <select 
+                                        id="newMemberRole"
+                                        value={newMemberRole}
+                                        onChange={(e) => setNewMemberRole(e.target.value as ProjectRole)}
+                                        className="w-full bg-gray-800 border border-gray-700 text-white rounded-md p-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm"
+                                    >
+                                        {Object.values(ProjectRole).map(role => (
+                                            <option key={role} value={role}>{role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <button 
+                                    type="submit"
+                                    disabled={isAddingMember || isLoadingPlatformUsers}
+                                    className="w-full flex justify-center items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isAddingMember ? <FaSpinner className="animate-spin mr-2" /> : <FaUserPlus className="mr-2" />} Add Member
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Original "Team Permissions & Roles" section - can be repurposed or removed if project-specific roles are enough */}
+        {/* <section>
+          <h2 className="text-2xl font-semibold text-white mb-6 border-b border-gray-700 pb-3">Global Team Permissions & Roles</h2>
+          <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md">
+            <p className="text-gray-500 italic">Overall permissions management for the platform could be here.</p>
           </div>
-        )}
-      </div>
+        </section> */}
+      </main>
     </div>
   );
 }

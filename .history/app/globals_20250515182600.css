@@ -28,28 +28,28 @@ html.dark body {
 
 /* Basic styles for ReactMarkdown output in API page */
 /* These will apply within the sections holding the markdown content */
-.p-8 h1, .p-8 h2, .p-8 h3, .p-8 h4, .p-8 h5, .p-8 h6 {
+.p-8 > h1, .p-8 > h2, .p-8 > h3, .p-8 > h4, .p-8 > h5, .p-8 > h6 {
   @apply text-white mb-4 mt-6 font-semibold;
 }
-.p-8 h1 { @apply text-3xl; }
-.p-8 h2 { @apply text-2xl; }
-.p-8 h3 { @apply text-xl; }
-.p-8 h4 { @apply text-lg; }
+.p-8 > h1 { @apply text-3xl; }
+.p-8 > h2 { @apply text-2xl; }
+.p-8 > h3 { @apply text-xl; }
+.p-8 > h4 { @apply text-lg; }
 
-.p-8 p {
+.p-8 > p {
   @apply text-gray-300 mb-4 leading-relaxed;
 }
 
-.p-8 ul, .p-8 ol {
+.p-8 > ul, .p-8 > ol {
   @apply text-gray-300 mb-4 ml-6 list-disc;
 }
-.p-8 ol { @apply list-decimal; }
+.p-8 > ol { @apply list-decimal; }
 
-.p-8 li p { /* Adjusted for paragraphs inside list items */
-   @apply mb-1;
+.p-8 > li > p {
+   @apply mb-1; /* Tighter spacing for paragraphs inside list items */
 }
 
-.p-8 blockquote {
+.p-8 > blockquote {
   @apply border-l-4 border-gray-500 pl-4 py-2 my-4 text-gray-400 italic;
 }
 
@@ -63,6 +63,7 @@ html.dark body {
 
 .p-8 pre code {
   @apply bg-transparent text-gray-300 p-0 rounded-none text-sm leading-normal;
+  /* Ensure pre code uses a monospace font if not inherited */
   font-family: var(--font-ibm-plex-mono), monospace;
 }
 

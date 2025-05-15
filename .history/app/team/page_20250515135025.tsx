@@ -51,9 +51,9 @@ interface ColorScheme {
 interface Team {
   id: string;
   name: string;
-  slug: string | null; // Added
-  icon_name: string | null;
-  color_scheme: ColorScheme | null;
+  // Add other fields like description, avatar_url if needed later
+  icon_name: string | null; // Added
+  color_scheme: ColorScheme | null; // Added
 }
 // --- END NEW Team Interface ---
 
@@ -134,7 +134,7 @@ export default function TeamPage() {
       // Step 2: Fetch details for these teams from the 'teams' table
       const { data: teamsData, error: teamsError } = await supabase
         .from('teams') // Assuming this is your main teams table
-        .select('id, name, slug, icon_name, color_scheme') // Added slug
+        .select('id, name, icon_name, color_scheme') // Adjust select based on your 'teams' table columns
         .in('id', teamIds);
 
       if (teamsError) {
@@ -407,7 +407,7 @@ export default function TeamPage() {
                         <IconComponent className={`text-4xl mb-4 ${textColor} opacity-90`} />
                         <h3 className={`text-2xl font-bold mb-2 ${textColor}`}>{team.name}</h3>
                       </div>
-                       <Link href={`/teams/${team.slug || team.id}`} className={`mt-4 inline-block ${textColor} opacity-80 hover:opacity-100 font-medium`}>
+                       <Link href={`/teams/${team.id}`} /* Assuming team.id can be used for navigation for now, ideally slug */ className={`mt-4 inline-block ${textColor} opacity-80 hover:opacity-100 font-medium`}>
                          View Team Details &rarr;
                        </Link>
                     </div>

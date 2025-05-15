@@ -148,38 +148,64 @@ export default function DiaryPage() {
     e.preventDefault();
     setIsSubmittingEntry(true);
 
-    const payload = {
-      title: newEntryTitle,
-      summary: newEntrySummary,
-      action_items: newEntryActionItemTexts.map(text => text.trim()).filter(text => text !== ''),
-    };
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData.session) {
+      alert('Authentication error. Please log in and try again.');
+      setIsSubmittingEntry(false);
+      return;
+    }
+    const userId = sessionData.session.user.id;
 
     try {
-      const response = await fetch('/api/v1/diary/entries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      const { data: diaryEntryData, error: diaryEntryError } = await supabase
+        .from('diary_entries')
+        .insert({
+          title: newEntryTitle,
+          summary: newEntrySummary,
+          user_id: userId,
+          entry_timestamp: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || `API request failed with status ${response.status}`);
+      if (diaryEntryError) {
+        throw diaryEntryError;
       }
 
-      console.log('Diary entry created via API:', result);
+      if (!diaryEntryData) {
+        throw new Error('Failed to create diary entry, no data returned.');
+      }
+
+      const newDiaryEntryId = diaryEntryData.id;
+
+      const validActionItemTexts = newEntryActionItemTexts.map(text => text.trim()).filter(text => text !== '');
+      if (validActionItemTexts.length > 0) {
+        const actionItemsToInsert = validActionItemTexts.map(text => ({
+          diary_entry_id: newDiaryEntryId,
+          user_id: userId,
+          text: text,
+          is_completed: false,
+        }));
+
+        const { error: actionItemsError } = await supabase
+          .from('diary_action_items')
+          .insert(actionItemsToInsert);
+
+        if (actionItemsError) {
+          console.error('Error inserting action items, main entry created but orphaned items might exist:', actionItemsError);
+          throw new Error(`Main entry created, but failed to add action items: ${actionItemsError.message}`);
+        }
+      }
 
       setShowAddEntryModal(false);
       setNewEntryTitle('');
       setNewEntrySummary('');
       setNewEntryActionItemTexts(['']);
       fetchDiaryEntries();
-      alert('Diary entry added successfully via API!');
+      alert('Diary entry added successfully!');
 
     } catch (error: any) {
-      console.error('Error adding diary entry via API:', error);
+      console.error('Error adding diary entry:', error);
       alert(`Failed to add diary entry: ${error.message}`);
     } finally {
       setIsSubmittingEntry(false);
@@ -197,7 +223,7 @@ export default function DiaryPage() {
 
   const handleCreateActionItemsFromEntry = (entry: DiaryEntry) => {
     setCurrentDiaryEntryForTasks(entry);
-    setNewTaskDescriptions(['']);
+    setNewTaskDescriptions(['']); // Reset with one empty task input
     setShowCreateTasksModal(true);
   };
 
@@ -225,10 +251,12 @@ export default function DiaryPage() {
 
       if (tasksToInsert.length === 0) {
         alert('Please enter at least one task description.');
+        // setIsSubmittingTasks(false); // finally block handles this
         return;
       }
 
       for (const taskDesc of tasksToInsert) {
+        // 1. Insert into b0ase_tasks
         const { data: newTaskData, error: taskInsertError } = await supabase
           .from('b0ase_tasks')
           .insert({
@@ -236,6 +264,7 @@ export default function DiaryPage() {
             user_id: userId,
             status: 'TO_DO',
             source_diary_entry_id: currentDiaryEntryForTasks.id,
+            // project_scope_id can be added later if a selector is implemented
           })
           .select('id')
           .single();
@@ -250,6 +279,7 @@ export default function DiaryPage() {
 
         const newTaskId = newTaskData.id;
 
+        // 2. Insert into diary_task_links
         const { error: linkInsertError } = await supabase
           .from('diary_task_links')
           .insert({
@@ -269,6 +299,8 @@ export default function DiaryPage() {
       setShowCreateTasksModal(false);
       setCurrentDiaryEntryForTasks(null);
       setNewTaskDescriptions(['']);
+      // Optionally, refresh diary entries:
+      // fetchDiaryEntries(); 
 
     } catch (error: any) {
       console.error('Error creating tasks from diary entry:', error);
@@ -292,13 +324,15 @@ export default function DiaryPage() {
     const userId = sessionData.session.user.id;
 
     try {
+      // 1. Insert into b0ase_tasks
       const { data: newTaskData, error: taskInsertError } = await supabase
         .from('b0ase_tasks')
         .insert({
-          text: actionItem.text,
+          text: actionItem.text, // Matches 'text' field in app/workinprogress/page.tsx DatabaseTask
           user_id: userId,
-          status: 'TO_DO',
-          source_diary_action_item_id: actionItem.id,
+          status: 'TO_DO', // Default status for WIP tasks
+          source_diary_action_item_id: actionItem.id, // Added for traceability
+          // project_scope_id: null, // Or some default, or allow selection later
         })
         .select('id')
         .single();
@@ -314,21 +348,24 @@ export default function DiaryPage() {
       const newWipTaskId = newTaskData.id;
       const currentTime = new Date().toISOString();
 
+      // 2. Update the diary_action_items record
       const { error: updateActionItemError } = await supabase
         .from('diary_action_items')
         .update({
           sent_to_wip_at: currentTime,
           wip_task_id: newWipTaskId,
-          is_completed: true,
+          is_completed: true, // Mark as completed in diary context as it's now in WIP
         })
         .eq('id', actionItem.id);
 
       if (updateActionItemError) {
+        // Attempt to roll back by deleting the task from b0ase_tasks if updating action item fails
         console.warn('Failed to update action item after creating WIP task. Attempting to delete orphaned WIP task.');
         await supabase.from('b0ase_tasks').delete().eq('id', newWipTaskId);
         throw new Error(`Failed to update diary action item: ${updateActionItemError.message}`);
       }
 
+      // 3. Update local state
       setEntries(prevEntries =>
         prevEntries.map(entry => ({
           ...entry,
@@ -430,7 +467,7 @@ export default function DiaryPage() {
                           <button
                             onClick={() => handleSendToWIP(actionItem)}
                             disabled={actionItem.sent_to_wip_at !== null}
-                            className="ml-3 px-2 py-1 text-xs bg-sky-700 hover:bg-sky-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150"
+                            className="ml-3 px-2 py-1 text-xs bg-sky-700 hover:bg-sky-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100"
                           >
                             {actionItem.sent_to_wip_at ? 'Sent' : 'Send to WIP'}
                           </button>
@@ -599,6 +636,8 @@ export default function DiaryPage() {
                   <FaPlusCircle className="mr-1.5" /> Add Another Task
                 </button>
               </div>
+
+              {/* Placeholder for project scope selector if needed later */}
 
               <div className="flex justify-end space-x-3 mt-8">
                 <button

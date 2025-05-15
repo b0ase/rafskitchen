@@ -932,45 +932,6 @@ export default function ProfilePage() {
           </section>
           {/* --- END NEW Section for Skill Badges --- */}
 
-          {/* User Teams Display Section - Moved here and renamed */}
-          <section className="mt-10 pb-6 mb-10 border-b border-gray-700">
-            <h3 className="text-xl font-semibold text-sky-400 mb-5 flex items-center">
-              <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
-            </h3>
-            {loadingUserTeams && (
-              <div className="flex items-center text-gray-400">
-                <FaSpinner className="animate-spin mr-2" /> Loading teams...
-              </div>
-            )}
-            {errorUserTeams && (
-              <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
-            )}
-            {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
-              <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
-            )}
-            {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-                {userTeams.map(team => {
-                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
-                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
-                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
-                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
-                  return (
-                    <Link 
-                      href={`/teams/${team.slug || team.id}`} 
-                      key={team.id} 
-                      className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
-                    >
-                      <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
-                      <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-          {/* End User Teams Display Section */}
-
           {avatarUploadError && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm shadow text-center">{avatarUploadError}</p>}
           {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error.split('\n').map((line, idx) => <React.Fragment key={idx}>{line}<br/></React.Fragment>)}</p>}
           {successMessage && <p className="text-green-400 bg-green-900/30 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}
@@ -1057,6 +1018,45 @@ export default function ProfilePage() {
               </div>
             </form>
           )}
+
+          {/* User Teams Display Section */}
+          <div className="mt-8 p-6 bg-gray-800 bg-opacity-70 backdrop-blur-md shadow-2xl rounded-xl border border-gray-700">
+            <h3 className="text-xl font-semibold text-sky-400 mb-5 flex items-center">
+              <FaUsers className="mr-3 text-2xl text-sky-500" /> Member Of
+            </h3>
+            {loadingUserTeams && (
+              <div className="flex items-center text-gray-400">
+                <FaSpinner className="animate-spin mr-2" /> Loading teams...
+              </div>
+            )}
+            {errorUserTeams && (
+              <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
+              <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {userTeams.map(team => {
+                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
+                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
+                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+                  return (
+                    <Link 
+                      href={`/teams/${team.slug || team.id}`} 
+                      key={team.id} 
+                      className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
+                    >
+                      <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
+                      <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          {/* End User Teams Display Section */}
         </div>
       </main>
     </div>
