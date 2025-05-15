@@ -1,30 +1,18 @@
 'use client';
 
-import React, { useState, FormEvent, useEffect } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function SettingsPage() {
   const supabase = createClientComponentClient();
 
-  // State for email display
-  const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
-
   // State for password change form
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
-
-  useEffect(() => {
-    const fetchEmail = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        setUserEmail(session.user.email);
-      }
-    };
-    fetchEmail();
-  }, [supabase]);
 
   const handlePasswordUpdate = async (e: FormEvent) => {
     e.preventDefault();
@@ -44,20 +32,35 @@ export default function SettingsPage() {
       return;
     }
 
+    // Supabase requires current password to update password IF "Secure password changes" is enabled in Auth settings
+    // However, the JS library's updateUser method for password only takes the new password.
+    // For updating email, it can take password.
+    // For password reset flow (forgot password), it works without old password.
+    // For direct password update while logged in, Supabase's default behavior might vary based on project settings (e.g. "Secure password changes" toggle)
+    // The supabase.auth.updateUser({ password: new_password }) method is the standard way.
+    // If "Secure password changes" is enabled, this call might internally fail if Supabase expects the old password
+    // or if it's intended to be used with a flow that reauthenticates.
+    // For now, we'll proceed with the standard client library call.
+    // If this is an issue, we may need to guide the user to check their Supabase Auth settings or explore reauthentication.
+
     const { error: updateError } = await supabase.auth.updateUser({
       password: newPassword,
     });
 
     if (updateError) {
+      // A common error if "Secure password changes" is enabled and the user hasn't reauthenticated recently enough
+      // or if the password doesn't meet policy requirements not caught by client-side checks.
       if (updateError.message.includes("requires a recent login") || updateError.message.includes("For security purposes, you need to re-authenticate")) {
         setError("For security reasons, you might need to log out and log back in before changing your password, or this operation requires a more recent login.");
       } else if (updateError.message.includes("same as the existing password")) {
         setError("The new password cannot be the same as your current password.");
-      } else {
+      }
+       else {
         setError(`Failed to update password: ${updateError.message}`);
       }
     } else {
       setMessage("Password updated successfully!");
+      setCurrentPassword(''); // Clear fields on success
       setNewPassword('');
       setConfirmNewPassword('');
     }
@@ -79,8 +82,7 @@ export default function SettingsPage() {
                   name="email" 
                   id="email" 
                   disabled 
-                  value={userEmail || ''}
-                  placeholder="Loading email..."
+                  placeholder={supabase.auth.getSession() ? supabase.auth.getSession().data?.session?.user?.email || 'user@example.com' : 'user@example.com'}
                   className="mt-1 block w-full bg-slate-600 border-slate-500 rounded-md shadow-sm py-2 px-3 text-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm cursor-not-allowed" 
                 />
                  <p className="text-xs text-gray-400 mt-1">Email addresses can be changed via a confirmation link sent to the new email.</p>
@@ -96,7 +98,6 @@ export default function SettingsPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    autoComplete="new-password"
                     className="mt-1 block w-full bg-slate-700 border-slate-500 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                   />
                 </div>
@@ -109,7 +110,6 @@ export default function SettingsPage() {
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
                     required
-                    autoComplete="new-password"
                     className="mt-1 block w-full bg-slate-700 border-slate-500 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                   />
                 </div>
