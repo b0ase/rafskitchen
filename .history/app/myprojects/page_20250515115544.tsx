@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers } from 'react-icons/fa'; // Added FaEdit, FaTrash, FaUsers
 import {
   DndContext,
   closestCenter,
@@ -35,7 +35,6 @@ interface ClientProject {
   badge4?: string | null; // New
   badge5?: string | null; // New
   user_id: string; // ADDED: To confirm ownership for manage actions
-  website?: string | null; // CORRECTED from website_url to website
   // Add other fields you want to display
 }
 
@@ -201,9 +200,16 @@ function SortableProjectCard({
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
         <div className="flex items-center gap-x-3">
-          <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
-            <a className="text-2xl font-semibold text-sky-400 hover:text-sky-300 transition-colors">
-              {project.name}
+          <span className="text-2xl font-semibold text-sky-400">
+            {project.name}
+          </span>
+          <Link href={`/myprojects/${project.project_slug}/edit`} passHref legacyBehavior>
+            <a 
+              className="text-gray-400 hover:text-sky-400 transition-colors relative z-10" 
+              title="Edit Project"
+              onClick={(e) => e.stopPropagation()} 
+            >
+              <FaEdit />
             </a>
           </Link>
         </div>
@@ -220,24 +226,13 @@ function SortableProjectCard({
         )}
       </div>
 
-      {/* Links: View Dashboard and View Live Site */}
-      <div className="mb-4 mt-1 flex flex-wrap gap-3 items-center">
+      {/* New styled Link for View Project Dashboard */}
+      <div className="mb-4 mt-1">
         <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
           <a className="inline-flex items-center justify-center px-3 py-1.5 border border-sky-600 text-sm font-medium rounded-md text-sky-300 bg-sky-700 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors">
             <FaProjectDiagram className="mr-2 h-4 w-4" /> View Dashboard
           </a>
         </Link>
-        {project.website && (
-          <a 
-            href={project.website}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-green-600 text-sm font-medium rounded-md text-green-300 bg-green-700 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-green-500 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FaExternalLinkAlt className="mr-2 h-4 w-4" /> View Live Site
-          </a>
-        )}
       </div>
 
       {/* Badge select elements */}
@@ -372,42 +367,75 @@ export default function MyProjectsPage() {
     })
   );
 
-  const fetchUserAndProjects = async () => {
+  const fetchUserAndProjects = async (currentUser: User | null) => {
     setLoadingProjects(true);
-    setError(null); // Clear main page error
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    
-    if (authUser) {
-      setUser(authUser);
+    setError(null); 
+
+    if (currentUser) {
+      // setUser(currentUser); // User state is now set by onAuthStateChange effect
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id, website') // CORRECTED from website_url to website
-        .eq('user_id', authUser.id)
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id')
+        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
       if (projectError) {
         console.error('Error fetching projects:', projectError);
         setError(`Could not load projects. DB Error: ${projectError.message}`);
-        setProjects([]); // Ensure projects is empty on error
+        setProjects([]);
       } else {
         setProjects(projectData || []);
       }
     } else {
       setError('You must be logged in to view your projects.');
-      setProjects([]); // Ensure projects is empty if no user
+      setProjects([]); 
     }
-    setUpdatingItemId(null);
-    setIsDeleteModalOpen(false);
+    setUpdatingItemId(null); // Should these be here or in a finally block?
+    setIsDeleteModalOpen(false); // Consider if these resets are always appropriate here
     setLoadingProjects(false);
   };
 
   useEffect(() => {
-    fetchUserAndProjects();
-  }, [supabase]);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        if (currentUser) {
+          fetchUserAndProjects(currentUser);
+        } else {
+          // No user in session, clear projects and show login message
+          setProjects([]);
+          setError('You must be logged in to view your projects.');
+          setLoadingProjects(false);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setProjects([]);
+        setError('You have been signed out.');
+        setLoadingProjects(false);
+      }
+    });
+
+    // Initial fetch if user is already available (e.g. from SSR or cache)
+    // This might be redundant if INITIAL_SESSION fires reliably
+    // supabase.auth.getUser().then(({ data: { user: initialUser } }) => {
+    //   if (initialUser && !user) { // only if user not already set by onAuthStateChange
+    //      setUser(initialUser);
+    //      fetchUserAndProjects(initialUser);
+    //   } else if (!initialUser && !user) {
+    //      setLoadingProjects(false); // No initial user, stop loading
+    //      setError('You must be logged in to view your projects.');
+    //   }
+    // });
+
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, [supabase]); // supabase is stable, this effect runs once to set up listener
 
   const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => {
-    if (!user) return;
-    setUpdatingItemId(projectId); // Indicate loading for this specific project item
+    if (!user) return; // User state is now reliably set by the auth listener
+    setUpdatingItemId(projectId);
     const payload: { [key: string]: string | null } = {};
     // If "Pending_setup" is selected for badge1 and it's the effective default (was null before),
     // we might want to store null, or store "Pending_setup". Let's store "Pending_setup".
@@ -521,6 +549,10 @@ export default function MyProjectsPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
+            <div className="flex items-center mb-4 sm:mb-0">
+                <FaProjectDiagram className="text-3xl text-sky-400 mr-3" />
+                <h1 className="text-3xl md:text-4xl font-bold text-white">My Projects</h1>
+            </div>
             {user && (
                 <Link href="/projects/new" passHref legacyBehavior>
                     <a className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg">

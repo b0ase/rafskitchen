@@ -29,14 +29,6 @@ interface PlatformUser {
   display_name: string; // Or username, whatever is best for display
 }
 
-// --- NEW Team Interface ---
-interface Team {
-  id: string;
-  name: string;
-  // Add other fields like description, avatar_url if needed later
-}
-// --- END NEW Team Interface ---
-
 // Enum for roles (mirroring the SQL ENUM)
 enum ProjectRole {
   ProjectManager = 'project_manager',
@@ -50,12 +42,6 @@ export default function TeamPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
-
-  // --- NEW State for User's Teams ---
-  const [userTeams, setUserTeams] = useState<Team[]>([]);
-  const [isLoadingUserTeams, setIsLoadingUserTeams] = useState(false);
-  const [errorFetchingUserTeams, setErrorFetchingUserTeams] = useState<string | null>(null);
-  // --- END NEW State for User's Teams ---
 
   const [managedProjects, setManagedProjects] = useState<ManagedProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -86,51 +72,6 @@ export default function TeamPage() {
     };
     getUser();
   }, [supabase, router]);
-
-  // --- NEW Function to Fetch User's Teams ---
-  const fetchUserTeams = useCallback(async (userId: string) => {
-    if (!userId) return;
-    setIsLoadingUserTeams(true);
-    setErrorFetchingUserTeams(null);
-    try {
-      // Step 1: Get team_ids from user_team_memberships join table
-      const { data: teamUserEntries, error: teamUserError } = await supabase
-        .from('user_team_memberships') // Corrected table name
-        .select('team_id')
-        .eq('user_id', userId);
-
-      if (teamUserError) {
-        throw teamUserError;
-      }
-
-      if (!teamUserEntries || teamUserEntries.length === 0) {
-        setUserTeams([]);
-        setIsLoadingUserTeams(false);
-        return;
-      }
-
-      const teamIds = teamUserEntries.map(entry => entry.team_id);
-
-      // Step 2: Fetch details for these teams from the 'teams' table
-      const { data: teamsData, error: teamsError } = await supabase
-        .from('teams') // Assuming this is your main teams table
-        .select('id, name') // Adjust select based on your 'teams' table columns
-        .in('id', teamIds);
-
-      if (teamsError) {
-        throw teamsError;
-      }
-      setUserTeams(teamsData || []);
-
-    } catch (e: any) {
-      console.error('Error fetching user teams:', e);
-      setErrorFetchingUserTeams(`Failed to load your teams: ${e.message}`);
-      setUserTeams([]);
-    } finally {
-      setIsLoadingUserTeams(false);
-    }
-  }, [supabase]);
-  // --- END NEW Function ---
 
   const fetchManagedProjects = useCallback(async (userId: string) => {
     if (!userId) return;
@@ -259,9 +200,8 @@ export default function TeamPage() {
     if (user?.id) {
       fetchManagedProjects(user.id);
       fetchPlatformUsers(); // Fetch all users once the main user is loaded
-      fetchUserTeams(user.id); // --- NEW: Fetch user's teams ---
     }
-  }, [user, fetchManagedProjects, fetchPlatformUsers, fetchUserTeams]); // --- UPDATED dependencies ---
+  }, [user, fetchManagedProjects, fetchPlatformUsers]);
 
   useEffect(() => {
     if (selectedProjectId) {
@@ -346,39 +286,6 @@ export default function TeamPage() {
 
         {error && !successMessage && <p className="text-red-500 bg-red-900/30 p-3 rounded-md mb-6">{error}</p>}
         {successMessage && <p className="text-green-400 bg-green-900/30 p-3 rounded-md mb-6">{successMessage}</p>}
-        {errorFetchingUserTeams && <p className="text-red-500 bg-red-900/30 p-3 rounded-md mb-6">{errorFetchingUserTeams}</p>}
-
-        {/* --- NEW "My Teams" Section --- */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-white mb-6 border-b border-gray-700 pb-3">My Teams</h2>
-          {isLoadingUserTeams && (
-            <div className="flex items-center justify-center p-6 rounded-md bg-gray-800/50 border border-gray-700">
-              <FaSpinner className="animate-spin text-sky-500 text-2xl mr-3" />
-              <p className="text-gray-300">Loading your teams...</p>
-            </div>
-          )}
-          {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length === 0 && (
-            <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md text-center">
-              <p className="text-gray-500 mb-3">You are not currently a member of any teams.</p>
-              <Link href="/teams/join" passHref legacyBehavior>
-                <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-md text-sm transition-colors shadow hover:shadow-md">
-                  Explore and Join Teams
-                </a>
-              </Link>
-            </div>
-          )}
-          {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {userTeams.map(team => (
-                <div key={team.id} className="bg-gray-800 border border-gray-700 shadow-md rounded-lg p-4 hover:bg-gray-700/60 transition-colors">
-                  <h3 className="text-md font-semibold text-sky-400 truncate" title={team.name}>{team.name}</h3>
-                  {/* Placeholder for more team details or actions if needed later */}
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-        {/* --- END "My Teams" Section --- */}
 
         <section className="mb-12">
           <h2 className="text-2xl font-semibold text-white mb-6 border-b border-gray-700 pb-3">Managed Projects</h2>

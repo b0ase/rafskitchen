@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers } from 'react-icons/fa'; // Added FaEdit, FaTrash, FaUsers
 import {
   DndContext,
   closestCenter,
@@ -35,7 +35,6 @@ interface ClientProject {
   badge4?: string | null; // New
   badge5?: string | null; // New
   user_id: string; // ADDED: To confirm ownership for manage actions
-  website?: string | null; // CORRECTED from website_url to website
   // Add other fields you want to display
 }
 
@@ -201,9 +200,16 @@ function SortableProjectCard({
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
         <div className="flex items-center gap-x-3">
-          <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
-            <a className="text-2xl font-semibold text-sky-400 hover:text-sky-300 transition-colors">
-              {project.name}
+          <span className="text-2xl font-semibold text-sky-400">
+            {project.name}
+          </span>
+          <Link href={`/myprojects/${project.project_slug}/edit`} passHref legacyBehavior>
+            <a 
+              className="text-gray-400 hover:text-sky-400 transition-colors relative z-10" 
+              title="Edit Project"
+              onClick={(e) => e.stopPropagation()} 
+            >
+              <FaEdit />
             </a>
           </Link>
         </div>
@@ -220,24 +226,13 @@ function SortableProjectCard({
         )}
       </div>
 
-      {/* Links: View Dashboard and View Live Site */}
-      <div className="mb-4 mt-1 flex flex-wrap gap-3 items-center">
+      {/* New styled Link for View Project Dashboard */}
+      <div className="mb-4 mt-1">
         <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
           <a className="inline-flex items-center justify-center px-3 py-1.5 border border-sky-600 text-sm font-medium rounded-md text-sky-300 bg-sky-700 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors">
             <FaProjectDiagram className="mr-2 h-4 w-4" /> View Dashboard
           </a>
         </Link>
-        {project.website && (
-          <a 
-            href={project.website}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-green-600 text-sm font-medium rounded-md text-green-300 bg-green-700 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-green-500 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FaExternalLinkAlt className="mr-2 h-4 w-4" /> View Live Site
-          </a>
-        )}
       </div>
 
       {/* Badge select elements */}
@@ -381,7 +376,7 @@ export default function MyProjectsPage() {
       setUser(authUser);
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id, website') // CORRECTED from website_url to website
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id') // ADDED user_id
         .eq('user_id', authUser.id)
         .order('created_at', { ascending: false });
 
@@ -521,6 +516,10 @@ export default function MyProjectsPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
+            <div className="flex items-center mb-4 sm:mb-0">
+                <FaProjectDiagram className="text-3xl text-sky-400 mr-3" />
+                <h1 className="text-3xl md:text-4xl font-bold text-white">My Projects</h1>
+            </div>
             {user && (
                 <Link href="/projects/new" passHref legacyBehavior>
                     <a className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg">

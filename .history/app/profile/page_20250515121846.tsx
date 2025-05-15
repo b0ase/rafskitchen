@@ -638,14 +638,14 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col pt-6 md:pt-10 pb-12">
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          {/* --- RESTORED WELCOME CARD SECTION --- */}
+          
           <section className="mb-12 p-6 md:p-8 bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-500 rounded-xl shadow-2xl text-white border border-sky-500/60">
             <div className="flex flex-col md:flex-row items-center">
               <FaRocket className="text-5xl md:text-6xl text-sky-200 mr-0 md:mr-6 mb-4 md:mb-0 flex-shrink-0" />
               <div className="text-center md:text-left flex-grow">
                 <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
                 <p className="text-sky-100 mb-6 text-lg leading-relaxed">
-                  Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it\'s a website, a mobile app, an AI solution, or something entirely new, we\'re here to help you build it.
+                  Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
                   <Link href="/projects/new" passHref legacyBehavior>
@@ -677,7 +677,8 @@ export default function ProfilePage() {
               </div>
             </div>
           </section>
-          {/* --- END RESTORED WELCOME CARD SECTION --- */}
+
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Your Profile</h1>
 
           <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
             {/* --- NEW Simplified Avatar Display and Upload --- */}
@@ -911,37 +912,312 @@ export default function ProfilePage() {
                 <div className="mt-6">
                   <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1.5">
                     <FaInfoCircle className="inline mr-2 mb-0.5 text-gray-500" /> Bio / About Me
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-300 py-8 px-4 md:px-8 lg:px-12">
+      <div className="max-w-5xl mx-auto">
+        
+        <section className="mb-12 p-6 md:p-8 bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-500 rounded-xl shadow-2xl text-white border border-sky-500/60">
+          <div className="flex flex-col md:flex-row items-center">
+            <FaRocket className="text-5xl md:text-6xl text-sky-200 mr-0 md:mr-6 mb-4 md:mb-0 flex-shrink-0" />
+            <div className="text-center md:text-left flex-grow">
+              <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
+              <p className="text-sky-100 mb-6 text-lg leading-relaxed">
+                Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it's a website, a mobile app, an AI solution, or something entirely new, we're here to help you build it.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+                <Link href="/projects/new" passHref legacyBehavior>
+                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                    <FaRocket className="mr-2 h-4 w-4" /> Start a New Project
+                  </a>
+                </Link>
+                <Link href="/teams/new" passHref legacyBehavior>
+                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                    <FaPlusSquare className="mr-2 h-4 w-4" /> Start a New Team
+                  </a>
+                </Link>
+                <Link href="/projects/join" passHref legacyBehavior>
+                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                    <FaHandshake className="mr-2 h-4 w-4" /> Join a Project
+                  </a>
+                </Link>
+                <Link href="/teams/join" passHref legacyBehavior>
+                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                    <FaUsers className="mr-2 h-4 w-4" /> Join a Team
+                  </a>
+                </Link>
+                <Link href="/careers" passHref legacyBehavior>
+                  <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-orange-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-orange-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                    <FaBriefcase className="mr-2 h-4 w-4" /> Careers
+                  </a>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Your Profile</h1>
+
+        <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
+          {/* --- NEW Simplified Avatar Display and Upload --- */}
+          <div className="relative mr-0 sm:mr-6 mb-4 sm:mb-0">
+            {profile?.avatar_url ? (
+              <img 
+                src={profile.avatar_url} 
+                alt="Avatar" 
+                className="w-24 h-24 rounded-full border-4 border-sky-600 object-cover shadow-md" 
+                crossOrigin="anonymous"
+              />
+            ) : (
+              <FaUserCircle 
+                className="text-7xl text-sky-500 w-24 h-24" 
+              />
+            )}
+            {isUploadingAvatar && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+              </div>
+            )}
+            <label 
+              htmlFor="simpleAvatarUpload"
+              className="absolute -bottom-2 -right-2 cursor-pointer bg-sky-600 hover:bg-sky-700 text-white p-2 rounded-full shadow-md transition-transform transform hover:scale-110"
+              title="Change avatar"
+            >
+              <FaImage className="w-4 h-4" />
+              <input
+                type="file"
+                id="simpleAvatarUpload"
+                name="simpleAvatarUpload"
+                accept="image/png, image/jpeg, image/gif, image/webp"
+                onChange={handleSimpleAvatarUpload}
+                className="sr-only"
+                disabled={isUploadingAvatar}
+              />
+            </label>
+          </div>
+          {/* --- END NEW Simplified Avatar Display and Upload --- */}
+          
+          <div className="text-center sm:text-left ml-0 sm:ml-6 flex-grow">
+            {/* Editable Display Name */}
+            <input
+              type="text"
+              value={newDisplayName}
+              onChange={(e) => setNewDisplayName(e.target.value)}
+              maxLength={50}
+              placeholder="Your Display Name"
+              className="text-3xl font-semibold text-white bg-transparent focus:outline-none focus:border-b focus:border-sky-500 w-full mb-0.5 placeholder-gray-500"
+              aria-label="Display Name"
+            />
+            {/* Static Username Display */}
+            {profile?.username && (
+              <p className="text-md text-gray-400 mt-0">@{profile.username}</p>
+            )}
+            <p className="text-lg text-gray-400 mt-1 hidden sm:block">Manage your public identity, personal information, and online presence.</p>
+          </div>
+        </div>
+
+        {/* --- NEW Section to Display Selected Skill Badges --- */}
+        <section className="mb-10 pb-6 border-b border-gray-700">
+          <div className="flex justify-between items-center mb-4">
+             <h3 className="text-xl font-semibold text-sky-400">My Skills</h3>
+          </div>
+          
+          {loadingSkills ? (
+            <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
+              <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
+              <p className="text-lg text-gray-300">Loading your skills...</p>
+            </div>
+          ) : error && !profile ? (
+            <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
+          ) : (
+            <div>
+              {selectedSkills.length > 0 && (
+                <div className="mb-6 p-4 bg-gray-750 rounded-lg border border-gray-600 flex flex-wrap gap-2">
+                  {selectedSkills.map(skill => (
+                    <span 
+                      key={skill.id} 
+                      className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
+                      title={skill.description || skill.name}
+                    >
+                      {skill.name}
+                      <button
+                        onClick={() => handleSkillToggle(skill.id, true)}
+                        disabled={savingSkills}
+                        className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
+                        aria-label={`Remove ${skill.name} skill`}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {(!loadingSkills && selectedSkills.length === 0) && (
+                <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750">
+                  <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
+                  <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
+                </div>
+              )}
+              <h3 className="text-xl font-semibold mb-6 text-gray-200">Add New Skills</h3>
+              {loadingSkills && allSkills.length === 0 ? (
+                <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
+                  <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
+                  <p className="text-md text-gray-300">Loading available skills...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <input
+                    type="text"
+                    value={customSkillInput}
+                    onChange={(e) => setCustomSkillInput(e.target.value)}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter' && customSkillInput.trim()) {
+                        e.preventDefault();
+                        await handleAddCustomSkill(customSkillInput.trim());
+                      }
+                    }}
+                    placeholder="+ Type custom skill & Enter"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={savingSkills}
+                    title="Add a skill not in the list"
+                  />
+                  {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
+                    <div className="inline-block relative animate-fadeInQuickly">
+                      <select 
+                        value={skillChoiceInAdder}
+                        onChange={async (e) => {
+                          const selectedValue = e.target.value;
+                          if (selectedValue) {
+                            setSkillChoiceInAdder(selectedValue); 
+                            await handleSkillToggle(selectedValue, false); 
+                            setSkillChoiceInAdder(''); 
+                          }
+                        }}
+                        disabled={savingSkills}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                                    ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
+                      >
+                        <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
+                        {Object.entries(
+                          allSkills
+                            .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
+                            .reduce((acc, skill) => {
+                              const category = skill.category || 'Other';
+                              if (!acc[category]) acc[category] = [];
+                              acc[category].push(skill);
+                              return acc;
+                            }, {} as Record<string, Skill[]>)
+                        ).map(([category, skillsInCategory]) => (
+                          <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                            {skillsInCategory.map(skill => (
+                              <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                {skill.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+              {userSkillIds.size > 0 && 
+               !loadingSkills && 
+               allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
+               allSkills.some(skill => skill.category !== 'User-defined') &&
+              (
+                <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
+              )}
+            </div>
+          )}
+        </section>
+        {/* --- END NEW Section for Skill Badges --- */}
+
+        {avatarUploadError && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm shadow text-center">{avatarUploadError}</p>}
+        {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error.split('\n').map((line, idx) => <React.Fragment key={idx}>{line}<br/></React.Fragment>)}</p>}
+        {successMessage && <p className="text-green-400 bg-green-900/30 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}
+        
+        {!user || !profile ? (
+          <p className="text-center text-gray-400 py-10">Could not load profile information. Please try again later.</p>
+        ) : (
+          <form onSubmit={handleUpdateProfile} className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Username
                   </label>
-                  <textarea
-                    id="bio" value={newBio} onChange={(e) => setNewBio(e.target.value)}
-                    rows={5} maxLength={500} placeholder="Share a bit about yourself, your skills, or interests (max 500 characters)."
+                  <input
+                    type="text" id="username" value={newUsername} onChange={(e) => setNewUsername(e.target.value)}
+                    required minLength={3} maxLength={20} placeholder="e.g., janedoe (publicly visible)"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                  />
+                  <p className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
+                </div>
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaSignature className="inline mr-2 mb-0.5 text-gray-500" /> Full Name (Optional)
+                  </label>
+                  <input
+                    type="text" id="fullName" value={newFullName} onChange={(e) => setNewFullName(e.target.value)}
+                    maxLength={100} placeholder="Your full legal name (private)"
                     className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
                 </div>
-              </section>
-              
-              <div className="pt-8 border-t border-gray-700">
-                <button
-                  type="submit"
-                  disabled={saving || 
-                      (
-                        newUsername === (profile?.username || '') &&
-                        newDisplayName === (profile?.display_name || '') &&
-                        newFullName === (profile?.full_name || '') &&
-                        newBio === (profile?.bio || '') &&
-                        newWebsiteUrl === (profile?.website_url || '')
-                      )
-                  }
-                  className="w-full sm:w-auto float-right inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
-                >
-                  <FaSave className="mr-2.5 h-5 w-5" />
-                  {saving ? 'Saving Profile...' : 'Save Profile Changes'}
-                </button>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Email Address
+                  </label>
+                  <input type="email" id="email" value={user.email || 'Not available'} disabled
+                    className="w-full px-4 py-2.5 bg-gray-800/70 border-gray-700 rounded-md text-gray-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-600 shadow-sm"
+                  />
+                </div>
+            </div>
+
+            <section>
+              <h3 className="text-xl font-semibold text-sky-400 mb-4 pb-2 border-b border-gray-700">Online Presence</h3>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div>
+                  <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaLink className="inline mr-2 mb-0.5 text-gray-500" /> Website URL
+                  </label>
+                  <input
+                    type="url" id="websiteUrl" value={newWebsiteUrl} onChange={(e) => setNewWebsiteUrl(e.target.value)}
+                    placeholder="https://your-portfolio.com"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                  />
+                </div>
               </div>
-            </form>
-          )}
-        </div>
-      </main>
+              <div className="mt-6">
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <FaInfoCircle className="inline mr-2 mb-0.5 text-gray-500" /> Bio / About Me
+                </label>
+                <textarea
+                  id="bio" value={newBio} onChange={(e) => setNewBio(e.target.value)}
+                  rows={5} maxLength={500} placeholder="Share a bit about yourself, your skills, or interests (max 500 characters)."
+                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                />
+              </div>
+            </section>
+            
+            <div className="pt-8 border-t border-gray-700">
+              <button
+                type="submit"
+                disabled={saving || 
+                    (
+                      newUsername === (profile?.username || '') &&
+                      newDisplayName === (profile?.display_name || '') &&
+                      newFullName === (profile?.full_name || '') &&
+                      newBio === (profile?.bio || '') &&
+                      newWebsiteUrl === (profile?.website_url || '')
+                    )
+                }
+                className="w-full sm:w-auto float-right inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
+              >
+                <FaSave className="mr-2.5 h-5 w-5" />
+                {saving ? 'Saving Profile...' : 'Save Profile Changes'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 } 

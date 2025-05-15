@@ -93,9 +93,9 @@ export default function TeamPage() {
     setIsLoadingUserTeams(true);
     setErrorFetchingUserTeams(null);
     try {
-      // Step 1: Get team_ids from user_team_memberships join table
+      // Step 1: Get team_ids from team_users join table
       const { data: teamUserEntries, error: teamUserError } = await supabase
-        .from('user_team_memberships') // Corrected table name
+        .from('team_users') // Assuming this is your join table
         .select('team_id')
         .eq('user_id', userId);
 

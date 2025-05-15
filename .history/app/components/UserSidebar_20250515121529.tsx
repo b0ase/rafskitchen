@@ -326,38 +326,33 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
   useEffect(() => {
     let activeContext: PageContextType | null = null;
 
-    // Explicitly check for settings page first
-    if (pathname === '/settings') {
-      activeContext = { title: 'Settings', icon: FaLightbulb, href: '/settings' };
-    } else {
-      const exactMatch = allNavLinks.find(link => 
-        link.href === pathname || 
-        (link.href === '/profile' && pathname === '/')
-      );
+    const exactMatch = allNavLinks.find(link => 
+      link.href === pathname || 
+      (link.href === '/profile' && pathname === '/')
+    );
 
-      if (exactMatch) {
-        activeContext = { title: exactMatch.title, icon: exactMatch.icon, href: exactMatch.href };
-      } else {
-        const partialMatches = allNavLinks.filter(
-          link => link.href !== '/' && pathname.startsWith(link.href + '/') 
-        );
-        if (partialMatches.length > 0) {
-          partialMatches.sort((a, b) => b.href.length - a.href.length);
-          const bestMatch = partialMatches[0];
-          activeContext = { title: bestMatch.title, icon: bestMatch.icon, href: bestMatch.href };
-        } 
-        else if (pathname === '/') {
-          const profileLink = allNavLinks.find(link => link.href === '/profile');
-          if (profileLink) {
-            activeContext = { title: profileLink.title, icon: profileLink.icon, href: profileLink.href };
-          } else {
-            activeContext = { title: 'Dashboard', icon: null, href: '/' }; // Default for root
-          }
+    if (exactMatch) {
+      activeContext = { title: exactMatch.title, icon: exactMatch.icon, href: exactMatch.href };
+    } else {
+      const partialMatches = allNavLinks.filter(
+        link => link.href !== '/' && pathname.startsWith(link.href + '/') 
+      );
+      if (partialMatches.length > 0) {
+        partialMatches.sort((a, b) => b.href.length - a.href.length);
+        const bestMatch = partialMatches[0];
+        activeContext = { title: bestMatch.title, icon: bestMatch.icon, href: bestMatch.href };
+      } 
+      else if (pathname === '/') {
+        const profileLink = allNavLinks.find(link => link.href === '/profile');
+        if (profileLink) {
+          activeContext = { title: profileLink.title, icon: profileLink.icon, href: profileLink.href };
+        } else {
+          activeContext = { title: 'Dashboard', icon: null, href: '/' }; // Default for root
         }
       }
     }
     
-    if (!activeContext && pathname !== '/' && pathname !== '/login' && pathname !== '/signup' && pathname !== '/settings') {
+    if (!activeContext && pathname !== '/' && pathname !== '/login' && pathname !== '/signup') {
         // If still no context and not on a known non-context page, set a generic one
         activeContext = { title: "Application", icon: null, href: pathname };
     }

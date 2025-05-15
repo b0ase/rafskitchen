@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers } from 'react-icons/fa'; // Added FaEdit, FaTrash, FaUsers
 import {
   DndContext,
   closestCenter,
@@ -35,7 +35,6 @@ interface ClientProject {
   badge4?: string | null; // New
   badge5?: string | null; // New
   user_id: string; // ADDED: To confirm ownership for manage actions
-  website?: string | null; // CORRECTED from website_url to website
   // Add other fields you want to display
 }
 
@@ -156,7 +155,7 @@ function SortableProjectCard({
   handleBadgeChange, 
   handleIsFeaturedToggle, 
   openDeleteModal,
-  currentUser,
+  currentUser, // ADDED
   getCardDynamicBorderStyle,
   getPriorityOrderValue,
   badge1Options,
@@ -182,171 +181,176 @@ function SortableProjectCard({
     zIndex: isDragging ? 100 : 'auto',
   };
 
-  // The outermost div is now for dnd-kit listeners and base styling (including padding).
-  // No navigation onClick, role, or tabIndex here.
   return (
     <div 
       ref={setNodeRef} 
       style={style} 
       {...attributes} 
       {...listeners} 
-      className={`${getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3))} p-6`}
+      className={getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3))}
     >
-      {/* Content that was previously inside the full-card <a> tag now sits directly here. */}
-      {updatingItemId === project.id && (
-        <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-[20]">
-          <FaSpinner className="animate-spin text-sky-500 text-3xl" />
-        </div>
-      )}
-      
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
-        <div className="flex items-center gap-x-3">
-          <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
-            <a className="text-2xl font-semibold text-sky-400 hover:text-sky-300 transition-colors">
-              {project.name}
-            </a>
-          </Link>
-        </div>
-        {currentUser && project.user_id === currentUser.id && (
-          <Link href={`/myprojects/${project.project_slug}/manage-members`} passHref legacyBehavior>
-            <a 
-              className="mt-2 sm:mt-0 ml-0 sm:ml-auto inline-flex items-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-1.5 px-3 rounded-md text-xs transition-colors shadow hover:shadow-md relative z-10"
-              onClick={(e) => e.stopPropagation()} 
-            >
-              <FaUsers className="mr-1.5 h-3 w-3" /> 
-              Invite Members
-            </a>
-          </Link>
-        )}
-      </div>
+      <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
+        <a 
+          className="block w-full h-full p-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500/70"
+          onClick={(e) => {
+            if (e.defaultPrevented) {
+              return;
+            }
 
-      {/* Links: View Dashboard and View Live Site */}
-      <div className="mb-4 mt-1 flex flex-wrap gap-3 items-center">
-        <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
-          <a className="inline-flex items-center justify-center px-3 py-1.5 border border-sky-600 text-sm font-medium rounded-md text-sky-300 bg-sky-700 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors">
-            <FaProjectDiagram className="mr-2 h-4 w-4" /> View Dashboard
-          </a>
-        </Link>
-        {project.website && (
-          <a 
-            href={project.website}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-green-600 text-sm font-medium rounded-md text-green-300 bg-green-700 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-green-500 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FaExternalLinkAlt className="mr-2 h-4 w-4" /> View Live Site
-          </a>
-        )}
-      </div>
+            const target = e.target as HTMLElement;
+            if (target.closest('button, select, a[href*="/edit"], a[href*="/manage-members"], input[type="checkbox"]')) {
+              return;
+            }
+          }}
+        >
+          {updatingItemId === project.id && (
+            <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-[20]">
+              <FaSpinner className="animate-spin text-sky-500 text-3xl" />
+            </div>
+          )}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+            <div className="flex items-center gap-x-3">
+              <span className="text-2xl font-semibold text-sky-400">
+                {project.name}
+              </span>
+              <Link href={`/myprojects/${project.project_slug}/edit`} passHref legacyBehavior>
+                <a 
+                  className="text-gray-400 hover:text-sky-400 transition-colors relative z-10"
+                  title="Edit Project"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FaEdit />
+                </a>
+              </Link>
+            </div>
+            {currentUser && project.user_id === currentUser.id && (
+              <Link href={`/myprojects/${project.project_slug}/manage-members`} passHref legacyBehavior>
+                <a 
+                  className="mt-2 sm:mt-0 ml-0 sm:ml-auto inline-flex items-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-1.5 px-3 rounded-md text-xs transition-colors shadow hover:shadow-md relative z-10"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <FaUsers className="mr-1.5 h-3 w-3" /> 
+                  Invite Members
+                </a>
+              </Link>
+            )}
+          </div>
+          <span className="text-sm text-gray-500 block mb-3">
+            View Project Dashboard (Slug: {project.project_slug})
+          </span>
+          <div className="mt-2 mb-4 space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+            <div className="flex-shrink-0">
+              <label htmlFor={`badge1-${project.id}`} className="sr-only">Badge 1 / Status</label>
+              <select 
+                id={`badge1-${project.id}`} 
+                value={project.badge1 || 'Pending_setup'} 
+                onChange={(e) => handleBadgeChange(project.id, 'badge1', e.target.value)}
+                disabled={updatingItemId === project.id}
+                className={`${getBadgeStyle(project.badge1 || 'Pending_setup')} relative z-10`} 
+                onClick={(e) => e.stopPropagation()} 
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                {badge1Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
+              </select>
+            </div>
+            <div className="flex-shrink-0">
+              <label htmlFor={`badge2-${project.id}`} className="sr-only">Badge 2</label>
+              <select 
+                id={`badge2-${project.id}`} 
+                value={project.badge2 || ''} 
+                onChange={(e) => handleBadgeChange(project.id, 'badge2', e.target.value)}
+                disabled={updatingItemId === project.id}
+                className={`${getBadge2Style(project.badge2 || '')} relative z-10`} 
+                onClick={(e) => e.stopPropagation()} 
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <option value="">Badge 2...</option>
+                {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
+              </select>
+            </div>
+            <div className="flex-shrink-0">
+              <label htmlFor={`badge3-${project.id}`} className="sr-only">Badge 3</label>
+              <select 
+                id={`badge3-${project.id}`} 
+                value={project.badge3 || ''} 
+                onChange={(e) => handleBadgeChange(project.id, 'badge3', e.target.value)}
+                disabled={updatingItemId === project.id}
+                className={`${getBadge3Style(project.badge3 || '')} relative z-10`} 
+                onClick={(e) => e.stopPropagation()} 
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <option value="">Badge 3...</option>
+                {badge3Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
+              </select>
+            </div>
+             <div className="flex-shrink-0">
+              <label htmlFor={`badge4-${project.id}`} className="sr-only">Badge 4</label>
+              <select 
+                id={`badge4-${project.id}`} 
+                value={project.badge4 || ''} 
+                onChange={(e) => handleBadgeChange(project.id, 'badge4', e.target.value)}
+                disabled={updatingItemId === project.id}
+                className={`${getBadge2Style(project.badge4 || '')} relative z-10`} 
+                onClick={(e) => e.stopPropagation()} 
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <option value="">Badge 4...</option>
+                {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
+              </select>
+            </div>
+            <div className="flex-shrink-0">
+              <label htmlFor={`badge5-${project.id}`} className="sr-only">Badge 5</label>
+              <select 
+                id={`badge5-${project.id}`} 
+                value={project.badge5 || ''} 
+                onChange={(e) => handleBadgeChange(project.id, 'badge5', e.target.value)}
+                disabled={updatingItemId === project.id}
+                className={`${getBadge2Style(project.badge5 || '')} relative z-10`} 
+                onClick={(e) => e.stopPropagation()} 
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <option value="">Badge 5...</option>
+                {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
+              </select>
+            </div>
+          </div>
 
-      {/* Badge select elements */}
-      <div className="mt-2 mb-4 space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
-        <div className="flex-shrink-0">
-          <select 
-            id={`badge1-${project.id}`} 
-            value={project.badge1 || 'Pending_setup'} 
-            onChange={(e) => handleBadgeChange(project.id, 'badge1', e.target.value)}
-            disabled={updatingItemId === project.id}
-            className={`${getBadgeStyle(project.badge1 || 'Pending_setup')} relative z-10`} 
-            onClick={(e) => e.stopPropagation()} 
-            onMouseDown={(e) => e.stopPropagation()} 
-          >
-            {badge1Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-          </select>
-        </div>
-        <div className="flex-shrink-0">
-          <select 
-            id={`badge2-${project.id}`} 
-            value={project.badge2 || ''} 
-            onChange={(e) => handleBadgeChange(project.id, 'badge2', e.target.value)}
-            disabled={updatingItemId === project.id}
-            className={`${getBadge2Style(project.badge2 || '')} relative z-10`} 
-            onClick={(e) => e.stopPropagation()} 
-            onMouseDown={(e) => e.stopPropagation()} 
-          >
-            <option value="">Badge 2...</option>
-            {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-          </select>
-        </div>
-        <div className="flex-shrink-0">
-          <select 
-            id={`badge3-${project.id}`} 
-            value={project.badge3 || ''} 
-            onChange={(e) => handleBadgeChange(project.id, 'badge3', e.target.value)}
-            disabled={updatingItemId === project.id}
-            className={`${getBadge3Style(project.badge3 || '')} relative z-10`} 
-            onClick={(e) => e.stopPropagation()} 
-            onMouseDown={(e) => e.stopPropagation()} 
-          >
-            <option value="">Badge 3...</option>
-            {badge3Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-          </select>
-        </div>
-         <div className="flex-shrink-0">
-          <select 
-            id={`badge4-${project.id}`} 
-            value={project.badge4 || ''} 
-            onChange={(e) => handleBadgeChange(project.id, 'badge4', e.target.value)}
-            disabled={updatingItemId === project.id}
-            className={`${getBadge2Style(project.badge4 || '')} relative z-10`} 
-            onClick={(e) => e.stopPropagation()} 
-            onMouseDown={(e) => e.stopPropagation()} 
-          >
-            <option value="">Badge 4...</option>
-            {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-          </select>
-        </div>
-        <div className="flex-shrink-0">
-          <select 
-            id={`badge5-${project.id}`} 
-            value={project.badge5 || ''} 
-            onChange={(e) => handleBadgeChange(project.id, 'badge5', e.target.value)}
-            disabled={updatingItemId === project.id}
-            className={`${getBadge2Style(project.badge5 || '')} relative z-10`} 
-            onClick={(e) => e.stopPropagation()} 
-            onMouseDown={(e) => e.stopPropagation()} 
-          >
-            <option value="">Badge 5...</option>
-            {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
-          </select>
-        </div>
-      </div>
-
-      {project.project_brief && (
-        <p className="text-sm text-gray-400 mb-4 leading-relaxed line-clamp-2">{project.project_brief}</p>
-      )}
-      
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-auto pt-3 border-t border-slate-700/50">
-        <div className="flex items-center gap-x-2">
-          <input 
-            type="checkbox" 
-            id={`featured-${project.id}`} 
-            checked={!!project.is_featured} 
-            onChange={() => handleIsFeaturedToggle(project.id, !!project.is_featured)} 
-            disabled={updatingItemId === project.id}
-            className="form-checkbox h-4 w-4 text-sky-600 bg-gray-800 border-gray-600 rounded focus:ring-sky-500 relative z-10" 
-            onClick={(e) => e.stopPropagation()} 
-          />
-          <label htmlFor={`featured-${project.id}`} className="text-xs text-gray-400 cursor-pointer select-none">
-            Showcase on Landing Page
-          </label>
-        </div>
-        {currentUser && project.user_id === currentUser.id && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation(); 
-              openDeleteModal(project.id, project.name);
-            }}
-            disabled={updatingItemId === project.id}
-            className="mt-3 sm:mt-0 inline-flex items-center bg-red-700 hover:bg-red-600 text-white font-semibold py-1.5 px-3 rounded-md text-xs transition-colors shadow hover:shadow-md disabled:opacity-50 relative z-10"
-          >
-            <FaTrash className="mr-1.5 h-3 w-3" />
-            Delete
-          </button>
-        )}
-      </div>
-    </div> 
+          {project.project_brief && (
+            <p className="text-sm text-gray-400 mb-4 leading-relaxed line-clamp-2">{project.project_brief}</p>
+          )}
+          
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-auto pt-3 border-t border-slate-700/50">
+            <div className="flex items-center gap-x-2">
+              <input 
+                type="checkbox" 
+                id={`featured-${project.id}`} 
+                checked={!!project.is_featured} 
+                onChange={() => handleIsFeaturedToggle(project.id, !!project.is_featured)} 
+                disabled={updatingItemId === project.id}
+                className="form-checkbox h-4 w-4 text-sky-600 bg-gray-800 border-gray-600 rounded focus:ring-sky-500 relative z-10"
+                onClick={(e) => e.stopPropagation()} 
+              />
+              <label htmlFor={`featured-${project.id}`} className="text-xs text-gray-400 cursor-pointer select-none">
+                Showcase on Landing Page
+              </label>
+            </div>
+            {currentUser && project.user_id === currentUser.id && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  openDeleteModal(project.id, project.name);
+                }}
+                disabled={updatingItemId === project.id}
+                className="mt-3 sm:mt-0 inline-flex items-center bg-red-700 hover:bg-red-600 text-white font-semibold py-1.5 px-3 rounded-md text-xs transition-colors shadow hover:shadow-md disabled:opacity-50 relative z-10"
+              >
+                <FaTrash className="mr-1.5 h-3 w-3" />
+                Delete
+              </button>
+            )}
+          </div>
+        </a>
+      </Link>
+    </div>
   );
 }
 
@@ -381,7 +385,7 @@ export default function MyProjectsPage() {
       setUser(authUser);
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id, website') // CORRECTED from website_url to website
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id') // ADDED user_id
         .eq('user_id', authUser.id)
         .order('created_at', { ascending: false });
 
@@ -521,6 +525,10 @@ export default function MyProjectsPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
+            <div className="flex items-center mb-4 sm:mb-0">
+                <FaProjectDiagram className="text-3xl text-sky-400 mr-3" />
+                <h1 className="text-3xl md:text-4xl font-bold text-white">My Projects</h1>
+            </div>
             {user && (
                 <Link href="/projects/new" passHref legacyBehavior>
                     <a className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg">

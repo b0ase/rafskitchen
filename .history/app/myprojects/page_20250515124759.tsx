@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUsers } from 'react-icons/fa'; // Added FaEdit, FaTrash, FaUsers
 import {
   DndContext,
   closestCenter,
@@ -35,7 +35,6 @@ interface ClientProject {
   badge4?: string | null; // New
   badge5?: string | null; // New
   user_id: string; // ADDED: To confirm ownership for manage actions
-  website?: string | null; // CORRECTED from website_url to website
   // Add other fields you want to display
 }
 
@@ -220,24 +219,13 @@ function SortableProjectCard({
         )}
       </div>
 
-      {/* Links: View Dashboard and View Live Site */}
-      <div className="mb-4 mt-1 flex flex-wrap gap-3 items-center">
+      {/* New styled Link for View Project Dashboard */}
+      <div className="mb-4 mt-1">
         <Link href={`/myprojects/${project.project_slug}`} passHref legacyBehavior>
           <a className="inline-flex items-center justify-center px-3 py-1.5 border border-sky-600 text-sm font-medium rounded-md text-sky-300 bg-sky-700 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500 transition-colors">
             <FaProjectDiagram className="mr-2 h-4 w-4" /> View Dashboard
           </a>
         </Link>
-        {project.website && (
-          <a 
-            href={project.website}
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-green-600 text-sm font-medium rounded-md text-green-300 bg-green-700 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-green-500 transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FaExternalLinkAlt className="mr-2 h-4 w-4" /> View Live Site
-          </a>
-        )}
       </div>
 
       {/* Badge select elements */}
@@ -381,7 +369,7 @@ export default function MyProjectsPage() {
       setUser(authUser);
       const { data: projectData, error: projectError } = await supabase
         .from('clients') 
-        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id, website') // CORRECTED from website_url to website
+        .select('id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id') // ADDED user_id
         .eq('user_id', authUser.id)
         .order('created_at', { ascending: false });
 

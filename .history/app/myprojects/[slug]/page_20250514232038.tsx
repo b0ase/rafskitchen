@@ -251,10 +251,7 @@ export default function ProjectDetailPage() {
   // --- NEW TodoComment Functions ---
   const fetchTodoComments = useCallback(async (todoId: string) => {
     if (!user) return;
-    setLoadingComments(prev => {
-      const currentPrev = typeof prev === 'object' && prev !== null ? prev : {};
-      return { ...currentPrev, [todoId]: true };
-    });
+    setLoadingComments(prev => ({ ...prev, [todoId]: true }));
     setError(null);
 
     const { data: commentsData, error: commentsError } = await supabase
@@ -281,18 +278,12 @@ export default function ProjectDetailPage() {
       })) || [];
       setComments(prev => ({ ...prev, [todoId]: formattedComments }));
     }
-    setLoadingComments(prev => {
-      const currentPrev = typeof prev === 'object' && prev !== null ? prev : {};
-      return { ...currentPrev, [todoId]: false };
-    });
+    setLoadingComments(prev => ({ ...prev, [todoId]: false }));
   }, [supabase, user]);
 
   const handleAddTodoComment = async (todoId: string) => {
     if (!newCommentText[todoId]?.trim() || !project || !user) return;
-    setAddingComment(prev => {
-      const currentPrev = typeof prev === 'object' && prev !== null ? prev : {};
-      return { ...currentPrev, [todoId]: true };
-    });
+    setAddingComment(prev => ({ ...prev, [todoId]: true }));
     setError(null);
 
     const { data: newComment, error: insertError } = await supabase
@@ -326,10 +317,7 @@ export default function ProjectDetailPage() {
       }));
       setNewCommentText(prev => ({ ...prev, [todoId]: '' }));
     }
-    setAddingComment(prev => {
-      const currentPrev = typeof prev === 'object' && prev !== null ? prev : {};
-      return { ...currentPrev, [todoId]: false };
-    });
+    setAddingComment(prev => ({ ...prev, [todoId]: false }));
   };
   
   const toggleCommentExpansion = (todoId: string) => {
@@ -467,19 +455,59 @@ export default function ProjectDetailPage() {
   const isProjectOwner = user && project && user.id === project.user_id;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col pt-4 md:pt-6">
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div className="bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 mb-8 relative border border-slate-700">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
+      <header className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <Link href="/myprojects" legacyBehavior>
+            <a className="text-sky-500 hover:text-sky-400 inline-flex items-center"><FaArrowLeft className="mr-2" /> Back to My Projects</a>
+          </Link>
           {isProjectOwner && (
-            <div className="absolute top-4 right-4 z-10">
-              <Link href={`/myprojects/${slug}/manage-members`} passHref legacyBehavior>
-                <a className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-sm shadow-md transition-colors">
-                  <FaUsers className="mr-2 h-4 w-4" /> Invite Members
-                </a>
-              </Link>
+            <Link href={`/myprojects/${slug}/manage-members`} passHref legacyBehavior>
+              <a className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm shadow-md transition-colors">
+                <FaUsers className="mr-2" /> Invite Members
+              </a>
+            </Link>
+          )}
+        </div>
+        <div className="flex items-center space-x-3">
+          {isEditingName ? (
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <input 
+                type="text"
+                value={editableName}
+                onChange={(e) => setEditableName(e.target.value)}
+                className="bg-slate-700 text-2xl font-semibold text-white p-2 rounded-md border border-slate-600 focus:ring-sky-500 focus:border-sky-500 flex-grow"
+                autoFocus
+              />
+              <button onClick={handleSaveName} disabled={updatingField === 'name'} className="p-2 bg-green-600 hover:bg-green-500 rounded-md text-white disabled:opacity-50">
+                {updatingField === 'name' ? <FaSpinner className="animate-spin" /> : <FaSave />}
+              </button>
+              <button onClick={() => { setIsEditingName(false); setEditableName(project.name); }} className="p-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">
+                <FaTimesCircle />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <FaProjectDiagram className="text-3xl text-sky-400" />
+              <h1 className="text-3xl md:text-4xl font-bold text-white break-all">{project.name}</h1>
+              <button onClick={() => setIsEditingName(true)} className="text-sky-400 hover:text-sky-300">
+                <FaEdit />
+              </button>
             </div>
           )}
-          
+        </div>
+        <p className="text-xs text-gray-500 mb-6">Project ID: {project.id}</p>
+      </header>
+
+      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
+        {/* Project Header */}
+        <div className="bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            {/* Display Original Status/Badge1 if needed or a primary badge display here */}
+          </div>
+          <p className="text-xs text-gray-500 mb-6">Project ID: {project.id}</p>
+
+          {/* Badge Controls Section */}
           <div className="mt-2 mb-6 p-4 border border-slate-700 rounded-md bg-slate-850/30">
             <h3 className="text-sm font-semibold text-gray-400 mb-3">Project Badges & Settings:</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-center">
@@ -501,9 +529,10 @@ export default function ProjectDetailPage() {
                       className={styleGetter(value)}
                     >
                       {placeholder && <option value="">{placeholder}</option>}
+                      {/* Ensure "Pending_setup" is an option for badge1 if value is empty and it's the default */}
                       {num === 1 && !project.badge1 && <option value="Pending_setup">Pending_setup</option>}
                       {options.map(opt => (
-                        (num === 1 && opt === 'Pending_setup' && project.badge1) ? null :
+                        (num === 1 && opt === 'Pending_setup' && project.badge1) ? null : // Avoid duplicate "Pending_setup" if already selected
                         <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>
                       ))}
                     </select>
@@ -528,6 +557,7 @@ export default function ProjectDetailPage() {
           </div>
 
 
+          {/* Project Brief Section */}
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-xl font-semibold text-sky-300">Project Brief</h2>
@@ -566,13 +596,10 @@ export default function ProjectDetailPage() {
             )}
           </div>
 
+          {/* Other Details Section */}
           <div className="bg-slate-850/30 p-4 rounded-md border border-slate-700 mb-8">
             <h2 className="text-xl font-semibold text-sky-300 mb-3">Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-500">Project ID: </span>
-                <span className="text-gray-300 break-all">{project.id}</span>
-              </div>
               <div>
                 <span className="text-gray-500">Slug: </span>
                 <span className="text-gray-300">{project.project_slug}</span>
@@ -590,6 +617,7 @@ export default function ProjectDetailPage() {
             <p>More project-specific details, communication tools, and management features will go here.</p>
           </div>
 
+          {/* Project To-Do List Section */}
           <div className="mt-10 pt-6 border-t border-slate-700">
             <h2 className="text-xl font-semibold text-sky-300 mb-4">Project To-Do List</h2>
             <div className="mb-6 bg-slate-850/50 p-4 rounded-md border border-slate-700">
@@ -600,7 +628,7 @@ export default function ProjectDetailPage() {
                   onChange={(e) => setNewTodoTask(e.target.value)}
                   placeholder="Add a new task for this project..."
                   className="flex-grow bg-slate-700 text-gray-300 p-2.5 rounded-md border border-slate-600 focus:ring-sky-500 focus:border-sky-500 text-sm"
-                  onKeyPress={(e) => e.key === 'Enter' && !addingTodo && handleAddProjectTodo()}
+                  onKeyPress={(e) => e.key === 'Enter' && !addingTodo && handleAddProjectTodo()} // Add on Enter key press
                 />
                 <button 
                   onClick={handleAddProjectTodo} 
@@ -671,6 +699,7 @@ export default function ProjectDetailPage() {
                         </button>
                       </div>
                     </div>
+                    {/* --- NEW Comments Section for each To-do --- */}
                     {expandedComments[todo.id] && (
                       <div className="mt-3 pt-3 border-t border-slate-700/50">
                         {loadingComments[todo.id] && !comments[todo.id]?.length && (
@@ -718,16 +747,18 @@ export default function ProjectDetailPage() {
                         </div>
                       </div>
                     )}
+                    {/* --- End NEW Comments Section --- */}
                   </li>
                 ))}
               </ul>
             )}
           </div>
 
+          {/* Delete Project Button - Placed at the bottom of the content card */}
           <div className="mt-10 pt-6 border-t border-slate-700 flex justify-end">
             <button 
               onClick={openDeleteModal}
-              disabled={!!updatingField}
+              disabled={!!updatingField} // Disable if any update is in progress
               className="inline-flex items-center bg-red-700 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg disabled:opacity-50"
             >
               <FaTrash className="mr-2" />
@@ -737,6 +768,7 @@ export default function ProjectDetailPage() {
         </div>
       </main>
 
+      {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && project && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-900 p-6 md:p-8 rounded-lg shadow-xl border border-gray-700 max-w-md w-full">

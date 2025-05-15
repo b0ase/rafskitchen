@@ -323,6 +323,8 @@ export default function DiaryPage() {
           </button>
         </div>
 
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-10 text-center">Diary</h1>
+
         <div className="mb-10 grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             { href: '/workinprogress', title: 'Work In Progress', description: 'View and manage current tasks and project statuses.', bgColor: 'bg-purple-700/30', hoverBgColor: 'hover:bg-purple-600/40', borderColor: 'border-purple-600/50', titleColor: 'text-purple-300'},

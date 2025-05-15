@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Session } from '@supabase/supabase-js';
 import Header from './Header';
 import SubNavigation from './SubNavigation';
@@ -18,9 +18,9 @@ export default function ConditionalLayout({ session, children }: ConditionalLayo
   const isAuthenticated = !!session;
   const [pageContext, setPageContext] = React.useState<PageContextType | null>(null);
 
-  const handleSetPageContext = useCallback((context: PageContextType | null) => {
+  const handleSetPageContext = (context: PageContextType | null) => {
     setPageContext(context);
-  }, []);
+  };
 
   if (isAuthenticated) {
     return (

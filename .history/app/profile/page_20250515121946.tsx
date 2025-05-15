@@ -638,47 +638,6 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col pt-6 md:pt-10 pb-12">
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
-          {/* --- RESTORED WELCOME CARD SECTION --- */}
-          <section className="mb-12 p-6 md:p-8 bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-500 rounded-xl shadow-2xl text-white border border-sky-500/60">
-            <div className="flex flex-col md:flex-row items-center">
-              <FaRocket className="text-5xl md:text-6xl text-sky-200 mr-0 md:mr-6 mb-4 md:mb-0 flex-shrink-0" />
-              <div className="text-center md:text-left flex-grow">
-                <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
-                <p className="text-sky-100 mb-6 text-lg leading-relaxed">
-                  Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it\'s a website, a mobile app, an AI solution, or something entirely new, we\'re here to help you build it.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
-                  <Link href="/projects/new" passHref legacyBehavior>
-                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                      <FaRocket className="mr-2 h-4 w-4" /> Start a New Project
-                    </a>
-                  </Link>
-                  <Link href="/teams/new" passHref legacyBehavior>
-                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                      <FaPlusSquare className="mr-2 h-4 w-4" /> Start a New Team
-                    </a>
-                  </Link>
-                  <Link href="/projects/join" passHref legacyBehavior>
-                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                      <FaHandshake className="mr-2 h-4 w-4" /> Join a Project
-                    </a>
-                  </Link>
-                  <Link href="/teams/join" passHref legacyBehavior>
-                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                      <FaUsers className="mr-2 h-4 w-4" /> Join a Team
-                    </a>
-                  </Link>
-                  <Link href="/careers" passHref legacyBehavior>
-                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-orange-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-orange-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
-                      <FaBriefcase className="mr-2 h-4 w-4" /> Careers
-                    </a>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-          {/* --- END RESTORED WELCOME CARD SECTION --- */}
-
           <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
             {/* --- NEW Simplified Avatar Display and Upload --- */}
             <div className="relative mr-0 sm:mr-6 mb-4 sm:mb-0">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -17,40 +17,11 @@ interface NavLink {
   current?: boolean;
 }
 
-// Define navLinks arrays OUTSIDE the component to make them stable constants
-const navLinksPrimaryConst: NavLink[] = [
-  { title: 'My Profile', href: '/profile', icon: FaUserCircle },
-  { title: 'My Projects', href: '/myprojects', icon: FaProjectDiagram },
-  { title: 'My Team', href: '/team', icon: FaUsers },
-  { title: 'My Diary', href: '/diary', icon: FaBookOpen },
-  { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
-  { title: 'My Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
-  { title: 'My Finances', href: '/finances', icon: FaDollarSign },
-  { title: 'My Gigs', href: '/gigs', icon: FaListAlt },
-  { title: 'Research', href: '/gigs/research', icon: FaSearchDollar },
-  { title: 'Strategy', href: '/gigs/strategy', icon: FaBullseye },
-  { title: 'Action Plan', href: '/gigs/action', icon: FaTasks },
-  { title: 'Learning Path', href: '/gigs/learning-path', icon: FaChalkboardTeacher },
-  { title: 'Platforms', href: '/gigs/platforms', icon: FaListAlt },
-  { title: 'Work Path', href: '/gigs/work-path', icon: FaRoute },
-  { title: 'Fiverr Explorer', href: '/gigs/fiverr-explorer', icon: FaSearchDollar },
-];
-
-const navLinksSecondaryConst: NavLink[] = [
-  // Settings link is now in AppNavbar
-];
-
-export interface PageContextType {
-  title: string;
-  icon: React.ElementType | null;
-  href: string;
-}
-
 interface UserSidebarProps {
-  onSetPageContext: (context: PageContextType | null) => void;
+  onSetPageTitle: (title: string) => void;
 }
 
-export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
+export default function UserSidebar({ onSetPageTitle }: UserSidebarProps) {
   console.log('[UserSidebar] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL); // Log the env var
   const supabase = createClientComponentClient();
   const pathname = usePathname();
@@ -63,9 +34,31 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
   const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Use the constant arrays for allNavLinks memoization
-  const allNavLinks = useMemo(() => [...navLinksPrimaryConst, ...navLinksSecondaryConst], []);
-  // Empty dependency array because navLinksPrimaryConst and navLinksSecondaryConst are stable global constants
+  // Define navLinks arrays before they are used in useEffect or JSX
+  const navLinksPrimary: NavLink[] = [
+    { title: 'My Profile', href: '/profile', icon: FaUserCircle },
+    { title: 'My Projects', href: '/myprojects', icon: FaProjectDiagram },
+    { title: 'My Team', href: '/team', icon: FaUsers },
+    { title: 'My Diary', href: '/diary', icon: FaBookOpen },
+    { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
+    { title: 'My Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
+    { title: 'My Finances', href: '/finances', icon: FaDollarSign },
+    { title: 'My Gigs', href: '/gigs', icon: FaListAlt },
+    { title: 'Research', href: '/gigs/research', icon: FaSearchDollar },
+    { title: 'Strategy', href: '/gigs/strategy', icon: FaBullseye },
+    { title: 'Action Plan', href: '/gigs/action', icon: FaTasks },
+    { title: 'Learning Path', href: '/gigs/learning-path', icon: FaChalkboardTeacher },
+    { title: 'Platforms', href: '/gigs/platforms', icon: FaListAlt },
+    { title: 'Work Path', href: '/gigs/work-path', icon: FaRoute },
+    { title: 'Fiverr Explorer', href: '/gigs/fiverr-explorer', icon: FaSearchDollar },
+  ];
+
+  const navLinksSecondary: NavLink[] = [
+    { href: '/settings', title: 'Settings', icon: FaLightbulb },
+    // Add more secondary links here if any
+  ];
+
+  const allNavLinks = React.useMemo(() => [...navLinksPrimary, ...navLinksSecondary], []); // Memoize if navLinksPrimary/Secondary are stable
 
   useEffect(() => {
     console.log('[UserSidebar] Setting up onAuthStateChange listener.');
@@ -324,46 +317,25 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
   };
 
   useEffect(() => {
-    let activeContext: PageContextType | null = null;
-
-    // Explicitly check for settings page first
-    if (pathname === '/settings') {
-      activeContext = { title: 'Settings', icon: FaLightbulb, href: '/settings' };
+    const currentLink = allNavLinks.find(link => pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href + '/') && link.href.length > 1) || (link.href === '/profile' && pathname === '/'));
+    
+    if (currentLink) {
+      onSetPageTitle(currentLink.title);
     } else {
-      const exactMatch = allNavLinks.find(link => 
-        link.href === pathname || 
-        (link.href === '/profile' && pathname === '/')
-      );
+      // More specific fallback for sections
+      const bestMatch = allNavLinks
+        .filter(link => link.href !== '/' && pathname.startsWith(link.href))
+        .sort((a, b) => b.href.length - a.href.length)[0]; // Get the longest, most specific match
 
-      if (exactMatch) {
-        activeContext = { title: exactMatch.title, icon: exactMatch.icon, href: exactMatch.href };
+      if (bestMatch) {
+        onSetPageTitle(bestMatch.title);
+      } else if (pathname === '/') {
+        onSetPageTitle('My Profile'); // Default for root if /profile is the main page
       } else {
-        const partialMatches = allNavLinks.filter(
-          link => link.href !== '/' && pathname.startsWith(link.href + '/') 
-        );
-        if (partialMatches.length > 0) {
-          partialMatches.sort((a, b) => b.href.length - a.href.length);
-          const bestMatch = partialMatches[0];
-          activeContext = { title: bestMatch.title, icon: bestMatch.icon, href: bestMatch.href };
-        } 
-        else if (pathname === '/') {
-          const profileLink = allNavLinks.find(link => link.href === '/profile');
-          if (profileLink) {
-            activeContext = { title: profileLink.title, icon: profileLink.icon, href: profileLink.href };
-          } else {
-            activeContext = { title: 'Dashboard', icon: null, href: '/' }; // Default for root
-          }
-        }
+        onSetPageTitle('App'); // Generic fallback
       }
     }
-    
-    if (!activeContext && pathname !== '/' && pathname !== '/login' && pathname !== '/signup' && pathname !== '/settings') {
-        // If still no context and not on a known non-context page, set a generic one
-        activeContext = { title: "Application", icon: null, href: pathname };
-    }
-
-    onSetPageContext(activeContext);
-  }, [pathname, onSetPageContext, allNavLinks]);
+  }, [pathname, onSetPageTitle, allNavLinks]); // allNavLinks is stable if defined outside
 
   if (!user && pathname !== '/login' && pathname !== '/signup') {
     return null; 
@@ -377,11 +349,10 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
 
   return (
     <aside className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform sm:translate-x-0 bg-gray-900 border-r border-gray-700 flex flex-col">
-      {/* User Info and Avatar Section - Modified for horizontal layout */}
-      <div className="p-4 border-b border-gray-700 flex items-center">
-        {/* Avatar part */}
+      {/* User Info and Avatar Section */}
+      <div className="p-4 space-y-2 border-b border-gray-700 relative group">
         <div 
-          className="relative w-10 h-10 group cursor-pointer flex-shrink-0" 
+          className="relative w-10 h-10 mr-3 group cursor-pointer" 
           onClick={() => fileInputRef.current?.click()}
           title="Change avatar"
         >
@@ -417,13 +388,10 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
           className="hidden"
           disabled={isUploadingAvatar}
         />
-        {/* Text info part - to the right of avatar */}
-        <div className="ml-3 overflow-hidden">
+        <div>
           <p className="text-sm font-medium text-white truncate" title={userDisplayName}>
             {isLoadingProfile && !userDisplayName ? 'Loading...' : userDisplayName || (user ? 'User' : 'Not Logged In')}
           </p>
-          {/* Optionally, add username here if you fetch and store it in a state like userUsername */}
-          {/* <p className="text-xs text-gray-500 truncate" title={userUsername}>@{userUsername || 'username'}</p> */}
           <p className="text-xs text-gray-400">Online</p>
         </div>
       </div>
@@ -432,7 +400,7 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
       <div className="flex-grow overflow-y-auto">
         <span className="px-4 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase block">Main Menu</span>
         <ul className="space-y-1 p-2">
-          {navLinksPrimaryConst.map((link) => {
+          {navLinksPrimary.map((link) => {
             const isActive = pathname === link.href || 
                            (link.href !== '/' && pathname.startsWith(link.href + '/')) || 
                            (link.href === '/profile' && pathname === '/');
@@ -448,11 +416,11 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
             );
           })}
         </ul>
-        {navLinksSecondaryConst.length > 0 && (
+        {navLinksSecondary.length > 0 && (
           <>
             <span className="px-4 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase block">Configuration</span>
             <ul className="space-y-1 p-2">
-              {navLinksSecondaryConst.map((link) => {
+              {navLinksSecondary.map((link) => {
                  const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href + '/'));
                  return (
                   <li key={link.title}>

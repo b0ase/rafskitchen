@@ -467,9 +467,43 @@ export default function ProjectDetailPage() {
   const isProjectOwner = user && project && user.id === project.user_id;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col pt-4 md:pt-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
+      <header className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <Link href="/myprojects" legacyBehavior>
+            <a className="text-sky-500 hover:text-sky-400 inline-flex items-center"><FaArrowLeft className="mr-2" /> Back to My Projects</a>
+          </Link>
+        </div>
+        <div className="flex items-center space-x-3">
+          {isEditingName ? (
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <input 
+                type="text"
+                value={editableName}
+                onChange={(e) => setEditableName(e.target.value)}
+                className="bg-slate-700 text-2xl font-semibold text-white p-2 rounded-md border border-slate-600 focus:ring-sky-500 focus:border-sky-500 flex-grow"
+                autoFocus
+              />
+              <button onClick={handleSaveName} disabled={updatingField === 'name'} className="p-2 bg-green-600 hover:bg-green-500 rounded-md text-white disabled:opacity-50">
+                {updatingField === 'name' ? <FaSpinner className="animate-spin" /> : <FaSave />}
+              </button>
+              <button onClick={() => { setIsEditingName(false); setEditableName(project.name); }} className="p-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">
+                <FaTimesCircle />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <button onClick={() => setIsEditingName(true)} className="text-sky-400 hover:text-sky-300">
+                <FaEdit /> (Edit Name)
+              </button>
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 mt-1 mb-2">Project ID: {project.id}</p>
+      </header>
+
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <div className="bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 mb-8 relative border border-slate-700">
+        <div className="bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 mb-8 relative">
           {isProjectOwner && (
             <div className="absolute top-4 right-4 z-10">
               <Link href={`/myprojects/${slug}/manage-members`} passHref legacyBehavior>
@@ -569,10 +603,6 @@ export default function ProjectDetailPage() {
           <div className="bg-slate-850/30 p-4 rounded-md border border-slate-700 mb-8">
             <h2 className="text-xl font-semibold text-sky-300 mb-3">Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-gray-500">Project ID: </span>
-                <span className="text-gray-300 break-all">{project.id}</span>
-              </div>
               <div>
                 <span className="text-gray-500">Slug: </span>
                 <span className="text-gray-300">{project.project_slug}</span>

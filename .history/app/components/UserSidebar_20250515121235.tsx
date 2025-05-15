@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -16,29 +16,6 @@ interface NavLink {
   icon: React.ElementType;
   current?: boolean;
 }
-
-// Define navLinks arrays OUTSIDE the component to make them stable constants
-const navLinksPrimaryConst: NavLink[] = [
-  { title: 'My Profile', href: '/profile', icon: FaUserCircle },
-  { title: 'My Projects', href: '/myprojects', icon: FaProjectDiagram },
-  { title: 'My Team', href: '/team', icon: FaUsers },
-  { title: 'My Diary', href: '/diary', icon: FaBookOpen },
-  { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
-  { title: 'My Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
-  { title: 'My Finances', href: '/finances', icon: FaDollarSign },
-  { title: 'My Gigs', href: '/gigs', icon: FaListAlt },
-  { title: 'Research', href: '/gigs/research', icon: FaSearchDollar },
-  { title: 'Strategy', href: '/gigs/strategy', icon: FaBullseye },
-  { title: 'Action Plan', href: '/gigs/action', icon: FaTasks },
-  { title: 'Learning Path', href: '/gigs/learning-path', icon: FaChalkboardTeacher },
-  { title: 'Platforms', href: '/gigs/platforms', icon: FaListAlt },
-  { title: 'Work Path', href: '/gigs/work-path', icon: FaRoute },
-  { title: 'Fiverr Explorer', href: '/gigs/fiverr-explorer', icon: FaSearchDollar },
-];
-
-const navLinksSecondaryConst: NavLink[] = [
-  // Settings link is now in AppNavbar
-];
 
 export interface PageContextType {
   title: string;
@@ -63,9 +40,31 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
   const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Use the constant arrays for allNavLinks memoization
-  const allNavLinks = useMemo(() => [...navLinksPrimaryConst, ...navLinksSecondaryConst], []);
-  // Empty dependency array because navLinksPrimaryConst and navLinksSecondaryConst are stable global constants
+  // Define navLinks arrays before they are used in useEffect or JSX
+  const navLinksPrimary: NavLink[] = [
+    { title: 'My Profile', href: '/profile', icon: FaUserCircle },
+    { title: 'My Projects', href: '/myprojects', icon: FaProjectDiagram },
+    { title: 'My Team', href: '/team', icon: FaUsers },
+    { title: 'My Diary', href: '/diary', icon: FaBookOpen },
+    { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
+    { title: 'My Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
+    { title: 'My Finances', href: '/finances', icon: FaDollarSign },
+    { title: 'My Gigs', href: '/gigs', icon: FaListAlt },
+    { title: 'Research', href: '/gigs/research', icon: FaSearchDollar },
+    { title: 'Strategy', href: '/gigs/strategy', icon: FaBullseye },
+    { title: 'Action Plan', href: '/gigs/action', icon: FaTasks },
+    { title: 'Learning Path', href: '/gigs/learning-path', icon: FaChalkboardTeacher },
+    { title: 'Platforms', href: '/gigs/platforms', icon: FaListAlt },
+    { title: 'Work Path', href: '/gigs/work-path', icon: FaRoute },
+    { title: 'Fiverr Explorer', href: '/gigs/fiverr-explorer', icon: FaSearchDollar },
+  ];
+
+  const navLinksSecondary: NavLink[] = [
+    // { href: '/settings', title: 'Settings', icon: FaLightbulb }, // Settings removed from here
+  ];
+
+  const allNavLinks = React.useMemo(() => [...navLinksPrimary, ...navLinksSecondary], [navLinksPrimary, navLinksSecondary]);
+  // Ensure navLinksPrimary and navLinksSecondary are in the dependency array of useMemo
 
   useEffect(() => {
     console.log('[UserSidebar] Setting up onAuthStateChange listener.');
@@ -326,38 +325,33 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
   useEffect(() => {
     let activeContext: PageContextType | null = null;
 
-    // Explicitly check for settings page first
-    if (pathname === '/settings') {
-      activeContext = { title: 'Settings', icon: FaLightbulb, href: '/settings' };
-    } else {
-      const exactMatch = allNavLinks.find(link => 
-        link.href === pathname || 
-        (link.href === '/profile' && pathname === '/')
-      );
+    const exactMatch = allNavLinks.find(link => 
+      link.href === pathname || 
+      (link.href === '/profile' && pathname === '/')
+    );
 
-      if (exactMatch) {
-        activeContext = { title: exactMatch.title, icon: exactMatch.icon, href: exactMatch.href };
-      } else {
-        const partialMatches = allNavLinks.filter(
-          link => link.href !== '/' && pathname.startsWith(link.href + '/') 
-        );
-        if (partialMatches.length > 0) {
-          partialMatches.sort((a, b) => b.href.length - a.href.length);
-          const bestMatch = partialMatches[0];
-          activeContext = { title: bestMatch.title, icon: bestMatch.icon, href: bestMatch.href };
-        } 
-        else if (pathname === '/') {
-          const profileLink = allNavLinks.find(link => link.href === '/profile');
-          if (profileLink) {
-            activeContext = { title: profileLink.title, icon: profileLink.icon, href: profileLink.href };
-          } else {
-            activeContext = { title: 'Dashboard', icon: null, href: '/' }; // Default for root
-          }
+    if (exactMatch) {
+      activeContext = { title: exactMatch.title, icon: exactMatch.icon, href: exactMatch.href };
+    } else {
+      const partialMatches = allNavLinks.filter(
+        link => link.href !== '/' && pathname.startsWith(link.href + '/') 
+      );
+      if (partialMatches.length > 0) {
+        partialMatches.sort((a, b) => b.href.length - a.href.length);
+        const bestMatch = partialMatches[0];
+        activeContext = { title: bestMatch.title, icon: bestMatch.icon, href: bestMatch.href };
+      } 
+      else if (pathname === '/') {
+        const profileLink = allNavLinks.find(link => link.href === '/profile');
+        if (profileLink) {
+          activeContext = { title: profileLink.title, icon: profileLink.icon, href: profileLink.href };
+        } else {
+          activeContext = { title: 'Dashboard', icon: null, href: '/' }; // Default for root
         }
       }
     }
     
-    if (!activeContext && pathname !== '/' && pathname !== '/login' && pathname !== '/signup' && pathname !== '/settings') {
+    if (!activeContext && pathname !== '/' && pathname !== '/login' && pathname !== '/signup') {
         // If still no context and not on a known non-context page, set a generic one
         activeContext = { title: "Application", icon: null, href: pathname };
     }
@@ -432,7 +426,7 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
       <div className="flex-grow overflow-y-auto">
         <span className="px-4 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase block">Main Menu</span>
         <ul className="space-y-1 p-2">
-          {navLinksPrimaryConst.map((link) => {
+          {navLinksPrimary.map((link) => {
             const isActive = pathname === link.href || 
                            (link.href !== '/' && pathname.startsWith(link.href + '/')) || 
                            (link.href === '/profile' && pathname === '/');
@@ -448,11 +442,11 @@ export default function UserSidebar({ onSetPageContext }: UserSidebarProps) {
             );
           })}
         </ul>
-        {navLinksSecondaryConst.length > 0 && (
+        {navLinksSecondary.length > 0 && (
           <>
             <span className="px-4 pt-4 pb-2 text-xs font-semibold text-gray-500 uppercase block">Configuration</span>
             <ul className="space-y-1 p-2">
-              {navLinksSecondaryConst.map((link) => {
+              {navLinksSecondary.map((link) => {
                  const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href + '/'));
                  return (
                   <li key={link.title}>

@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Session } from '@supabase/supabase-js';
 import Header from './Header';
 import SubNavigation from './SubNavigation';
 import Footer from './Footer';
-import UserSidebar, { PageContextType } from './UserSidebar';
+import UserSidebar from './UserSidebar';
 import AppNavbar from './AppNavbar';
 
 interface ConditionalLayoutProps {
@@ -16,18 +16,18 @@ interface ConditionalLayoutProps {
 export default function ConditionalLayout({ session, children }: ConditionalLayoutProps) {
   console.log('[ConditionalLayout] Received session prop:', session);
   const isAuthenticated = !!session;
-  const [pageContext, setPageContext] = React.useState<PageContextType | null>(null);
+  const [currentPageTitle, setCurrentPageTitle] = React.useState('App'); // Default title
 
-  const handleSetPageContext = useCallback((context: PageContextType | null) => {
-    setPageContext(context);
-  }, []);
+  const handleSetPageTitle = (title: string) => {
+    setCurrentPageTitle(title);
+  };
 
   if (isAuthenticated) {
     return (
       <div className="flex h-screen bg-black">
-        <UserSidebar onSetPageContext={handleSetPageContext} />
+        <UserSidebar onSetPageTitle={handleSetPageTitle} />
         <div className="flex-1 flex flex-col ml-64 overflow-hidden">
-          <AppNavbar pageContext={pageContext} />
+          <AppNavbar title={currentPageTitle} />
           <main className="flex-1 overflow-y-auto p-4">
             {children}
           </main>
