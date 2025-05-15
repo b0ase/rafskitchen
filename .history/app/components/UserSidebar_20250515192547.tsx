@@ -408,9 +408,9 @@ export default function UserSidebar({ onSetPageContext, isSidebarOpen, toggleSid
             />
           ) : userInitial ? (
             <div className="w-full h-full rounded-full bg-sky-500 flex items-center justify-center text-white font-bold text-xl group-hover:opacity-75 transition-opacity">
-            {userInitial}
-          </div>
-        ) : (
+              {userInitial}
+            </div>
+          ) : (
             <FaUserCircle className="w-full h-full text-gray-500 group-hover:opacity-75 transition-opacity" />
           )}
           {!isUploadingAvatar && (
@@ -447,14 +447,14 @@ export default function UserSidebar({ onSetPageContext, isSidebarOpen, toggleSid
                            (link.href !== '/' && pathname.startsWith(link.href + '/')) || 
                            (link.href === '/profile' && pathname === '/');
             return (
-            <li key={link.title}>
+              <li key={link.title}>
                 <Link href={link.href} legacyBehavior>
                   <a className={`flex items-center p-2.5 text-sm rounded-md transition-all duration-150 ease-in-out group hover:bg-sky-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 ${isActive ? 'bg-sky-600 text-white shadow-md scale-105' : 'text-gray-300 hover:text-gray-100'}`}>
                     <link.icon className={`w-5 h-5 mr-3 transition-colors duration-150 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-sky-300'}`} />
-                {link.title}
+                    {link.title}
                   </a>
-              </Link>
-            </li>
+                </Link>
+              </li>
             );
           })}
         </ul>

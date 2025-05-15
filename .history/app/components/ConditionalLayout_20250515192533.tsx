@@ -35,12 +35,11 @@ export default function ConditionalLayout({ session, children }: ConditionalLayo
           isSidebarOpen={isSidebarOpen} 
           toggleSidebar={toggleSidebar} 
         />
-        <div 
-          className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
+        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out md:ml-64`}>
           <AppNavbar pageContext={pageContext} toggleSidebar={toggleSidebar} />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          {children}
-        </main>
+          <main className="flex-1 overflow-y-auto p-4">
+            {children}
+          </main>
         </div>
       </div>
     );

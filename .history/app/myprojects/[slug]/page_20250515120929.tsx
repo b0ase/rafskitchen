@@ -472,11 +472,11 @@ export default function ProjectDetailPage() {
         <div className="bg-slate-800 shadow-xl rounded-lg p-6 md:p-8 mb-8 relative border border-slate-700">
           {isProjectOwner && (
             <div className="absolute top-4 right-4 z-10">
-            <Link href={`/myprojects/${slug}/manage-members`} passHref legacyBehavior>
+              <Link href={`/myprojects/${slug}/manage-members`} passHref legacyBehavior>
                 <a className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-md text-sm shadow-md transition-colors">
                   <FaUsers className="mr-2 h-4 w-4" /> Invite Members
-              </a>
-            </Link>
+                </a>
+              </Link>
             </div>
           )}
           
