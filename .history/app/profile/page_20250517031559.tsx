@@ -316,39 +316,31 @@ export default function ProfilePage() {
 
               const processedTeamsData = teamsData?.map(team => {
                 let parsedColorScheme: ColorScheme | null = null;
-                const rawColorScheme = team.color_scheme as unknown; // Treat as unknown first
-
-                if (typeof rawColorScheme === 'string') {
-                  try {
-                    const parsed = JSON.parse(rawColorScheme);
-                    // Validate structure after parsing
-                    if (parsed && typeof parsed.bgColor === 'string' && typeof parsed.textColor === 'string' && typeof parsed.borderColor === 'string') {
-                      parsedColorScheme = parsed as ColorScheme;
-                    } else {
-                      console.warn(`[ProfilePage] Parsed color_scheme for team ${team.id} does not match ColorScheme structure:`, parsed);
-                      parsedColorScheme = null;
+                if (team.color_scheme) {
+                  if (typeof team.color_scheme === 'string') {
+                    try {
+                      parsedColorScheme = JSON.parse(team.color_scheme) as ColorScheme;
+                    } catch (e) {
+                      console.warn(`[ProfilePage] Failed to parse color_scheme string for team ${team.id}:`, team.color_scheme, e);
+                      parsedColorScheme = null; // Fallback to default if parsing fails
                     }
-                  } catch (e) {
-                    console.warn(`[ProfilePage] Failed to parse color_scheme string for team ${team.id}:`, rawColorScheme, e);
-                    parsedColorScheme = null;
-                  }
-                } else if (typeof rawColorScheme === 'object' && rawColorScheme !== null) {
-                  const potentialScheme = rawColorScheme as Partial<ColorScheme>; // Cast to partial for checking
-                  if (
-                    typeof potentialScheme.bgColor === 'string' &&
-                    typeof potentialScheme.textColor === 'string' &&
-                    typeof potentialScheme.borderColor === 'string'
-                  ) {
-                    parsedColorScheme = potentialScheme as ColorScheme;
+                  } else if (typeof team.color_scheme === 'object' && team.color_scheme !== null) {
+                    // Basic check to see if it quacks like a ColorScheme object
+                    if ('bgColor' in team.color_scheme && 'textColor' in team.color_scheme && 'borderColor' in team.color_scheme) {
+                       parsedColorScheme = team.color_scheme as ColorScheme;
+                    } else {
+                       console.warn(`[ProfilePage] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, team.color_scheme);
+                       parsedColorScheme = null; // Fallback to default
+                    }
                   } else {
-                    console.warn(`[ProfilePage] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, rawColorScheme);
+                    // If it's not a string or a valid-looking object, treat as null/invalid
                     parsedColorScheme = null;
                   }
                 }
-                // If rawColorScheme is not a string or a suitable object (or parsing failed), parsedColorScheme remains null.
 
                 return {
-                  // Explicitly list all properties of the Team interface to ensure type conformity
+                  ...team,
+                  // Ensure all fields of Team are present, explicitly casting or handling nulls
                   id: team.id,
                   name: team.name,
                   slug: team.slug || null,
@@ -356,6 +348,7 @@ export default function ProfilePage() {
                   color_scheme: parsedColorScheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
                 };
               }) || [];
+              // No longer need 'as Team[]' if processedTeamsData correctly matches Team[]
               setUserTeams(processedTeamsData); 
             } else {
               setUserTeams([]);

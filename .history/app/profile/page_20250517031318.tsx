@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus, FaUsers, FaPlusSquare, FaHandshake, FaBriefcase, FaDatabase, FaPalette, FaBolt, FaCloud, FaLightbulb, FaBrain, FaQuestionCircle, FaSpinner } from 'react-icons/fa'; 
 import { useRouter, usePathname } from 'next/navigation';
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // Adjust path if needed
-import { User } from '@supabase/supabase-js'; // Added import for User type
 
 interface Profile {
   username: string | null;
@@ -314,49 +313,12 @@ export default function ProfilePage() {
 
               if (teamsError) throw teamsError;
 
-              const processedTeamsData = teamsData?.map(team => {
-                let parsedColorScheme: ColorScheme | null = null;
-                const rawColorScheme = team.color_scheme as unknown; // Treat as unknown first
-
-                if (typeof rawColorScheme === 'string') {
-                  try {
-                    const parsed = JSON.parse(rawColorScheme);
-                    // Validate structure after parsing
-                    if (parsed && typeof parsed.bgColor === 'string' && typeof parsed.textColor === 'string' && typeof parsed.borderColor === 'string') {
-                      parsedColorScheme = parsed as ColorScheme;
-                    } else {
-                      console.warn(`[ProfilePage] Parsed color_scheme for team ${team.id} does not match ColorScheme structure:`, parsed);
-                      parsedColorScheme = null;
-                    }
-                  } catch (e) {
-                    console.warn(`[ProfilePage] Failed to parse color_scheme string for team ${team.id}:`, rawColorScheme, e);
-                    parsedColorScheme = null;
-                  }
-                } else if (typeof rawColorScheme === 'object' && rawColorScheme !== null) {
-                  const potentialScheme = rawColorScheme as Partial<ColorScheme>; // Cast to partial for checking
-                  if (
-                    typeof potentialScheme.bgColor === 'string' &&
-                    typeof potentialScheme.textColor === 'string' &&
-                    typeof potentialScheme.borderColor === 'string'
-                  ) {
-                    parsedColorScheme = potentialScheme as ColorScheme;
-                  } else {
-                    console.warn(`[ProfilePage] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, rawColorScheme);
-                    parsedColorScheme = null;
-                  }
-                }
-                // If rawColorScheme is not a string or a suitable object (or parsing failed), parsedColorScheme remains null.
-
-                return {
-                  // Explicitly list all properties of the Team interface to ensure type conformity
-                  id: team.id,
-                  name: team.name,
-                  slug: team.slug || null,
-                  icon_name: team.icon_name || 'FaQuestionCircle',
-                  color_scheme: parsedColorScheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
-                };
-              }) || [];
-              setUserTeams(processedTeamsData); 
+              const processedTeamsData = teamsData?.map(team => ({
+                ...team,
+                color_scheme: team.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
+                icon_name: team.icon_name || 'FaQuestionCircle'
+              })) || [];
+              setUserTeams(processedTeamsData as Team[]);
             } else {
               setUserTeams([]);
             }
