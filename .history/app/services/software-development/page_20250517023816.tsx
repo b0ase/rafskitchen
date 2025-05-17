@@ -84,72 +84,78 @@ export default function SoftwareDevelopmentPage() {
         <h2 className="text-2xl font-bold mb-6">Featured Projects</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Project 1: Crypto Trading Platform */}
-          <Link href="/featured/crypto-trading-platform" className="block bg-black border border-gray-800 shadow-xl overflow-hidden hover:shadow-cyan-500/30 transition-shadow duration-300 flex flex-col h-full group">
-            <ProjectImage
-              service="software-development"
-              projectId="crypto-trading"
-              title="Crypto Trading Platform"
-              className="w-full h-48 group-hover:opacity-90 transition-opacity"
-            />
-            <div className="p-6 flex flex-col flex-grow">
-              <h3 className="font-bold text-xl mb-2">Crypto Trading Platform</h3>
-              <p className="text-gray-400 mb-3 flex-grow">
-                Secure and user-friendly cryptocurrency trading platform with real-time market data and advanced order types.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {['React', 'Node.js', 'WebSockets', 'Blockchain APIs'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
+          <Link href="/projects/crypto-trading-platform" passHref legacyBehavior>
+            <a className="block bg-black border border-gray-800 shadow-xl overflow-hidden hover:shadow-cyan-500/30 transition-shadow duration-300 flex flex-col h-full">
+              <div className="relative w-full h-48 overflow-hidden">
+                <ProjectCardImage 
+                  imageUrls={["/images/services/software-development/crypto-trading-platform.png"]}
+                  alt="Crypto Trading Platform"
+                />
               </div>
-            </div>
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="font-bold text-xl mb-2">Crypto Trading Platform</h3>
+                <p className="text-gray-400 mb-3 flex-grow">
+                  Secure and user-friendly cryptocurrency trading platform with real-time market data and advanced order types.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-auto">
+                  {['React', 'Node.js', 'WebSockets', 'Blockchain APIs'].map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </a>
           </Link>
           
           {/* Project 2: Smart Contract Audit Tool */}
-          <Link href="/featured/smart-contract-audit-tool" className="block bg-black border border-gray-800 shadow-xl overflow-hidden hover:shadow-cyan-500/30 transition-shadow duration-300 flex flex-col h-full group">
-            <ProjectImage
-              service="software-development"
-              projectId="smart-contract-audit"
-              title="Smart Contract Audit Tool"
-              className="w-full h-48 group-hover:opacity-90 transition-opacity"
-            />
-            <div className="p-6 flex flex-col flex-grow">
-              <h3 className="font-bold text-xl mb-2">Smart Contract Audit Tool</h3>
-              <p className="text-gray-400 mb-3 flex-grow">
-                Automated tool for analyzing and validating smart contracts across multiple blockchain networks.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {['Solidity', 'Python', 'Web3.js', 'Ethereum'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
+          <Link href="/projects/smart-contract-audit-tool" passHref legacyBehavior>
+            <a className="block bg-black border border-gray-800 shadow-xl overflow-hidden hover:shadow-cyan-500/30 transition-shadow duration-300 flex flex-col h-full">
+              <div className="relative w-full h-48 overflow-hidden">
+                <ProjectCardImage 
+                  imageUrls={["/images/services/software-development/smart-contract-audit-tool.png"]}
+                  alt="Smart Contract Audit Tool"
+                />
               </div>
-            </div>
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="font-bold text-xl mb-2">Smart Contract Audit Tool</h3>
+                <p className="text-gray-400 mb-3 flex-grow">
+                  Automated tool for analyzing and validating smart contracts across multiple blockchain networks.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-auto">
+                  {['Solidity', 'Python', 'Web3.js', 'Ethereum'].map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </a>
           </Link>
           
           {/* Project 3: AI-Powered Analytics Dashboard */}
-          <Link href="/featured/ai-powered-analytics-dashboard" className="block bg-black border border-gray-800 shadow-xl overflow-hidden hover:shadow-cyan-500/30 transition-shadow duration-300 flex flex-col h-full group">
-            <ProjectImage
-              service="software-development"
-              projectId="ai-analytics"
-              title="AI-Powered Analytics Dashboard"
-              className="w-full h-48 group-hover:opacity-90 transition-opacity"
-            />
-            <div className="p-6 flex flex-col flex-grow">
-              <h3 className="font-bold text-xl mb-2">AI-Powered Analytics Dashboard</h3>
-              <p className="text-gray-400 mb-3 flex-grow">
-                Business intelligence dashboard using machine learning to predict trends and provide actionable insights.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {['TensorFlow', 'Python', 'D3.js', 'Docker'].map((tech, index) => (
-                  <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
-                    {tech}
-                  </span>
-                ))}
+          <Link href="/projects/ai-analytics-dashboard" passHref legacyBehavior>
+            <a className="block bg-black border border-gray-800 shadow-xl overflow-hidden hover:shadow-cyan-500/30 transition-shadow duration-300 flex flex-col h-full">
+              <div className="relative w-full h-48 overflow-hidden">
+                <ProjectCardImage 
+                  imageUrls={["/images/services/software-development/ai-analytics-dashboard.png"]}
+                  alt="AI-Powered Analytics Dashboard"
+                />
               </div>
-            </div>
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="font-bold text-xl mb-2">AI-Powered Analytics Dashboard</h3>
+                <p className="text-gray-400 mb-3 flex-grow">
+                  Business intelligence dashboard using machine learning to predict trends and provide actionable insights.
+                </p>
+                <div className="flex flex-wrap gap-2 mt-auto">
+                  {['TensorFlow', 'Python', 'D3.js', 'Docker'].map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-800 text-cyan-400 text-xs rounded-full">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </a>
           </Link>
         </div>
       </section>
