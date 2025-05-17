@@ -11,11 +11,12 @@ interface ProjectDetails {
   id: string;
   name: string;
   description: string | null;
-  creator_profile: {
+  // user_id: string; // Original creator
+  profiles: { // To fetch creator's profile
     display_name: string | null;
     avatar_url?: string | null;
   } | null;
-  original_creator_user_id: string | null;
+  // Add other relevant fields like icon or color if they exist on clients table
 }
 
 export default function JoinProjectPage() {
@@ -59,35 +60,39 @@ export default function JoinProjectPage() {
       }
       const joinedProjectIds = memberships?.map(m => m.project_id) || [];
 
-      // 2. Fetch all projects, joining with creator's profile
+      // 2. Fetch all projects, joining with creator's profile from 'profiles' table
+      // Assuming clients.user_id is the FK to profiles.id for the creator
       const { data: allProjectsData, error: fetchError } = await supabase
-        .from('clients')
+        .from('clients') // This is our 'projects' table
         .select(`
           id,
           name,
-          project_brief,
-          user_id,
-          creator_profile:profiles (display_name, avatar_url)
+          project_brief, 
+          user_id, 
+          profiles:user_id (display_name, avatar_url)
         `)
+        // Add any filters here if projects need to be explicitly marked as "joinable"
+        // For now, fetch all and filter out joined ones client-side
         .order('name', { ascending: true });
 
       if (fetchError) {
-        console.error('Error fetching projects:', JSON.stringify(fetchError, null, 2));
+        console.error('Error fetching projects:', fetchError);
+        // Check RLS policies on 'clients' and 'profiles' if this fails
         setError('Could not load available projects. Please ensure RLS policies on "clients" and "profiles" allow reads.');
         setProjects([]);
       } else if (allProjectsData) {
         const availableProjects = allProjectsData
           .filter(p => !joinedProjectIds.includes(p.id))
           .map(p => ({
-            id: p.id as string,
-            name: p.name as string,
-            description: p.project_brief as string | null,
-            original_creator_user_id: p.user_id as string | null,
-            creator_profile: (p.creator_profile && typeof p.creator_profile === 'object' && !Array.isArray(p.creator_profile)) 
-                        ? p.creator_profile as ProjectDetails['creator_profile'] 
+            id: p.id,
+            name: p.name,
+            description: p.project_brief, // Assuming project_brief is the description
+            // user_id: p.user_id, // Creator's ID
+            profiles: (p.profiles && typeof p.profiles === 'object' && !Array.isArray(p.profiles)) 
+                        ? p.profiles as ProjectDetails['profiles'] 
                         : null,
           }));
-        setProjects(availableProjects as ProjectDetails[]);
+        setProjects(availableProjects);
       }
       setLoading(false);
     };
@@ -170,16 +175,17 @@ export default function JoinProjectPage() {
             className="bg-slate-800 rounded-xl shadow-2xl p-8 flex flex-col justify-between border-2 border-slate-700 hover:border-sky-500 transition-all duration-300 ease-in-out hover:shadow-sky-500/50"
           >
             <div>
+              {/* You might want an icon for projects, similar to teams */}
               <h2 className="text-3xl font-bold mb-2 text-sky-300">{project.name}</h2>
-              {project.creator_profile?.display_name && (
+              {project.profiles?.display_name && (
                   <div className="mb-3 text-sm flex items-center text-gray-400">
                     <img 
-                      src={project.creator_profile.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF/?text=C'} 
-                      alt={project.creator_profile.display_name || 'Creator'} 
+                      src={project.profiles.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF/?text=C'} 
+                      alt={project.profiles.display_name || 'Creator'} 
                       className="w-6 h-6 rounded-full mr-2 object-cover border border-gray-600"
                       crossOrigin="anonymous"
                     />
-                    <span>Created by: {project.creator_profile.display_name}</span>
+                    <span>Created by: {project.profiles.display_name}</span>
                   </div>
                 )}
               <p className="text-md text-gray-300 opacity-90 min-h-[60px] mb-6">{project.description || 'No description available.'}</p>

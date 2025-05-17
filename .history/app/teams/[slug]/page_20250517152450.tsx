@@ -232,11 +232,8 @@ export default function TeamPage() {
         ...message,
         profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
       }));
-      console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
-      console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
       setMessages(messagesWithProfiles as Message[]);
     } else {
-      console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
       setMessages([]);
     }
     if (isManualRefresh) {
@@ -426,6 +423,7 @@ export default function TeamPage() {
         // Optional: Update optimistic message with real data if needed,
         // but real-time should handle this by replacing/updating.
         // Or trigger a fetch to ensure consistency if real-time is not fully trusted for this.
+        // await fetchMessages(teamDetails.id, true); // User requested refresh on send
       }
     } catch (err) {
       console.error('Exception posting message:', err);
@@ -439,7 +437,7 @@ export default function TeamPage() {
       // This will also trigger a scroll if messages change, via the useEffect hook
       if (teamDetails?.id) {
           console.log('[PostMessage] Triggering fetchMessages after post.');
-          await fetchMessages(teamDetails.id, true);
+          await fetchMessages(teamDetails.id, true); 
       }
     }
   };
@@ -534,196 +532,4 @@ export default function TeamPage() {
   const buttonBorderColor = teamDetails.color_scheme?.borderColor || 'border-gray-700';
 
   return (
-    <div className={`min-h-screen ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} text-gray-200 flex flex-col`}>
-      {/* Header */}
-      <header className={`w-full p-4 md:p-6 shadow-lg sticky top-0 z-10 ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} border-b ${teamDetails.color_scheme?.borderColor || 'border-gray-700'}`}>
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            <Link href="/profile" className={`mr-4 p-2 rounded-full hover:bg-white/10 transition-colors ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>
-              <FaArrowLeft className="h-5 w-5" />
-            </Link>
-            <IconComponent className={`text-3xl md:text-4xl mr-3 ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} />
-            <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => fetchMessages(teamDetails.id, true)}
-              disabled={refreshingMessages || loadingMessages}
-              title="Refresh Messages"
-              className={`p-2 rounded-md flex items-center transition-colors 
-                          ${teamDetails.color_scheme?.textColor || 'text-gray-100'} 
-                          hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {refreshingMessages ? (
-                <FaSpinner className="animate-spin h-5 w-5" />
-              ) : (
-                <FaSyncAlt className="h-5 w-5" />
-              )}
-            </button>
-            {currentUser && teamDetails && (
-              <button
-                onClick={handleLeaveTeam}
-                disabled={leavingTeam || deletingTeam} // Also disable if deleting team
-                className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
-                            ${buttonTextColor} bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border ${buttonBorderColor}`}
-              >
-                {leavingTeam ? (
-                  <FaSpinner className="animate-spin mr-2" />
-                ) : (
-                  <FaSignOutAlt className="mr-2" />
-                )}
-                {leavingTeam ? 'Leaving...' : 'Leave Team'}
-              </button>
-            )}
-            {currentUserRole === 'owner' && (
-              <button
-                onClick={handleDeleteTeam}
-                disabled={deletingTeam || leavingTeam}
-                className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
-                            text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed border border-red-500`}
-              >
-                {deletingTeam ? (
-                  <FaSpinner className="animate-spin mr-2" />
-                ) : (
-                  <FaTrashAlt className="mr-2" />
-                )}
-                {deletingTeam ? 'Deleting...' : 'Delete Team'}
-              </button>
-            )}
-          </div>
-        </div>
-        {teamDetails.description && (
-          <p className={`mt-2 text-sm text-center md:text-left md:pl-16 ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-80`}>{teamDetails.description}</p>
-        )}
-      </header>
-
-      {/* Error Display */}
-      {error && !loadingTeamDetails && !loadingMessages && (
-        <div className="container mx-auto mt-4">
-            <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-md relative shadow-lg" role="alert">
-                <strong className="font-bold">Error:</strong>
-                <span className="block sm:inline ml-2">{error}</span>
-            </div>
-        </div>
-      )}
-
-      {/* Chat Area */}
-      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
-        <div 
-          className="flex-grow overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-        >
-          {loadingMessages && !refreshingMessages ? ( // Show main loader only if not manually refreshing
-            <div className="flex justify-center items-center h-full">
-              <FaSpinner className="animate-spin text-3xl text-sky-400" />
-              <p className="ml-3 text-lg">Loading messages...</p>
-            </div>
-          ) : messages.length === 0 && !error ? (
-            <div className="text-center py-10">
-              <FaCommentDots className="mx-auto text-5xl text-gray-500 mb-4" />
-              <p className="text-gray-400 text-lg">No messages yet. Be the first to say something!</p>
-            </div>
-          ) : (
-            messages.map(message => {
-              // Diagnostic log for messages that would show "Unknown User"
-              if (!message.profiles?.display_name) {
-                console.log('[Render] Message missing profile display_name:', 
-                  {
-                    messageId: message.id, 
-                    userId: message.user_id, 
-                    profileData: message.profiles, 
-                    createdAt: message.created_at,
-                    content: message.content?.substring(0, 30) // Log first 30 chars of content for context
-                  }
-                );
-              }
-              return (
-                <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
-                  <img 
-                    src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
-                    alt={message.profiles?.display_name || 'User'} 
-                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
-                    crossOrigin="anonymous"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="font-semibold text-sky-400 text-sm">
-                        {message.profiles?.display_name || 'Unknown User'}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                      </span>
-                      {currentUser && message.user_id === currentUser.id && (
-                        <button 
-                          onClick={() => handleDeleteMessage(message.id)}
-                          disabled={deletingMessageId === message.id}
-                          className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full text-xs"
-                          aria-label="Delete message"
-                        >
-                          {deletingMessageId === message.id ? <FaSpinner className="animate-spin" /> : <FaTrashAlt />}
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-gray-300 text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                  </div>
-                </div>
-              );
-            })
-          )}
-          <div ref={messagesEndRef} /> 
-        </div>
-      </main>
-
-      {/* Message Input Form */}
-      {!loadingTeamDetails && teamDetails && (
-        <footer className={`w-full p-4 sticky bottom-0 ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} border-t ${teamDetails.color_scheme?.borderColor || 'border-gray-700'}`}>
-          <form onSubmit={handlePostMessage} className="container mx-auto flex items-center space-x-3">
-            <input
-              type="text"
-              value={newMessageContent}
-              onChange={(e) => setNewMessageContent(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm transition-colors"
-              disabled={postingMessage || !currentUser}
-            />
-            <button 
-              type="submit" 
-              disabled={postingMessage || !currentUser || !newMessageContent.trim()}
-              className={`px-6 py-3 rounded-lg font-semibold flex items-center justify-center shadow-md transition-colors 
-                         ${teamDetails.color_scheme?.textColor || 'text-white'} 
-                         ${postingMessage ? (teamDetails.color_scheme?.bgColor || 'bg-sky-700') : (teamDetails.color_scheme?.bgColor?.replace('bg-', 'hover:bg-') || 'hover:bg-sky-600')} 
-                         ${(teamDetails.color_scheme?.bgColor || 'bg-sky-600')} 
-                         border ${(teamDetails.color_scheme?.borderColor || 'border-sky-500')} 
-                         disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {postingMessage ? (
-                <FaSpinner className="animate-spin mr-2 h-5 w-5" /> 
-              ) : (
-                <FaPaperPlane className="mr-2 h-5 w-5" /> 
-              )}
-              {postingMessage ? 'Sending...' : 'Send'}
-            </button>
-          </form>
-        </footer>
-      )}
-    </div>
-  );
-}
-
-// Basic custom scrollbar styling (optional, can be moved to global CSS)
-// Add a <style jsx global> tag if you prefer to scope it or handle it in globals.css
-// For simplicity, just a note here. Use a real CSS solution for production.
-/*
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(128, 128, 128, 0.5); 
-  border-radius: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(128, 128, 128, 0.7);
-}
-*/
+    <div className={`min-h-screen ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} text-gray-200 flex flex-col`

@@ -52,20 +52,8 @@ export default function JoinTeamPage() {
       setError(null);
       const { data, error: fetchError } = await supabase
         .from('teams')
-        .select(`
-          id,
-          name,
-          slug,
-          description,
-          icon_name,
-          color_scheme,
-          created_by ( 
-            id,
-            raw_user_meta_data,
-            profiles!inner ( display_name, avatar_url )
-          )
-        `)
-        .order('name', { ascending: true });
+        .select('id, name, slug, description, icon_name, color_scheme, created_by, creator_profile:profiles(display_name, avatar_url)')
+        .order('name', { ascending: true }); 
 
       if (fetchError) {
         console.error('Error fetching teams on /teams/join page:', JSON.stringify(fetchError, null, 2));
@@ -76,7 +64,7 @@ export default function JoinTeamPage() {
           const rawColorScheme = team.color_scheme;
           let resolvedColorScheme: ColorScheme;
 
-          if (rawColorScheme && typeof rawColorScheme === 'object' &&
+          if (rawColorScheme && typeof rawColorScheme === 'object' && 
               'bgColor' in rawColorScheme && 'textColor' in rawColorScheme && 'borderColor' in rawColorScheme) {
             resolvedColorScheme = {
               bgColor: String(rawColorScheme.bgColor),
@@ -88,39 +76,24 @@ export default function JoinTeamPage() {
             resolvedColorScheme = { bgColor: 'bg-gray-800', textColor: 'text-gray-100', borderColor: 'border-gray-700' };
           }
 
-          const userObject = team.created_by; // Renamed from team.created_by_user
-          const userProfileData = userObject?.profiles;
-          let creatorProfile: Team['creator_profile'] = null;
-
-          if (userProfileData) {
-            const profile = Array.isArray(userProfileData) ? userProfileData[0] : userProfileData;
-            if (profile) {
-              creatorProfile = {
-                display_name: profile.display_name || userObject?.raw_user_meta_data?.name || null,
-                avatar_url: profile.avatar_url || userObject?.raw_user_meta_data?.avatar_url || null,
-              };
-            }
-          }
-          
-          if (!creatorProfile && userObject?.raw_user_meta_data) {
-            const meta = userObject.raw_user_meta_data;
-            if (meta.name || meta.avatar_url || meta.user_name || meta.full_name) {
-                 creatorProfile = {
-                    display_name: meta.name || meta.user_name || meta.full_name || null,
-                    avatar_url: meta.avatar_url || null,
-                 };
-            }
-          }
+          // Use team.creator_profile now
+          const creatorProfileData: Team['creator_profile'] = 
+            (team.creator_profile && typeof team.creator_profile === 'object' && !Array.isArray(team.creator_profile))
+            ? {
+                display_name: team.creator_profile.display_name || null,
+                avatar_url: team.creator_profile.avatar_url || null,
+              }
+            : null;
 
           return {
             id: team.id as string,
             name: team.name as string,
             slug: team.slug as string,
             description: team.description as string,
-            icon_name: (team.icon_name || 'FaQuestionCircle') as string, 
+            icon_name: (team.icon_name || 'FaQuestionCircle') as string, // Default icon
             color_scheme: resolvedColorScheme,
-            creator_profile: creatorProfile,
-            created_by_user_id: userObject?.id || null, 
+            creator_profile: creatorProfileData, // Use new field
+            created_by_user_id: team.created_by as string | null, // Store the user_id
           };
         });
         setTeams(processedData);

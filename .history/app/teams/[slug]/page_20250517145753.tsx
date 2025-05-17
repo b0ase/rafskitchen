@@ -232,11 +232,8 @@ export default function TeamPage() {
         ...message,
         profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
       }));
-      console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
-      console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
       setMessages(messagesWithProfiles as Message[]);
     } else {
-      console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
       setMessages([]);
     }
     if (isManualRefresh) {
@@ -249,7 +246,7 @@ export default function TeamPage() {
     // setTimeout(scrollToBottom, 0); 
     // However, let's rely on the messages useEffect first.
     console.log('[FetchMessages] Completed. Messages count:', messages.length);
-  }, [supabase /* removed scrollToBottom from here, messages effect handles it */]);
+  }, [supabase]);
   
   useEffect(() => {
     if (teamDetails?.id) {
@@ -259,11 +256,7 @@ export default function TeamPage() {
 
   // Real-time subscription for new messages
   useEffect(() => {
-    console.log('[Realtime Effect] Hook triggered. teamDetails?.id:', teamDetails?.id);
-    if (!teamDetails?.id) {
-      console.log('[Realtime Effect] Aborting: teamDetails.id is missing.');
-      return;
-    }
+    if (!teamDetails?.id) return;
     console.log(`[Realtime] Setting up subscription for team: ${teamDetails.id}`);
 
     const channel = supabase
@@ -344,7 +337,7 @@ export default function TeamPage() {
       console.log(`[Realtime] Cleaning up subscription for team: ${teamDetails.id}`);
       supabase.removeChannel(channel);
     };
-  }, [teamDetails, supabase]);
+  }, [teamDetails, supabase, profilesCache, setProfilesCache]);
 
   const handleLeaveTeam = async () => {
     if (!currentUser || !teamDetails) {
@@ -422,10 +415,11 @@ export default function TeamPage() {
         setMessages(prevMessages => prevMessages.filter(msg => msg.id !== tempId));
         console.log('[PostMessage] Optimistic message reverted due to error:', tempId);
       } else if (newMessageData) {
-        console.log('[PostMessage] Message posted successfully to DB:', newMessageData[0]);
+        console.log('[PostMessage] Message posted successfully to DB:', newMessageData);
         // Optional: Update optimistic message with real data if needed,
         // but real-time should handle this by replacing/updating.
         // Or trigger a fetch to ensure consistency if real-time is not fully trusted for this.
+        // await fetchMessages(teamDetails.id, true); // User requested refresh on send
       }
     } catch (err) {
       console.error('Exception posting message:', err);
@@ -439,7 +433,7 @@ export default function TeamPage() {
       // This will also trigger a scroll if messages change, via the useEffect hook
       if (teamDetails?.id) {
           console.log('[PostMessage] Triggering fetchMessages after post.');
-          await fetchMessages(teamDetails.id, true);
+          await fetchMessages(teamDetails.id, true); 
       }
     }
   };
@@ -610,6 +604,7 @@ export default function TeamPage() {
       {/* Chat Area */}
       <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
         <div 
+          ref={messagesEndRef} // Assign ref to the scrollable container
           className="flex-grow overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >
           {loadingMessages && !refreshingMessages ? ( // Show main loader only if not manually refreshing
@@ -669,7 +664,6 @@ export default function TeamPage() {
               );
             })
           )}
-          <div ref={messagesEndRef} /> 
         </div>
       </main>
 
@@ -681,26 +675,23 @@ export default function TeamPage() {
               type="text"
               value={newMessageContent}
               onChange={(e) => setNewMessageContent(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm transition-colors"
-              disabled={postingMessage || !currentUser}
+              placeholder={currentUser ? "Type your message..." : "You must be logged in to chat"}
+              className="flex-grow p-3 border border-gray-600 rounded-l-md focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white placeholder-gray-400 resize-none"
+              rows={1}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handlePostMessage(e as unknown as FormEvent);
+                }
+              }}
             />
-            <button 
-              type="submit" 
-              disabled={postingMessage || !currentUser || !newMessageContent.trim()}
-              className={`px-6 py-3 rounded-lg font-semibold flex items-center justify-center shadow-md transition-colors 
-                         ${teamDetails.color_scheme?.textColor || 'text-white'} 
-                         ${postingMessage ? (teamDetails.color_scheme?.bgColor || 'bg-sky-700') : (teamDetails.color_scheme?.bgColor?.replace('bg-', 'hover:bg-') || 'hover:bg-sky-600')} 
-                         ${(teamDetails.color_scheme?.bgColor || 'bg-sky-600')} 
-                         border ${(teamDetails.color_scheme?.borderColor || 'border-sky-500')} 
-                         disabled:opacity-50 disabled:cursor-not-allowed`}
+            <button
+              type="submit"
+              disabled={postingMessage || !currentUser || !teamDetails || !newMessageContent.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-r-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50"
             >
-              {postingMessage ? (
-                <FaSpinner className="animate-spin mr-2 h-5 w-5" /> 
-              ) : (
-                <FaPaperPlane className="mr-2 h-5 w-5" /> 
-              )}
-              {postingMessage ? 'Sending...' : 'Send'}
+              {postingMessage ? <FaSpinner className="animate-spin" /> : <FaPaperPlane />}
+              <span className="ml-2 hidden sm:inline">Send</span>
             </button>
           </form>
         </footer>

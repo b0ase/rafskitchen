@@ -232,11 +232,8 @@ export default function TeamPage() {
         ...message,
         profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
       }));
-      console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
-      console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
       setMessages(messagesWithProfiles as Message[]);
     } else {
-      console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
       setMessages([]);
     }
     if (isManualRefresh) {
@@ -426,6 +423,7 @@ export default function TeamPage() {
         // Optional: Update optimistic message with real data if needed,
         // but real-time should handle this by replacing/updating.
         // Or trigger a fetch to ensure consistency if real-time is not fully trusted for this.
+        // await fetchMessages(teamDetails.id, true); // User requested refresh on send
       }
     } catch (err) {
       console.error('Exception posting message:', err);
@@ -438,8 +436,8 @@ export default function TeamPage() {
       // User request: refresh messages after send to ensure everything is up-to-date
       // This will also trigger a scroll if messages change, via the useEffect hook
       if (teamDetails?.id) {
-          console.log('[PostMessage] Triggering fetchMessages after post.');
-          await fetchMessages(teamDetails.id, true);
+          console.log('[PostMessage] Triggering fetchMessages after post. -- TEMPORARILY DISABLED FOR DIAGNOSIS');
+          // await fetchMessages(teamDetails.id, true); // Temporarily disabled
       }
     }
   };

@@ -29,11 +29,10 @@ interface Team {
   description: string;
   icon_name: string | null;
   color_scheme: ColorScheme | null;
-  creator_profile: {
+  profiles: {
     display_name: string | null;
     avatar_url?: string | null;
-  } | null;
-  created_by_user_id: string | null;
+  } | null; // For creator's profile
 }
 
 export default function JoinTeamPage() {
@@ -52,64 +51,34 @@ export default function JoinTeamPage() {
       setError(null);
       const { data, error: fetchError } = await supabase
         .from('teams')
-        .select(`
-          id,
-          name,
-          slug,
-          description,
-          icon_name,
-          color_scheme,
-          created_by ( 
-            id,
-            raw_user_meta_data,
-            profiles!inner ( display_name, avatar_url )
-          )
-        `)
-        .order('name', { ascending: true });
+        .select('id, name, slug, description, icon_name, color_scheme, profiles:created_by (display_name, avatar_url)') // Added profiles join
+        .order('name', { ascending: true }); 
 
       if (fetchError) {
-        console.error('Error fetching teams on /teams/join page:', JSON.stringify(fetchError, null, 2));
+        console.error('Error fetching teams on /teams/join page:', JSON.stringify(fetchError, null, 2)); // Log the full error
         setError('Could not load teams. Please try again later.');
         setTeams([]);
       } else if (data) {
-        const processedData: Team[] = data.map((team: any) => {
-          const rawColorScheme = team.color_scheme;
-          let resolvedColorScheme: ColorScheme;
+        const processedData = data.map((team: any) => {
+          let creatorProfile: Team['profiles'] = null;
+          if (Array.isArray(team.profiles) && team.profiles.length > 0) {
+            creatorProfile = team.profiles[0] as Team['profiles']; // Ensure the object matches ProfileForMessage
+          } else if (team.profiles && typeof team.profiles === 'object' && !Array.isArray(team.profiles)) {
+            creatorProfile = team.profiles as Team['profiles']; // Ensure the object matches ProfileForMessage
+          }
 
-          if (rawColorScheme && typeof rawColorScheme === 'object' &&
-              'bgColor' in rawColorScheme && 'textColor' in rawColorScheme && 'borderColor' in rawColorScheme) {
+          let resolvedColorScheme: ColorScheme;
+          if (team.color_scheme && typeof team.color_scheme === 'object' && 
+              team.color_scheme.hasOwnProperty('bgColor') && 
+              team.color_scheme.hasOwnProperty('textColor') && 
+              team.color_scheme.hasOwnProperty('borderColor')) {
             resolvedColorScheme = {
-              bgColor: String(rawColorScheme.bgColor),
-              textColor: String(rawColorScheme.textColor),
-              borderColor: String(rawColorScheme.borderColor),
+              bgColor: String(team.color_scheme.bgColor),
+              textColor: String(team.color_scheme.textColor),
+              borderColor: String(team.color_scheme.borderColor),
             };
           } else {
-            // Default color scheme
-            resolvedColorScheme = { bgColor: 'bg-gray-800', textColor: 'text-gray-100', borderColor: 'border-gray-700' };
-          }
-
-          const userObject = team.created_by; // Renamed from team.created_by_user
-          const userProfileData = userObject?.profiles;
-          let creatorProfile: Team['creator_profile'] = null;
-
-          if (userProfileData) {
-            const profile = Array.isArray(userProfileData) ? userProfileData[0] : userProfileData;
-            if (profile) {
-              creatorProfile = {
-                display_name: profile.display_name || userObject?.raw_user_meta_data?.name || null,
-                avatar_url: profile.avatar_url || userObject?.raw_user_meta_data?.avatar_url || null,
-              };
-            }
-          }
-          
-          if (!creatorProfile && userObject?.raw_user_meta_data) {
-            const meta = userObject.raw_user_meta_data;
-            if (meta.name || meta.avatar_url || meta.user_name || meta.full_name) {
-                 creatorProfile = {
-                    display_name: meta.name || meta.user_name || meta.full_name || null,
-                    avatar_url: meta.avatar_url || null,
-                 };
-            }
+            resolvedColorScheme = { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' };
           }
 
           return {
@@ -117,13 +86,12 @@ export default function JoinTeamPage() {
             name: team.name as string,
             slug: team.slug as string,
             description: team.description as string,
-            icon_name: (team.icon_name || 'FaQuestionCircle') as string, 
+            icon_name: (team.icon_name || 'FaQuestionCircle') as string,
             color_scheme: resolvedColorScheme,
-            creator_profile: creatorProfile,
-            created_by_user_id: userObject?.id || null, 
-          };
+            profiles: creatorProfile,
+          } as Team; // Cast the whole returned object to Team
         });
-        setTeams(processedData);
+        setTeams(processedData); // processedData should now be Team[]
       }
       setLoading(false);
     };
@@ -223,15 +191,15 @@ export default function JoinTeamPage() {
               <div>
                 <IconComponent className={`text-5xl mb-6 ${textColor} opacity-80`} />
                 <h2 className={`text-3xl font-bold mb-1 ${textColor}`}>{team.name}</h2>
-                {team.creator_profile?.display_name && (
+                {team.profiles?.display_name && (
                   <div className="mb-3 text-sm flex items-center opacity-70">
                     <img 
-                      src={team.creator_profile.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF/?text=C'} 
-                      alt={team.creator_profile.display_name || 'Creator'} 
+                      src={team.profiles.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF/?text=C'} 
+                      alt={team.profiles.display_name || 'Creator'} 
                       className="w-5 h-5 rounded-full mr-2 object-cover"
                       crossOrigin="anonymous"
                     />
-                    <span className={textColor}>Created by: {team.creator_profile.display_name}</span>
+                    <span className={textColor}>Created by: {team.profiles.display_name}</span>
                   </div>
                 )}
                 <p className={`text-md mb-8 ${textColor} opacity-90 min-h-[60px]`}>{team.description}</p>

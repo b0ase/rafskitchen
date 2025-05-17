@@ -59,10 +59,10 @@ export default function JoinTeamPage() {
           description,
           icon_name,
           color_scheme,
-          created_by ( 
+          created_by_user:created_by (
             id,
-            raw_user_meta_data,
-            profiles!inner ( display_name, avatar_url )
+            raw_user_meta_data, 
+            profiles ( display_name, avatar_url )
           )
         `)
         .order('name', { ascending: true });
@@ -88,22 +88,24 @@ export default function JoinTeamPage() {
             resolvedColorScheme = { bgColor: 'bg-gray-800', textColor: 'text-gray-100', borderColor: 'border-gray-700' };
           }
 
-          const userObject = team.created_by; // Renamed from team.created_by_user
-          const userProfileData = userObject?.profiles;
+          const userProfileData = team.created_by_user?.profiles;
           let creatorProfile: Team['creator_profile'] = null;
 
           if (userProfileData) {
+            // Handle cases where profiles might be an array (though typically 1-to-1, PostgREST might return array for consistency)
             const profile = Array.isArray(userProfileData) ? userProfileData[0] : userProfileData;
             if (profile) {
               creatorProfile = {
-                display_name: profile.display_name || userObject?.raw_user_meta_data?.name || null,
-                avatar_url: profile.avatar_url || userObject?.raw_user_meta_data?.avatar_url || null,
+                display_name: profile.display_name || team.created_by_user?.raw_user_meta_data?.name || null,
+                avatar_url: profile.avatar_url || team.created_by_user?.raw_user_meta_data?.avatar_url || null,
               };
             }
           }
           
-          if (!creatorProfile && userObject?.raw_user_meta_data) {
-            const meta = userObject.raw_user_meta_data;
+          // Fallback if profile not directly found through profiles table, but exists in raw_user_meta_data
+          if (!creatorProfile && team.created_by_user?.raw_user_meta_data) {
+            const meta = team.created_by_user.raw_user_meta_data;
+            // Check if essential profile data is present in raw_user_meta_data
             if (meta.name || meta.avatar_url || meta.user_name || meta.full_name) {
                  creatorProfile = {
                     display_name: meta.name || meta.user_name || meta.full_name || null,
@@ -117,10 +119,10 @@ export default function JoinTeamPage() {
             name: team.name as string,
             slug: team.slug as string,
             description: team.description as string,
-            icon_name: (team.icon_name || 'FaQuestionCircle') as string, 
+            icon_name: (team.icon_name || 'FaQuestionCircle') as string, // Default icon
             color_scheme: resolvedColorScheme,
             creator_profile: creatorProfile,
-            created_by_user_id: userObject?.id || null, 
+            created_by_user_id: team.created_by_user?.id || null, 
           };
         });
         setTeams(processedData);

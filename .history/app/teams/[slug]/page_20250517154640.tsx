@@ -232,11 +232,8 @@ export default function TeamPage() {
         ...message,
         profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
       }));
-      console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
-      console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
       setMessages(messagesWithProfiles as Message[]);
     } else {
-      console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
       setMessages([]);
     }
     if (isManualRefresh) {

@@ -1078,13 +1078,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_team_messages_user_id_to_profiles_id"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "team_mesaages_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
@@ -1097,7 +1090,6 @@ export type Database = {
         Row: {
           color_scheme: Json | null
           created_at: string | null
-          created_by: string | null
           description: string | null
           icon_name: string | null
           id: string
@@ -1107,7 +1099,6 @@ export type Database = {
         Insert: {
           color_scheme?: Json | null
           created_at?: string | null
-          created_by?: string | null
           description?: string | null
           icon_name?: string | null
           id?: string
@@ -1117,7 +1108,6 @@ export type Database = {
         Update: {
           color_scheme?: Json | null
           created_at?: string | null
-          created_by?: string | null
           description?: string | null
           icon_name?: string | null
           id?: string
@@ -1407,38 +1397,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_project_memberships: {
-        Row: {
-          created_at: string | null
-          id: string
-          project_id: string
-          role: Database["public"]["Enums"]["project_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          project_id: string
-          role?: Database["public"]["Enums"]["project_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          project_id?: string
-          role?: Database["public"]["Enums"]["project_role"]
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_project_memberships_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_skills: {
         Row: {
           created_at: string
@@ -1472,21 +1430,18 @@ export type Database = {
         Row: {
           id: string
           joined_at: string | null
-          role: Database["public"]["Enums"]["team_role"]
           team_id: string
           user_id: string
         }
         Insert: {
           id?: string
           joined_at?: string | null
-          role?: Database["public"]["Enums"]["team_role"]
           team_id: string
           user_id: string
         }
         Update: {
           id?: string
           joined_at?: string | null
-          role?: Database["public"]["Enums"]["team_role"]
           team_id?: string
           user_id?: string
         }
@@ -1526,10 +1481,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_team_owner: {
-        Args: { team_id_to_check: string }
-        Returns: boolean
-      }
       is_user_project_manager: {
         Args: { user_id_to_check: string; project_id_to_check: string }
         Returns: boolean
@@ -1552,8 +1503,6 @@ export type Database = {
         | "collaborator"
         | "client_contact"
         | "viewer"
-        | "member"
-      team_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1687,9 +1636,7 @@ export const Constants = {
         "collaborator",
         "client_contact",
         "viewer",
-        "member",
       ],
-      team_role: ["owner", "admin", "member"],
     },
   },
 } as const

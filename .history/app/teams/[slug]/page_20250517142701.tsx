@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, FormEvent, useCallback, useRef } from 'react';
+import React, { useEffect, useState, FormEvent, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 // import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs'; // Keep commented
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // USE THIS
@@ -73,35 +73,6 @@ export default function TeamPage() {
   const [currentUserRole, setCurrentUserRole] = useState<string | null>(null); // For team role
   const [deletingTeam, setDeletingTeam] = useState<boolean>(false); // For team deletion
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for scrolling
-
-  // Scroll to bottom utility
-  const scrollToBottom = useCallback(() => {
-    console.log('[Scroll] Attempting to scroll. messagesEndRef.current:', messagesEndRef.current);
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
-      console.log('[Scroll] scrollIntoView({ behavior: "auto" }) called on:', messagesEndRef.current);
-    } else {
-      console.log('[Scroll] messagesEndRef.current is null, cannot scroll.');
-    }
-  }, []); // No dependencies, relies on the ref's current value
-
-  // Effect to scroll when messages change (new message sent/received, or initial load)
-  useEffect(() => {
-    console.log('[Scroll Effect] Triggered. Messages count:', messages.length);
-    if (messages.length > 0) {
-      // Using a timeout to allow the DOM to update before scrolling
-      const timerId = setTimeout(() => {
-        console.log('[Scroll Effect] Executing scrollToBottom via setTimeout.');
-        scrollToBottom();
-      }, 100); // 100ms delay, adjust if needed
-      return () => {
-        console.log('[Scroll Effect] Cleanup: Clearing setTimeout for scroll.');
-        clearTimeout(timerId);
-      };
-    }
-  }, [messages, scrollToBottom]); // scrollToBottom is stable due to useCallback([])
-
   // Fetch current user
   useEffect(() => {
     const getUser = async () => {
@@ -160,10 +131,8 @@ export default function TeamPage() {
       console.error('Error fetching user role in team:', roleError);
       // Not a critical error for displaying team, but impacts owner actions
       setCurrentUserRole(null); 
-    } else if (roleData && 'role' in roleData) {
+    } else if (roleData) {
       setCurrentUserRole(roleData.role as string);
-    } else {
-      setCurrentUserRole(null); // Explicitly set to null if role not found
     }
 
     setLoadingTeamDetails(false);
@@ -179,7 +148,6 @@ export default function TeamPage() {
   // Fetch messages
   const fetchMessages = useCallback(async (teamId: string, isManualRefresh: boolean = false) => {
     if (!teamId) return;
-    console.log(`[FetchMessages] Called for teamId: ${teamId}, isManualRefresh: ${isManualRefresh}`);
     if (isManualRefresh) {
       setRefreshingMessages(true);
     } else {
@@ -232,11 +200,8 @@ export default function TeamPage() {
         ...message,
         profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
       }));
-      console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
-      console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
       setMessages(messagesWithProfiles as Message[]);
     } else {
-      console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
       setMessages([]);
     }
     if (isManualRefresh) {
@@ -244,12 +209,7 @@ export default function TeamPage() {
     } else {
       setLoadingMessages(false);
     }
-    // The useEffect watching `messages` should handle scrolling.
-    // As a fallback, or for very specific timing needs, one might add:
-    // setTimeout(scrollToBottom, 0); 
-    // However, let's rely on the messages useEffect first.
-    console.log('[FetchMessages] Completed. Messages count:', messages.length);
-  }, [supabase /* removed scrollToBottom from here, messages effect handles it */]);
+  }, [supabase]);
   
   useEffect(() => {
     if (teamDetails?.id) {
@@ -259,12 +219,7 @@ export default function TeamPage() {
 
   // Real-time subscription for new messages
   useEffect(() => {
-    console.log('[Realtime Effect] Hook triggered. teamDetails?.id:', teamDetails?.id);
-    if (!teamDetails?.id) {
-      console.log('[Realtime Effect] Aborting: teamDetails.id is missing.');
-      return;
-    }
-    console.log(`[Realtime] Setting up subscription for team: ${teamDetails.id}`);
+    if (!teamDetails?.id) return;
 
     const channel = supabase
       .channel(`team-messages-${teamDetails.id}`)
@@ -272,22 +227,17 @@ export default function TeamPage() {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'team_messages', filter: `team_id=eq.${teamDetails.id}` },
         async (payload) => {
-          console.log('[Realtime] New message received (raw payload):', payload.new);
-          const newMessageRaw = payload.new as Omit<Message, 'profiles'> & { user_id: string; id: string; content: string; created_at: string; team_id: string; };
-
-          if (!newMessageRaw || !newMessageRaw.id || !newMessageRaw.user_id) {
-            console.error('[Realtime] Received incomplete message payload:', newMessageRaw);
-            return;
-          }
+          console.log('[Realtime] New message received:', payload.new);
+          const newMessageRaw = payload.new as Omit<Message, 'profiles'> & { user_id: string; id: string; content: string; created_at: string; team_id: string; }; // Ensure required fields
 
           let senderProfile: ProfileForMessage | null = null;
 
           if (newMessageRaw.user_id) {
             if (profilesCache[newMessageRaw.user_id]) {
               senderProfile = profilesCache[newMessageRaw.user_id];
-              console.log('[Realtime] Profile found in cache for user (realtime):', newMessageRaw.user_id);
+              console.log('[Realtime] Profile found in cache for user:', newMessageRaw.user_id);
             } else {
-              console.log('[Realtime] Profile not in cache, fetching for user (realtime):', newMessageRaw.user_id);
+              console.log('[Realtime] Profile not in cache, fetching for user:', newMessageRaw.user_id);
               const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('display_name, avatar_url')
@@ -295,18 +245,21 @@ export default function TeamPage() {
                 .single();
 
               if (profileError) {
-                console.error('[Realtime] Error fetching profile for new message (realtime):', profileError);
+                console.error("[Realtime] Error fetching profile for new message:", profileError);
               } else if (profileData) {
-                senderProfile = { display_name: profileData.display_name, avatar_url: profileData.avatar_url };
+                senderProfile = profileData as ProfileForMessage;
                 setProfilesCache(prevCache => ({ ...prevCache, [newMessageRaw.user_id]: senderProfile as ProfileForMessage }));
-                console.log('[Realtime] Profile fetched and cached for user (realtime):', newMessageRaw.user_id, senderProfile);
+                console.log('[Realtime] Profile fetched and cached for user:', newMessageRaw.user_id);
               } else {
-                 console.log('[Realtime] No profile data returned for user (realtime):', newMessageRaw.user_id);
+                 console.warn("[Realtime] Profile not found on fetch for user_id:", newMessageRaw.user_id);
               }
             }
+          } else {
+            console.warn("[Realtime] New message received without user_id:", newMessageRaw);
           }
-
-          const newMessage: Message = {
+          
+          // Construct the full message object
+          const fullNewMessage: Message = {
             id: newMessageRaw.id,
             content: newMessageRaw.content,
             created_at: newMessageRaw.created_at,
@@ -314,37 +267,34 @@ export default function TeamPage() {
             team_id: newMessageRaw.team_id,
             profiles: senderProfile,
           };
-          console.log('[Realtime] Processed new message:', newMessage);
 
-          setMessages((prevMessages) => {
-            const messageExists = prevMessages.find(m => m.id === newMessage.id);
-            if (messageExists) {
-              console.log('[Realtime] Message already exists, updating:', newMessage.id);
-              return prevMessages.map(m => m.id === newMessage.id ? newMessage : m);
+          setMessages(currentMessages => {
+            const existingMsgIndex = currentMessages.findIndex(m => m.id === fullNewMessage.id);
+            if (existingMsgIndex !== -1) {
+              // Update existing message (e.g., if profile info was missing or to confirm)
+              const updatedMessages = [...currentMessages];
+              // Ensure we preserve the potentially more complete optimistic profile if one exists,
+              // but update with confirmed data like created_at from DB.
+              // Or, if fullNewMessage.profiles is more complete, use that.
+              // For now, simple merge prioritizing fullNewMessage which comes from DB via real-time.
+              updatedMessages[existingMsgIndex] = { ...currentMessages[existingMsgIndex], ...fullNewMessage };
+              console.log('[Realtime] Updated existing message ID:', fullNewMessage.id);
+              return updatedMessages;
             } else {
-              console.log('[Realtime] Adding new message:', newMessage.id);
-              return [...prevMessages, newMessage];
+              // Add as a new message
+              console.log('[Realtime] Added new message ID:', fullNewMessage.id);
+              return [...currentMessages, fullNewMessage];
             }
           });
-          // Scrolling is handled by the useEffect watching `messages`
         }
       )
-      .subscribe((status, err) => {
-        console.log(`[Realtime] Subscription status: ${status}`, err || '');
-        if (status === 'SUBSCRIBED') {
-          console.log(`[Realtime] Successfully subscribed to team-messages-${teamDetails.id}`);
-        }
-        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-            console.error(`[Realtime] Subscription error/closed: ${status}`, err)
-            // Optionally, attempt to resubscribe or notify user
-        }
-      });
+      .subscribe();
 
     return () => {
-      console.log(`[Realtime] Cleaning up subscription for team: ${teamDetails.id}`);
       supabase.removeChannel(channel);
     };
-  }, [teamDetails, supabase]);
+  }, [supabase, teamDetails?.id]); // MODIFIED: Removed profilesCache and setProfilesCache from dependencies
+
 
   const handleLeaveTeam = async () => {
     if (!currentUser || !teamDetails) {
@@ -380,68 +330,61 @@ export default function TeamPage() {
 
   const handlePostMessage = async (e: FormEvent) => {
     e.preventDefault();
-    if (!newMessageContent.trim() || !currentUser || !teamDetails) {
-        console.log('[PostMessage] Aborted: Missing content, user, or teamDetails.');
-        return;
+    if (!newMessageContent.trim() || !currentUser || !teamDetails?.id) {
+      setError('Message cannot be empty, or user/team not properly loaded.');
+      return;
     }
-
     setPostingMessage(true);
-    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`; // More unique temp ID
-    const optimisticMessage: Message = {
-      id: tempId,
-      content: newMessageContent,
-      created_at: new Date().toISOString(),
-      user_id: currentUser.id,
-      team_id: teamDetails.id,
-      profiles: { // Use current user's data for optimistic update
-        display_name: profilesCache[currentUser.id]?.display_name || currentUser.user_metadata?.display_name || currentUser.user_metadata?.full_name || currentUser.email || 'You',
-        avatar_url: profilesCache[currentUser.id]?.avatar_url || currentUser.user_metadata?.avatar_url || null,
-      },
+    setError(null);
+
+    const tempMessageId = `temp-${Date.now()}`;
+    const contentToPost = newMessageContent.trim();
+
+    // Optimistic UI update for the sender
+    const senderProfile: ProfileForMessage | null = {
+      display_name: currentUser.user_metadata?.display_name || currentUser.email?.split('@')[0] || 'You',
+      avatar_url: currentUser.user_metadata?.avatar_url || null,
     };
 
-    console.log('[PostMessage] Posting optimistic message:', optimisticMessage);
-    setMessages(prevMessages => [...prevMessages, optimisticMessage]);
-    setNewMessageContent('');
-    // Scrolling is handled by the useEffect watching `messages`
+    const optimisticMessage: Message = {
+      id: tempMessageId, // Temporary ID
+      content: contentToPost,
+      created_at: new Date().toISOString(),
+      user_id: currentUser.id,
+      team_id: teamDetails.id, // Add team_id if it's part of your Message interface & needed
+      profiles: senderProfile,
+    };
 
-    try {
-      const { data: newMessageData, error: postError } = await supabase
-        .from('team_messages')
-        .insert({
-          content: newMessageContent,
-          user_id: currentUser.id,
-          team_id: teamDetails.id,
-        })
-        .select('id, created_at') // Select the real ID and created_at from the DB
-        .single();
+    setMessages(currentMessages => [...currentMessages, optimisticMessage]);
+    setNewMessageContent(''); // Clear input immediately
 
-      if (postError) {
-        console.error('Error posting message:', postError);
-        setError(prev => prev ? `${prev} | Failed to send message.` : 'Failed to send message.');
-        // Revert optimistic update
-        setMessages(prevMessages => prevMessages.filter(msg => msg.id !== tempId));
-        console.log('[PostMessage] Optimistic message reverted due to error:', tempId);
-      } else if (newMessageData) {
-        console.log('[PostMessage] Message posted successfully to DB:', newMessageData[0]);
-        // Optional: Update optimistic message with real data if needed,
-        // but real-time should handle this by replacing/updating.
-        // Or trigger a fetch to ensure consistency if real-time is not fully trusted for this.
-      }
-    } catch (err) {
-      console.error('Exception posting message:', err);
-      setError(prev => prev ? `${prev} | Exception sending message.` : 'Exception sending message.');
-      setMessages(prevMessages => prevMessages.filter(msg => msg.id !== tempId));
-      console.log('[PostMessage] Optimistic message reverted due to exception:', tempId);
-    } finally {
-      setPostingMessage(false);
-      console.log('[PostMessage] Finished.');
-      // User request: refresh messages after send to ensure everything is up-to-date
-      // This will also trigger a scroll if messages change, via the useEffect hook
-      if (teamDetails?.id) {
-          console.log('[PostMessage] Triggering fetchMessages after post.');
-          await fetchMessages(teamDetails.id, true);
-      }
+    const { data: insertedMessage, error: insertError } = await supabase
+      .from('team_messages')
+      .insert({
+        content: contentToPost,
+        user_id: currentUser.id,
+        team_id: teamDetails.id,
+      })
+      .select('id, created_at') // Select the real ID and created_at from the DB
+      .single();
+
+    if (insertError) {
+      console.error('Error posting message:', insertError);
+      setError(`Failed to post message: ${insertError.message}`);
+      // Rollback optimistic update
+      setMessages(currentMessages => currentMessages.filter(msg => msg.id !== tempMessageId));
+      setNewMessageContent(contentToPost); // Restore content to input
+    } else if (insertedMessage) {
+      // Update the optimistic message with the real ID and created_at from the database
+      setMessages(currentMessages => 
+        currentMessages.map(msg => 
+          msg.id === tempMessageId ? { ...optimisticMessage, id: insertedMessage.id, created_at: insertedMessage.created_at } : msg
+        )
+      );
+      // The realtime listener will still run and might further update/confirm this message with profile from DB if needed,
+      // but this ensures the sender sees it correctly and immediately.
     }
+    setPostingMessage(false);
   };
 
   const handleDeleteMessage = async (messageId: string) => {
@@ -546,20 +489,6 @@ export default function TeamPage() {
             <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => fetchMessages(teamDetails.id, true)}
-              disabled={refreshingMessages || loadingMessages}
-              title="Refresh Messages"
-              className={`p-2 rounded-md flex items-center transition-colors 
-                          ${teamDetails.color_scheme?.textColor || 'text-gray-100'} 
-                          hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {refreshingMessages ? (
-                <FaSpinner className="animate-spin h-5 w-5" />
-              ) : (
-                <FaSyncAlt className="h-5 w-5" />
-              )}
-            </button>
             {currentUser && teamDetails && (
               <button
                 onClick={handleLeaveTeam}
@@ -609,9 +538,25 @@ export default function TeamPage() {
 
       {/* Chat Area */}
       <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
-        <div 
-          className="flex-grow overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-        >
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-semibold text-gray-300">Messages</h2>
+          <button
+            onClick={() => fetchMessages(teamDetails.id, true)}
+            disabled={refreshingMessages || loadingMessages}
+            className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
+                        ${teamDetails.color_scheme?.textColor || 'text-gray-100'} 
+                        bg-sky-600 hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed 
+                        border ${teamDetails.color_scheme?.borderColor || 'border-sky-500'}`}
+          >
+            {refreshingMessages ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              <FaSyncAlt className="w-4 h-4 mr-2" />
+            )}
+            {refreshingMessages ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+        <div className="flex-grow overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           {loadingMessages && !refreshingMessages ? ( // Show main loader only if not manually refreshing
             <div className="flex justify-center items-center h-full">
               <FaSpinner className="animate-spin text-3xl text-sky-400" />
@@ -623,53 +568,38 @@ export default function TeamPage() {
               <p className="text-gray-400 text-lg">No messages yet. Be the first to say something!</p>
             </div>
           ) : (
-            messages.map(message => {
-              // Diagnostic log for messages that would show "Unknown User"
-              if (!message.profiles?.display_name) {
-                console.log('[Render] Message missing profile display_name:', 
-                  {
-                    messageId: message.id, 
-                    userId: message.user_id, 
-                    profileData: message.profiles, 
-                    createdAt: message.created_at,
-                    content: message.content?.substring(0, 30) // Log first 30 chars of content for context
-                  }
-                );
-              }
-              return (
-                <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
-                  <img 
-                    src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
-                    alt={message.profiles?.display_name || 'User'} 
-                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
-                    crossOrigin="anonymous"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="font-semibold text-sky-400 text-sm">
-                        {message.profiles?.display_name || 'Unknown User'}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                      </span>
-                      {currentUser && message.user_id === currentUser.id && (
-                        <button 
-                          onClick={() => handleDeleteMessage(message.id)}
-                          disabled={deletingMessageId === message.id}
-                          className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full text-xs"
-                          aria-label="Delete message"
-                        >
-                          {deletingMessageId === message.id ? <FaSpinner className="animate-spin" /> : <FaTrashAlt />}
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-gray-300 text-sm whitespace-pre-wrap break-words">{message.content}</p>
+            messages.map(message => (
+              <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
+                <img 
+                  src={message.profiles?.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF/?text=User'} 
+                  alt={message.profiles?.display_name || 'User'} 
+                  className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
+                  crossOrigin="anonymous"
+                />
+                <div className="flex-1">
+                  <div className="flex items-baseline space-x-2">
+                    <span className="font-semibold text-sky-400 text-sm">
+                      {message.profiles?.display_name || 'Unknown User'}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                    </span>
+                    {currentUser && message.user_id === currentUser.id && (
+                      <button 
+                        onClick={() => handleDeleteMessage(message.id)}
+                        disabled={deletingMessageId === message.id}
+                        className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full text-xs"
+                        aria-label="Delete message"
+                      >
+                        {deletingMessageId === message.id ? <FaSpinner className="animate-spin" /> : <FaTrashAlt />}
+                      </button>
+                    )}
                   </div>
+                  <p className="text-gray-300 text-sm whitespace-pre-wrap break-words">{message.content}</p>
                 </div>
-              );
-            })
+              </div>
+            ))
           )}
-          <div ref={messagesEndRef} /> 
         </div>
       </main>
 
