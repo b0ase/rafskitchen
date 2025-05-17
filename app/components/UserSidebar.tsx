@@ -81,15 +81,9 @@ export default function UserSidebar({ onSetPageContext, isSidebarOpen, toggleSid
         console.log('[UserSidebar] SIGNED_IN or other event with user. Setting user state.', session.user.id);
         const currentUser = session.user;
         setUser(currentUser);
-        const metaAvatarUrl = currentUser.user_metadata?.avatar_url as string | null;
-        if (metaAvatarUrl) {
-          console.log('[UserSidebar] Avatar URL from user_metadata:', metaAvatarUrl);
-          setUserAvatarUrl(metaAvatarUrl);
-        } else {
-          // If not in metadata, fetchUserProfile will attempt to get it from 'profiles' table
-          // Consider if an explicit null setting is needed here or if fetchUserProfile handles it
-          console.log('[UserSidebar] Avatar URL not in user_metadata. Will rely on fetchUserProfile.');
-        }
+        // Avatar will be fetched by fetchUserProfile based on user.id
+        // No longer setting userAvatarUrl from user_metadata here to ensure profiles table is the source of truth for custom avatars.
+        console.log('[UserSidebar] User session identified. fetchUserProfile will handle avatar.');
       } else {
         console.log('[UserSidebar] No session user. Clearing user state.');
         setUser(null);
