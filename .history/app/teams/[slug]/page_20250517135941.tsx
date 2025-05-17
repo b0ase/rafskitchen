@@ -165,7 +165,7 @@ export default function TeamPage() {
       setMessages([]);
     }
     setLoadingMessages(false);
-  }, [supabase]);
+  }, [supabase, profilesCache]);
   
   useEffect(() => {
     fetchTeamDetails();

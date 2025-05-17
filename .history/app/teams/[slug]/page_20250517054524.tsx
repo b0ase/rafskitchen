@@ -165,7 +165,7 @@ export default function TeamPage() {
       setMessages([]);
     }
     setLoadingMessages(false);
-  }, [supabase]);
+  }, [supabase, profilesCache]);
   
   useEffect(() => {
     fetchTeamDetails();
@@ -228,24 +228,7 @@ export default function TeamPage() {
             profiles: senderProfile,
           };
 
-          setMessages(currentMessages => {
-            const existingMsgIndex = currentMessages.findIndex(m => m.id === fullNewMessage.id);
-            if (existingMsgIndex !== -1) {
-              // Update existing message (e.g., if profile info was missing or to confirm)
-              const updatedMessages = [...currentMessages];
-              // Ensure we preserve the potentially more complete optimistic profile if one exists,
-              // but update with confirmed data like created_at from DB.
-              // Or, if fullNewMessage.profiles is more complete, use that.
-              // For now, simple merge prioritizing fullNewMessage which comes from DB via real-time.
-              updatedMessages[existingMsgIndex] = { ...currentMessages[existingMsgIndex], ...fullNewMessage };
-              console.log('[Realtime] Updated existing message ID:', fullNewMessage.id);
-              return updatedMessages;
-            } else {
-              // Add as a new message
-              console.log('[Realtime] Added new message ID:', fullNewMessage.id);
-              return [...currentMessages, fullNewMessage];
-            }
-          });
+          setMessages(currentMessages => [...currentMessages, fullNewMessage]);
         }
       )
       .subscribe();
