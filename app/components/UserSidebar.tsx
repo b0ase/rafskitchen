@@ -302,18 +302,24 @@ export default function UserSidebar({ onSetPageContext, isSidebarOpen, toggleSid
         <div 
           className="relative w-10 h-10 flex-shrink-0"
         >
-          {userAvatarUrl ? (
+          {!isLoadingProfile && userAvatarUrl ? (
             <img 
               src={userAvatarUrl} 
               alt="User Avatar" 
               className="w-full h-full rounded-full object-cover border-2 border-sky-600"
               crossOrigin="anonymous"
             />
-          ) : userInitial ? (
+          ) : !isLoadingProfile && userInitial ? (
             <div className="w-full h-full rounded-full bg-sky-500 flex items-center justify-center text-white font-bold text-xl">
             {userInitial}
           </div>
+        ) : isLoadingProfile ? (
+          // Optional: Placeholder while loading, e.g., a spinner or a generic icon
+          <div className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center">
+            <FaUserCircle className="w-8 h-8 text-gray-500" />
+          </div>
         ) : (
+            // Fallback if not loading, no avatar_url, and no initial
             <FaUserCircle className="w-full h-full text-gray-500" />
           )}
         </div>
