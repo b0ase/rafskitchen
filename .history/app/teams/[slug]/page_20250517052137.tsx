@@ -61,7 +61,6 @@ export default function TeamPage() {
   const [teamDetails, setTeamDetails] = useState<TeamDetails | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessageContent, setNewMessageContent] = useState('');
-  const [profilesCache, setProfilesCache] = useState<Record<string, ProfileForMessage>>({}); // New state for profiles cache
   
   const [loadingTeamDetails, setLoadingTeamDetails] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(true);
@@ -117,55 +116,42 @@ export default function TeamPage() {
   const fetchMessages = useCallback(async (teamId: string) => {
     if (!teamId) return;
     setLoadingMessages(true);
-    setError(null);
 
-    const { data: messagesData, error: messagesError } = await supabase
+    const { data, error: messagesError } = await supabase
       .from('team_messages')
-      .select('id, content, created_at, user_id')
+      .select(`
+        id,
+        content,
+        created_at,
+        user_id,
+        profiles ( display_name, avatar_url )
+      `)
       .eq('team_id', teamId)
       .order('created_at', { ascending: true });
 
     if (messagesError) {
-      console.error('Error fetching messages base data:', messagesError);
+      console.error('Error fetching messages:', messagesError);
       setError(prev => prev ? `${prev} | Failed to load messages.` : 'Failed to load messages.');
       setMessages([]);
-      setLoadingMessages(false);
-      return;
-    }
-
-    if (messagesData && messagesData.length > 0) {
-      const userIds = [...new Set(messagesData.map(m => m.user_id).filter(id => id))];
-      let newProfiles: Record<string, ProfileForMessage> = {};
-
-      if (userIds.length > 0) {
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, display_name, avatar_url')
-          .in('id', userIds);
-
-        if (profilesError) {
-          console.error('Error fetching profiles in bulk:', profilesError);
-          // Proceed with messages, profiles might be missing for some
-        } else if (profilesData) {
-          profilesData.forEach(p => {
-            if (p.id) { // Ensure p.id is not null
-                 newProfiles[p.id] = { display_name: p.display_name, avatar_url: p.avatar_url };
-            }
-          });
-          setProfilesCache(prevCache => ({ ...prevCache, ...newProfiles }));
+    } else if (data) {
+      const typedMessages = data.map(m => {
+        let profile: ProfileForMessage | null = null;
+        if (m.profiles) {
+          // Supabase might return an array for a joined table, even if it's a to-one. Take the first if so.
+          // Or it might be a direct object.
+          const rawProfile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
+          if (rawProfile && typeof rawProfile === 'object' && !('error' in rawProfile) && 'display_name' in rawProfile) {
+            profile = rawProfile as ProfileForMessage;
+          }
         }
-      }
-      
-      const messagesWithProfiles = messagesData.map(message => ({
-        ...message,
-        profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
-      }));
-      setMessages(messagesWithProfiles as Message[]);
+        return { ...m, profiles: profile };
+      }) as Message[]; // We assert the final structure is Message[]
+      setMessages(typedMessages);
     } else {
       setMessages([]);
     }
     setLoadingMessages(false);
-  }, [supabase, profilesCache]);
+  }, [supabase]);
   
   useEffect(() => {
     fetchTeamDetails();
@@ -188,47 +174,34 @@ export default function TeamPage() {
         { event: 'INSERT', schema: 'public', table: 'team_messages', filter: `team_id=eq.${teamDetails.id}` },
         async (payload) => {
           console.log('[Realtime] New message received:', payload.new);
-          const newMessageRaw = payload.new as Omit<Message, 'profiles'> & { user_id: string; id: string; content: string; created_at: string; team_id: string; }; // Ensure required fields
-
-          let senderProfile: ProfileForMessage | null = null;
+          const newMessageRaw = payload.new as Omit<Message, 'profiles'>; 
 
           if (newMessageRaw.user_id) {
-            if (profilesCache[newMessageRaw.user_id]) {
-              senderProfile = profilesCache[newMessageRaw.user_id];
-              console.log('[Realtime] Profile found in cache for user:', newMessageRaw.user_id);
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('display_name, avatar_url')
+              .eq('id', newMessageRaw.user_id)
+              .single();
+            
+            if (profileError) {
+              console.error("[Realtime] Error fetching profile for new message (from error var):", profileError);
+              setMessages(currentMessages => [...currentMessages, { ...newMessageRaw, profiles: null }]);
+            } else if (profileData && typeof profileData === 'object' && !('error' in profileData)) {
+              setMessages(currentMessages => [...currentMessages, { ...newMessageRaw, profiles: profileData as ProfileForMessage }]);
             } else {
-              console.log('[Realtime] Profile not in cache, fetching for user:', newMessageRaw.user_id);
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('display_name, avatar_url')
-                .eq('id', newMessageRaw.user_id)
-                .single();
-
-              if (profileError) {
-                console.error("[Realtime] Error fetching profile for new message:", profileError);
-              } else if (profileData) {
-                senderProfile = profileData as ProfileForMessage;
-                setProfilesCache(prevCache => ({ ...prevCache, [newMessageRaw.user_id]: senderProfile as ProfileForMessage }));
-                console.log('[Realtime] Profile fetched and cached for user:', newMessageRaw.user_id);
-              } else {
-                 console.warn("[Realtime] Profile not found on fetch for user_id:", newMessageRaw.user_id);
+              if (profileData && typeof profileData === 'object' && 'error' in profileData) { 
+                 console.error("[Realtime] Error fetching profile (profileData contained error):", (profileData as any).error);
+              } else if (!profileData) { 
+                 console.warn("[Realtime] Profile not found for user_id:", newMessageRaw.user_id);
+              } else { 
+                 console.warn("[Realtime] Unexpected profileData structure:", profileData);
               }
+              setMessages(currentMessages => [...currentMessages, { ...newMessageRaw, profiles: null }]);
             }
           } else {
             console.warn("[Realtime] New message received without user_id:", newMessageRaw);
+            setMessages(currentMessages => [...currentMessages, { ...newMessageRaw, profiles: null }]);
           }
-          
-          // Construct the full message object
-          const fullNewMessage: Message = {
-            id: newMessageRaw.id,
-            content: newMessageRaw.content,
-            created_at: newMessageRaw.created_at,
-            user_id: newMessageRaw.user_id,
-            team_id: newMessageRaw.team_id,
-            profiles: senderProfile,
-          };
-
-          setMessages(currentMessages => [...currentMessages, fullNewMessage]);
         }
       )
       .subscribe();
@@ -236,7 +209,7 @@ export default function TeamPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, teamDetails?.id, profilesCache, setProfilesCache]); // Added profilesCache and setProfilesCache to dependencies
+  }, [supabase, teamDetails?.id]);
 
 
   const handleLeaveTeam = async () => {
