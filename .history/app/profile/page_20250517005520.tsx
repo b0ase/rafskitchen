@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, FormEvent, ChangeEvent, useRef } from 'react';
 import Link from 'next/link'; 
+import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRocket, FaPlus, FaUsers, FaPlusSquare, FaHandshake, FaBriefcase, FaDatabase, FaPalette, FaBolt, FaCloud, FaLightbulb, FaBrain, FaQuestionCircle, FaSpinner } from 'react-icons/fa'; 
 import { useRouter, usePathname } from 'next/navigation';
-import getSupabaseBrowserClient from '@/lib/supabase/client'; // Adjust path if needed
 
 interface Profile {
   username: string | null;
@@ -91,7 +91,7 @@ const getSkillBadgeStyle = (category: string | null): string => {
 // --- END NEW Skill Badge Styling Function ---
 
 export default function ProfilePage() {
-  const supabase = getSupabaseBrowserClient();
+  const supabase = createClientComponentClient();
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
@@ -603,13 +603,17 @@ export default function ProfilePage() {
       
       if (!publicUrlData?.publicUrl) throw new Error('Could not get public URL for avatar.');
 
-      // The filePath is `public/${user.id}/avatar.${fileExt}`.
-      // The getPublicUrl for this should correctly be <base_storage_url>/avatars/public/${user.id}/avatar.${fileExt}
-      // We assume Supabase constructs this correctly and avoid manual manipulation unless proven problematic by logs.
-      let finalPublicUrl = publicUrlData.publicUrl;
+      let potentialUrl = publicUrlData.publicUrl;
+      const incorrectSegment = '/object/public/avatars/public/';
+      const correctSegment = '/object/public/avatars/';
+
+      if (potentialUrl.includes(incorrectSegment)) {
+        console.log('[handleSimpleAvatarUpload] Detected incorrect public URL segment. Correcting...');
+        potentialUrl = potentialUrl.replace(incorrectSegment, correctSegment);
+      }
       
-      const newPublicAvatarUrl = `${finalPublicUrl}?t=${new Date().getTime()}`; // Cache busting
-      console.log('[handleSimpleAvatarUpload] newPublicAvatarUrl to be stored:', newPublicAvatarUrl);
+      const newPublicAvatarUrl = `${potentialUrl}?t=${new Date().getTime()}`; // Cache busting
+      console.log('[handleSimpleAvatarUpload] newPublicAvatarUrl to be stored (after potential correction):', newPublicAvatarUrl);
 
       // Update profile in DB
       const { error: profileUpdateError } = await supabase
