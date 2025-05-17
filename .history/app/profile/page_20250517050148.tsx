@@ -862,27 +862,6 @@ export default function ProfilePage() {
             )}
             <p className="text-lg text-gray-400 mt-1 hidden sm:block">Manage your public identity, personal information, and online presence.</p>
           </div>
-
-          {/* MOVED Save Profile Button an its containing div - adjusted classes for new location */}
-          <div className="sm:ml-auto mt-4 sm:mt-0 flex-shrink-0">
-            <button
-              type="submit" // This button will now need to be part of the form or trigger the form submission
-              form="profileForm" // Associate with the form below
-              disabled={saving || 
-                  (
-                    newUsername === (profile?.username || '') &&
-                    newDisplayName === (profile?.display_name || '') &&
-                    newFullName === (profile?.full_name || '') &&
-                    newBio === (profile?.bio || '') &&
-                    newWebsiteUrl === (profile?.website_url || '')
-                  )
-              }
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
-            >
-              <FaSave className="mr-2 h-4 w-4" />
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
         </div>
 
         {/* --- NEW Section to Display Selected Skill Badges --- */}
@@ -1048,7 +1027,7 @@ export default function ProfilePage() {
         {!user || !profile ? (
           <p className="text-center text-gray-400 py-10">Could not load profile information. Please try again later.</p>
         ) : (
-          <form onSubmit={handleUpdateProfile} id="profileForm" className="space-y-8"> {/* Added id="profileForm" */}
+          <form onSubmit={handleUpdateProfile} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                 <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
@@ -1079,22 +1058,6 @@ export default function ProfilePage() {
                     className="w-full px-4 py-2.5 bg-gray-800/70 border-gray-700 rounded-md text-gray-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-600 shadow-sm"
                   />
                 </div>
-                {/* ADDED New Display Name Input Field */}
-                <div>
-                  <label htmlFor="displayNameInput" className="block text-sm font-medium text-gray-300 mb-1.5">
-                    <FaSignature className="inline mr-2 mb-0.5 text-gray-500" /> Display Name (Editable)
-                  </label>
-                  <input
-                    type="text"
-                    id="displayNameInput"
-                    value={newDisplayName} 
-                    onChange={(e) => setNewDisplayName(e.target.value)}
-                    maxLength={50} 
-                    placeholder="Your public display name"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
-                  />
-                  <p className="mt-1.5 text-xs text-gray-500">This is the name shown publicly (e.g., on messages, teams).</p>
-                </div>
             </div>
 
             <section>
@@ -1122,6 +1085,25 @@ export default function ProfilePage() {
                 />
               </div>
             </section>
+            
+            <div className="pt-8 border-t border-gray-700">
+              <button
+                type="submit"
+                  disabled={saving || 
+                      (
+                        newUsername === (profile?.username || '') &&
+                        newDisplayName === (profile?.display_name || '') &&
+                        newFullName === (profile?.full_name || '') &&
+                        newBio === (profile?.bio || '') &&
+                        newWebsiteUrl === (profile?.website_url || '')
+                      )
+                }
+                className="w-full sm:w-auto float-right inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
+              >
+                <FaSave className="mr-2.5 h-5 w-5" />
+                {saving ? 'Saving Profile...' : 'Save Profile Changes'}
+              </button>
+            </div>
           </form>
         )}
       </div>
