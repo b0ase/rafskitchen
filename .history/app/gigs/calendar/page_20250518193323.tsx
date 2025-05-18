@@ -62,15 +62,13 @@ export default function CalendarPage() {
   // Fetch current user
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError) {
-        console.error("[CalendarPage] Error fetching user:", authError);
-      }
-      console.log("[CalendarPage] Current user from getUser:", user);
+      const { data: { user } } = await supabase.auth.getUser();
       setCurrentUser(user);
       if (!user) {
-        console.log("[CalendarPage] User not logged in.");
-        setLoadingEvents(false);
+        // Optionally redirect to login or show a message
+        // router.push('/login');
+        console.log("CalendarPage: User not logged in.");
+        setLoadingEvents(false); // Stop loading if no user
       }
     };
     getUser();
@@ -89,17 +87,14 @@ export default function CalendarPage() {
   
   // Fetch calendar events from Supabase
   const fetchCalendarEvents = useCallback(async () => {
-    console.log("[CalendarPage] fetchCalendarEvents called. Current user state:", currentUser);
     if (!currentUser) {
       setEvents([]);
       setLoadingEvents(false);
-      console.log("[CalendarPage] fetchCalendarEvents: No current user, returning early.");
       return;
     }
 
     setLoadingEvents(true);
     setErrorLoadingEvents(null);
-    console.log(`[CalendarPage] Fetching events for user_id: ${currentUser.id}`);
     try {
       const { data, error } = await supabase
         .from('calendar_events')
@@ -107,15 +102,17 @@ export default function CalendarPage() {
         .eq('user_id', currentUser.id);
 
       if (error) {
-        console.error('[CalendarPage] Error fetching calendar events:', error);
+        console.error('Error fetching calendar events:', error);
         setErrorLoadingEvents(`Failed to load events: ${error.message}`);
         setEvents([]);
       } else {
-        console.log("[CalendarPage] Successfully fetched events:", data);
+        // Map Supabase event_date (string) to Date objects if needed by calendar rendering logic,
+        // or adjust rendering logic to handle date strings.
+        // For now, assuming the rest of the component can handle string dates from Supabase.
         setEvents(data || []);
       }
     } catch (e: any) {
-      console.error('[CalendarPage] Unexpected error fetching events:', e);
+      console.error('Unexpected error fetching events:', e);
       setErrorLoadingEvents(`An unexpected error occurred: ${e.message}`);
       setEvents([]);
     } finally {
