@@ -58,7 +58,8 @@ export default function UserProfilePage() {
         avatar_url,
         display_name,
         username,
-        bio
+        bio,
+        oneliner
       `)
       .eq('id', viewedUserId)
       .single();

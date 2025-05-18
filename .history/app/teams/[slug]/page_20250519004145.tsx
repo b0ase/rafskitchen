@@ -643,6 +643,11 @@ export default function TeamPage() {
     }
   };
 
+  // Private message handler
+  const handlePrivateMessage = (userId: string) => {
+    router.push(`/messages/${userId}`);
+  };
+
   // Debug log before render
   console.log('[TeamPage Render State]', {
     loadingTeamDetails,
@@ -906,17 +911,19 @@ export default function TeamPage() {
           <h2 className="text-sm font-semibold mb-2">Members</h2>
           <div className="space-y-2">
             {teamMembers.map(member => (
-              <Link key={member.id} href={`/profile/${member.id}`} passHref>
-                <div className="flex items-center space-x-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md w-full text-left cursor-pointer">
-                  <img
-                    src={member.avatarUrl || 'https://via.placeholder.com/32'}
-                    alt={member.displayName}
-                    className="w-8 h-8 rounded-full object-cover"
-                    crossOrigin="anonymous"
-                  />
-                  <span className="text-sm text-gray-200">{member.displayName}</span>
-                </div>
-              </Link>
+              <button
+                key={member.id}
+                onClick={() => handlePrivateMessage(member.id)}
+                className="flex items-center space-x-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md w-full text-left"
+              >
+                <img
+                  src={member.avatarUrl || 'https://via.placeholder.com/32'}
+                  alt={member.displayName}
+                  className="w-8 h-8 rounded-full object-cover"
+                  crossOrigin="anonymous"
+                />
+                <span className="text-sm text-gray-200">{member.displayName}</span>
+              </button>
             ))}
           </div>
         </aside>

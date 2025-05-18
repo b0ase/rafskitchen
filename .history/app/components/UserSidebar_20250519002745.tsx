@@ -10,7 +10,7 @@ import {
   FaCamera, FaComments
 } from 'react-icons/fa';
 import { useAuth } from './Providers';
-import { usePageHeader, PageContextType } from '@/components/MyCtx'; // Import from local MyCtx
+import { usePageHeader, PageContextType } from './MyCtx'; // Import from local MyCtx
 
 interface NavLink {
   href: string;

@@ -643,6 +643,11 @@ export default function TeamPage() {
     }
   };
 
+  // Private message handler
+  const handlePrivateMessage = (userId: string) => {
+    router.push(`/messages/${userId}`);
+  };
+
   // Debug log before render
   console.log('[TeamPage Render State]', {
     loadingTeamDetails,
@@ -831,14 +836,12 @@ export default function TeamPage() {
                   }
                   return (
                     <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
-                      <Link href={`/profile/${message.user_id}`} passHref>
-                        <img 
-                          src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
-                          alt={message.profiles?.display_name || 'User'} 
-                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 cursor-pointer"
-                          crossOrigin="anonymous"
-                        />
-                      </Link>
+                      <img 
+                        src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
+                        alt={message.profiles?.display_name || 'User'} 
+                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
+                        crossOrigin="anonymous"
+                      />
                       <div className="flex-1">
                         <div className="flex items-baseline space-x-2">
                           <span className="font-semibold text-sky-400 text-sm">
@@ -906,17 +909,19 @@ export default function TeamPage() {
           <h2 className="text-sm font-semibold mb-2">Members</h2>
           <div className="space-y-2">
             {teamMembers.map(member => (
-              <Link key={member.id} href={`/profile/${member.id}`} passHref>
-                <div className="flex items-center space-x-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md w-full text-left cursor-pointer">
-                  <img
-                    src={member.avatarUrl || 'https://via.placeholder.com/32'}
-                    alt={member.displayName}
-                    className="w-8 h-8 rounded-full object-cover"
-                    crossOrigin="anonymous"
-                  />
-                  <span className="text-sm text-gray-200">{member.displayName}</span>
-                </div>
-              </Link>
+              <button
+                key={member.id}
+                onClick={() => handlePrivateMessage(member.id)}
+                className="flex items-center space-x-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md w-full text-left"
+              >
+                <img
+                  src={member.avatarUrl || 'https://via.placeholder.com/32'}
+                  alt={member.displayName}
+                  className="w-8 h-8 rounded-full object-cover"
+                  crossOrigin="anonymous"
+                />
+                <span className="text-sm text-gray-200">{member.displayName}</span>
+              </button>
             ))}
           </div>
         </aside>
