@@ -644,9 +644,9 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* Manual Refresh Notice - Placed directly inside main, before scrollable message list */}
+      {/* Manual Refresh Notice - MOVED INSIDE MAIN */}
       {!loadingTeamDetails && teamDetails && (
-        <div className="mb-4 px-0 sm:px-0"> {/* Adjusted mb */}
+        <div className="mt-2 mb-4 px-0 sm:px-0"> {/* Removed container mx-auto, adjusted mb */}
             <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
                 <FaInfoCircle className="inline mr-2 mb-0.5" /> 
                 Real-time updates are active. If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1" /> button to manually refresh.
@@ -657,7 +657,7 @@ export default function TeamPage() {
       {/* Chat Area */}
       <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden pt-28">
         <div 
-          className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+          className="flex-grow overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >
           {loadingMessages && !refreshingMessages ? ( // Show main loader only if not manually refreshing
             <div className="flex justify-center items-center h-full">
