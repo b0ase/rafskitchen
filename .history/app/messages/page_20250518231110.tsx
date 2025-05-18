@@ -96,24 +96,15 @@ export default function MessagesPage() {
           const defaultColorScheme: ColorScheme = { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' };
           
           let finalColorScheme: ColorScheme | null = defaultColorScheme;
-          // Type guard for ColorScheme
-          const isColorScheme = (obj: any): obj is ColorScheme => {
-            return obj && typeof obj === 'object' &&
-                   'bgColor' in obj && typeof obj.bgColor === 'string' &&
-                   'textColor' in obj && typeof obj.textColor === 'string' &&
-                   'borderColor' in obj && typeof obj.borderColor === 'string';
-          };
-
-          if (team.color_scheme === null) {
-            finalColorScheme = null;
-          } else if (isColorScheme(team.color_scheme)) {
-            // If it matches the shape, create a new object to ensure it's treated as ColorScheme
-            finalColorScheme = { 
-              bgColor: team.color_scheme.bgColor,
-              textColor: team.color_scheme.textColor,
-              borderColor: team.color_scheme.borderColor
-            };
-          } // Otherwise, it remains defaultColorScheme
+          if (team.color_scheme && typeof team.color_scheme === 'object' && 
+              'bgColor' in team.color_scheme && typeof team.color_scheme.bgColor === 'string' &&
+              'textColor' in team.color_scheme && typeof team.color_scheme.textColor === 'string' &&
+              'borderColor' in team.color_scheme && typeof team.color_scheme.borderColor === 'string') {
+            finalColorScheme = team.color_scheme as ColorScheme;
+          } else if (team.color_scheme === null) {
+            finalColorScheme = null; // Explicitly allow null if db returns null
+          }
+          // If team.color_scheme is present but not a valid ColorScheme object, it defaults to defaultColorScheme or null if explicitly null
 
           try {
             const { data: lastSeenData, error: lastSeenError } = await supabase
@@ -308,7 +299,7 @@ export default function MessagesPage() {
                 return (
                   <Link
                     key={team.id}
-                    href={team.slug ? `/teams/${team.slug}` : `/teams/${team.id}`}
+                    href={team.slug ? `/teams/${team.slug}/messages` : `/teams/${team.id}/messages`} // Use slug if available
                     className={`flex items-center p-4 rounded-lg border transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl ${cardBgColor} ${cardTextColor} ${cardBorderColor}`}
                   >
                     <IconComponent className="text-3xl mr-4 shrink-0" style={{ color: team.color_scheme?.textColor || 'inherit' }} />

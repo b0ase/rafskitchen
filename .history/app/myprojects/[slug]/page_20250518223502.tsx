@@ -618,30 +618,25 @@ export default function ProjectDetailPage() {
                   <FaSpinner className="animate-spin text-sky-400" />
                 ) : projectMembers.length > 0 ? (
                   <div className="flex -space-x-2 overflow-hidden">
-                    {projectMembers.map(member => {
-                      const avatarTitle = `View profile: ${member.display_name || member.username || 'Member'}`;
-                      const avatarContent = member.avatar_url ? (
-                        <img
-                          className="inline-block h-8 w-8 rounded-full ring-2 ring-gray-800 object-cover"
-                          src={member.avatar_url}
-                          alt={member.display_name || member.username || 'Member'}
-                        />
-                      ) : (
-                        <div 
-                          className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-sky-600 ring-2 ring-gray-800 text-xs font-medium text-white"
-                        >
-                          {(member.display_name || member.username || 'U').substring(0, 2).toUpperCase()}
-                        </div>
-                      );
-
-                      return (
-                        <Link key={member.user_id} href={`/profile/${member.user_id}`} passHref legacyBehavior>
-                          <a className="cursor-pointer hover:opacity-80 transition-opacity" title={avatarTitle}>
-                            {avatarContent}
-                          </a>
-                        </Link>
-                      );
-                    })}
+                    {projectMembers.map(member => (
+                      <Link key={member.user_id} href={`/profile/${member.user_id}`} passHref legacyBehavior>
+                        <a className="cursor-pointer hover:opacity-80 transition-opacity" title={`View profile: ${member.display_name || member.username || 'Member'}`}>
+                          {member.avatar_url ? (
+                            <img
+                              className="inline-block h-8 w-8 rounded-full ring-2 ring-gray-800 object-cover"
+                              src={member.avatar_url}
+                              alt={member.display_name || member.username || 'Member'}
+                            />
+                          ) : (
+                            <div 
+                              className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-sky-600 ring-2 ring-gray-800 text-xs font-medium text-white"
+                            >
+                              {(member.display_name || member.username || 'U').substring(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                        </a>
+                      </Link>
+                    ))}
                   </div>
                 ) : (
                   <p className="text-sm text-gray-500 italic">No members assigned yet.</p>

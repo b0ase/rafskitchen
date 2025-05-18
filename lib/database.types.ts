@@ -9,6 +9,70 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agreement_discussions: {
+        Row: {
+          agreement_id: string
+          created_at: string
+          id: string
+          message_text: string
+          user_id: string | null
+        }
+        Insert: {
+          agreement_id: string
+          created_at?: string
+          id?: string
+          message_text: string
+          user_id?: string | null
+        }
+        Update: {
+          agreement_id?: string
+          created_at?: string
+          id?: string
+          message_text?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agreement_discussions_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "project_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agreement_parties: {
+        Row: {
+          agreement_id: string
+          has_signed_off: boolean
+          role_in_agreement: string
+          signed_off_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agreement_id: string
+          has_signed_off?: boolean
+          role_in_agreement: string
+          signed_off_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agreement_id?: string
+          has_signed_off?: boolean
+          role_in_agreement?: string
+          signed_off_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agreement_parties_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "project_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           added_by_trustee_id: string | null
@@ -164,6 +228,7 @@ export type Database = {
           description: string | null
           event_date: string
           id: string
+          legacy_id: number | null
           title: string
           updated_at: string
           user_id: string
@@ -174,6 +239,7 @@ export type Database = {
           description?: string | null
           event_date: string
           id?: string
+          legacy_id?: number | null
           title: string
           updated_at?: string
           user_id: string
@@ -184,6 +250,7 @@ export type Database = {
           description?: string | null
           event_date?: string
           id?: string
+          legacy_id?: number | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -291,6 +358,7 @@ export type Database = {
           github_repo_url: string | null
           id: string
           is_featured: boolean
+          live_url: string | null
           logo_url: string | null
           name: string
           notes: string | null
@@ -322,6 +390,7 @@ export type Database = {
           github_repo_url?: string | null
           id?: string
           is_featured?: boolean
+          live_url?: string | null
           logo_url?: string | null
           name: string
           notes?: string | null
@@ -353,6 +422,7 @@ export type Database = {
           github_repo_url?: string | null
           id?: string
           is_featured?: boolean
+          live_url?: string | null
           logo_url?: string | null
           name?: string
           notes?: string | null
@@ -526,6 +596,48 @@ export type Database = {
           },
         ]
       }
+      direct_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "direct_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           asset_id: string | null
@@ -686,6 +798,73 @@ export type Database = {
           website_url?: string | null
         }
         Relationships: []
+      }
+      project_agreements: {
+        Row: {
+          created_at: string
+          created_by_user_id: string | null
+          currency: string | null
+          description: string | null
+          finalized_at: string | null
+          id: string
+          project_id: string
+          proposed_price: number | null
+          status: string
+          target_calendar_event_id: string | null
+          target_wip_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id?: string | null
+          currency?: string | null
+          description?: string | null
+          finalized_at?: string | null
+          id?: string
+          project_id: string
+          proposed_price?: number | null
+          status?: string
+          target_calendar_event_id?: string | null
+          target_wip_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string | null
+          currency?: string | null
+          description?: string | null
+          finalized_at?: string | null
+          id?: string
+          project_id?: string
+          proposed_price?: number | null
+          status?: string
+          target_calendar_event_id?: string | null
+          target_wip_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_agreements_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_agreements_target_calendar_event_id_fkey"
+            columns: ["target_calendar_event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_agreements_target_wip_id_fkey"
+            columns: ["target_wip_id"]
+            isOneToOne: false
+            referencedRelation: "todos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_features: {
         Row: {
@@ -1153,6 +1332,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_todo_comments_user_id_to_profiles"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "todo_comments_todo_id_fkey"
             columns: ["todo_id"]
             isOneToOne: false
@@ -1468,6 +1654,32 @@ export type Database = {
           },
         ]
       }
+      user_team_last_seen: {
+        Row: {
+          last_seen_message_created_at: string | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          last_seen_message_created_at?: string | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          last_seen_message_created_at?: string | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_team_last_seen_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_team_memberships: {
         Row: {
           id: string
@@ -1526,6 +1738,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_team_members_with_profiles: {
+        Args: { p_team_id: string }
+        Returns: {
+          id: string
+          displayName: string
+          avatarUrl: string
+        }[]
+      }
       is_team_owner: {
         Args: { team_id_to_check: string }
         Returns: boolean

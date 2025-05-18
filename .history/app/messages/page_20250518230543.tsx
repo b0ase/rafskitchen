@@ -93,28 +93,6 @@ export default function MessagesPage() {
       const processedTeamsData = await Promise.all(
         teamsData.map(async (team) => {
           let unreadCount = 0;
-          const defaultColorScheme: ColorScheme = { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' };
-          
-          let finalColorScheme: ColorScheme | null = defaultColorScheme;
-          // Type guard for ColorScheme
-          const isColorScheme = (obj: any): obj is ColorScheme => {
-            return obj && typeof obj === 'object' &&
-                   'bgColor' in obj && typeof obj.bgColor === 'string' &&
-                   'textColor' in obj && typeof obj.textColor === 'string' &&
-                   'borderColor' in obj && typeof obj.borderColor === 'string';
-          };
-
-          if (team.color_scheme === null) {
-            finalColorScheme = null;
-          } else if (isColorScheme(team.color_scheme)) {
-            // If it matches the shape, create a new object to ensure it's treated as ColorScheme
-            finalColorScheme = { 
-              bgColor: team.color_scheme.bgColor,
-              textColor: team.color_scheme.textColor,
-              borderColor: team.color_scheme.borderColor
-            };
-          } // Otherwise, it remains defaultColorScheme
-
           try {
             const { data: lastSeenData, error: lastSeenError } = await supabase
               .from('user_team_last_seen')
@@ -157,16 +135,14 @@ export default function MessagesPage() {
           }
           
           return {
-            id: team.id,
-            name: team.name,
-            slug: team.slug,
+            ...team,
+            color_scheme: team.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
             icon_name: team.icon_name || 'FaQuestionCircle',
-            color_scheme: finalColorScheme,
             unread_count: unreadCount,
-          } as UserTeam;
+          };
         })
       );
-      setUserTeams(processedTeamsData);
+      setUserTeams(processedTeamsData as UserTeam[]);
     } catch (e: any) {
       console.error('Error fetching user teams for messages page:', e);
       setError(`Failed to load your teams: ${e.message}`);
@@ -308,7 +284,7 @@ export default function MessagesPage() {
                 return (
                   <Link
                     key={team.id}
-                    href={team.slug ? `/teams/${team.slug}` : `/teams/${team.id}`}
+                    href={team.slug ? `/teams/${team.slug}/messages` : `/teams/${team.id}/messages`} // Use slug if available
                     className={`flex items-center p-4 rounded-lg border transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl ${cardBgColor} ${cardTextColor} ${cardBorderColor}`}
                   >
                     <IconComponent className="text-3xl mr-4 shrink-0" style={{ color: team.color_scheme?.textColor || 'inherit' }} />

@@ -308,7 +308,7 @@ export default function MessagesPage() {
                 return (
                   <Link
                     key={team.id}
-                    href={team.slug ? `/teams/${team.slug}` : `/teams/${team.id}`}
+                    href={team.slug ? `/teams/${team.slug}/messages` : `/teams/${team.id}/messages`} // Use slug if available
                     className={`flex items-center p-4 rounded-lg border transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl ${cardBgColor} ${cardTextColor} ${cardBorderColor}`}
                   >
                     <IconComponent className="text-3xl mr-4 shrink-0" style={{ color: team.color_scheme?.textColor || 'inherit' }} />

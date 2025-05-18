@@ -26,15 +26,8 @@ interface UserTeam {
   slug: string | null;
   icon_name: string | null;
   color_scheme: ColorScheme | null;
-  last_message_preview?: string | null;
-  unread_count: number;
-}
-
-interface DirectThread {
-  id: string;
-  display_name: string | null;
-  avatar_url?: string | null;
-  unread_count: number;
+  last_message_preview?: string | null; // Optional: for a future feature
+  unread_count?: number; // Optional: for a future feature
 }
 
 export default function MessagesPage() {
@@ -42,7 +35,7 @@ export default function MessagesPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userTeams, setUserTeams] = useState<UserTeam[]>([]);
-  const [directThreads, setDirectThreads] = useState<DirectThread[]>([]);
+  const [directThreads, setDirectThreads] = useState<{ id: string; display_name: string | null; avatar_url?: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,6 +65,7 @@ export default function MessagesPage() {
 
       if (!teamUserEntries || teamUserEntries.length === 0) {
         setUserTeams([]);
+        setLoading(false);
         return;
       }
 
@@ -85,88 +79,14 @@ export default function MessagesPage() {
 
       if (teamsError) throw teamsError;
 
-      if (!teamsData) {
-        setUserTeams([]);
-        return;
-      }
+      const processedTeamsData = teamsData?.map(team => ({
+        ...team,
+        color_scheme: team.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
+        icon_name: team.icon_name || 'FaQuestionCircle',
+        // Later, we can add logic here to fetch last message preview and unread count for each team
+      })) || [];
 
-      const processedTeamsData = await Promise.all(
-        teamsData.map(async (team) => {
-          let unreadCount = 0;
-          const defaultColorScheme: ColorScheme = { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' };
-          
-          let finalColorScheme: ColorScheme | null = defaultColorScheme;
-          // Type guard for ColorScheme
-          const isColorScheme = (obj: any): obj is ColorScheme => {
-            return obj && typeof obj === 'object' &&
-                   'bgColor' in obj && typeof obj.bgColor === 'string' &&
-                   'textColor' in obj && typeof obj.textColor === 'string' &&
-                   'borderColor' in obj && typeof obj.borderColor === 'string';
-          };
-
-          if (team.color_scheme === null) {
-            finalColorScheme = null;
-          } else if (isColorScheme(team.color_scheme)) {
-            // If it matches the shape, create a new object to ensure it's treated as ColorScheme
-            finalColorScheme = { 
-              bgColor: team.color_scheme.bgColor,
-              textColor: team.color_scheme.textColor,
-              borderColor: team.color_scheme.borderColor
-            };
-          } // Otherwise, it remains defaultColorScheme
-
-          try {
-            const { data: lastSeenData, error: lastSeenError } = await supabase
-              .from('user_team_last_seen')
-              .select('last_seen_message_created_at')
-              .eq('user_id', userId)
-              .eq('team_id', team.id)
-              .single();
-
-            if (lastSeenError && lastSeenError.code !== 'PGRST116') { // PGRST116: no rows found
-              console.warn(`Error fetching last seen for team ${team.id}:`, lastSeenError.message);
-            }
-            const lastSeenTimestamp = lastSeenData?.last_seen_message_created_at;
-
-            // Assuming 'team_messages' table with 'team_id' and 'created_at' columns.
-            // And that team_messages are ordered by created_at descending to get the latest.
-            const messageQuery = supabase
-              .from('team_messages') // TODO: Verify this table name and structure
-              .select('id', { count: 'exact', head: true })
-              .eq('team_id', team.id);
-
-            if (lastSeenTimestamp) {
-              // Count messages strictly newer than the last seen timestamp.
-              const { count, error: messagesError } = await messageQuery.gt('created_at', lastSeenTimestamp);
-              if (messagesError) {
-                console.warn(`Error fetching unread message count for team ${team.id}:`, messagesError.message);
-              } else {
-                unreadCount = count || 0;
-              }
-            } else {
-              // If never seen, all messages are unread.
-              const { count, error: messagesError } = await messageQuery;
-               if (messagesError) {
-                console.warn(`Error fetching total message count for team ${team.id}:`, messagesError.message);
-              } else {
-                unreadCount = count || 0;
-              }
-            }
-          } catch (e: any) {
-            console.error(`Error processing unread count for team ${team.id}:`, e.message);
-          }
-          
-          return {
-            id: team.id,
-            name: team.name,
-            slug: team.slug,
-            icon_name: team.icon_name || 'FaQuestionCircle',
-            color_scheme: finalColorScheme,
-            unread_count: unreadCount,
-          } as UserTeam;
-        })
-      );
-      setUserTeams(processedTeamsData);
+      setUserTeams(processedTeamsData as unknown as UserTeam[]);
     } catch (e: any) {
       console.error('Error fetching user teams for messages page:', e);
       setError(`Failed to load your teams: ${e.message}`);
@@ -177,57 +97,29 @@ export default function MessagesPage() {
   }, [supabase]);
 
   const fetchDirectThreads = useCallback(async (userId: string) => {
-    if (!userId) return;
     try {
-      // Fetch all DM relations for the current user
-      const { data: dms, error: dmError } = await supabase
+      // @ts-ignore: direct_messages table not in generated types
+      const { data: dms, error: dmError } = await (supabase as any)
         .from('direct_messages')
         .select('sender_id, receiver_id')
-        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
-        
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`) as { data: Array<{ sender_id: string; receiver_id: string }>; error: any };
       if (dmError) throw dmError;
-
-      const otherUserIds = new Set<string>();
+      const ids = new Set<string>();
       dms?.forEach(dm => {
-        if (dm.sender_id === userId) otherUserIds.add(dm.receiver_id);
-        else if (dm.receiver_id === userId) otherUserIds.add(dm.sender_id);
+        if (dm.sender_id === userId) ids.add(dm.receiver_id);
+        else if (dm.receiver_id === userId) ids.add(dm.sender_id);
       });
-
-      if (otherUserIds.size > 0) {
+      if (ids.size) {
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, display_name, avatar_url')
-          .in('id', Array.from(otherUserIds));
-
-        if (profilesError) throw profilesError;
-
-        if (profiles) {
-          const threadsWithUnreadCounts = await Promise.all(
-            profiles.map(async (profile) => {
-              const { count, error: unreadError } = await supabase
-                .from('direct_messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('receiver_id', userId) // Current user is the receiver
-                .eq('sender_id', profile.id)   // Message is from the other user in the thread
-                .eq('is_read', false);        // And it's unread
-
-              if (unreadError) {
-                console.error(`Error fetching unread count for DM with ${profile.id}:`, unreadError);
-                return { ...profile, unread_count: 0 };
-              }
-              return { ...profile, unread_count: count || 0 };
-            })
-          );
-          setDirectThreads(threadsWithUnreadCounts);
-        } else {
-          setDirectThreads([]);
-        }
+          .in('id', Array.from(ids));
+        if (!profilesError && profiles) setDirectThreads(profiles);
       } else {
         setDirectThreads([]);
       }
-    } catch (e: any) {
+    } catch (e) {
       console.error('Error fetching direct threads:', e);
-      setError(`Failed to load direct messages: ${e.message}`);
       setDirectThreads([]);
     }
   }, [supabase]);
@@ -275,11 +167,6 @@ export default function MessagesPage() {
                   <div>
                     <span className="text-lg text-white">{user.display_name || 'Unknown User'}</span>
                     {/* Placeholder for unread indicator */}
-                    {user.unread_count > 0 && (
-                      <span className="ml-2 px-2 py-0.5 bg-sky-500 text-white text-xs font-semibold rounded-full">
-                        {user.unread_count}
-                      </span>
-                    )}
                   </div>
                 </Link>
               ))}
@@ -308,7 +195,7 @@ export default function MessagesPage() {
                 return (
                   <Link
                     key={team.id}
-                    href={team.slug ? `/teams/${team.slug}` : `/teams/${team.id}`}
+                    href={team.slug ? `/teams/${team.slug}/messages` : `/teams/${team.id}/messages`} // Use slug if available
                     className={`flex items-center p-4 rounded-lg border transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl ${cardBgColor} ${cardTextColor} ${cardBorderColor}`}
                   >
                     <IconComponent className="text-3xl mr-4 shrink-0" style={{ color: team.color_scheme?.textColor || 'inherit' }} />
@@ -317,11 +204,6 @@ export default function MessagesPage() {
                       {/* Placeholder for last message preview & unread count */}
                     </div>
                     {/* Placeholder for unread indicator */}
-                    {team.unread_count > 0 && (
-                      <span className="ml-auto px-2.5 py-1 bg-sky-500 text-white text-xs font-bold rounded-full self-center">
-                        {team.unread_count}
-                      </span>
-                    )}
                   </Link>
                 );
               })}
