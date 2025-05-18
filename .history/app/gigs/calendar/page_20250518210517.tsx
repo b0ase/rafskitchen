@@ -277,7 +277,7 @@ export default function CalendarPage() {
   // Make sure fetchEvents is stable if used in a useCallback or defined outside DayModal
   // or passed down appropriately if DayModal is deeply nested and needs to trigger it.
 
-  // This is the Day Modal Component
+  // This is the Day Modal Component with fixed JSX syntax
   const DayModal = () => {
     if (!selectedDay) return null;
     
@@ -312,24 +312,27 @@ export default function CalendarPage() {
     };
 
     // MODIFIED saveEvent function
-    const saveEvent = async (eventDataFromForm: any) => {
+    const saveEvent = async (eventDataFromForm: any) => { // eventDataFromForm is what EventForm passes to onSave
+      // The eventDataFromForm is already saved by EventForm.tsx to Supabase.
+      // This callback is primarily to update the UI on this page.
       console.log("EventForm's onSave callback triggered in DayModal with:", eventDataFromForm);
-      if (currentUser) {
+      
+      // 1. Refetch events to update the calendar display
+      // Ensure fetchEvents is accessible here. If CalendarPage's fetchEvents isn't directly in scope,
+      // you might need to pass it down or lift state / use a context.
+      // For simplicity, assuming fetchEvents from CalendarPage is accessible:
+      if (currentUser) { // Only fetch if user context is still valid
         await fetchEvents(); 
       }
+      
+      // 2. Close the form and the modal
       setShowEventForm(false);
-      closeDayModal();
+      closeDayModal(); // This should reset selectedDay and hide DayModal
     };
     
     return (
-      <div 
-        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={closeDayModal}
-      >
-        <div 
-          className="bg-gray-900 rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-gray-900 rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
           <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-850">
             <h3 className="text-xl font-semibold text-white">{formattedDate}</h3>
             <button 

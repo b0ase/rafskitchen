@@ -1,10 +1,14 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+// Link import might not be needed if this is the only Link usage at the top.
+// import Link from 'next/link'; 
 import { useRouter } from 'next/navigation';
 import EventForm from './components/EventForm';
+import getSupabaseBrowserClient from '@/lib/supabase/client'; // Import Supabase client
+import { User } from '@supabase/supabase-js'; // Import User type
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { User } from '@supabase/supabase-js';
+// FaArrowLeft would be removed from react-icons if it was imported
 
 // Define the type for an event, matching your database structure
 // and ensuring date is a Date object for the component's logic
@@ -22,33 +26,61 @@ type CalendarEvent = {
 export default function CalendarPage() {
   const router = useRouter();
   const supabase = createClientComponentClient();
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  // ADDED: State declarations for Google Calendar integration features
-  const [isGoogleCalendarConnected, setIsGoogleCalendarConnected] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Get current date information
   const currentDate = new Date();
   const [viewDate, setViewDate] = useState({
-    month: currentDate.getMonth(), 
-    year: currentDate.getFullYear()
+    month: currentDate.getMonth(), // Use current month
+    year: currentDate.getFullYear() // Use current year
   });
-  // Default to May 2025 as per original hardcoded data for initial view, if desired.
-  // const [viewDate, setViewDate] = useState({
-  //   month: 4, // May (0-indexed)
-  //   year: 2025
-  // });
-
 
   const [selectedCategory, setSelectedCategory] = useState('all');
+  // Add state for selected day and modal visibility
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [showDayModal, setShowDayModal] = useState(false);
   
+  // Add state for Google Calendar integration
+  const [isGoogleCalendarConnected, setIsGoogleCalendarConnected] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  
+  // State for storing fetched calendar events
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [errorLoadingEvents, setErrorLoadingEvents] = useState<string | null>(null);
+  
+  // Check if user is authenticated with Google
+  useEffect(() => {
+    const hasGoogleAuth = localStorage.getItem('googleAuthSession');
+    if (hasGoogleAuth) {
+      setIsGoogleCalendarConnected(true);
+      const savedSyncTime = localStorage.getItem('lastCalendarSync');
+      if (savedSyncTime) {
+        setLastSyncTime(savedSyncTime);
+      }
+    }
+  }, []);
+  
+  // Fetch current user
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error("[CalendarPage] Error fetching user:", authError);
+      }
+      console.log("[CalendarPage] Current user from getUser:", user);
+      setCurrentUser(user);
+      if (!user) {
+        console.log("[CalendarPage] User not logged in.");
+        setLoadingEvents(false);
+      }
+    };
+    getUser();
+  }, [supabase]);
+  
+  // Event categories with colors
   const categories = [
     { id: 'all', name: 'All Events', color: 'bg-gray-500' },
     { id: 'client', name: 'Client Work', color: 'bg-blue-500' },
@@ -58,34 +90,32 @@ export default function CalendarPage() {
     { id: 'milestone', name: 'Milestones', color: 'bg-red-500' },
     { id: 'habit', name: 'Habit Management', color: 'bg-orange-500' }
   ];
+  
+  // Fetch calendar events from Supabase
+  const fetchCalendarEvents = useCallback(async () => {
+    console.log("[CalendarPage] fetchCalendarEvents called. Current user state:", currentUser);
+    if (!currentUser) {
+      setEvents([]);
+      setLoadingEvents(false);
+      console.log("[CalendarPage] fetchCalendarEvents: No current user, returning early.");
+      return;
+    }
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        setCurrentUser(user);
-      } else {
-        setLoading(false); // No user, no events to fetch for them
-      }
-    };
-    getUser();
-  }, [supabase]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchEvents = async () => {
-      setLoading(true);
+    setLoadingEvents(true);
+    setErrorLoadingEvents(null);
+    console.log(`[CalendarPage] Fetching events for user_id: ${currentUser.id}`);
+    try {
       const { data, error } = await supabase
         .from('calendar_events')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', currentUser.id);
 
       if (error) {
-        console.error('Error fetching events:', error);
+        console.error('[CalendarPage] Error fetching calendar events:', error);
+        setErrorLoadingEvents(`Failed to load events: ${error.message}`);
         setEvents([]);
-      } else if (data) {
+      } else {
+        console.log("[CalendarPage] Successfully fetched events:", data);
         const formattedEvents: CalendarEvent[] = data.map(event => ({
           ...event,
           // Ensure event_date is a Date object
@@ -93,14 +123,20 @@ export default function CalendarPage() {
         }));
         setEvents(formattedEvents);
       }
-      setLoading(false);
-    };
+    } catch (e: any) {
+      console.error('[CalendarPage] Unexpected error fetching events:', e);
+      setErrorLoadingEvents(`An unexpected error occurred: ${e.message}`);
+      setEvents([]);
+    } finally {
+      setLoadingEvents(false);
+    }
+  }, [supabase, currentUser]);
 
-    fetchEvents();
-  }, [userId, supabase]);
-  
-  // REMOVED HARDCODED EVENTS ARRAY
-  // const events = [ ... ]; 
+  useEffect(() => {
+    if (currentUser) { // Only fetch if user is loaded
+      fetchCalendarEvents();
+    }
+  }, [currentUser, fetchCalendarEvents]); // Re-run when currentUser or fetch function changes
   
   // Calendar helper functions
   const monthNames = [
@@ -147,8 +183,8 @@ export default function CalendarPage() {
   // Filter events based on selected category and month
   const filteredEvents = events.filter(event => {
     // Match month and year
-    const eventMonth = event.event_date.getMonth(); // Use event_date
-    const eventYear = event.event_date.getFullYear(); // Use event_date
+    const eventMonth = event.event_date.getMonth();
+    const eventYear = event.event_date.getFullYear();
     const monthYearMatch = eventMonth === viewDate.month && eventYear === viewDate.year;
     
     // Match category (if "all" is selected, show everything)
@@ -159,7 +195,7 @@ export default function CalendarPage() {
   
   // Get events for a specific day
   const getEventsForDay = (day: number) => {
-    return filteredEvents.filter(event => event.event_date.getDate() === day); // Use event_date
+    return filteredEvents.filter(event => event.event_date.getDate() === day);
   };
 
   // Handle day click
@@ -193,7 +229,6 @@ export default function CalendarPage() {
       const isMilestone = dayEvents.some(event => event.category === 'milestone');
       
       // Highlight May 8th, 2025 specially as learning path start date
-      // This specific highlighting might need to be re-evaluated if it's tied to legacy_id or a specific event title
       const isStartDate = viewDate.month === 4 && viewDate.year === 2025 && day === 8 && dayEvents.some(e => e.legacy_id === 1 || e.title === 'Learning Path Start');
       
       let bgColor = 'bg-gray-850/50';
@@ -230,7 +265,7 @@ export default function CalendarPage() {
               const category = categories.find(cat => cat.id === event.category);
               return (
                 <div 
-                  key={event.id} // Use UUID from database
+                  key={event.id} 
                   className={`text-xs p-1 rounded truncate text-white ${category?.color || 'bg-gray-500'}`}
                   title={`${event.title}: ${event.description}`}
                 >
@@ -251,33 +286,7 @@ export default function CalendarPage() {
     return days;
   };
   
-  // useEffect to fetch events when currentUser is available
-  // Ensure you have a robust fetchEvents function available in this scope
-  // For example:
-  const fetchEvents = async () => {
-    if (!currentUser) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .select('*')
-      .eq('user_id', currentUser.id);
-
-    if (error) {
-      console.error('Error fetching calendar events:', error);
-      setEvents([]);
-    } else if (data) {
-      const formattedEvents: CalendarEvent[] = data.map(event => ({
-        ...event,
-        event_date: new Date(event.event_date),
-      }));
-      setEvents(formattedEvents);
-    }
-    setLoading(false);
-  };
-  // Make sure fetchEvents is stable if used in a useCallback or defined outside DayModal
-  // or passed down appropriately if DayModal is deeply nested and needs to trigger it.
-
-  // This is the Day Modal Component
+  // This is the Day Modal Component with fixed JSX syntax
   const DayModal = () => {
     if (!selectedDay) return null;
     
@@ -310,26 +319,25 @@ export default function CalendarPage() {
       setCurrentEditingEvent(event);
       setShowEventForm(true);
     };
-
-    // MODIFIED saveEvent function
-    const saveEvent = async (eventDataFromForm: any) => {
-      console.log("EventForm's onSave callback triggered in DayModal with:", eventDataFromForm);
-      if (currentUser) {
-        await fetchEvents(); 
+    
+    const saveEvent = async (eventData: Partial<CalendarEvent>) => {
+      if (!currentUser) {
+        alert("You must be logged in to save events.");
+        return;
       }
-      setShowEventForm(false);
-      closeDayModal();
+      console.log("Attempting to save event (not yet implemented):", eventData);
+      // Logic to save to Supabase 'calendar_events' table will go here.
+      // It will need to handle both new events and updates.
+      // For new events, ensure 'user_id' is set to currentUser.id.
+      // After saving, refetch events:
+      // await fetchCalendarEvents(); 
+      // And close modal:
+      // closeDayModal();
     };
     
     return (
-      <div 
-        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={closeDayModal}
-      >
-        <div 
-          className="bg-gray-900 rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-gray-900 rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
           <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-850">
             <h3 className="text-xl font-semibold text-white">{formattedDate}</h3>
             <button 
@@ -443,41 +451,33 @@ export default function CalendarPage() {
     );
   };
   
-  // NEW/MODIFIED: useEffect to check Google Auth status from localStorage
-  useEffect(() => {
-    const hasGoogleAuth = localStorage.getItem('googleAuthSession'); // Or however you store this
-    setIsGoogleCalendarConnected(!!hasGoogleAuth);
-    if (hasGoogleAuth) {
-      const savedSyncTime = localStorage.getItem('lastCalendarSync');
-      if (savedSyncTime) {
-        setLastSyncTime(savedSyncTime);
-      }
-    }
-  }, []);
-
   // Google Calendar integration functions
   const connectGoogleCalendar = () => {
-    // Redirect to the auth page or trigger Google OAuth flow
-    router.push('/gigs/calendar/auth'); // Example, adjust if needed
+    // Redirect to the auth page
+    router.push('/gigs/calendar/auth');
   };
   
   const syncWithGoogleCalendar = () => {
+    // In a real implementation, this would sync events with Google Calendar
     setIsSyncing(true);
+    
     // Simulate API call
     setTimeout(() => {
       setIsSyncing(false);
       const now = new Date();
       const syncTimeString = now.toLocaleTimeString();
       setLastSyncTime(syncTimeString);
+      // Store the sync time
       localStorage.setItem('lastCalendarSync', syncTimeString);
     }, 1500);
   };
   
   const exportToIcal = () => {
+    // In a real implementation, this would generate and download an .ics file
     alert('Calendar exported to .ics file (simulated)');
   };
   
-  if (loading) {
+  if (loadingEvents) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <p className="text-xl text-white">Loading calendar...</p>
@@ -487,12 +487,15 @@ export default function CalendarPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* "Back to Gigs Hub" Link removed from here 
       <div className="mb-6">
         <Link href="/gigs" className="text-blue-400 hover:text-blue-300 flex items-center gap-2">
           <span>←</span> Back to Gigs Hub
         </Link>
       </div>
+      */}
       
+      {/* Added pt-8 for spacing if title was too close to top after link removal */}
       <h1 className="text-3xl font-bold mb-6 pt-8">Gigs - Calendar</h1>
       
       <div className="mb-8">
@@ -501,6 +504,7 @@ export default function CalendarPage() {
           aligned with the Learning Path start date and Work Path routines. Click on any day to see detailed events.
         </p>
         
+        {/* Calendar Integration Options */}
         <div className="mb-6 p-4 border border-gray-700 rounded-lg bg-gray-850">
           <h3 className="text-lg font-semibold mb-3 text-white">Calendar Integration</h3>
           
@@ -564,6 +568,7 @@ export default function CalendarPage() {
           </div>
         </div>
         
+        {/* Calendar Header & Navigation */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="flex items-center gap-2">
             <button 
@@ -609,18 +614,22 @@ export default function CalendarPage() {
           </div>
         </div>
         
+        {/* Calendar Grid */}
         <div className="border-t border-l border-gray-700 rounded-md overflow-hidden">
+          {/* Day labels */}
           <div className="grid grid-cols-7 bg-gray-800 text-gray-400 text-sm border-b border-gray-700">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
               <div key={day} className="p-2 text-center font-medium">{day}</div>
             ))}
           </div>
           
+          {/* Calendar cells */}
           <div className="grid grid-cols-7">
             {generateCalendarDays()}
           </div>
         </div>
         
+        {/* Event List for the Month */}
         <div className="mt-8 bg-gray-850 border border-gray-700 rounded-md p-4">
           <h3 className="text-lg font-semibold mb-4 text-white flex items-center justify-between">
             <span>Events This Month</span>
@@ -644,7 +653,7 @@ export default function CalendarPage() {
                         <div className="flex justify-between">
                           <span className="font-medium text-white">{event.title}</span>
                           <span className="text-xs text-gray-400">
-                            {event.event_date.toLocaleDateString('en-US', {
+                            {event.event_date.toLocaleDateString('en-US', { 
                               month: 'short', 
                               day: 'numeric',
                               weekday: 'short'
@@ -660,6 +669,7 @@ export default function CalendarPage() {
           )}
         </div>
         
+        {/* Plan Summary Section */}
         <div className="mt-8 border border-gray-700 rounded-lg bg-gray-850 p-4">
           <h3 className="text-xl font-semibold mb-3 text-purple-400">May 2025 Plan Summary</h3>
           <div className="text-sm text-gray-400 space-y-3">
@@ -711,6 +721,7 @@ export default function CalendarPage() {
         </div>
       </div>
       
+      {/* Day Detail Modal */}
       {showDayModal && <DayModal />}
     </div>
   );

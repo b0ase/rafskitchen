@@ -251,33 +251,7 @@ export default function CalendarPage() {
     return days;
   };
   
-  // useEffect to fetch events when currentUser is available
-  // Ensure you have a robust fetchEvents function available in this scope
-  // For example:
-  const fetchEvents = async () => {
-    if (!currentUser) return;
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .select('*')
-      .eq('user_id', currentUser.id);
-
-    if (error) {
-      console.error('Error fetching calendar events:', error);
-      setEvents([]);
-    } else if (data) {
-      const formattedEvents: CalendarEvent[] = data.map(event => ({
-        ...event,
-        event_date: new Date(event.event_date),
-      }));
-      setEvents(formattedEvents);
-    }
-    setLoading(false);
-  };
-  // Make sure fetchEvents is stable if used in a useCallback or defined outside DayModal
-  // or passed down appropriately if DayModal is deeply nested and needs to trigger it.
-
-  // This is the Day Modal Component
+  // This is the Day Modal Component with fixed JSX syntax
   const DayModal = () => {
     if (!selectedDay) return null;
     
@@ -310,26 +284,25 @@ export default function CalendarPage() {
       setCurrentEditingEvent(event);
       setShowEventForm(true);
     };
-
-    // MODIFIED saveEvent function
-    const saveEvent = async (eventDataFromForm: any) => {
-      console.log("EventForm's onSave callback triggered in DayModal with:", eventDataFromForm);
-      if (currentUser) {
-        await fetchEvents(); 
+    
+    const saveEvent = async (eventData: Partial<CalendarEvent>) => {
+      if (!currentUser) {
+        alert("You must be logged in to save events.");
+        return;
       }
-      setShowEventForm(false);
-      closeDayModal();
+      console.log("Attempting to save event (not yet implemented):", eventData);
+      // Logic to save to Supabase 'calendar_events' table will go here.
+      // It will need to handle both new events and updates.
+      // For new events, ensure 'user_id' is set to currentUser.id.
+      // After saving, refetch events:
+      // await fetchCalendarEvents(); 
+      // And close modal:
+      // closeDayModal();
     };
     
     return (
-      <div 
-        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-        onClick={closeDayModal}
-      >
-        <div 
-          className="bg-gray-900 rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-gray-900 rounded-lg max-w-xl w-full max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">
           <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-850">
             <h3 className="text-xl font-semibold text-white">{formattedDate}</h3>
             <button 
