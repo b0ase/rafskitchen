@@ -56,7 +56,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     '/teammanagement',
     '/team',
     '/teams', // Covers /teams and /teams/* - Make sure this doesn't conflict with more specific /teammanagement
-    '/messages',
     '/diary',
     '/workinprogress',
     '/gigs',
