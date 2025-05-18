@@ -368,17 +368,21 @@ export default function TeamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
-        <div className="flex flex-col sm:flex-row justify-end items-center mb-10">
-          <div className="flex gap-x-4">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
+          <div className="flex items-center mb-4 sm:mb-0">
+            <FaUsers className="text-3xl text-sky-400 mr-3" />
+            <h1 className="text-3xl md:text-4xl font-bold text-white">My Team</h1>
+          </div>
+          <div className="flex gap-x-3">
             <Link href="/teams/new" passHref legacyBehavior>
-              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
-                <FaUserPlus className="mr-2 h-5 w-5" />
+              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg text-sm">
+                <FaUserPlus className="mr-2 h-4 w-4" />
                 Start a New Team
               </a>
             </Link>
             <Link href="/teams/join" passHref legacyBehavior>
-              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
-                <FaUsers className="mr-2 h-5 w-5" />
+              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg text-sm">
+                <FaUsers className="mr-2 h-4 w-4" />
                 Join a Team
               </a>
             </Link>

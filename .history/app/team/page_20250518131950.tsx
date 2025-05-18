@@ -371,13 +371,13 @@ export default function TeamPage() {
         <div className="flex flex-col sm:flex-row justify-end items-center mb-10">
           <div className="flex gap-x-4">
             <Link href="/teams/new" passHref legacyBehavior>
-              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105">
                 <FaUserPlus className="mr-2 h-5 w-5" />
                 Start a New Team
               </a>
             </Link>
             <Link href="/teams/join" passHref legacyBehavior>
-              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105">
                 <FaUsers className="mr-2 h-5 w-5" />
                 Join a Team
               </a>

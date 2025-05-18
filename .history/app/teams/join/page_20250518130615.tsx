@@ -35,16 +35,11 @@ export default function JoinTeamPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [joiningTeamId, setJoiningTeamId] = useState<string | null>(null); // For loading state on join button
-  const [joinError, setJoinError] = useState<string | null>(null); // For specific join errors
-  const [joinSuccess, setJoinSuccess] = useState<string | null>(null); // For success messages
 
   useEffect(() => {
     const fetchTeams = async () => {
       setLoading(true);
       setError(null);
-      setJoinError(null); // Clear join errors on fetch
-      setJoinSuccess(null); // Clear join success on fetch
       const { data, error: fetchError } = await supabase
         .from('teams')
         .select('id, name, slug, description, icon_name, color_scheme')
@@ -70,36 +65,10 @@ export default function JoinTeamPage() {
     fetchTeams();
   }, [supabase]);
 
-  const handleJoinTeam = async (teamId: string, teamName: string) => {
-    setJoiningTeamId(teamId);
-    setJoinError(null);
-    setJoinSuccess(null);
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      console.error('Error fetching user or no user logged in:', userError);
-      setJoinError('You must be logged in to join a team.');
-      setJoiningTeamId(null);
-      return;
-    }
-
-    const { error: insertError } = await supabase
-      .from('user_team_memberships')
-      .insert({ team_id: teamId, user_id: user.id });
-
-    if (insertError) {
-      console.error(`Error joining team ${teamName} (ID: ${teamId}):`, insertError);
-      if (insertError.code === '23505') { // Unique violation
-        setJoinError(`You are already a member of ${teamName} or have a pending request.`);
-      } else {
-        setJoinError(`Failed to join ${teamName}. Please try again. ${insertError.message}`);
-      }
-    } else {
-      setJoinSuccess(`Successfully joined ${teamName}! You can now see it in "My Team" or your profile.`);
-      // Consider fetching teams again or updating UI if needed, though success message might be enough.
-    }
-    setJoiningTeamId(null);
+  const handleJoinTeam = (teamId: string, teamName: string) => {
+    console.log(`Attempting to join team ID: ${teamId}, Name: ${teamName}`);
+    // Placeholder for actual join logic - this will be Phase 2
+    alert(`You\'ve clicked to join ${teamName} (ID: ${teamId})! Functionality coming soon.`);
   };
 
   if (loading) {
@@ -123,7 +92,7 @@ export default function JoinTeamPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
-      <header className="text-center mb-12">
+      <header className="text-center mb-16">
         <FaUsers className="mx-auto text-6xl text-sky-500 mb-6" />
         <h1 className="text-5xl font-extrabold text-white tracking-tight">
           Find Your <span className="text-sky-400">Squad!</span>
@@ -132,13 +101,10 @@ export default function JoinTeamPage() {
           Join one of our elite teams and start collaborating on amazing projects. 
           Each team has a unique focus and a vibrant community.
         </p>
-        {/* Display Join Success/Error Messages */} 
-        {joinError && <p className="text-center text-red-400 mt-6 p-3 bg-red-900/40 rounded-md shadow-lg text-base">{joinError}</p>}
-        {joinSuccess && <p className="text-center text-green-400 mt-6 p-3 bg-green-900/40 rounded-md shadow-lg text-base">{joinSuccess}</p>}
       </header>
 
-      {teams.length === 0 && !loading && !error && (
-         <div className="text-center py-10">
+      {teams.length === 0 && !loading && (
+         <div className="text-center">
             <FaQuestionCircle className="mx-auto text-5xl text-gray-500 mb-4" />
             <p className="text-xl text-gray-400">No teams available at the moment. Check back soon!</p>
          </div>
@@ -163,23 +129,12 @@ export default function JoinTeamPage() {
               </div>
               <button
                 onClick={() => handleJoinTeam(team.id, team.name)}
-                disabled={joiningTeamId === team.id}
                 className={`w-full mt-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-150
-                            ${joiningTeamId === team.id 
-                              ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
-                              : 'bg-white text-gray-800 hover:bg-gray-200 focus:ring-sky-400 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 dark:focus:ring-sky-500'}`}
+                            bg-white text-gray-800 hover:bg-gray-200 focus:ring-sky-400
+                            dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 dark:focus:ring-sky-500`}
               >
-                {joiningTeamId === team.id ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-900 dark:border-white mr-2"></div>
-                    Joining...
-                  </>
-                ) : (
-                  <>
-                    <FaUserPlus className="mr-2 -ml-1 h-5 w-5" />
-                    Join {team.name}
-                  </>
-                )}
+                <FaUserPlus className="mr-2 -ml-1 h-5 w-5" />
+                Join {team.name}
               </button>
             </div>
           );

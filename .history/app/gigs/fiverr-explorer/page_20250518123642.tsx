@@ -18,21 +18,35 @@ export default function FiverrExplorerPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/scrape-fiverr', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: fiverrUrl }),
+      // Placeholder for API call to backend scraper
+      // const response = await fetch('/api/scrape-fiverr', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ url: fiverrUrl }),
+      // });
+
+      // if (!response.ok) {
+      //   const errorData = await response.json();
+      //   throw new Error(errorData.message || 'Failed to scrape data');
+      // }
+
+      // const data = await response.json();
+      // setScrapedData(data);
+
+      // SIMULATED API CALL FOR NOW
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setScrapedData({
+        message: "Scraping successful (Simulated Data)!",
+        url: fiverrUrl,
+        timestamp: new Date().toISOString(),
+        mockGigTitle: "I will create an amazing modern minimalist logo design",
+        mockSeller: "top_seller_123",
+        mockPrice: "$50",
+        mockReviews: 1250
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to scrape data from API');
-      }
-
-      const data = await response.json();
-      setScrapedData(data);
+      // END SIMULATION
 
     } catch (err: any) {
       setError(err.message || 'An unknown error occurred.');
