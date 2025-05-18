@@ -96,8 +96,8 @@ export default function TeamPage() {
   const scrollToBottom = useCallback(() => {
     console.log('[Scroll] Attempting to scroll. messagesEndRef.current:', messagesEndRef.current);
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      console.log('[Scroll] scrollIntoView({ behavior: "smooth" }) called on:', messagesEndRef.current);
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+      console.log('[Scroll] scrollIntoView({ behavior: "auto" }) called on:', messagesEndRef.current);
     } else {
       console.log('[Scroll] messagesEndRef.current is null, cannot scroll.');
     }
@@ -216,30 +216,38 @@ export default function TeamPage() {
     if (!teamId) return;
     setLoadingMembers(true);
     try {
-      // @ts-ignore: custom RPC not present in generated types
-      const { data: membersData, error: rpcError } = await (supabase as any).rpc(
-        'get_team_members_with_profiles',
-        { p_team_id: teamId }
-      ) as { data: any[] | null; error: any };
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('user_team_memberships')
+        .select('user_id')
+        .eq('team_id', teamId);
 
-      if (rpcError) {
-        console.error('Error calling get_team_members_with_profiles RPC:', rpcError);
-        throw rpcError;
+      if (membershipsError) throw membershipsError;
+
+      if (!memberships || memberships.length === 0) {
+        setTeamMembers([]);
+        setLoadingMembers(false);
+        return;
       }
 
-      // The RPC function returns an array of objects with id, displayName, and avatarUrl
-      // Ensure the structure matches the TeamMember interface
-      const members = membersData?.map(member => ({
-        id: member.id, // Assuming RPC returns 'id'
-        displayName: member.displayName, // Assuming RPC returns 'displayName'
-        avatarUrl: member.avatarUrl, // Assuming RPC returns 'avatarUrl'
+      const userIds = memberships.map(m => m.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, display_name, username, avatar_url')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      const members = profilesData?.map(profile => ({
+        id: profile.id,
+        displayName: profile.display_name || profile.username || 'Unnamed User',
+        avatarUrl: profile.avatar_url,
       })) || [];
-      
-      setTeamMembers(members as TeamMember[]); // Cast if confident in RPC return structure
+      setTeamMembers(members);
 
     } catch (e: any) {
-      console.error('Error fetching team members via RPC:', e);
-      setTeamMembers([]); // Clear members on error
+      console.error('Error fetching team members:', e);
+      // Optionally set an error state for members
+      setTeamMembers([]);
     } finally {
       setLoadingMembers(false);
     }
@@ -533,13 +541,10 @@ export default function TeamPage() {
       setPostingMessage(false);
       console.log('[PostMessage] Finished.');
       // User request: refresh messages after send to ensure everything is up-to-date
-      // Temporarily commented out to rely on real-time updates for new messages from self
-      /*
       if (teamDetails?.id) {
           console.log('[PostMessage] Triggering fetchMessages after post.');
           await fetchMessages(teamDetails.id, true); // Ensure this is `await`ed
       }
-      */
     }
   };
 
@@ -672,8 +677,9 @@ export default function TeamPage() {
   const buttonTextColor = teamDetails.color_scheme?.textColor || 'text-gray-100'; 
   const buttonBorderColor = teamDetails.color_scheme?.borderColor || 'border-gray-700';
 
+  // Determine the base background color: team's color or default dark gray.
   const baseBgColor = teamDetails.color_scheme?.bgColor || 'bg-gray-800';
-  const headerBgColor = teamDetails.color_scheme?.bgColor || 'bg-gray-800'; // Use the same for header base
+  // Determine if a specific team color is set to adjust gradient behavior.
   const hasTeamColor = !!teamDetails.color_scheme?.bgColor;
 
   return (
@@ -682,9 +688,10 @@ export default function TeamPage() {
     >
       {/* Header with back button, team name, creator, and now member avatars */}
       <header 
-        className={`pt-3 pb-6 px-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 ${headerBgColor} bg-opacity-80 backdrop-blur-md`}
+        className="p-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 bg-opacity-80 backdrop-blur-md" 
         style={{ 
-          borderColor: teamDetails?.color_scheme?.borderColor || 'border-gray-700'
+          borderColor: teamDetails?.color_scheme?.borderColor || 'border-gray-700', 
+          backgroundColor: teamDetails?.color_scheme?.bgColor ? `${teamDetails.color_scheme.bgColor.replace('bg-', 'rgba(').replace('-',', ').replace(']', ', 0.8))}` : 'rgba(31, 41, 55, 0.8)' // Attempt to derive rgba from bg class for header
         }}
       >
         <div className="flex items-center space-x-3 min-w-0">
@@ -787,18 +794,16 @@ export default function TeamPage() {
 
       {/* Manual Refresh Notice - Placed directly inside main, before scrollable message list */}
       {!loadingTeamDetails && teamDetails && (
-        <div className="mt-8 mb-4 px-0 sm:px-0"> {/* Increased mt to push notice further down */}
+        <div className="mb-4 px-0 sm:px-0"> {/* Adjusted mb */}
             <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
-                <FaInfoCircle className="inline mr-2 mb-0.5" />
-                <span className="align-middle">Real-time updates are active.</span>
-                <br />
-                <span className="align-middle">If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1 text-sky-300 text-base align-text-bottom" /> button to manually refresh.</span>
+                <FaInfoCircle className="inline mr-2 mb-0.5" /> 
+                Real-time updates are active. If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1" /> button to manually refresh.
             </div>
         </div>
       )}
 
       {/* Chat Area */}
-      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
+      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden pt-28">
         <div 
           className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >

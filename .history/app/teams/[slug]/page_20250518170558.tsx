@@ -96,8 +96,8 @@ export default function TeamPage() {
   const scrollToBottom = useCallback(() => {
     console.log('[Scroll] Attempting to scroll. messagesEndRef.current:', messagesEndRef.current);
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-      console.log('[Scroll] scrollIntoView({ behavior: "smooth" }) called on:', messagesEndRef.current);
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" });
+      console.log('[Scroll] scrollIntoView({ behavior: "auto" }) called on:', messagesEndRef.current);
     } else {
       console.log('[Scroll] messagesEndRef.current is null, cannot scroll.');
     }
@@ -216,30 +216,38 @@ export default function TeamPage() {
     if (!teamId) return;
     setLoadingMembers(true);
     try {
-      // @ts-ignore: custom RPC not present in generated types
-      const { data: membersData, error: rpcError } = await (supabase as any).rpc(
-        'get_team_members_with_profiles',
-        { p_team_id: teamId }
-      ) as { data: any[] | null; error: any };
+      const { data: memberships, error: membershipsError } = await supabase
+        .from('user_team_memberships')
+        .select('user_id')
+        .eq('team_id', teamId);
 
-      if (rpcError) {
-        console.error('Error calling get_team_members_with_profiles RPC:', rpcError);
-        throw rpcError;
+      if (membershipsError) throw membershipsError;
+
+      if (!memberships || memberships.length === 0) {
+        setTeamMembers([]);
+        setLoadingMembers(false);
+        return;
       }
 
-      // The RPC function returns an array of objects with id, displayName, and avatarUrl
-      // Ensure the structure matches the TeamMember interface
-      const members = membersData?.map(member => ({
-        id: member.id, // Assuming RPC returns 'id'
-        displayName: member.displayName, // Assuming RPC returns 'displayName'
-        avatarUrl: member.avatarUrl, // Assuming RPC returns 'avatarUrl'
+      const userIds = memberships.map(m => m.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, display_name, username, avatar_url')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      const members = profilesData?.map(profile => ({
+        id: profile.id,
+        displayName: profile.display_name || profile.username || 'Unnamed User',
+        avatarUrl: profile.avatar_url,
       })) || [];
-      
-      setTeamMembers(members as TeamMember[]); // Cast if confident in RPC return structure
+      setTeamMembers(members);
 
     } catch (e: any) {
-      console.error('Error fetching team members via RPC:', e);
-      setTeamMembers([]); // Clear members on error
+      console.error('Error fetching team members:', e);
+      // Optionally set an error state for members
+      setTeamMembers([]);
     } finally {
       setLoadingMembers(false);
     }
@@ -533,13 +541,10 @@ export default function TeamPage() {
       setPostingMessage(false);
       console.log('[PostMessage] Finished.');
       // User request: refresh messages after send to ensure everything is up-to-date
-      // Temporarily commented out to rely on real-time updates for new messages from self
-      /*
       if (teamDetails?.id) {
           console.log('[PostMessage] Triggering fetchMessages after post.');
           await fetchMessages(teamDetails.id, true); // Ensure this is `await`ed
       }
-      */
     }
   };
 
@@ -672,107 +677,75 @@ export default function TeamPage() {
   const buttonTextColor = teamDetails.color_scheme?.textColor || 'text-gray-100'; 
   const buttonBorderColor = teamDetails.color_scheme?.borderColor || 'border-gray-700';
 
-  const baseBgColor = teamDetails.color_scheme?.bgColor || 'bg-gray-800';
-  const headerBgColor = teamDetails.color_scheme?.bgColor || 'bg-gray-800'; // Use the same for header base
-  const hasTeamColor = !!teamDetails.color_scheme?.bgColor;
-
   return (
-    <div 
-      className={`flex-1 flex flex-col h-full p-2 md:p-4 text-white ${baseBgColor} ${hasTeamColor ? '' : 'bg-gradient-to-br from-gray-800 to-gray-950'}`}
-    >
-      {/* Header with back button, team name, creator, and now member avatars */}
-      <header 
-        className={`pt-3 pb-6 px-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 ${headerBgColor} bg-opacity-80 backdrop-blur-md`}
-        style={{ 
-          borderColor: teamDetails?.color_scheme?.borderColor || 'border-gray-700'
-        }}
-      >
-        <div className="flex items-center space-x-3 min-w-0">
-          <button onClick={() => router.back()} className={`p-2 rounded-full hover:bg-gray-700 transition-colors ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>
-            <FaArrowLeft className="h-5 w-5" />
-          </button>
-          <div className="flex-1 min-w-0">
-            {loadingTeamDetails ? (
-              <div className="h-6 bg-gray-600 rounded w-3/4 animate-pulse"></div>
-            ) : teamDetails ? (
-              <div className="flex items-center space-x-2">
-                <h1 className={`text-xl md:text-2xl font-bold truncate ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} title={teamDetails.name}>
-                  {IconComponent && <IconComponent className={`inline-block mr-2 h-6 w-6 align-middle ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} />} 
-                  {teamDetails.name}
-                </h1>
-                {/* Team Members Avatars */} 
-                <div className="flex items-center pl-2">
-                  {loadingMembers ? (
-                    <FaSpinner className="animate-spin text-sm text-gray-400" />
-                  ) : (
-                    teamMembers.map((member, index) => (
-                      <div key={member.id} title={member.displayName} className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 ${teamDetails?.color_scheme?.borderColor || 'border-gray-600'} overflow-hidden ${index > 0 ? '-ml-2 md:-ml-3' : ''} bg-gray-700 flex items-center justify-center text-xs font-semibold`}>
-                        {member.avatarUrl ? (
-                          <img src={member.avatarUrl} alt={member.displayName} className="w-full h-full object-cover" crossOrigin="anonymous" />
-                        ) : (
-                          <span className={`${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{member.displayName?.charAt(0).toUpperCase()}</span>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            ) : (
-              <h1 className={`text-xl md:text-2xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>Team Chat</h1>
+    <div className={`min-h-screen ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} text-gray-200 flex flex-col`}>
+      {/* Header */}
+      <header className={`w-full p-4 md:p-6 shadow-lg sticky top-0 z-10 ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} border-b ${teamDetails.color_scheme?.borderColor || 'border-gray-700'}`}>
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/profile" className={`mr-4 p-2 rounded-full hover:bg-white/10 transition-colors ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>
+              <FaArrowLeft className="h-5 w-5" />
+            </Link>
+            <IconComponent className={`text-3xl md:text-4xl mr-3 ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} />
+            <div>
+              <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
+              {teamDetails.creator_display_name && (
+                <p className={`text-xs mt-1 ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-70`}>
+                  (Created by: {teamDetails.creator_display_name})
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => fetchMessages(teamDetails.id, true)}
+              disabled={refreshingMessages || loadingMessages}
+              title="Refresh Messages"
+              className={`p-2 rounded-md flex items-center transition-colors 
+                          ${teamDetails.color_scheme?.textColor || 'text-gray-100'} 
+                          hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {refreshingMessages ? (
+                <FaSpinner className="animate-spin h-5 w-5" />
+              ) : (
+                <FaSyncAlt className="h-5 w-5" />
+              )}
+            </button>
+            {currentUser && teamDetails && (
+              <button
+                onClick={handleLeaveTeam}
+                disabled={leavingTeam || deletingTeam} // Also disable if deleting team
+                className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
+                            ${buttonTextColor} bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border ${buttonBorderColor}`}
+              >
+                {leavingTeam ? (
+                  <FaSpinner className="animate-spin mr-2" />
+                ) : (
+                  <FaSignOutAlt className="mr-2" />
+                )}
+                {leavingTeam ? 'Leaving...' : 'Leave Team'}
+              </button>
             )}
-            {teamDetails?.creator_display_name && (
-              <p className={`text-xs truncate ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-70`} title={`Created by ${teamDetails.creator_display_name}`}>
-                Created by: {teamDetails.creator_display_name}
-              </p>
+            {(currentUserRole === 'owner' || currentUser?.email === SUPER_ADMIN_EMAIL) && (
+              <button
+                onClick={handleDeleteTeam}
+                disabled={deletingTeam || leavingTeam}
+                className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
+                            text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed border border-red-500`}
+              >
+                {deletingTeam ? (
+                  <FaSpinner className="animate-spin mr-2" />
+                ) : (
+                  <FaTrashAlt className="mr-2" />
+                )}
+                {deletingTeam ? 'Deleting...' : 'Delete Team'}
+              </button>
             )}
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => fetchMessages(teamDetails.id, true)}
-            disabled={refreshingMessages || loadingMessages}
-            title="Refresh Messages"
-            className={`p-2 rounded-md flex items-center transition-colors 
-                        ${teamDetails.color_scheme?.textColor || 'text-gray-100'} 
-                        hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed`}
-          >
-            {refreshingMessages ? (
-              <FaSpinner className="animate-spin h-5 w-5" />
-            ) : (
-              <FaSyncAlt className="h-5 w-5" />
-            )}
-          </button>
-          {currentUser && teamDetails && (
-            <button
-              onClick={handleLeaveTeam}
-              disabled={leavingTeam || deletingTeam} // Also disable if deleting team
-              className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
-                          ${buttonTextColor} bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border ${buttonBorderColor}`}
-            >
-              {leavingTeam ? (
-                <FaSpinner className="animate-spin mr-2" />
-              ) : (
-                <FaSignOutAlt className="mr-2" />
-              )}
-              {leavingTeam ? 'Leaving...' : 'Leave Team'}
-            </button>
-          )}
-          {(currentUserRole === 'owner' || currentUser?.email === SUPER_ADMIN_EMAIL) && (
-            <button
-              onClick={handleDeleteTeam}
-              disabled={deletingTeam || leavingTeam}
-              className={`px-4 py-2 text-sm font-medium rounded-md flex items-center transition-colors 
-                          text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed border border-red-500`}
-            >
-              {deletingTeam ? (
-                <FaSpinner className="animate-spin mr-2" />
-              ) : (
-                <FaTrashAlt className="mr-2" />
-              )}
-              {deletingTeam ? 'Deleting...' : 'Delete Team'}
-            </button>
-          )}
-        </div>
+        {teamDetails.description && (
+          <p className={`mt-2 text-sm text-center md:text-left md:pl-16 ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-80`}>{teamDetails.description}</p>
+        )}
       </header>
 
       {/* Error Display */}
@@ -787,18 +760,16 @@ export default function TeamPage() {
 
       {/* Manual Refresh Notice - Placed directly inside main, before scrollable message list */}
       {!loadingTeamDetails && teamDetails && (
-        <div className="mt-8 mb-4 px-0 sm:px-0"> {/* Increased mt to push notice further down */}
+        <div className="mb-4 px-0 sm:px-0"> {/* Adjusted mb */}
             <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
-                <FaInfoCircle className="inline mr-2 mb-0.5" />
-                <span className="align-middle">Real-time updates are active.</span>
-                <br />
-                <span className="align-middle">If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1 text-sky-300 text-base align-text-bottom" /> button to manually refresh.</span>
+                <FaInfoCircle className="inline mr-2 mb-0.5" /> 
+                Real-time updates are active. If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1" /> button to manually refresh.
             </div>
         </div>
       )}
 
       {/* Chat Area */}
-      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
+      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden pt-28">
         <div 
           className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >

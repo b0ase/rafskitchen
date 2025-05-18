@@ -216,11 +216,11 @@ export default function TeamPage() {
     if (!teamId) return;
     setLoadingMembers(true);
     try {
-      // @ts-ignore: custom RPC not present in generated types
-      const { data: membersData, error: rpcError } = await (supabase as any).rpc(
+      // Call the RPC function
+      const { data: membersData, error: rpcError } = await supabase.rpc(
         'get_team_members_with_profiles',
-        { p_team_id: teamId }
-      ) as { data: any[] | null; error: any };
+        { p_team_id: teamId } 
+      );
 
       if (rpcError) {
         console.error('Error calling get_team_members_with_profiles RPC:', rpcError);
@@ -682,7 +682,7 @@ export default function TeamPage() {
     >
       {/* Header with back button, team name, creator, and now member avatars */}
       <header 
-        className={`pt-3 pb-6 px-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 ${headerBgColor} bg-opacity-80 backdrop-blur-md`}
+        className={`p-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 ${headerBgColor} bg-opacity-80 backdrop-blur-md`}
         style={{ 
           borderColor: teamDetails?.color_scheme?.borderColor || 'border-gray-700'
         }}
@@ -787,18 +787,16 @@ export default function TeamPage() {
 
       {/* Manual Refresh Notice - Placed directly inside main, before scrollable message list */}
       {!loadingTeamDetails && teamDetails && (
-        <div className="mt-8 mb-4 px-0 sm:px-0"> {/* Increased mt to push notice further down */}
+        <div className="mb-4 px-0 sm:px-0"> {/* Adjusted mb */}
             <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
-                <FaInfoCircle className="inline mr-2 mb-0.5" />
-                <span className="align-middle">Real-time updates are active.</span>
-                <br />
-                <span className="align-middle">If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1 text-sky-300 text-base align-text-bottom" /> button to manually refresh.</span>
+                <FaInfoCircle className="inline mr-2 mb-0.5" /> 
+                Real-time updates are active. If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1" /> button to manually refresh.
             </div>
         </div>
       )}
 
       {/* Chat Area */}
-      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
+      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden pt-28">
         <div 
           className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >
