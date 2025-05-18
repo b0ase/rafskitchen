@@ -37,8 +37,6 @@ interface TeamDetails {
   icon_name?: string | null;
   color_scheme?: ColorScheme | null;
   slug?: string | null;
-  created_by?: string | null; // Added to store creator ID
-  creator_display_name?: string | null; // Added to store creator display name
 }
 
 interface ProfileForMessage {
@@ -148,30 +146,11 @@ export default function TeamPage() {
     }
     
     const typedTeamData = teamData as any;
-    let creatorDisplayName: string | null = null;
-
-    if (typedTeamData.created_by) {
-      const { data: creatorProfile, error: creatorProfileError } = await supabase
-        .from('profiles')
-        .select('display_name, username')
-        .eq('id', typedTeamData.created_by)
-        .single();
-      
-      if (creatorProfileError) {
-        console.warn(`Could not fetch creator profile for user ID ${typedTeamData.created_by}:`, creatorProfileError.message);
-        creatorDisplayName = 'Unknown Creator';
-      } else if (creatorProfile) {
-        creatorDisplayName = creatorProfile.display_name || creatorProfile.username || 'Unnamed Creator';
-      }
-    }
-
     setTeamDetails({
       id: typedTeamData.id,
       name: typedTeamData.name,
       description: typedTeamData.description,
       slug: typedTeamData.slug,
-      created_by: typedTeamData.created_by, // Store created_by ID
-      creator_display_name: creatorDisplayName, // Store display name
       color_scheme: typedTeamData.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
       icon_name: typedTeamData.icon_name || 'FaUsers',
     });
@@ -632,14 +611,7 @@ export default function TeamPage() {
               <FaArrowLeft className="h-5 w-5" />
             </Link>
             <IconComponent className={`text-3xl md:text-4xl mr-3 ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} />
-            <div>
-              <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
-              {teamDetails.creator_display_name && (
-                <p className={`text-xs mt-1 ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-70`}>
-                  (Created by: {teamDetails.creator_display_name})
-                </p>
-              )}
-            </div>
+            <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
           </div>
           <div className="flex items-center space-x-2">
             <button

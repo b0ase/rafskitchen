@@ -37,8 +37,6 @@ interface TeamDetails {
   icon_name?: string | null;
   color_scheme?: ColorScheme | null;
   slug?: string | null;
-  created_by?: string | null; // Added to store creator ID
-  creator_display_name?: string | null; // Added to store creator display name
 }
 
 interface ProfileForMessage {
@@ -148,30 +146,11 @@ export default function TeamPage() {
     }
     
     const typedTeamData = teamData as any;
-    let creatorDisplayName: string | null = null;
-
-    if (typedTeamData.created_by) {
-      const { data: creatorProfile, error: creatorProfileError } = await supabase
-        .from('profiles')
-        .select('display_name, username')
-        .eq('id', typedTeamData.created_by)
-        .single();
-      
-      if (creatorProfileError) {
-        console.warn(`Could not fetch creator profile for user ID ${typedTeamData.created_by}:`, creatorProfileError.message);
-        creatorDisplayName = 'Unknown Creator';
-      } else if (creatorProfile) {
-        creatorDisplayName = creatorProfile.display_name || creatorProfile.username || 'Unnamed Creator';
-      }
-    }
-
     setTeamDetails({
       id: typedTeamData.id,
       name: typedTeamData.name,
       description: typedTeamData.description,
       slug: typedTeamData.slug,
-      created_by: typedTeamData.created_by, // Store created_by ID
-      creator_display_name: creatorDisplayName, // Store display name
       color_scheme: typedTeamData.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
       icon_name: typedTeamData.icon_name || 'FaUsers',
     });
@@ -560,31 +539,11 @@ export default function TeamPage() {
             `or remove them manually first. Original error: ${deleteError.message}`
           );
         } else {
-          // For other errors, re-throw to be caught by the generic catch block
-          throw deleteError; 
+          throw deleteError;
         }
       } else {
-        // Verify deletion
-        const { data: stillExists, error: verifyError } = await supabase
-          .from('teams')
-          .select('id')
-          .eq('id', teamDetails.id)
-          .maybeSingle(); // Use maybeSingle to not error if it's gone
-
-        if (verifyError) {
-          console.error('Error verifying team deletion:', verifyError);
-          // Not necessarily a failure of deletion, but an issue checking.
-          // Proceed with optimistic success, but log this.
-          alert('Team deletion initiated, but verification step encountered an error. Please check manually.');
-          router.push('/profile');
-        } else if (stillExists) {
-          console.error('Team deletion reported success, but team still found in database:', stillExists);
-          setError('Failed to delete team. The team still exists in the database. This might be due to RLS policies or other database constraints.');
-        } else {
-          // Team is actually gone
-          alert('Team deleted successfully!');
-          router.push('/profile'); // Redirect after successful deletion
-        }
+        alert('Team deleted successfully!');
+        router.push('/profile'); // Redirect after successful deletion
       }
     } catch (err: any) {
       console.error('Error deleting team:', err);
@@ -632,14 +591,7 @@ export default function TeamPage() {
               <FaArrowLeft className="h-5 w-5" />
             </Link>
             <IconComponent className={`text-3xl md:text-4xl mr-3 ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} />
-            <div>
-              <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
-              {teamDetails.creator_display_name && (
-                <p className={`text-xs mt-1 ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-70`}>
-                  (Created by: {teamDetails.creator_display_name})
-                </p>
-              )}
-            </div>
+            <h1 className={`text-2xl md:text-3xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{teamDetails.name}</h1>
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -671,7 +623,7 @@ export default function TeamPage() {
                 {leavingTeam ? 'Leaving...' : 'Leave Team'}
               </button>
             )}
-            {(currentUserRole === 'owner' || currentUser?.email === SUPER_ADMIN_EMAIL) && (
+            {currentUserRole === 'owner' && (
               <button
                 onClick={handleDeleteTeam}
                 disabled={deletingTeam || leavingTeam}
