@@ -26,11 +26,7 @@ export default function LoginPage() {
   const showPendingFeatureAlert = () => {
     const availableMethods = "Currently Available Sign-In Methods:\n- Sign in with Email\n- Sign in with Google";
     const pendingMethods = "Coming Soon (This Feature is Not Yet Implemented):\n- Sign in with GitHub\n- Sign in with X.com\n- Sign in with Phantom\n- Sign in with HandCash\n- Sign in with MetaMask";
-
-    const comicalExplanation = `\n\n--- The Epic Saga of Implementation (What Our Devs Are Up To) ---\n\nOh, you clicked one of THOSE buttons! Bless your optimistic heart! You see, making these shiny buttons actually *do* something is less like flipping a switch and more like preparing a seven-course meal for a very picky dragon, during a meteor shower, on a unicycle.\n\nFor 'Sign in with GitHub' and 'Sign in with X.com':\n1. First, we must embark on a perilous journey to their respective Developer Portals, which are usually hidden behind a riddle and three CAPTCHAs that question our very humanity. We'll need to create an 'App', which isn't an app you can use, but more like a magical token-granting shrine.\n2. Then, we offer up our sacred callback URLs to these shrines, praying they are deemed worthy. These URLs are like secret handshakes; get them wrong, and you're cast into the abyss of 'redirect_uri_mismatch'.\n3. We receive mystical 'Client IDs' and 'Client Secrets'. The Secrets are so secret, we're not even sure *we* know them. We whisper them into environment variables, hoping the server doesn't spill the beans.\n4. The user (that's you!) clicks the button, gets whisked away to a land of permissions (often asking for your firstborn or the rights to name your next pet), and if you agree, you're sent back with a temporary 'authorization code'. This code has the lifespan of a mayfly in a hurricane.\n5. Our backend server, armed with this fleeting code and the aforementioned Secret, must then perform a daring high-speed data exchange with GitHub/X.com's servers to get an 'access token'. Think of it as trading a rare Pokémon card for an even rarer one, but the other trader is a grumpy ogre.\n6. ONLY THEN, with this precious access token, can we politely ask, "Excuse me, Mr. GitHub/X.com, who is this delightful user?" And maybe, just maybe, they tell us.\n\nFor the Web3 Wallets (Phantom, HandCash, MetaMask - oh my!):
-1. Each wallet is its own unique snowflake, a special digital garden with its own set of tools and incantations. We can't just use one magic Web3 wand; oh no, that would be too easy!\n2. For 'Phantom' (the Solana charmer): We must learn the ancient Solana JSON RPC spells and dance with their SDK. It involves convincing your browser to chat with the Phantom extension, which is like trying to get two cats to willingly share a sunbeam.\n3. For 'HandCash' (the Bitcoin SV stalwart): This requires a deep dive into the HandCash Connect SDK, which is like a very specific IKEA instruction manual, but for digital cash. We'll be wrestling with permissions and user handles, ensuring every satoshi is accounted for, lest we anger the Bitcoin spirits.\n4. For 'MetaMask' (the Ethereum elder): We must interface with the 'window.ethereum' object, a mystical portal that only appears if MetaMask is installed and feeling cooperative. We then send requests like 'eth_requestAccounts' (pretty please, may we see your accounts?) and 'personal_sign' (could you just scrawl your digital autograph on this virtual napkin to prove it's you?). This signature then needs to be verified on our server, which involves arcane cryptographic rituals that make our CPUs sweat.\n5. For ALL wallets, we then need to figure out how to turn a public key or a signed message into a user session in *our* system, without accidentally giving away the keys to the kingdom or your digital socks.\n\nSo, as you can see, it's not just a 'quick fix'. It's a multi-front coding battle against the forces of complexity, API rate limits, and the occasional existential dread that comes with debugging asynchronous JavaScript. Our developers are bravely fighting these battles, fueled by coffee and the sheer audacity of hope. \n\nWe appreciate your pioneering spirit in clicking that button! Please check back later... maybe bring snacks?`;
-
-    alert(`${availableMethods}\n\n${pendingMethods}${comicalExplanation}`);
+    alert(`${availableMethods}\n\n${pendingMethods}`);
   };
 
   const handleGoogleSignIn = async () => {
@@ -63,6 +59,8 @@ export default function LoginPage() {
       setError(`An unexpected error occurred: ${e.message}`);
       setIsLoading(false);
     }
+    setIsLoading(false);
+    showPendingFeatureAlert();
   };
 
   const handleGitHubSignIn = async () => {
@@ -70,6 +68,10 @@ export default function LoginPage() {
     setError(null);
     console.log('Attempting GitHub Sign-In...');
     // Placeholder for GitHub OAuth
+    // const { error } = await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback` } });
+    // if (error) {
+    //   setError(`Could not sign in with GitHub: ${error.message}`);
+    // }
     setIsLoading(false);
     showPendingFeatureAlert();
   };
@@ -79,6 +81,10 @@ export default function LoginPage() {
     setError(null);
     console.log('Attempting X/Twitter Sign-In...');
     // Placeholder for X/Twitter OAuth
+    // const { error } = await supabase.auth.signInWithOAuth({ provider: 'twitter', options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback` } });
+    // if (error) {
+    //   setError(`Could not sign in with X: ${error.message}`);
+    // }
     setIsLoading(false);
     showPendingFeatureAlert();
   };
@@ -127,6 +133,8 @@ export default function LoginPage() {
         setError(`Could not sign in: ${signInError.message}`);
       } else {
         // onAuthStateChange will handle redirect if successful
+        // No explicit redirect here to avoid race conditions with listener
+        // router.push('/profile'); // Typically handled by onAuthStateChange
       }
     } catch (e: any) {
       console.error('Unexpected Email Sign-In Error:', e);
@@ -205,6 +213,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
+    // If user is already on the login page, don't aggressively redirect them based on an existing session
+    // unless it's a fresh SIGNED_IN event.
+    // Let them interact with the page if they landed here explicitly.
+
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[LoginPage] Auth Event: ${event}`);
       if (event === 'SIGNED_IN' && session) {
@@ -212,13 +224,20 @@ export default function LoginPage() {
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');
         router.push(redirectedFrom || '/profile');
+        // router.refresh(); // Consider removing or conditionally calling refresh if issues persist
       } else if (event === 'SIGNED_OUT') {
+        // User signed out, ensure they are not pushed away from login if they land here.
         console.log('[LoginPage] SIGNED_OUT event.');
       }
     });
 
+    // Check initial session only to potentially offer a "continue to profile" option
+    // rather than an immediate redirect if the user explicitly navigated to /login.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && window.location.pathname === '/login') {
+        // User is logged in and on the login page.
+        // Instead of auto-redirecting, you could show a message like "You are already logged in. Go to profile?"
+        // For now, let's still redirect, but this is a point for future UX improvement.
         console.log('[LoginPage] Initial session exists and user is on /login. Redirecting.');
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');

@@ -63,6 +63,8 @@ export default function LoginPage() {
       setError(`An unexpected error occurred: ${e.message}`);
       setIsLoading(false);
     }
+    setIsLoading(false);
+    showPendingFeatureAlert();
   };
 
   const handleGitHubSignIn = async () => {
@@ -70,6 +72,10 @@ export default function LoginPage() {
     setError(null);
     console.log('Attempting GitHub Sign-In...');
     // Placeholder for GitHub OAuth
+    // const { error } = await supabase.auth.signInWithOAuth({ provider: 'github', options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback` } });
+    // if (error) {
+    //   setError(`Could not sign in with GitHub: ${error.message}`);
+    // }
     setIsLoading(false);
     showPendingFeatureAlert();
   };
@@ -79,6 +85,10 @@ export default function LoginPage() {
     setError(null);
     console.log('Attempting X/Twitter Sign-In...');
     // Placeholder for X/Twitter OAuth
+    // const { error } = await supabase.auth.signInWithOAuth({ provider: 'twitter', options: { redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback` } });
+    // if (error) {
+    //   setError(`Could not sign in with X: ${error.message}`);
+    // }
     setIsLoading(false);
     showPendingFeatureAlert();
   };
@@ -127,6 +137,8 @@ export default function LoginPage() {
         setError(`Could not sign in: ${signInError.message}`);
       } else {
         // onAuthStateChange will handle redirect if successful
+        // No explicit redirect here to avoid race conditions with listener
+        // router.push('/profile'); // Typically handled by onAuthStateChange
       }
     } catch (e: any) {
       console.error('Unexpected Email Sign-In Error:', e);
@@ -205,6 +217,10 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
+    // If user is already on the login page, don't aggressively redirect them based on an existing session
+    // unless it's a fresh SIGNED_IN event.
+    // Let them interact with the page if they landed here explicitly.
+
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[LoginPage] Auth Event: ${event}`);
       if (event === 'SIGNED_IN' && session) {
@@ -212,13 +228,20 @@ export default function LoginPage() {
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');
         router.push(redirectedFrom || '/profile');
+        // router.refresh(); // Consider removing or conditionally calling refresh if issues persist
       } else if (event === 'SIGNED_OUT') {
+        // User signed out, ensure they are not pushed away from login if they land here.
         console.log('[LoginPage] SIGNED_OUT event.');
       }
     });
 
+    // Check initial session only to potentially offer a "continue to profile" option
+    // rather than an immediate redirect if the user explicitly navigated to /login.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && window.location.pathname === '/login') {
+        // User is logged in and on the login page.
+        // Instead of auto-redirecting, you could show a message like "You are already logged in. Go to profile?"
+        // For now, let's still redirect, but this is a point for future UX improvement.
         console.log('[LoginPage] Initial session exists and user is on /login. Redirecting.');
         const searchParams = new URLSearchParams(window.location.search);
         const redirectedFrom = searchParams.get('redirectedFrom');

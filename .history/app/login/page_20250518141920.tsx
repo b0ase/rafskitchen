@@ -63,6 +63,9 @@ export default function LoginPage() {
       setError(`An unexpected error occurred: ${e.message}`);
       setIsLoading(false);
     }
+    // Note: setIsLoading(false) is called within the try/catch for the error case. 
+    // It might also be needed here if the OAuth flow doesn't immediately unmount or if an error doesn't occur but the process stops.
+    // For now, assuming successful navigation or error handling above covers it.
   };
 
   const handleGitHubSignIn = async () => {
