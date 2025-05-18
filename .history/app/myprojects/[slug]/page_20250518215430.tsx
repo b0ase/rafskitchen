@@ -236,9 +236,9 @@ export default function ProjectDetailPage() {
       console.error('Error adding todo:', insertError);
       setError('Failed to add to-do item.');
     } else {
+      // Ensure newTodo is not null and is a valid Todo object before updating state
       if (newTodo && typeof newTodo === 'object' && 'id' in newTodo) {
-        const confirmedTodo: Todo = { ...newTodo } as Todo; // Ensure it is a plain object of type Todo
-        setProjectTodos(prevTodos => [...prevTodos, confirmedTodo]);
+        setProjectTodos(prevTodos => [...prevTodos, newTodo as Todo]);
       }
       setNewTodoTask('');
     }
@@ -259,17 +259,9 @@ export default function ProjectDetailPage() {
       setError('Failed to update to-do status.');
     } else {
       setProjectTodos(prevTodos => 
-        prevTodos.map(t => { 
-          if (t.id === todoId) {
-            const updatedTodo: Todo = { 
-              ...t, 
-              is_completed: !currentStatus, 
-              updated_at: new Date().toISOString() 
-            };
-            return updatedTodo;
-          }
-          return t;
-        })
+        prevTodos.map(todo => 
+          todo.id === todoId ? { ...todo, is_completed: !currentStatus, updated_at: new Date().toISOString() } : todo
+        )
       );
     }
     setUpdatingField(null);

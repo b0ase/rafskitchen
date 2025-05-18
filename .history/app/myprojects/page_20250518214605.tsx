@@ -318,20 +318,16 @@ function SortableProjectCard({
             Showcase on Landing Page
           </label>
         </div>
-        {/* --- BEGIN CONDITIONAL DELETE BUTTON --- */}
-        {project.currentUserRole === ProjectRole.ProjectManager && (
-          <div className="flex-shrink-0 ml-auto">
-            <button 
-              onClick={(e) => { e.stopPropagation(); openDeleteModal(project.id, project.name); }} // Prevent drag start
-              disabled={updatingItemId === project.id}
-              className="text-xs text-red-500 hover:text-red-400 font-semibold py-1 px-2 rounded-md border border-red-500/50 hover:border-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
-              title="Delete Project"
-            >
-              <FaTrash /> Delete
-            </button>
-          </div>
-        )}
-        {/* --- END CONDITIONAL DELETE BUTTON --- */}
+        <div className="flex-shrink-0 ml-auto">
+          <button 
+            onClick={(e) => { e.stopPropagation(); openDeleteModal(project.id, project.name); }} // Prevent drag start
+            disabled={updatingItemId === project.id}
+            className="text-xs text-red-500 hover:text-red-400 font-semibold py-1 px-2 rounded-md border border-red-500/50 hover:border-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
+            title="Delete Project"
+          >
+            <FaTrash /> Delete
+          </button>
+        </div>
       </div>
       {project.project_brief ? (
         <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-3">

@@ -132,55 +132,22 @@ export default function ProjectDetailPage() {
     }
     setUser(authUser);
 
-    // Step 1: Fetch project by slug first to get its ID and owner_id
-    const { data: projectData, error: projectFetchError } = await supabase
+    const { data, error: projectError } = await supabase
       .from('clients')
-      .select('*') // Fetch all columns
+      .select('*') // Fetch all columns for now
       .eq('project_slug', slug)
+      .eq('user_id', authUser.id) // Ensure user owns this project
       .single();
 
-    if (projectFetchError || !projectData) {
-      console.error('Error fetching project by slug:', projectFetchError);
+    if (projectError || !data) {
+      console.error('Error fetching project:', projectError);
       setError('Could not load project details or project not found.');
       setProject(null);
-      setLoading(false);
-      return;
-    }
-
-    // Step 2: Check authorization
-    const isOwner = projectData.user_id === authUser.id;
-    let isCollaborator = false;
-
-    if (!isOwner) {
-      const { data: projectUserEntry, error: projectUserError } = await supabase
-        .from('project_users')
-        .select('user_id')
-        .eq('project_id', projectData.id)
-        .eq('user_id', authUser.id)
-        .maybeSingle(); // Use maybeSingle as there should be at most one entry
-
-      if (projectUserError) {
-        console.error('Error checking project_users:', projectUserError);
-        // Potentially allow if owner, but log error. For now, we can be strict.
-        setError('Could not verify project access. Please try again.');
-        setProject(null);
-        setLoading(false);
-        return;
-      }
-      if (projectUserEntry) {
-        isCollaborator = true;
-      }
-    }
-
-    if (isOwner || isCollaborator) {
-      setProject(projectData as ClientProject);
-      setEditableName(projectData.name || '');
-      setEditableBrief(projectData.project_brief || '');
     } else {
-      setError('Access Denied: You do not have permission to view this project.');
-      setProject(null);
+      setProject(data as ClientProject);
+      setEditableName(data.name || '');
+      setEditableBrief(data.project_brief || '');
     }
-
     setLoading(false);
   }, [slug, supabase, router]);
 
@@ -236,10 +203,7 @@ export default function ProjectDetailPage() {
       console.error('Error adding todo:', insertError);
       setError('Failed to add to-do item.');
     } else {
-      if (newTodo && typeof newTodo === 'object' && 'id' in newTodo) {
-        const confirmedTodo: Todo = { ...newTodo } as Todo; // Ensure it is a plain object of type Todo
-        setProjectTodos(prevTodos => [...prevTodos, confirmedTodo]);
-      }
+      setProjectTodos(prevTodos => [...prevTodos, newTodo as Todo]);
       setNewTodoTask('');
     }
     setAddingTodo(false);
@@ -259,17 +223,7 @@ export default function ProjectDetailPage() {
       setError('Failed to update to-do status.');
     } else {
       setProjectTodos(prevTodos => 
-        prevTodos.map(t => { 
-          if (t.id === todoId) {
-            const updatedTodo: Todo = { 
-              ...t, 
-              is_completed: !currentStatus, 
-              updated_at: new Date().toISOString() 
-            };
-            return updatedTodo;
-          }
-          return t;
-        })
+        prevTodos.map(todo => todo.id === todoId ? { ...todo, is_completed: !currentStatus } : todo)
       );
     }
     setUpdatingField(null);
