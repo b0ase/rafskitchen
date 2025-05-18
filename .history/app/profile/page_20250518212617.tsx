@@ -899,9 +899,9 @@ export default function ProfilePage() {
             ) : error && !profile ? (
               <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
             ) : (
-              <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
+              <div>
                 {selectedSkills.length > 0 && (
-                  <div className="mb-6 flex flex-wrap gap-2">
+                  <div className="mb-6 p-4 bg-gray-750 rounded-lg border border-gray-600 flex flex-wrap gap-2">
                     {selectedSkills.map(skill => (
                   <span 
                     key={skill.id} 
@@ -922,20 +922,22 @@ export default function ProfilePage() {
                   </div>
                 )}
                 {(!loadingSkills && selectedSkills.length === 0) && (
-                  <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
+                  <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750">
                     <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
                     <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
                   </div>
                 )}
 
-                <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
-                {loadingSkills && allSkills.length === 0 ? (
-                  <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
-                    <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
-                    <p className="text-md text-gray-300">Loading available skills...</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Wrap the entire "Add New Skills" section in a new styled div */}
+                <div className="mt-4 p-4 bg-gray-750 rounded-lg border border-gray-600">
+                  <h3 className="text-xl font-semibold mb-4 text-gray-200">Add New Skills</h3>
+                  {loadingSkills && allSkills.length === 0 ? (
+                    <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
+                      <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
+                      <p className="text-md text-gray-300">Loading available skills...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <input
                       type="text"
                       value={customSkillInput}
@@ -989,7 +991,7 @@ export default function ProfilePage() {
                         </select>
                       </div>
                     )}
-                  </div>
+                    </div>
                 )}
                 {userSkillIds.size > 0 && 
                  !loadingSkills && 
@@ -998,6 +1000,7 @@ export default function ProfilePage() {
                 (
                   <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
                 )}
+                </div>
               </div>
             )}
         </section>

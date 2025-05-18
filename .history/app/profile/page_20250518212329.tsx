@@ -899,9 +899,9 @@ export default function ProfilePage() {
             ) : error && !profile ? (
               <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
             ) : (
-              <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
+              <div>
                 {selectedSkills.length > 0 && (
-                  <div className="mb-6 flex flex-wrap gap-2">
+                  <div className="mb-6 p-4 bg-gray-750 rounded-lg border border-gray-600 flex flex-wrap gap-2">
                     {selectedSkills.map(skill => (
                   <span 
                     key={skill.id} 
@@ -922,13 +922,12 @@ export default function ProfilePage() {
                   </div>
                 )}
                 {(!loadingSkills && selectedSkills.length === 0) && (
-                  <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
+                  <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750">
                     <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
                     <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
                   </div>
                 )}
-
-                <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
+                <h3 className="text-xl font-semibold mt-6 mb-6 text-gray-200">Add New Skills</h3>
                 {loadingSkills && allSkills.length === 0 ? (
                   <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
                     <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
@@ -936,70 +935,70 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <input
-                      type="text"
-                      value={customSkillInput}
-                      onChange={(e) => setCustomSkillInput(e.target.value)}
-                      onKeyDown={async (e) => {
-                        if (e.key === 'Enter' && customSkillInput.trim()) {
-                          e.preventDefault();
-                          await handleAddCustomSkill(customSkillInput.trim());
-                        }
-                      }}
-                      placeholder="+ Type custom skill & Enter"
-                      className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={savingSkills}
-                      title="Add a skill not in the list"
-                    />
-                    {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
-                      <div className="inline-block relative animate-fadeInQuickly">
-                        <select 
-                            value={skillChoiceInAdder}
-                          onChange={async (e) => {
-                            const selectedValue = e.target.value;
-                            if (selectedValue) {
-                              setSkillChoiceInAdder(selectedValue); 
-                              await handleSkillToggle(selectedValue, false); 
-                              setSkillChoiceInAdder(''); 
-                            }
-                          }}
-                          disabled={savingSkills}
-                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                                      ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
-                        >
-                          <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                          {Object.entries(
-                            allSkills
-                                .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
-                              .reduce((acc, skill) => {
-                                const category = skill.category || 'Other';
-                                if (!acc[category]) acc[category] = [];
-                                acc[category].push(skill);
-                                return acc;
-                              }, {} as Record<string, Skill[]>)
-                          ).map(([category, skillsInCategory]) => (
-                            <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                              {skillsInCategory.map(skill => (
-                                <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                  {skill.name}
-                                </option>
-                              ))}
-                            </optgroup>
-                          ))}
-                        </select>
-                      </div>
-                    )}
+                  <input
+                    type="text"
+                    value={customSkillInput}
+                    onChange={(e) => setCustomSkillInput(e.target.value)}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter' && customSkillInput.trim()) {
+                        e.preventDefault();
+                        await handleAddCustomSkill(customSkillInput.trim());
+                      }
+                    }}
+                    placeholder="+ Type custom skill & Enter"
+                    className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={savingSkills}
+                    title="Add a skill not in the list"
+                  />
+                  {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
+                    <div className="inline-block relative animate-fadeInQuickly">
+                      <select 
+                          value={skillChoiceInAdder}
+                        onChange={async (e) => {
+                          const selectedValue = e.target.value;
+                          if (selectedValue) {
+                            setSkillChoiceInAdder(selectedValue); 
+                            await handleSkillToggle(selectedValue, false); 
+                            setSkillChoiceInAdder(''); 
+                          }
+                        }}
+                        disabled={savingSkills}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                                    ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
+                      >
+                        <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
+                        {Object.entries(
+                          allSkills
+                              .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
+                            .reduce((acc, skill) => {
+                              const category = skill.category || 'Other';
+                              if (!acc[category]) acc[category] = [];
+                              acc[category].push(skill);
+                              return acc;
+                            }, {} as Record<string, Skill[]>)
+                        ).map(([category, skillsInCategory]) => (
+                          <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                            {skillsInCategory.map(skill => (
+                              <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                {skill.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   </div>
-                )}
-                {userSkillIds.size > 0 && 
-                 !loadingSkills && 
-                 allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
-                   allSkills.some(skill => skill.category !== 'User-defined') &&
-                (
-                  <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
-                )}
-              </div>
-            )}
+              )}
+              {userSkillIds.size > 0 && 
+               !loadingSkills && 
+               allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
+                 allSkills.some(skill => skill.category !== 'User-defined') &&
+              (
+                <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
+              )}
+            </div>
+          )}
         </section>
         {/* --- END NEW Section for Skill Badges --- */}
 
