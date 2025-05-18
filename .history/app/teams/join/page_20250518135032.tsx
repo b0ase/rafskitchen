@@ -25,7 +25,7 @@ interface ColorScheme {
 interface Team {
   id: string;
   name: string;
-  slug: string | null;
+  slug: string;
   description: string;
   icon_name: string | null;
   color_scheme: ColorScheme | null;
@@ -72,7 +72,7 @@ export default function JoinTeamPage() {
     fetchTeams();
   }, [supabase]);
 
-  const handleJoinTeam = async (teamId: string, teamName: string, teamSlug: string | null) => {
+  const handleJoinTeam = async (teamId: string, teamName: string, teamSlug: string) => {
     setJoiningTeamId(teamId);
     setJoinError(null);
     setJoinSuccess(null);
@@ -99,7 +99,7 @@ export default function JoinTeamPage() {
       }
     } else {
       // Successfully joined, now redirect
-      router.push(`/teams/${teamSlug || teamId}`);
+      router.push(`/teams/${teamSlug}`); 
       return; // Important to prevent further state updates on an unmounting component
     }
     setJoiningTeamId(null);

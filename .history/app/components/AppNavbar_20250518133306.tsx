@@ -19,63 +19,68 @@ const formatBreadcrumbSegment = (segment: string) => {
 
 export default function AppNavbar({ pageContext, toggleSidebar }: AppNavbarProps) {
   const pathname = usePathname();
+
+  let initialTitle = "App";
+  let initialHref = "/";
+  let IconToShow: React.ElementType | null = FaHome;
   const breadcrumbSegments: Array<{ text: string, href: string }> = [];
-  let IconToShow: React.ElementType | null = null;
 
   if (pageContext) {
-    // Logic for when pageContext IS available (e.g., clicked a sidebar link)
-    breadcrumbSegments.push({ text: pageContext.title, href: pageContext.href });
+    initialTitle = pageContext.title;
+    initialHref = pageContext.href;
     IconToShow = pageContext.icon || FaHome;
+    
+    breadcrumbSegments.push({ text: initialTitle, href: initialHref });
 
-    // Check for sub-paths beyond the pageContext's href
     if (pageContext.href && pathname.startsWith(pageContext.href) && pathname !== pageContext.href) {
       const subPath = pathname.substring(pageContext.href.length).replace(/^\/+/, '');
       if (subPath) {
         const subPathSegments = subPath.split('/');
-        let currentSubPath = pageContext.href;
-        // Ensure base path doesn't have trailing slash if not root, for correct concatenation
-        if (currentSubPath !== '/' && currentSubPath.endsWith('/')) {
-          currentSubPath = currentSubPath.slice(0, -1);
+        let currentPath = pageContext.href;
+        if (currentPath !== '/' && currentPath.endsWith('/')) {
+          currentPath = currentPath.slice(0, -1);
         }
 
         subPathSegments.forEach(segment => {
-          if (segment) { // Avoid creating segments for empty parts (e.g., trailing slashes)
-            currentSubPath = currentSubPath === '/' ? `/${segment}` : `${currentSubPath}/${segment}`;
-            breadcrumbSegments.push({
-              text: formatBreadcrumbSegment(segment),
-              href: currentSubPath
-            });
-          }
+          currentPath = currentPath === '/' ? `/${segment}` : `${currentPath}/${segment}`;
+          
+          breadcrumbSegments.push({
+            text: formatBreadcrumbSegment(segment),
+            href: currentPath
+          });
         });
       }
     }
+    breadcrumbSegments.push({ text: "Dashboard", href: "/" });
+    IconToShow = FaHome;
   } else {
-    // Fallback logic for when pageContext is NOT available (e.g., direct URL navigation)
+    // Fallback for when pageContext is not available (e.g., direct navigation)
+    breadcrumbSegments.push({ text: "Home", href: "/" }); // Always add a Home/Root breadcrumb
     IconToShow = FaHome; // Default icon for this case
-    if (pathname === '/') {
-      breadcrumbSegments.push({ text: "Dashboard", href: "/" });
-    } else {
-      // Add "Home" as the root breadcrumb for non-root paths
-      breadcrumbSegments.push({ text: "Home", href: "/" });
-      const pathSegments = pathname.replace(/^\/+/, '').split('/');
-      let currentBuiltPath = ''; // Path built from root for subsequent segments
 
-      pathSegments.forEach((segment) => {
-        if (segment) {
-          currentBuiltPath += `/${segment}`;
+    const pathSegments = pathname.replace(/^\/+/, '').split('/');
+    let currentBuiltPath = ''; // Start from root for subsequent segments
+
+    pathSegments.forEach((segment) => {
+      if (segment) {
+        currentBuiltPath += `/${segment}`;
+        // Avoid duplicating Home if the first segment is for the root path (which shouldn't happen with replace(/^\/+/, ''))
+        if (currentBuiltPath !== "/") { // Ensure we don't add another Home or empty segment
           breadcrumbSegments.push({
             text: formatBreadcrumbSegment(segment),
             href: currentBuiltPath
           });
         }
-      });
-    }
-  }
-  
-  // Ensure there's at least one breadcrumb, defaulting to Home/Dashboard if somehow empty
-  if (breadcrumbSegments.length === 0) {
-      breadcrumbSegments.push({ text: "Dashboard", href: "/" });
-      if (!IconToShow) IconToShow = FaHome;
+      }
+    });
+
+    // If after all this, breadcrumbSegments only contains "Home" and the path was not just "/", 
+    // it means pathSegments was empty or only contained empty strings.
+    // This case should ideally not happen if pathname is valid and not just "/".
+    // If pathname is truly just "/", the "Dashboard" segment from the (pathname === '/') condition handles it.
+    // If breadcrumbSegments is *still* just [{text: "Home", href: "/"}] and pathname is not "/", 
+    // it implies the path was something like "///" which results in no useful segments.
+    // In such an unusual case, just "Home" is fine. If the path was e.g. "/foo", it would be [Home, Foo].
   }
 
   return (

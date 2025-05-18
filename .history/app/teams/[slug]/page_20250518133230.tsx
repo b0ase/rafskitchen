@@ -74,11 +74,6 @@ export default function TeamPage() {
   const [deletingTeam, setDeletingTeam] = useState<boolean>(false); // For team deletion
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for scrolling
-  const currentTeamIdRef = useRef<string | null>(null); // Ref to track current team ID for resetting flags
-
-  // Refs for managing message loading state
-  const initialMessagesLoadStarted = useRef(false);
-  const initialMessagesLoadCompleted = useRef(false);
 
   // Scroll to bottom utility
   const scrollToBottom = useCallback(() => {
@@ -184,105 +179,83 @@ export default function TeamPage() {
   // Fetch messages
   const fetchMessages = useCallback(async (teamId: string, isManualRefresh: boolean = false) => {
     if (!teamId) return;
-    const isThisCallAnInitialLoadAttempt = !initialMessagesLoadCompleted.current;
-
-    console.log(`[FetchMessages] Called for teamId: ${teamId}, isManualRefresh: ${isManualRefresh}. Initial load completed status for this team: ${initialMessagesLoadCompleted.current}. Is this call an initial attempt: ${isThisCallAnInitialLoadAttempt}`);
-
+    console.log(`[FetchMessages] Called for teamId: ${teamId}, isManualRefresh: ${isManualRefresh}`);
     if (isManualRefresh) {
-        setRefreshingMessages(true);
+      setRefreshingMessages(true);
     } else {
-        if (initialMessagesLoadStarted.current && isThisCallAnInitialLoadAttempt) {
-            console.log("[FetchMessages] Initial load already started but not completed for this team. Skipping duplicate call.");
-            return;
-        }
-        if (isThisCallAnInitialLoadAttempt) {
-            console.log("[FetchMessages] This is an initial load attempt for this team. Setting setLoadingMessages(true).");
-            setLoadingMessages(true);
-            initialMessagesLoadStarted.current = true;
-        } else {
-            console.log("[FetchMessages] Initial load previously completed for this team. This is a background refresh. Not setting global loading spinner.");
-        }
+      setLoadingMessages(true);
     }
     setError(null);
 
-    try {
-        const { data: messagesData, error: messagesError } = await supabase
-            .from('team_messages')
-            .select('id, content, created_at, user_id')
-            .eq('team_id', teamId)
-            .order('created_at', { ascending: true });
+    const { data: messagesData, error: messagesError } = await supabase
+      .from('team_messages')
+      .select('id, content, created_at, user_id')
+      .eq('team_id', teamId)
+      .order('created_at', { ascending: true });
 
-        if (messagesError) {
-            console.error('Error fetching messages base data:', messagesError);
-            throw messagesError;
-        }
-
-        if (messagesData && messagesData.length > 0) {
-            const userIds = [...new Set(messagesData.map(m => m.user_id).filter(id => id))];
-            let newProfiles: Record<string, ProfileForMessage> = {};
-            if (userIds.length > 0) {
-                const { data: profilesData, error: profilesError } = await supabase
-                    .from('profiles')
-                    .select('id, display_name, avatar_url')
-                    .in('id', userIds);
-                if (profilesError) {
-                    console.error('Error fetching profiles in bulk:', profilesError);
-                } else if (profilesData) {
-                    profilesData.forEach(p => {
-                        if (p.id) {
-                            newProfiles[p.id] = { display_name: p.display_name, avatar_url: p.avatar_url };
-                        }
-                    });
-                    setProfilesCache(prevCache => ({ ...prevCache, ...newProfiles }));
-                }
-            }
-            const messagesWithProfiles = messagesData.map(message => ({
-                ...message,
-                profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
-            }));
-            console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
-            console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
-            setMessages(messagesWithProfiles as Message[]);
-        } else {
-            console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
-            setMessages([]);
-        }
-        
-        if (!isManualRefresh && isThisCallAnInitialLoadAttempt) {
-            console.log("[FetchMessages] Initial load attempt completed successfully for this team. Setting initialMessagesLoadCompleted.current = true.");
-            initialMessagesLoadCompleted.current = true;
-        }
-    } catch (e: any) {
-        console.error('Error during fetchMessages execution:', e);
-        setError(prev => prev ? `${prev} | Failed to load messages. ${e.message}` : `Failed to load messages. ${e.message}`);
-        setMessages([]);
-    } finally {
-        if (isManualRefresh) {
-            setRefreshingMessages(false);
-        } else {
-            setLoadingMessages(false);
-            console.log(`[FetchMessages] Non-manual fetch finished. setLoadingMessages(false). Initial load completed status for this team: ${initialMessagesLoadCompleted.current}`);
-        }
+    if (messagesError) {
+      console.error('Error fetching messages base data:', messagesError);
+      setError(prev => prev ? `${prev} | Failed to load messages.` : 'Failed to load messages.');
+      setMessages([]);
+      if (isManualRefresh) {
+        setRefreshingMessages(false);
+      } else {
+        setLoadingMessages(false);
+      }
+      return;
     }
-  }, [supabase, profilesCache]);
+
+    if (messagesData && messagesData.length > 0) {
+      const userIds = [...new Set(messagesData.map(m => m.user_id).filter(id => id))];
+      let newProfiles: Record<string, ProfileForMessage> = {};
+
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, display_name, avatar_url')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles in bulk:', profilesError);
+          // Proceed with messages, profiles might be missing for some
+        } else if (profilesData) {
+          profilesData.forEach(p => {
+            if (p.id) { // Ensure p.id is not null
+                 newProfiles[p.id] = { display_name: p.display_name, avatar_url: p.avatar_url };
+            }
+          });
+          setProfilesCache(prevCache => ({ ...prevCache, ...newProfiles }));
+        }
+      }
+      
+      const messagesWithProfiles = messagesData.map(message => ({
+        ...message,
+        profiles: newProfiles[message.user_id] || profilesCache[message.user_id] || null,
+      }));
+      console.log('[FetchMessages] Raw messagesData from Supabase:', JSON.stringify(messagesData));
+      console.log('[FetchMessages] Processed messagesWithProfiles before setting state:', JSON.stringify(messagesWithProfiles));
+      setMessages(messagesWithProfiles as Message[]);
+    } else {
+      console.log('[FetchMessages] No messagesData received from Supabase, or it was empty.');
+      setMessages([]);
+    }
+    if (isManualRefresh) {
+      setRefreshingMessages(false);
+    } else {
+      setLoadingMessages(false);
+    }
+    // The useEffect watching `messages` should handle scrolling.
+    // As a fallback, or for very specific timing needs, one might add:
+    // setTimeout(scrollToBottom, 0); 
+    // However, let's rely on the messages useEffect first.
+    console.log('[FetchMessages] Completed. Raw messages received count:', messagesData ? messagesData.length : 0);
+  }, [supabase, profilesCache]); // Removed fetchMessages from its own dependency array
   
   useEffect(() => {
     if (teamDetails?.id) {
-      if (currentTeamIdRef.current !== teamDetails.id) {
-          console.log(`[Team Effect] New team detected (or first load). Old: ${currentTeamIdRef.current}, New: ${teamDetails.id}. Resetting initial load flags for new team.`);
-          initialMessagesLoadStarted.current = false;
-          initialMessagesLoadCompleted.current = false;
-          currentTeamIdRef.current = teamDetails.id;
-      }
       fetchMessages(teamDetails.id);
-    } else {
-      setMessages([]);
-      initialMessagesLoadStarted.current = false; 
-      initialMessagesLoadCompleted.current = false;
-      currentTeamIdRef.current = null;
-      console.log("[Team Effect] No teamDetails.id. Cleared messages and reset initial load flags.");
     }
-  }, [teamDetails, fetchMessages]);
+  }, [teamDetails, fetchMessages]); // fetchMessages is now a stable dependency
 
   // Real-time subscription for new messages
   useEffect(() => {
@@ -543,17 +516,6 @@ export default function TeamPage() {
       setDeletingTeam(false);
     }
   };
-
-  // Debug log before render
-  console.log('[TeamPage Render State]', {
-    loadingTeamDetails,
-    loadingMessages,
-    error,
-    teamId: teamDetails?.id,
-    messageCount: messages.length,
-    initialMessagesLoadStarted: initialMessagesLoadStarted.current,
-    initialMessagesLoadCompleted: initialMessagesLoadCompleted.current,
-  });
 
   if (loadingTeamDetails || !teamDetails) {
     return (
