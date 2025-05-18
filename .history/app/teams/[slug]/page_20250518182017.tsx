@@ -532,11 +532,14 @@ export default function TeamPage() {
     } finally {
       setPostingMessage(false);
       console.log('[PostMessage] Finished.');
-      // Automatically refresh the message list after sending to guarantee sync
+      // User request: refresh messages after send to ensure everything is up-to-date
+      // Temporarily commented out to rely on real-time updates for new messages from self
+      /*
       if (teamDetails?.id) {
-        console.log('[PostMessage] Triggering fetchMessages after post.');
-        await fetchMessages(teamDetails.id, true);
+          console.log('[PostMessage] Triggering fetchMessages after post.');
+          await fetchMessages(teamDetails.id, true); // Ensure this is `await`ed
       }
+      */
     }
   };
 
@@ -641,11 +644,6 @@ export default function TeamPage() {
     } finally {
       setDeletingTeam(false);
     }
-  };
-
-  // Private message handler
-  const handlePrivateMessage = (userId: string) => {
-    router.push(`/messages/${userId}`);
   };
 
   // Debug log before render
@@ -789,141 +787,114 @@ export default function TeamPage() {
 
       {/* Manual Refresh Notice - Placed directly inside main, before scrollable message list */}
       {!loadingTeamDetails && teamDetails && (
-        <div className="mt-8 mb-4 px-0 sm:px-0">
-          <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
-            <FaInfoCircle className="inline mr-2 mb-0.5" />
-            <span className="align-middle">Real-time updates are active.</span>
-            <br />
-            <span className="align-middle">If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1 text-sky-300 text-base align-text-bottom" /> button to manually refresh.</span>
-          </div>
+        <div className="mt-8 mb-4 px-0 sm:px-0"> {/* Increased mt to push notice further down */}
+            <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
+                <FaInfoCircle className="inline mr-2 mb-0.5" />
+                <span className="align-middle">Real-time updates are active.</span>
+                <br />
+                <span className="align-middle">If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1 text-sky-300 text-base align-text-bottom" /> button to manually refresh.</span>
+            </div>
         </div>
       )}
 
-      {/* Chat and Sidebar Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Chat Section */}
-        <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Chat Area */}
-          <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
-            <div 
-              className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-            >
-              {loadingMessages && !refreshingMessages ? (
-                <div className="flex justify-center items-center h-full">
-                  <FaSpinner className="animate-spin text-3xl text-sky-400" />
-                  <p className="ml-3 text-lg">Loading messages...</p>
-                </div>
-              ) : messages.length === 0 && !error ? (
-                <div className="text-center py-10">
-                  <FaCommentDots className="mx-auto text-5xl text-gray-500 mb-4" />
-                  <p className="text-gray-400 text-lg">No messages yet. Be the first to say something!</p>
-                </div>
-              ) : (
-                messages.map(message => {
-                  // Diagnostic log for messages that would show "Unknown User"
-                  if (!message.profiles?.display_name) {
-                    console.log('[Render] Message missing profile display_name:', 
-                      {
-                        messageId: message.id, 
-                        userId: message.user_id, 
-                        profileData: message.profiles, 
-                        createdAt: message.created_at,
-                        content: message.content?.substring(0, 30) // Log first 30 chars of content for context
-                      }
-                    );
-                  }
-                  return (
-                    <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
-                      <img 
-                        src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
-                        alt={message.profiles?.display_name || 'User'} 
-                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
-                        crossOrigin="anonymous"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-baseline space-x-2">
-                          <span className="font-semibold text-sky-400 text-sm">
-                            {message.profiles?.display_name || 'Unknown User'}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                          </span>
-                          {currentUser && message.user_id === currentUser.id && (
-                            <button 
-                              onClick={() => handleDeleteMessage(message.id)}
-                              disabled={deletingMessageId === message.id}
-                              className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full text-xs"
-                              aria-label="Delete message"
-                            >
-                              {deletingMessageId === message.id ? <FaSpinner className="animate-spin" /> : <FaTrashAlt />}
-                            </button>
-                          )}
-                        </div>
-                        <p className="text-gray-300 text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-              <div ref={messagesEndRef} /> 
+      {/* Chat Area */}
+      <main className="flex-grow container mx-auto p-4 flex flex-col overflow-y-hidden">
+        <div 
+          className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+        >
+          {loadingMessages && !refreshingMessages ? ( // Show main loader only if not manually refreshing
+            <div className="flex justify-center items-center h-full">
+              <FaSpinner className="animate-spin text-3xl text-sky-400" />
+              <p className="ml-3 text-lg">Loading messages...</p>
             </div>
-          </main>
-
-          {/* Message Input Form */}
-          {!loadingTeamDetails && teamDetails && (
-            <footer className={`w-full p-4 sticky bottom-0 ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} border-t ${teamDetails.color_scheme?.borderColor || 'border-gray-700'}`}>
-              <form onSubmit={handlePostMessage} className="container mx-auto flex items-center space-x-3">
-                <input
-                  type="text"
-                  value={newMessageContent}
-                  onChange={(e) => setNewMessageContent(e.target.value)}
-                  placeholder="Type your message..."
-                  className="flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm transition-colors"
-                  disabled={postingMessage || !currentUser}
-                />
-                <button 
-                  type="submit" 
-                  disabled={postingMessage || !currentUser || !newMessageContent.trim()}
-                  className={`px-6 py-3 rounded-lg font-semibold flex items-center justify-center shadow-md transition-colors 
-                             ${teamDetails.color_scheme?.textColor || 'text-white'} 
-                             ${postingMessage ? (teamDetails.color_scheme?.bgColor || 'bg-sky-700') : (teamDetails.color_scheme?.bgColor?.replace('bg-', 'hover:bg-') || 'hover:bg-sky-600')} 
-                             ${(teamDetails.color_scheme?.bgColor || 'bg-sky-600')} 
-                             border ${(teamDetails.color_scheme?.borderColor || 'border-sky-500')} 
-                             disabled:opacity-50 disabled:cursor-not-allowed`}
-                >
-                  {postingMessage ? (
-                    <FaSpinner className="animate-spin mr-2 h-5 w-5" /> 
-                  ) : (
-                    <FaPaperPlane className="mr-2 h-5 w-5" /> 
-                  )}
-                  {postingMessage ? 'Sending...' : 'Send'}
-                </button>
-              </form>
-            </footer>
+          ) : messages.length === 0 && !error ? (
+            <div className="text-center py-10">
+              <FaCommentDots className="mx-auto text-5xl text-gray-500 mb-4" />
+              <p className="text-gray-400 text-lg">No messages yet. Be the first to say something!</p>
+            </div>
+          ) : (
+            messages.map(message => {
+              // Diagnostic log for messages that would show "Unknown User"
+              if (!message.profiles?.display_name) {
+                console.log('[Render] Message missing profile display_name:', 
+                  {
+                    messageId: message.id, 
+                    userId: message.user_id, 
+                    profileData: message.profiles, 
+                    createdAt: message.created_at,
+                    content: message.content?.substring(0, 30) // Log first 30 chars of content for context
+                  }
+                );
+              }
+              return (
+                <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
+                  <img 
+                    src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
+                    alt={message.profiles?.display_name || 'User'} 
+                    className="w-10 h-10 rounded-full object-cover border-2 border-gray-600"
+                    crossOrigin="anonymous"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-baseline space-x-2">
+                      <span className="font-semibold text-sky-400 text-sm">
+                        {message.profiles?.display_name || 'Unknown User'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                      </span>
+                      {currentUser && message.user_id === currentUser.id && (
+                        <button 
+                          onClick={() => handleDeleteMessage(message.id)}
+                          disabled={deletingMessageId === message.id}
+                          className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full text-xs"
+                          aria-label="Delete message"
+                        >
+                          {deletingMessageId === message.id ? <FaSpinner className="animate-spin" /> : <FaTrashAlt />}
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-gray-300 text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                  </div>
+                </div>
+              );
+            })
           )}
-        </div> {/* End Left: Chat Section */}
-        {/* Right: Members Sidebar */}
-        <aside className="w-64 bg-gray-800/50 border-l border-gray-700 p-4 overflow-y-auto">
-          <h2 className="text-sm font-semibold mb-2">Members</h2>
-          <div className="space-y-2">
-            {teamMembers.map(member => (
-              <button
-                key={member.id}
-                onClick={() => handlePrivateMessage(member.id)}
-                className="flex items-center space-x-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md w-full text-left"
-              >
-                <img
-                  src={member.avatarUrl || 'https://via.placeholder.com/32'}
-                  alt={member.displayName}
-                  className="w-8 h-8 rounded-full object-cover"
-                  crossOrigin="anonymous"
-                />
-                <span className="text-sm text-gray-200">{member.displayName}</span>
-              </button>
-            ))}
-          </div>
-        </aside>
-      </div> {/* End Chat and Sidebar Layout */}
+          <div ref={messagesEndRef} /> 
+        </div>
+      </main>
+
+      {/* Message Input Form */}
+      {!loadingTeamDetails && teamDetails && (
+        <footer className={`w-full p-4 sticky bottom-0 ${teamDetails.color_scheme?.bgColor || 'bg-gray-800'} border-t ${teamDetails.color_scheme?.borderColor || 'border-gray-700'}`}>
+          <form onSubmit={handlePostMessage} className="container mx-auto flex items-center space-x-3">
+            <input
+              type="text"
+              value={newMessageContent}
+              onChange={(e) => setNewMessageContent(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-grow p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 shadow-sm transition-colors"
+              disabled={postingMessage || !currentUser}
+            />
+            <button 
+              type="submit" 
+              disabled={postingMessage || !currentUser || !newMessageContent.trim()}
+              className={`px-6 py-3 rounded-lg font-semibold flex items-center justify-center shadow-md transition-colors 
+                         ${teamDetails.color_scheme?.textColor || 'text-white'} 
+                         ${postingMessage ? (teamDetails.color_scheme?.bgColor || 'bg-sky-700') : (teamDetails.color_scheme?.bgColor?.replace('bg-', 'hover:bg-') || 'hover:bg-sky-600')} 
+                         ${(teamDetails.color_scheme?.bgColor || 'bg-sky-600')} 
+                         border ${(teamDetails.color_scheme?.borderColor || 'border-sky-500')} 
+                         disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {postingMessage ? (
+                <FaSpinner className="animate-spin mr-2 h-5 w-5" /> 
+              ) : (
+                <FaPaperPlane className="mr-2 h-5 w-5" /> 
+              )}
+              {postingMessage ? 'Sending...' : 'Send'}
+            </button>
+          </form>
+        </footer>
+      )}
     </div>
   );
 }

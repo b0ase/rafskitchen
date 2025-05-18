@@ -532,11 +532,14 @@ export default function TeamPage() {
     } finally {
       setPostingMessage(false);
       console.log('[PostMessage] Finished.');
-      // Automatically refresh the message list after sending to guarantee sync
+      // User request: refresh messages after send to ensure everything is up-to-date
+      // Temporarily commented out to rely on real-time updates for new messages from self
+      /*
       if (teamDetails?.id) {
-        console.log('[PostMessage] Triggering fetchMessages after post.');
-        await fetchMessages(teamDetails.id, true);
+          console.log('[PostMessage] Triggering fetchMessages after post.');
+          await fetchMessages(teamDetails.id, true); // Ensure this is `await`ed
       }
+      */
     }
   };
 

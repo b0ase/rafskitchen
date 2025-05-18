@@ -98,11 +98,11 @@ export default function MessagesPage() {
 
   const fetchDirectThreads = useCallback(async (userId: string) => {
     try {
-      // @ts-ignore: direct_messages table not in generated types
-      const { data: dms, error: dmError } = await (supabase as any)
+      // get all DMs involving this user
+      const { data: dms, error: dmError } = await supabase
         .from('direct_messages')
         .select('sender_id, receiver_id')
-        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`) as { data: Array<{ sender_id: string; receiver_id: string }>; error: any };
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
       if (dmError) throw dmError;
       const ids = new Set<string>();
       dms?.forEach(dm => {
