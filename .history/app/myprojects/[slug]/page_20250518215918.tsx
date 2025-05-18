@@ -187,12 +187,13 @@ export default function ProjectDetailPage() {
 
   // --- TODO Functions ---
   const fetchProjectTodos = useCallback(async (currentProjectId: string) => {
-    if (!user) return;
+    if (!user) return; // Ensure user is available
     setLoadingTodos(true);
     const { data: todosData, error: todosError } = await supabase
       .from('todos')
       .select('*')
       .eq('project_id', currentProjectId)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: true });
 
     if (todosError) {
@@ -203,7 +204,7 @@ export default function ProjectDetailPage() {
       setProjectTodos(todosData || []);
     }
     setLoadingTodos(false);
-  }, [supabase, user]);
+  }, [supabase, user]); // Added user dependency
 
   useEffect(() => {
     fetchProjectDetails();
@@ -251,7 +252,8 @@ export default function ProjectDetailPage() {
     const { error: updateError } = await supabase
       .from('todos')
       .update({ is_completed: !currentStatus, updated_at: new Date().toISOString() })
-      .eq('id', todoId);
+      .eq('id', todoId)
+      .eq('user_id', user.id); // Ensure user owns the todo
 
     if (updateError) {
       console.error('Error updating todo status:', updateError);
@@ -280,7 +282,8 @@ export default function ProjectDetailPage() {
     const { error: deleteError } = await supabase
       .from('todos')
       .delete()
-      .eq('id', todoId);
+      .eq('id', todoId)
+      .eq('user_id', user.id); // Ensure user owns the todo
 
     if (deleteError) {
       console.error('Error deleting todo:', deleteError);
