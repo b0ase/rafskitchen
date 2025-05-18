@@ -156,21 +156,20 @@ export default function DirectMessagesPage() {
           <button onClick={() => router.back()} className="p-2 rounded hover:bg-gray-700"><FaArrowLeft /></button>
           <h1 className="text-xl font-semibold ml-4">Chat with {targetProfile?.display_name || 'User'}</h1>
         </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing || loading}
-            title="Refresh messages"
-            className="p-2 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {refreshing ? <FaSpinner className="animate-spin h-5 w-5" /> : <FaSyncAlt className="h-5 w-5" />}
-          </button>
-          <div className="bg-yellow-800/50 border border-yellow-700 text-yellow-300 px-2 py-1 text-xs rounded flex items-center space-x-1">
-            <FaInfoCircle className="h-4 w-4" />
-            <span>Please press refresh to see new messages from the other user.</span>
-          </div>
-        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          title="Refresh messages"
+          className="p-2 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {refreshing ? <FaSpinner className="animate-spin h-5 w-5" /> : <FaSyncAlt className="h-5 w-5" />}
+        </button>
       </header>
+      {/* Warning notice for manual refresh */}
+      <div className="bg-yellow-800/50 border border-yellow-700 text-yellow-300 px-4 py-2 text-xs flex items-center space-x-2">
+        <FaInfoCircle className="h-4 w-4" />
+        <span>Please press the refresh button to see new messages from the other user.</span>
+      </div>
       <main className="flex-grow overflow-y-auto p-4 space-y-4">
         {messages.map(msg => (
           <div key={msg.id} className={`flex ${msg.sender_id === currentUserId ? 'justify-end' : 'justify-start'}`}>
