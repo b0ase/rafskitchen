@@ -837,31 +837,540 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
       <main className="flex-grow bg-black">
         <div className="mx-auto bg-black">
-          {/* Content within this div will be commented out for diagnosis 
+          {/* --- RESTORED WELCOME CARD SECTION --- */}
           <section className="mb-12 p-6 md:p-8 bg-sky-700 via-sky-600 to-cyan-500 rounded-xl shadow-2xl text-white border border-sky-500/60">
-            // ... welcome card ...
-          </section>
-
-          <div className="sticky top-0 z-50 bg-black flex flex-col sm:flex-row items-center py-4 border-b border-gray-700">
-            // ... sticky header content ...
-          </div>
-
-          <div className="mt-10">
-            <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-              <section className="pb-6 lg:w-1/2">
-                // ... skills section ...
-              </section>
-              <section className="pb-6 lg:w-1/2">
-                // ... teams section ...
-              </section>
+            <div className="flex flex-col md:flex-row items-center">
+              <FaRocket className="text-5xl md:text-6xl text-sky-200 mr-0 md:mr-6 mb-4 md:mb-0 flex-shrink-0" />
+              <div className="text-center md:text-left flex-grow">
+                <h2 className="text-3xl font-bold mb-3">Ready to build something amazing?</h2>
+                <p className="text-sky-100 mb-6 text-lg leading-relaxed">
+                    Welcome to b0ase.com! This is your hub to bring your digital ideas to life. Start a new project to define your vision, outline features, and begin collaborating with our team. Whether it\'s a website, a mobile app, an AI solution, or something entirely new, we\'re here to help you build it.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3 justify-center md:justify-start">
+                  <Link href="/projects/new" passHref legacyBehavior>
+                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-sky-700 bg-white hover:bg-sky-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-sky-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                      <FaRocket className="mr-2 h-4 w-4" /> Start a New Project
+                    </a>
+                  </Link>
+                  <Link href="/teams/new" passHref legacyBehavior>
+                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                      <FaPlusSquare className="mr-2 h-4 w-4" /> Start a New Team
+                    </a>
+                  </Link>
+                  <Link href="/projects/join" passHref legacyBehavior>
+                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                      <FaHandshake className="mr-2 h-4 w-4" /> Join a Project
+                    </a>
+                  </Link>
+                  <Link href="/teams/join" passHref legacyBehavior>
+                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-green-700 bg-white hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                      <FaUsers className="mr-2 h-4 w-4" /> Join a Team
+                    </a>
+                  </Link>
+                  <Link href="/careers" passHref legacyBehavior>
+                    <a className="inline-flex items-center justify-center px-4 py-2.5 border border-transparent text-sm font-semibold rounded-lg text-orange-700 bg-white hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-orange-700 focus:ring-white transition-transform transform hover:scale-105 shadow-md">
+                      <FaBriefcase className="mr-2 h-4 w-4" /> Careers
+                    </a>
+                  </Link>
+                </div>
+              </div>
             </div>
-            <section className="pb-6 w-full mt-6 md:mt-8">
-              // ... edit profile form section ...
-            </section>
+          </section>
+          {/* --- END RESTORED WELCOME CARD SECTION --- */}
+
+          {/* This is the sticky header. It should now stick closer to the AppNavbar 
+              as its parent's top padding is removed. 
+              The `py-4` it has is for its internal padding. 
+              Ensure `top-0` is appropriate. Increased z-index and removed shadow as a test. */}
+          <div className="sticky top-0 z-50 bg-black flex flex-col sm:flex-row items-center py-4 border-b border-gray-700">
+            {/* --- NEW Simplified Avatar Display and Upload --- */}
+            <div className="relative mr-0 sm:mr-6 mb-4 sm:mb-0">
+              {profile?.avatar_url ? (
+              <img 
+                  src={profile.avatar_url} 
+                alt="Avatar" 
+                  className="w-24 h-24 rounded-full border-4 border-sky-600 object-cover shadow-md" 
+                  crossOrigin="anonymous"
+              />
+            ) : (
+              <FaUserCircle 
+                  className="text-7xl text-sky-500 w-24 h-24" 
+                />
+              )}
+              {isUploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+            </div>
+              )}
+              <label 
+                htmlFor="simpleAvatarUpload"
+                className="absolute -bottom-2 -right-2 cursor-pointer bg-sky-600 hover:bg-sky-700 text-white p-2 rounded-full shadow-md transition-transform transform hover:scale-110"
+                title="Change avatar"
+              >
+                <FaImage className="w-4 h-4" />
+          <input
+            type="file"
+                  id="simpleAvatarUpload"
+                  name="simpleAvatarUpload"
+            accept="image/png, image/jpeg, image/gif, image/webp"
+                  onChange={handleSimpleAvatarUpload}
+            className="sr-only"
+                  disabled={isUploadingAvatar}
+          />
+              </label>
+            </div>
+            {/* --- END NEW Simplified Avatar Display and Upload --- */}
+            
+          <div className="text-center sm:text-left ml-0 sm:ml-6 flex-grow">
+            {/* Display Name and Username are now primarily managed in the form below */}
+            {/* Retain a display version in the header for context if profile data exists */}
+            {(newDisplayName || profile?.display_name || profile?.username) ? (
+              <h1 className="text-3xl font-semibold text-white bg-transparent focus:outline-none w-full mb-0.5 placeholder-gray-500 truncate" title={newDisplayName || profile?.display_name || ''}>
+                {newDisplayName || profile?.display_name || 'User Profile'}
+                {profile?.username && <span className="text-lg text-gray-400 ml-2">(@{profile.username})</span>}
+              </h1>
+            ) : (
+              <div className="h-9 bg-gray-700 rounded w-3/4 animate-pulse"></div> // Placeholder while loading
+            )}
           </div>
-          End of commented out content */}
+
+          {/* MOVED Save Profile Button an its containing div - adjusted classes for new location */}
+          <div className="sm:ml-auto mt-4 sm:mt-0 flex-shrink-0">
+            <button
+              type="submit" // This button will now need to be part of the form or trigger the form submission
+              form="profileForm" // Associate with the form below
+              disabled={saving || 
+                  (
+                    newUsername === (profile?.username || '') &&
+                    newDisplayName === (profile?.display_name || '') &&
+                    newFullName === (profile?.full_name || '') &&
+                    newBio === (profile?.bio || '') &&
+                    newWebsiteUrl === (profile?.website_url || '') &&
+                    newTwitterUrl === (profile?.twitter_url || '') &&
+                    newLinkedInUrl === (profile?.linkedin_url || '') &&
+                    newGitHubUrl === (profile?.github_url || '') &&
+                    newInstagramUrl === (profile?.instagram_url || '') &&
+                    newDiscordUrl === (profile?.discord_url || '') &&
+                    newPhoneWhatsapp === (profile?.phone_whatsapp || '')
+                  )
+              }
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
+            >
+              <FaSave className="mr-2 h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* This mt-10 creates space below the sticky header. Adjust if header height changes significantly. */}
+        {/* New parent container for Skills and Teams to be side-by-side, and Edit Profile below */}
+        <div className="mt-10">
+          {/* Container for Skills and Teams (side-by-side on large screens) */}
+          <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+            {/* My Skills Section - adjusted for new layout */}
+            <section className="pb-6 lg:w-1/2">
+              <div className="flex justify-between items-center mb-4">
+                <Link href="/skills" legacyBehavior>
+                  <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
+                    <FaLightbulb className="mr-3 text-2xl text-sky-500" />
+                    My Skills
+                  </a>
+                </Link>
+                {/* Skill Adder Inputs - MOVED HERE */}
+                {!loadingSkills && (
+                  <div className="flex items-center gap-x-2 ml-auto">
+                    <input
+                      type="text"
+                      value={customSkillInput}
+                      onChange={(e) => setCustomSkillInput(e.target.value)}
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter' && customSkillInput.trim()) {
+                          e.preventDefault();
+                          await handleAddCustomSkill(customSkillInput.trim());
+                        }
+                      }}
+                      placeholder="+ Add Custom Skill" // CHANGED PLACEHOLDER
+                      className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[150px] sm:min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={savingSkills}
+                      title="Add a skill not in the list"
+                    />
+                    {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
+                      <div className="inline-block relative animate-fadeInQuickly">
+                        <select 
+                          value={skillChoiceInAdder}
+                          onChange={async (e) => {
+                            const selectedValue = e.target.value;
+                            if (selectedValue) {
+                              setSkillChoiceInAdder(selectedValue); 
+                              await handleSkillToggle(selectedValue, false); 
+                              setSkillChoiceInAdder(''); 
+                            }
+                          }}
+                          disabled={savingSkills}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[130px] sm:min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                                      ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
+                        >
+                          <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
+                          {((): React.ReactNode => {
+                            const skillGroups = allSkills
+                              .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
+                              .reduce((acc, skill) => {
+                                const category = skill.category || 'Other';
+                                if (!acc[category]) acc[category] = [];
+                                acc[category].push(skill);
+                                return acc;
+                              }, {} as Record<string, Skill[]>);
+
+                              const allCategoryEntries = Object.entries(skillGroups);
+                              const softSkillsEntry = allCategoryEntries.find(([category]) => category.toLowerCase() === 'soft skills');
+                              const otherCategoryEntries = allCategoryEntries.filter(([category]) => category.toLowerCase() !== 'soft skills');
+                              
+                              return (
+                                <>
+                                  {otherCategoryEntries.map(([category, skillsInCategory]) => (
+                                    <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                                      {skillsInCategory.map(skill => (
+                                        <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                          {skill.name}
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  ))}
+                                  {softSkillsEntry && (
+                                    <optgroup label={softSkillsEntry[0]} key={softSkillsEntry[0]} className="bg-gray-750 text-sky-300 font-semibold">
+                                      {softSkillsEntry[1].map(skill => (
+                                        <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                          {skill.name}
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                )}
+              </div>
+              
+              {/* This is the main display box for skills, conditionally rendered */}
+              {loadingSkills ? (
+                <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
+                  <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
+                  <p className="text-lg text-gray-300">Loading your skills...</p>
+                </div>
+              ) : error && !profile ? (
+                <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
+              ) : (
+                <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
+                  {selectedSkills.length > 0 && (
+                    <div className="mb-6 flex flex-wrap gap-2">
+                      {selectedSkills.map(skill => (
+                        <span 
+                          key={skill.id} 
+                          className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
+                          title={skill.description || skill.name}
+                        >
+                          {skill.name}
+                          <button
+                            onClick={() => handleSkillToggle(skill.id, true)}
+                            disabled={savingSkills}
+                            className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
+                            aria-label={`Remove ${skill.name} skill`}
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {(!loadingSkills && selectedSkills.length === 0) && (
+                    <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
+                      <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
+                      <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
+                    </div>
+                  )}
+                  {/* The h3 for Add New Skills and the old input location were here, now removed/moved */}
+                  {userSkillIds.size > 0 && 
+                   !loadingSkills && 
+                   allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
+                     allSkills.some(skill => skill.category !== 'User-defined') &&
+                  (
+                    <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
+                  )}
+                </div>
+              )}
+            </section>
+            {/* End My Skills Section */}
+
+            {/* User Teams Display Section - MOVED UP to be side-by-side with Skills */}
+            <section className="pb-6 lg:w-1/2"> {/* Ensure this also takes lg:w-1/2 for side-by-side */} 
+              <Link href="/teams/join" legacyBehavior>
+                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
+                  <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+                </a>
+              </Link>
+              {loadingUserTeams && (
+                <div className="flex items-center text-gray-400">
+                  <FaSpinner className="animate-spin mr-2" /> Loading teams...
+                </div>
+              )}
+              {errorUserTeams && (
+                <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
+              )}
+              {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
+                <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
+              )}
+              {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
+                <div className="flex flex-wrap gap-3">
+                  {userTeams.map(team => {
+                    const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                    const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
+                    const textColor = team.color_scheme?.textColor || 'text-gray-100';
+                    const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+                    return (
+                      <Link 
+                        href={`/teams/${team.slug || team.id}`} 
+                        key={team.id} 
+                        className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
+                      >
+                        <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
+                        <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+            {/* End User Teams Display Section */}
+          </div> {/* This div now closes the Skills and Teams row */}
+
+          {/* User Profile Form Section - MOVED DOWN and made full width */}
+          <section className="pb-6 w-full mt-6 md:mt-8"> {/* Changed md:w-1/2 to w-full and added margin-top */}
+            <h2 className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
+              <FaUserCircle className="mr-3 text-2xl text-sky-500" /> Edit Profile
+            </h2>
+            <form id="profileForm" onSubmit={handleUpdateProfile} className="space-y-6 bg-gray-750 p-6 rounded-lg border border-gray-600 shadow-xl">
+              
+              {/* Row for Username and Display Name */}
+              <div className="flex flex-col sm:flex-row gap-x-4 gap-y-6">
+                {/* Username Input */}
+                <div className="flex-1 min-w-0 sm:w-1/2">
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    id="username"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
+                    placeholder="your_username"
+                    maxLength={20}
+                    aria-describedby="username-description"
+                  />
+                  <p id="username-description" className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
+                </div>
+
+                {/* Display Name Input */}
+                <div className="flex-1 min-w-0 sm:w-1/2">
+                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Display Name (Editable)
+                  </label>
+                  <input
+                    type="text"
+                    name="displayName"
+                    id="displayName"
+                    value={newDisplayName}
+                    onChange={(e) => setNewDisplayName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
+                    placeholder="Your Public Name"
+                    maxLength={50}
+                    aria-describedby="displayname-description"
+                  />
+                  <p id="displayname-description" className="mt-1.5 text-xs text-gray-500">This is the name shown publicly (e.g., on messages, teams).</p>
+                </div>
+              </div>
+
+              {/* Email Address and WhatsApp/Phone Row */}
+              <div className="flex flex-col sm:flex-row gap-x-4 gap-y-6">
+                {/* Email Address (Read-only) */}
+                <div className="flex-1 min-w-0 sm:w-1/2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={user?.email || ''}
+                    readOnly
+                    className="w-full px-4 py-2.5 bg-gray-800/50 border-gray-700 text-gray-400 rounded-md shadow-sm cursor-not-allowed transition-colors"
+                  />
+                </div>
+
+                {/* WhatsApp/Phone Number Input */}
+                <div className="flex-1 min-w-0 sm:w-1/2">
+                  <label htmlFor="phone_whatsapp" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    WhatsApp/Phone (Optional)
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone_whatsapp"
+                    id="phone_whatsapp"
+                    value={newPhoneWhatsapp}
+                    onChange={(e) => setNewPhoneWhatsapp(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
+                    placeholder="+12345678900"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => alert('Feature to integrate WhatsApp for instant messaging is coming soon!')}
+                    className="mt-2 w-full sm:w-auto inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 transition-colors shadow-sm"
+                  >
+                    Add WhatsApp to Instant Messaging
+                  </button>
+                </div>
+              </div>
+              
+              {/* Online Presence Section */}
+              <div className="space-y-4 pt-4 border-t border-gray-600">
+                <h3 className="text-lg font-medium leading-6 text-sky-400 flex items-center">
+                  <FaLink className="mr-2" /> Online Presence
+                </h3>
+
+                {/* Row 1: Website URL, Twitter URL, Instagram URL */}
+                <div className="flex flex-col sm:flex-row gap-x-4 gap-y-4">
+                  {/* Website URL */}
+                  <div className="flex-1 min-w-0 sm:w-1/3">
+                    <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      Website URL
+                    </label>
+                    <input
+                      type="url"
+                      name="website_url"
+                      id="website_url"
+                      value={newWebsiteUrl}
+                      onChange={(e) => setNewWebsiteUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://your.website.com"
+                    />
+                  </div>
+
+                  {/* Twitter URL */}
+                  <div className="flex-1 min-w-0 sm:w-1/3">
+                    <label htmlFor="twitter_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      Twitter (X) URL
+                    </label>
+                    <input
+                      type="url"
+                      name="twitter_url"
+                      id="twitter_url"
+                      value={newTwitterUrl}
+                      onChange={(e) => setNewTwitterUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://twitter.com/yourhandle"
+                    />
+                  </div>
+
+                  {/* Instagram URL */}
+                  <div className="flex-1 min-w-0 sm:w-1/3">
+                    <label htmlFor="instagram_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      Instagram URL
+                    </label>
+                    <input
+                      type="url"
+                      name="instagram_url"
+                      id="instagram_url"
+                      value={newInstagramUrl}
+                      onChange={(e) => setNewInstagramUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://instagram.com/yourprofile"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 2: LinkedIn URL, GitHub URL, Discord URL */}
+                <div className="flex flex-col sm:flex-row gap-x-4 gap-y-4 mt-4">
+                  {/* LinkedIn URL */}
+                  <div className="flex-1 min-w-0 sm:w-1/3">
+                    <label htmlFor="linkedin_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      LinkedIn URL
+                    </label>
+                    <input
+                      type="url"
+                      name="linkedin_url"
+                      id="linkedin_url"
+                      value={newLinkedInUrl}
+                      onChange={(e) => setNewLinkedInUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://linkedin.com/in/yourprofile"
+                    />
+                  </div>
+
+                  {/* GitHub URL */}
+                  <div className="flex-1 min-w-0 sm:w-1/3">
+                    <label htmlFor="github_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      GitHub URL
+                    </label>
+                    <input
+                      type="url"
+                      name="github_url"
+                      id="github_url"
+                      value={newGitHubUrl}
+                      onChange={(e) => setNewGitHubUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://github.com/yourusername"
+                    />
+                  </div>
+
+                  {/* Discord Profile URL */}
+                  <div className="flex-1 min-w-0 sm:w-1/3">
+                    <label htmlFor="discord_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      Discord Profile URL
+                    </label>
+                    <input
+                      type="url"
+                      name="discord_url"
+                      id="discord_url"
+                      value={newDiscordUrl}
+                      onChange={(e) => setNewDiscordUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://discord.com/users/yourid"
+                    />
+                  </div>
+                </div>
+                
+                {/* Bio / About Me */}
+                <div className="mt-4"> {/* Ensures spacing from the grid above */}
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1">
+                    Bio / About Me
+                  </label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    rows={4}
+                    value={newBio}
+                    onChange={(e) => setNewBio(e.target.value)}
+                    className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                    placeholder="Tell us a bit about yourself..."
+                    maxLength={500}
+                  />
+                  <p className="mt-1 text-xs text-gray-400">Max 500 characters.</p>
+                </div>
+              </div>
+
+              {/* Save button is part of the sticky header, associated by form="profileForm" */}
+              {error && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>}
+              {successMessage && <p className="text-sm text-green-400 bg-green-900/30 p-3 rounded-md">{successMessage}</p>}
+            </form>
+          </section>
+          {/* End User Profile Form Section */}
+        </div>
+      </div> {/* This closes the div that starts at line 839 ("mx-auto bg-black")*/}
+    </main>
   );
 } 
