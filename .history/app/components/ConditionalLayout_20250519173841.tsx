@@ -208,22 +208,21 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // (This also covers cases where isAppPage might be true but we determined it was public earlier and returned,
   //  but here we are certain it's not public and not an auth flow page)
   if (isAppPage && isAuthenticated) {
-    // Determine initial expansion state for AppSubNavbar based on path
-    const subNavbarInitialExpanded = (pathname === '/profile') 
-      ? (showWelcomeCard ?? true) 
-      : false;
-
     return (
       <MyCtxProvider>
         <div className="flex h-screen bg-black">
-          <UserSidebar />
+          <UserSidebar 
+            // Remove props related to old mobile sidebar functionality
+            // isSidebarOpen={isSidebarOpen} 
+            // toggleSidebar={toggleSidebar} 
+          />
           <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
             <AppNavbar 
               toggleFullScreenMenu={toggleFullScreenMenu} 
               isFullScreenMenuOpen={isFullScreenMenuOpen}
             />
             <AppSubNavbar 
-              initialIsExpanded={subNavbarInitialExpanded} 
+              initialIsExpanded={showWelcomeCard ?? true} 
               onCollapse={handleDismissWelcomeCard} 
             />
             <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">

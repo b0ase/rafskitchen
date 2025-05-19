@@ -8,6 +8,7 @@ import ProfileDetails from '@/components/ProfileDetails'; // Import the new comp
 import UserSkills from '@/components/UserSkills'; // Import the new UserSkills component
 import UserTeams from '@/components/UserTeams'; // Import the new UserTeams component
 import EditProfileForm from '@/components/EditProfileForm'; // Import the new EditProfileForm component
+import WelcomeActionsCard from '@/components/WelcomeActionsCard'; // Import the new WelcomeActionsCard component
 
 // Import the custom hook
 import useProfileData from '@/lib/hooks/useProfileData';
@@ -101,6 +102,9 @@ export default function ProfilePage() {
 
       <main className="flex-grow bg-black pt-20"> {/* Add padding-top to prevent content being hidden behind sticky button */}
         <div className="mx-auto bg-black">
+          {/* Render WelcomeActionsCard Component */}
+          <WelcomeActionsCard />
+
           {/* Render ProfileDetails Component */}
           <ProfileDetails
             profile={profile}

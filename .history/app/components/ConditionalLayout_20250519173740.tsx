@@ -11,12 +11,12 @@ import AppNavbar from './AppNavbar';
 import AppSubNavbar from './AppSubNavbar'; // Added import
 import { useAuth } from './Providers'; // Import useAuth
 import { FaRocket } from 'react-icons/fa'; // For loading indicator
-import { MyCtxProvider } from './MyCtx'; // Corrected to MyCtxProvider
+import { MyCtxProvider } from '@/app/components/MyCtx'; // Standardized import path
 import FullScreenMobileMenu from './FullScreenMobileMenu'; // Import new menu
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // For logout
 import useProfileData from '@/lib/hooks/useProfileData'; // Corrected import for default export
-// User type might not be needed here if useProfileData handles user context internally
-// import { User } from '@supabase/supabase-js'; 
+import { User } from '@supabase/supabase-js'; // Ensure User type is imported if needed for profileData
+import { PageHeaderProvider } from './MyCtx';
 
 interface ConditionalLayoutProps {
   // session prop from server can be kept for initial hint or removed if useAuth is robust enough
@@ -58,18 +58,16 @@ const minimalLayoutPathPrefixes = [
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname() ?? '';
   const router = useRouter();
-  // Revert to using session and isLoading from useAuth, and alias them for clarity if needed
-  const { session, isLoading: authLoading } = useAuth(); 
-  const user = session?.user; // Extract user from session for convenience
+  const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
   const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
-  // Call useProfileData without arguments
+  // Use useProfileData hook
   const { 
     profile, 
     loading: profileLoading, 
-    showWelcomeCard, // Assuming this is the state for welcome card visibility
+    has_seen_welcome_card, 
     handleDismissWelcomeCard 
-  } = useProfileData();
+  } = useProfileData(clientSession as User | null); // Pass user to hook
 
   // --- NEW: Check for minimal layout paths first --- 
   const isMinimalPage = minimalLayoutPathPrefixes.some(prefix => pathname.startsWith(prefix));
@@ -79,7 +77,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   }
   // --- END NEW ---
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!clientSession;
   // Remove local pageContext state and handler as MyCtxProvider will manage this.
   // const [pageContext, setPageContext] = React.useState<PageContextType | null>(null);
   const [isFullScreenMenuOpen, setIsFullScreenMenuOpen] = React.useState(false);
@@ -173,11 +171,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isAppPage = appPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
   useEffect(() => {
-    if (!authLoading && !user && isAppPage) {
+    if (!isLoadingAuth && !clientSession && isAppPage) {
       console.log('[ConditionalLayout] User not authenticated for app page, redirecting to login.');
       router.push('/login');
     }
-  }, [user, authLoading, isAppPage, router]);
+  }, [clientSession, isLoadingAuth, isAppPage, router]);
 
   if (isAuthFlowPage || isPublicPage) {
     // Render public layout immediately for public pages and auth flow pages
@@ -195,7 +193,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For non-public and non-auth-flow pages (i.e., app pages or pages needing auth)
   // Now check for authentication loading state
-  if (authLoading || profileLoading) {
+  if (isLoadingAuth || profileLoading) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-black">
         <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
@@ -208,37 +206,38 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // (This also covers cases where isAppPage might be true but we determined it was public earlier and returned,
   //  but here we are certain it's not public and not an auth flow page)
   if (isAppPage && isAuthenticated) {
-    // Determine initial expansion state for AppSubNavbar based on path
-    const subNavbarInitialExpanded = (pathname === '/profile') 
-      ? (showWelcomeCard ?? true) 
-      : false;
-
     return (
-      <MyCtxProvider>
-        <div className="flex h-screen bg-black">
-          <UserSidebar />
-          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
-            <AppNavbar 
-              toggleFullScreenMenu={toggleFullScreenMenu} 
-              isFullScreenMenuOpen={isFullScreenMenuOpen}
+      <PageHeaderProvider>
+        <MyCtxProvider>
+          <div className="flex h-screen bg-black">
+            <UserSidebar 
+              // Remove props related to old mobile sidebar functionality
+              // isSidebarOpen={isSidebarOpen} 
+              // toggleSidebar={toggleSidebar} 
             />
-            <AppSubNavbar 
-              initialIsExpanded={subNavbarInitialExpanded} 
-              onCollapse={handleDismissWelcomeCard} 
+            <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
+              <AppNavbar 
+                toggleFullScreenMenu={toggleFullScreenMenu} 
+                isFullScreenMenuOpen={isFullScreenMenuOpen}
+              />
+              <AppSubNavbar 
+                initialIsExpanded={!has_seen_welcome_card} 
+                onCollapse={handleDismissWelcomeCard} 
+              />
+              <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+                {children}
+              </main>
+            </div>
+            <FullScreenMobileMenu 
+              isOpen={isFullScreenMenuOpen}
+              onClose={toggleFullScreenMenu}
+              handleLogout={handleLogout}
+              userDisplayName={clientSession?.user?.user_metadata?.display_name || clientSession?.user?.email}
+              userAvatarUrl={clientSession?.user?.user_metadata?.avatar_url}
             />
-            <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-              {children}
-            </main>
           </div>
-          <FullScreenMobileMenu 
-            isOpen={isFullScreenMenuOpen}
-            onClose={toggleFullScreenMenu}
-            handleLogout={handleLogout}
-            userDisplayName={user?.user_metadata?.display_name || user?.email}
-            userAvatarUrl={user?.user_metadata?.avatar_url}
-          />
-        </div>
-      </MyCtxProvider>
+        </MyCtxProvider>
+      </PageHeaderProvider>
     );
   }
   
@@ -257,15 +256,13 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // Fallback to public layout if no other conditions met (should ideally not be reached for app pages)
   console.warn(`[ConditionalLayout] Path ${pathname} did not match any specific layout conditions and is falling back to public layout.`);
   return (
-    <MyCtxProvider>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <SubNavigation />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
-      </div>
-    </MyCtxProvider>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <SubNavigation />
+      <main className="flex-grow">
+        {children}
+      </main>
+      <Footer />
+    </div>
   );
 }
