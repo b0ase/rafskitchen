@@ -77,7 +77,7 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
       {/* Save Profile Button - Moved to the top and made sticky */}
       {/* Position it before the main content so it overlays */}
-      <div className="fixed top-4 right-24 z-50">
+      <div className="fixed top-4 right-16 z-50">
         <button
           form="profile-form" // Associate button with the form by id
           type="submit"

@@ -77,14 +77,14 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
       {/* Save Profile Button - Moved to the top and made sticky */}
       {/* Position it before the main content so it overlays */}
-      <div className="fixed top-4 right-24 z-50">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
         <button
           form="profile-form" // Associate button with the form by id
           type="submit"
           disabled={saving}
-          className="w-56 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {saving ? <FaSpinner className="animate-spin mr-2" /> : <FaSave className="mr-2" />}
+          {saving ? <FaSpinner className="animate-spin mr-3" /> : <FaSave className="mr-3" />}
           {saving ? 'Saving...' : 'Save Profile'}
         </button>
       </div>
