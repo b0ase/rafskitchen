@@ -275,11 +275,10 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
     }
   };
 
-  const currentNavLinks = useMemo(() => {
-    // Update the current status of navLinks based on the pathname
+  const navLinks = useMemo(() => {
     return allNavLinks.map(link => ({
       ...link,
-      current: link.href === '/profile' ? (pathname?.startsWith('/profile') ?? false) : pathname === link.href,
+      current: link.href === '/profile' ? pathname?.startsWith('/profile') ?? false : pathname === link.href,
     }));
   }, [pathname, allNavLinks]);
 
@@ -331,7 +330,7 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
       {/* Navigation Links */}
       <nav className="flex-grow px-3 py-4 space-y-1 overflow-y-auto">
         {navLinksPrimaryConst.map((link) => {
-          const isCurrent = pathname === link.href || (link.href !== '/profile' && (pathname?.startsWith(link.href) ?? false));
+          const isCurrent = pathname === link.href || (link.href !== '/profile' && pathname?.startsWith(link.href) ?? false);
           return (
             <Link
               key={link.title}

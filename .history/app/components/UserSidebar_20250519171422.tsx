@@ -275,11 +275,10 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
     }
   };
 
-  const currentNavLinks = useMemo(() => {
-    // Update the current status of navLinks based on the pathname
+  const navLinks = useMemo(() => {
     return allNavLinks.map(link => ({
       ...link,
-      current: link.href === '/profile' ? (pathname?.startsWith('/profile') ?? false) : pathname === link.href,
+      current: link.href === '/profile' ? pathname.startsWith('/profile') : pathname === link.href,
     }));
   }, [pathname, allNavLinks]);
 
@@ -288,16 +287,6 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
   const handleLinkClick = useCallback((link: NavLink) => {
     setPageContext({ title: link.title, href: link.href, icon: link.icon });
   }, [setPageContext]);
-
-  // Effect to update pageContext based on current path and available navLinks
-  useEffect(() => {
-    // Use pathname directly, ensuring it's not null for comparisons
-    const currentPath = pathname ?? ''; 
-    const activeLink = allNavLinks.find(link => currentPath === link.href);
-    if (activeLink) {
-      setPageContext({ title: activeLink.title, href: activeLink.href, icon: activeLink.icon });
-    }
-  }, [pathname, allNavLinks, setPageContext]);
 
   if (!user && pathname !== '/login' && pathname !== '/signup') {
     return null; 
@@ -331,7 +320,7 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
       {/* Navigation Links */}
       <nav className="flex-grow px-3 py-4 space-y-1 overflow-y-auto">
         {navLinksPrimaryConst.map((link) => {
-          const isCurrent = pathname === link.href || (link.href !== '/profile' && (pathname?.startsWith(link.href) ?? false));
+          const isCurrent = pathname === link.href || (link.href !== '/profile' && pathname.startsWith(link.href));
           return (
             <Link
               key={link.title}

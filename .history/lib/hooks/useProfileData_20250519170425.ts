@@ -20,8 +20,6 @@ interface Profile {
   discord_url?: string | null;
   phone_whatsapp?: string | null;
   dollar_handle?: string | null;
-  token_name?: string | null;
-  supply?: string | null;
 }
 
 interface ProfileForUpdate {
@@ -37,8 +35,6 @@ interface ProfileForUpdate {
   discord_url?: string | null;
   phone_whatsapp?: string | null;
   dollar_handle?: string | null;
-  token_name?: string | null;
-  supply?: string | null;
   updated_at: string;
 }
 
@@ -98,8 +94,6 @@ export default function useProfileData() {
   const [newDiscordUrl, setNewDiscordUrl] = useState<string>('');
   const [newPhoneWhatsapp, setNewPhoneWhatsapp] = useState<string>('');
   const [newDollarHandle, setNewDollarHandle] = useState<string>('');
-  const [newTokenName, setNewTokenName] = useState<string>('');
-  const [newSupply, setNewSupply] = useState<string>('1,000,000,000');
 
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -174,8 +168,6 @@ export default function useProfileData() {
         setNewDiscordUrl('');
         setNewPhoneWhatsapp('');
         setNewDollarHandle('');
-        setNewTokenName('');
-        setNewSupply('1,000,000,000');
         setSelectedSkills([]);
         setSuccessMessage(null);
         setAvatarUploadError(null);
@@ -250,8 +242,6 @@ export default function useProfileData() {
           setNewDiscordUrl((profileData as any).discord_url || '');
           setNewPhoneWhatsapp((profileData as any).phone_whatsapp || '');
           setNewDollarHandle((profileData as any).dollar_handle || '');
-          setNewTokenName((profileData as any).token_name || '');
-          setNewSupply((profileData as any).supply || '1,000,000,000');
 
           // Step 2: Fetch User's Skills
           console.log("[ProfilePage] Fetching user skills for user:", user.id);
@@ -707,8 +697,6 @@ export default function useProfileData() {
       discord_url: newDiscordUrl.trim() || null,
       phone_whatsapp: newPhoneWhatsapp.trim() || null,
       dollar_handle: newDollarHandle.trim() || null,
-      token_name: newTokenName.trim() || null,
-      supply: newSupply.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -737,8 +725,6 @@ export default function useProfileData() {
           discord_url: updates.discord_url !== undefined ? updates.discord_url : prevProfile.discord_url,
           phone_whatsapp: updates.phone_whatsapp !== undefined ? updates.phone_whatsapp : prevProfile.phone_whatsapp,
           dollar_handle: updates.dollar_handle !== undefined ? updates.dollar_handle : prevProfile.dollar_handle,
-          token_name: updates.token_name !== undefined ? updates.token_name : prevProfile.token_name,
-          supply: updates.supply !== undefined ? updates.supply : prevProfile.supply,
         };
         return updatedProfileState;
       });
@@ -754,8 +740,6 @@ export default function useProfileData() {
       setNewDiscordUrl(updates.discord_url || '');
       setNewPhoneWhatsapp(updates.phone_whatsapp || '');
       setNewDollarHandle(updates.dollar_handle || '');
-      setNewTokenName(updates.token_name || '');
-      setNewSupply(updates.supply || '1,000,000,000');
       setSuccessMessage('Profile updated successfully!');
     }
     setSaving(false);
@@ -768,8 +752,6 @@ export default function useProfileData() {
   const onDiscordUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewDiscordUrl(e.target.value);
   const onPhoneWhatsappChange = (e: ChangeEvent<HTMLInputElement>) => setNewPhoneWhatsapp(e.target.value);
   const onDollarHandleChange = (e: ChangeEvent<HTMLInputElement>) => setNewDollarHandle(e.target.value);
-  const onTokenNameChange = (e: ChangeEvent<HTMLInputElement>) => setNewTokenName(e.target.value);
-  const onSupplyChange = (e: ChangeEvent<HTMLInputElement>) => setNewSupply(e.target.value);
 
   return {
     user,
@@ -786,8 +768,6 @@ export default function useProfileData() {
     newDiscordUrl,
     newPhoneWhatsapp,
     newDollarHandle,
-    newTokenName,
-    newSupply,
     loading,
     saving,
     error,
@@ -816,8 +796,6 @@ export default function useProfileData() {
     setNewDiscordUrl,
     setNewPhoneWhatsapp,
     setNewDollarHandle,
-    setNewTokenName,
-    setNewSupply,
     setCustomSkillInput,
     setSkillChoiceInAdder,
     onLinkedInUrlChange,
@@ -826,8 +804,6 @@ export default function useProfileData() {
     onDiscordUrlChange,
     onPhoneWhatsappChange,
     onDollarHandleChange,
-    onTokenNameChange,
-    onSupplyChange,
     handleUpdateProfile,
     handleSimpleAvatarUpload,
     handleSkillToggle,

@@ -45,7 +45,7 @@ export default function UserTeams({
   return (
     <section className="pb-6 lg:w-1/2 p-6 bg-black rounded-xl shadow-md border border-gray-800">
       <h2 className="text-2xl font-semibold mb-6 text-white flex items-center">
-        <FaHandshake className="mr-3 text-sky-500"/> 
+        <FaHandshake className="mr-3 text-gray-400"/> 
         <Link href="https://www.b0ase.com/teams/join" target="_blank" rel="noopener noreferrer" className="hover:underline">
           Your Teams
         </Link>

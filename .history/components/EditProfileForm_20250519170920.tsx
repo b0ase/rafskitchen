@@ -115,7 +115,6 @@ export default function EditProfileForm({
         {avatarUploadError && <p className="text-red-400 text-sm">{avatarUploadError}</p>}
         
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Row 1 */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 flex items-center"><FaSignature className="mr-2 text-gray-400"/> Username</label>
             <input type="text" id="username" value={newUsername} onChange={onUsernameChange} required className={inputBaseClass} placeholder="Your unique username" />
@@ -137,12 +136,14 @@ export default function EditProfileForm({
                 </button>
             </div>
           </div>
+        </div>
 
-          {/* Row 2 */}
-          <div>
+        <div>
             <label htmlFor="supply" className="block text-sm font-medium text-gray-300 flex items-center"><FaCoins className="mr-2 text-gray-400"/> Supply</label>
             <input type="text" id="supply" value={newSupply} onChange={onSupplyChange} className={inputBaseClass} placeholder="e.g., 1,000,000,000" />
-          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="phone_whatsapp" className="block text-sm font-medium text-gray-300 flex items-center"><FaLink className="mr-2 text-gray-400"/> Phone/WhatsApp</label>
             <input type="text" id="phone_whatsapp" value={newPhoneWhatsapp} onChange={onPhoneWhatsappChange} className={inputBaseClass} placeholder="Your phone or WhatsApp number (optional)" />

@@ -8,7 +8,6 @@ import ProfileDetails from '@/components/ProfileDetails'; // Import the new comp
 import UserSkills from '@/components/UserSkills'; // Import the new UserSkills component
 import UserTeams from '@/components/UserTeams'; // Import the new UserTeams component
 import EditProfileForm from '@/components/EditProfileForm'; // Import the new EditProfileForm component
-import WelcomeActionsCard from '@/components/WelcomeActionsCard'; // Import the new WelcomeActionsCard component
 
 // Import the custom hook
 import useProfileData from '@/lib/hooks/useProfileData';
@@ -21,6 +20,7 @@ export default function ProfilePage() {
     profile,
     newUsername,
     newDisplayName,
+    newFullName,
     newBio,
     newWebsiteUrl,
     newTwitterUrl,
@@ -29,9 +29,6 @@ export default function ProfilePage() {
     newInstagramUrl,
     newDiscordUrl,
     newPhoneWhatsapp,
-    newDollarHandle,
-    newTokenName,
-    newSupply,
     loading,
     saving,
     error,
@@ -50,6 +47,7 @@ export default function ProfilePage() {
     skillChoiceInAdder,
     setNewUsername,
     setNewDisplayName,
+    setNewFullName,
     setNewBio,
     setNewWebsiteUrl,
     setNewTwitterUrl,
@@ -58,9 +56,6 @@ export default function ProfilePage() {
     setNewInstagramUrl,
     setNewDiscordUrl,
     setNewPhoneWhatsapp,
-    setNewDollarHandle,
-    setNewTokenName,
-    setNewSupply,
     setCustomSkillInput,
     setSkillChoiceInAdder,
     handleUpdateProfile,
@@ -96,9 +91,6 @@ export default function ProfilePage() {
 
       <main className="flex-grow bg-black pt-20"> {/* Add padding-top to prevent content being hidden behind sticky button */}
         <div className="mx-auto bg-black">
-          {/* Render WelcomeActionsCard Component */}
-          <WelcomeActionsCard />
-
           {/* Render ProfileDetails Component */}
           <ProfileDetails
             profile={profile}
@@ -137,6 +129,7 @@ export default function ProfilePage() {
             <EditProfileForm
               newUsername={newUsername}
               newDisplayName={newDisplayName}
+              newFullName={newFullName}
               newBio={newBio}
               newWebsiteUrl={newWebsiteUrl}
               newTwitterUrl={newTwitterUrl}
@@ -145,15 +138,13 @@ export default function ProfilePage() {
               newInstagramUrl={newInstagramUrl}
               newDiscordUrl={newDiscordUrl}
               newPhoneWhatsapp={newPhoneWhatsapp}
-              newDollarHandle={newDollarHandle}
-              newTokenName={newTokenName}
-              newSupply={newSupply}
               saving={saving}
               error={error}
               successMessage={successMessage}
               avatarUploadError={avatarUploadError}
               onUsernameChange={(e) => setNewUsername(e.target.value)}
               onDisplayNameChange={(e) => setNewDisplayName(e.target.value)}
+              onFullNameChange={(e) => setNewFullName(e.target.value)}
               onBioChange={(e) => setNewBio(e.target.value)}
               onWebsiteUrlChange={(e) => setNewWebsiteUrl(e.target.value)}
               onTwitterUrlChange={(e) => setNewTwitterUrl(e.target.value)}
@@ -162,9 +153,6 @@ export default function ProfilePage() {
               onInstagramUrlChange={(e) => setNewInstagramUrl(e.target.value)}
               onDiscordUrlChange={(e) => setNewDiscordUrl(e.target.value)}
               onPhoneWhatsappChange={(e) => setNewPhoneWhatsapp(e.target.value)}
-              onDollarHandleChange={(e) => setNewDollarHandle(e.target.value)}
-              onTokenNameChange={(e) => setNewTokenName(e.target.value)}
-              onSupplyChange={(e) => setNewSupply(e.target.value)}
               onSubmit={handleUpdateProfile}
             />
            </div>

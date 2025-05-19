@@ -128,8 +128,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     '/myprojects',
     '/projects/new', // Already here
     '/projects/join', // Added
-    '/myagent', // Added
-    '/mytoken', // Added
     '/teammanagement',
     '/team',
     '/teams', // Covers /teams and /teams/* - Make sure this doesn't conflict with more specific /teammanagement

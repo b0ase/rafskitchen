@@ -38,7 +38,7 @@ export default function ProfileDetails({
       {/* Welcome card/Hero Section */}
       <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
         {/* Avatar */}
-        <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 rounded-full overflow-hidden border-2 border-white shadow-lg z-10">
+        <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 rounded-full overflow-hidden border-4 border-white shadow-lg">
           {isUploadingAvatar ? (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75 z-20">
               <FaSpinner className="text-gray-400 animate-spin text-3xl" />
@@ -53,7 +53,7 @@ export default function ProfileDetails({
           {/* Avatar Upload Button */}
           <label
             htmlFor="avatar-upload"
-            className="absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full cursor-pointer border-2 border-gray-600 hover:bg-gray-600 transition-colors duration-200 ease-in-out shadow-md z-30"
+            className="absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full cursor-pointer border-2 border-gray-600 hover:bg-gray-600 transition-colors duration-200 ease-in-out shadow-md z-10"
             title="Upload new avatar"
           >
             <FaImage className="text-white text-lg" />

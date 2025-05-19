@@ -38,7 +38,7 @@ const minimalLayoutPathPrefixes = [
 // Note: The session prop passed to ConditionalLayout from RootLayout is the server-side session.
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
-  const pathname = usePathname() ?? '';
+  const pathname = usePathname();
   const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
   const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
@@ -128,8 +128,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     '/myprojects',
     '/projects/new', // Already here
     '/projects/join', // Added
-    '/myagent', // Added
-    '/mytoken', // Added
     '/teammanagement',
     '/team',
     '/teams', // Covers /teams and /teams/* - Make sure this doesn't conflict with more specific /teammanagement

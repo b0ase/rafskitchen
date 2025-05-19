@@ -21,6 +21,7 @@ export default function ProfilePage() {
     profile,
     newUsername,
     newDisplayName,
+    newFullName,
     newBio,
     newWebsiteUrl,
     newTwitterUrl,
@@ -50,6 +51,7 @@ export default function ProfilePage() {
     skillChoiceInAdder,
     setNewUsername,
     setNewDisplayName,
+    setNewFullName,
     setNewBio,
     setNewWebsiteUrl,
     setNewTwitterUrl,
@@ -137,6 +139,7 @@ export default function ProfilePage() {
             <EditProfileForm
               newUsername={newUsername}
               newDisplayName={newDisplayName}
+              newFullName={newFullName}
               newBio={newBio}
               newWebsiteUrl={newWebsiteUrl}
               newTwitterUrl={newTwitterUrl}
@@ -154,6 +157,7 @@ export default function ProfilePage() {
               avatarUploadError={avatarUploadError}
               onUsernameChange={(e) => setNewUsername(e.target.value)}
               onDisplayNameChange={(e) => setNewDisplayName(e.target.value)}
+              onFullNameChange={(e) => setNewFullName(e.target.value)}
               onBioChange={(e) => setNewBio(e.target.value)}
               onWebsiteUrlChange={(e) => setNewWebsiteUrl(e.target.value)}
               onTwitterUrlChange={(e) => setNewTwitterUrl(e.target.value)}

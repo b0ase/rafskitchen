@@ -115,7 +115,6 @@ export default function EditProfileForm({
         {avatarUploadError && <p className="text-red-400 text-sm">{avatarUploadError}</p>}
         
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Row 1 */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 flex items-center"><FaSignature className="mr-2 text-gray-400"/> Username</label>
             <input type="text" id="username" value={newUsername} onChange={onUsernameChange} required className={inputBaseClass} placeholder="Your unique username" />
@@ -138,7 +137,6 @@ export default function EditProfileForm({
             </div>
           </div>
 
-          {/* Row 2 */}
           <div>
             <label htmlFor="supply" className="block text-sm font-medium text-gray-300 flex items-center"><FaCoins className="mr-2 text-gray-400"/> Supply</label>
             <input type="text" id="supply" value={newSupply} onChange={onSupplyChange} className={inputBaseClass} placeholder="e.g., 1,000,000,000" />
