@@ -27,25 +27,11 @@ const publicPathPrefixes = [
   '/projects' // Assuming /projects (portfolio) is public, /myprojects is the app part
 ];
 
-// --- NEW: Define paths that should use a completely minimal layout --- 
-const minimalLayoutPathPrefixes = [
-  '/skills' // Add other paths here if they need a completely bare layout
-];
-// --- END NEW ---
-
 // Note: The session prop passed to ConditionalLayout from RootLayout is the server-side session.
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
   const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Get session and loading state from context
-
-  // --- NEW: Check for minimal layout paths first --- 
-  const isMinimalPage = minimalLayoutPathPrefixes.some(prefix => pathname.startsWith(prefix));
-  if (isMinimalPage) {
-    // For minimal pages, render only children. UserSidebar and MyCtxProvider are handled by the page itself if needed.
-    return <>{children}</>;
-  }
-  // --- END NEW ---
 
   const isAuthenticated = !!clientSession;
   // Remove local pageContext state and handler as MyCtxProvider will manage this.

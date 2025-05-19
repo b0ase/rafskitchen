@@ -763,8 +763,8 @@ export default function ProfilePage() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8">
-      <main className="flex-grow px-4 sm:px-6 lg:px-8 bg-black">
-        <div className="mx-auto bg-black">
+      <main className="flex-grow pt-6 md:pt-10 px-4 sm:px-6 lg:px-8 bg-black">
+        <div className="mx-auto">
           {/* --- RESTORED WELCOME CARD SECTION --- */}
           <section className="mb-12 p-6 md:p-8 bg-sky-700 via-sky-600 to-cyan-500 rounded-xl shadow-2xl text-white border border-sky-500/60">
             <div className="flex flex-col md:flex-row items-center">
@@ -809,8 +809,8 @@ export default function ProfilePage() {
           {/* This is the sticky header. It should now stick closer to the AppNavbar 
               as its parent's top padding is removed. 
               The `py-4` it has is for its internal padding. 
-              Ensure `top-0` is appropriate. Increased z-index and removed shadow as a test. */}
-          <div className="sticky top-0 z-50 bg-black flex flex-col sm:flex-row items-center py-4 border-b border-gray-700">
+              Ensure `top-0` is appropriate (it usually is for sticking to the immediate top of the scroll container) */}
+          <div className="sticky top-0 z-40 bg-black flex flex-col sm:flex-row items-center py-4 border-b border-gray-700 shadow-lg">
             {/* --- NEW Simplified Avatar Display and Upload --- */}
             <div className="relative mr-0 sm:mr-6 mb-4 sm:mb-0">
               {profile?.avatar_url ? (

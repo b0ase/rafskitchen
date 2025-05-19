@@ -32,17 +32,12 @@ const getSkillBadgeStyle = (category: string | null, isSelected: boolean): strin
     case 'devops': categoryStyle = 'bg-red-600 text-red-100 border border-red-500 hover:bg-red-500'; break;
     case 'cloud computing': categoryStyle = 'bg-cyan-600 text-cyan-100 border border-cyan-500 hover:bg-cyan-500'; break;
     case 'marketing': categoryStyle = 'bg-orange-600 text-orange-100 border border-orange-500 hover:bg-orange-500'; break;
-    case 'user-defined': categoryStyle = 'bg-teal-600 text-teal-100 border border-teal-500 hover:bg-teal-500'; break;
+    // 'User-defined' case removed to prevent styling if they somehow appear
     default: categoryStyle = 'bg-gray-600 text-gray-100 border border-gray-500 hover:bg-gray-500'; break;
   }
 
   if (isSelected) {
-    // Darken the style for selected badges
-    // Example: make it less opaque or use a darker shade if available
-    // For simplicity, I'll add a specific class or modify existing ones.
-    // Here, I'm making it slightly less bright and adding an indicator.
-    // This might need adjustment based on your actual color palette.
-    return `${baseStyle} ${categoryStyle.replace(/bg-([a-z]+)-600/g, 'bg-$1-800').replace(/bg-([a-z]+)-500/g, 'bg-$1-700')} ring-2 ring-white ring-opacity-75`;
+    return `${baseStyle} ${categoryStyle.replace(/bg-([a-z]+)-(\d)00/g, (match, color, shade) => `bg-${color}-${Math.min(parseInt(shade) + 2, 9)}00`)} ring-2 ring-sky-300 ring-opacity-80`;
   }
   return `${baseStyle} ${categoryStyle}`;
 };
@@ -106,34 +101,16 @@ export default function SkillsPage() {
       setError(null);
       try {
         // Fetch all available skills
-        const { data: allSkillsData, error: allSkillsError } = await supabase
+        const { data: dbSkillsData, error: allSkillsError } = await supabase
           .from('skills')
           .select('id, name, category, description')
+          .not('category', 'eq', 'User-defined') // Filter out User-defined skills at fetch time
           .order('category', { ascending: true })
           .order('name', { ascending: true });
 
         if (allSkillsError) throw allSkillsError;
-        setAllSkills(allSkillsData || []);
+        setAllSkills(dbSkillsData || []);
         
-        // If you want to create ~100 skills for display if not enough exist:
-        // This is a placeholder. You'd want a more robust way to manage/create these.
-        if (allSkillsData && allSkillsData.length < 100) {
-          const additionalSkillsNeeded = 100 - allSkillsData.length;
-          const dummySkills: Skill[] = [];
-          const categories = ['Frontend Development', 'Backend Development', 'Programming', 'Design', 'Management', 'Databases', 'DevOps', 'Cloud Computing', 'Marketing', 'User-defined', 'AI/ML', 'Game Development', 'Mobile Development', 'Cybersecurity', 'Data Science'];
-          for (let i = 0; i < additionalSkillsNeeded; i++) {
-            const catIndex = i % categories.length;
-            dummySkills.push({
-              id: `dummy-${i}-${Date.now()}`, // Ensure unique ID for keys
-              name: `Sample Skill ${i + 1} in ${categories[catIndex].substring(0,10)}`,
-              category: categories[catIndex],
-              description: `This is a sample description for skill ${i + 1}.`
-            });
-          }
-          setAllSkills(prev => [...prev, ...dummySkills].sort((a,b) => (a.category || '').localeCompare(b.category || '') || a.name.localeCompare(b.name) ));
-        }
-
-
         // Fetch user's skills
         const { data: userSkillsData, error: userSkillsError } = await supabase
           .from('user_skills')
@@ -167,46 +144,39 @@ export default function SkillsPage() {
     try {
       if (isCurrentlySelected) {
         // Remove skill
-        if(skill.id.startsWith('dummy-')) { // Don't try to delete dummy skills from DB
-             setUserSkillIds(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(skill.id);
-                return newSet;
-            });
-            setSuccessMessage(`Skill "${skill.name}" removed from your selection.`);
-        } else {
-            const { error: deleteError } = await supabase
-            .from('user_skills')
-            .delete()
-            .match({ user_id: user.id, skill_id: skill.id });
-            if (deleteError) throw deleteError;
-            setUserSkillIds(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(skill.id);
-                return newSet;
-            });
-            setSuccessMessage(`Skill "${skill.name}" removed from your profile.`);
-        }
+        const { error: deleteError } = await supabase
+          .from('user_skills')
+          .delete()
+          .match({ user_id: user.id, skill_id: skill.id });
+        if (deleteError) throw deleteError;
+        setUserSkillIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(skill.id);
+          return newSet;
+        });
+        setSuccessMessage(`Skill "${skill.name}" removed from your profile.`);
       } else {
         // Add skill
-         if(skill.id.startsWith('dummy-')) { // Don't try to add dummy skills to DB
+        const { error: insertError } = await supabase
+          .from('user_skills')
+          .insert({ user_id: user.id, skill_id: skill.id });
+        if (insertError) {
+          if (insertError.code === '23505') {
             setUserSkillIds(prev => new Set(prev).add(skill.id));
-            setSuccessMessage(`Skill "${skill.name}" added to your selection.`);
+            setSuccessMessage(`Skill "${skill.name}" is already in your profile (synced).`);
+          } else {
+            throw insertError;
+          }
         } else {
-            const { error: insertError } = await supabase
-            .from('user_skills')
-            .insert({ user_id: user.id, skill_id: skill.id });
-            if (insertError) throw insertError;
-            setUserSkillIds(prev => new Set(prev).add(skill.id));
-            setSuccessMessage(`Skill "${skill.name}" added to your profile.`);
+          setUserSkillIds(prev => new Set(prev).add(skill.id));
+          setSuccessMessage(`Skill "${skill.name}" added to your profile.`);
         }
       }
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setTimeout(() => setSuccessMessage(null), 2500);
     } catch (err: any) {
       console.error('[SkillsPage] Error toggling skill:', err);
       setError(`Failed to update skill "${skill.name}": ${err.message}`);
-      // Revert optimistic update if DB operation failed
-      // setUserSkillIds(prevUserSkillIds => { ... }); // More complex revert logic might be needed
+      setTimeout(() => setError(null), 3000);
     } finally {
       setSavingSkill(null);
     }
@@ -215,16 +185,18 @@ export default function SkillsPage() {
 
   if (loadingUser || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 flex items-center justify-center text-white">
-        <FaSpinner className="animate-spin text-4xl text-sky-500" />
-        <p className="ml-3 text-xl">Loading user...</p>
-      </div>
+      <MyCtxProvider>
+        <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 flex items-center justify-center text-white">
+          <FaSpinner className="animate-spin text-4xl text-sky-500" />
+          <p className="ml-3 text-xl">Loading user...</p>
+        </div>
+      </MyCtxProvider>
     );
   }
   
   // Group skills by category for display
   const groupedSkills: Record<string, Skill[]> = allSkills.reduce((acc, skill) => {
-    const category = skill.category || 'Other';
+    const category = skill.category || 'Miscellaneous';
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -232,7 +204,11 @@ export default function SkillsPage() {
     return acc;
   }, {} as Record<string, Skill[]>);
 
-  const sortedCategories = Object.keys(groupedSkills).sort();
+  const sortedCategories = Object.keys(groupedSkills).sort((a,b) => {
+    if (a === 'Miscellaneous') return 1;
+    if (b === 'Miscellaneous') return -1;
+    return a.localeCompare(b);
+  });
 
 
   return (
@@ -253,48 +229,46 @@ export default function SkillsPage() {
               </Link>
             </div>
 
-            {error && <p className="mb-4 p-3 bg-red-800/70 text-red-200 rounded-md">Error: {error}</p>}
-            {successMessage && <p className="mb-4 p-3 bg-green-800/60 text-green-200 rounded-md">{successMessage}</p>}
+            {error && <p className="fixed top-20 right-10 z-50 mb-4 p-3 bg-red-700 text-white rounded-md shadow-lg">Error: {error}</p>}
+            {successMessage && <p className="fixed top-20 right-10 z-50 mb-4 p-3 bg-green-600 text-white rounded-md shadow-lg">{successMessage}</p>}
 
             {loadingSkills ? (
               <div className="flex items-center justify-center h-64">
                 <FaSpinner className="animate-spin text-5xl text-sky-500" />
-                <p className="ml-4 text-2xl text-gray-300">Loading available skills...</p>
+                <p className="ml-4 text-2xl text-gray-300">Loading skills...</p>
               </div>
             ) : (
               <div className="space-y-10">
                 {sortedCategories.map(category => (
                   <section key={category}>
-                    <h2 className="text-2xl font-semibold text-sky-300 mb-5 capitalize border-b border-gray-700 pb-2">
-                      {category}
+                    <h2 className="text-2xl font-semibold text-sky-300 mb-5 capitalize border-b-2 border-sky-800 pb-2">
+                      {category} ({groupedSkills[category].length})
                     </h2>
                     <div className="flex flex-wrap gap-3">
                       {groupedSkills[category].map(skill => {
                         const isSelected = userSkillIds.has(skill.id);
                         const isCurrentlySaving = savingSkill === skill.id;
                         return (
-                          <button
+                          <div
                             key={skill.id}
-                            onClick={() => handleSkillToggle(skill)}
-                            disabled={isCurrentlySaving}
-                            className={`${getSkillBadgeStyle(skill.category, isSelected)} ${isCurrentlySaving ? 'opacity-50 cursor-wait' : ''}`}
+                            onClick={() => !isCurrentlySaving && handleSkillToggle(skill)}
+                            className={getSkillBadgeStyle(skill.category, isSelected)}
                             title={skill.description || skill.name}
                           >
-                            {isCurrentlySaving ? <FaSpinner className="animate-spin mr-2" /> : (isSelected ? <FaCheckCircle className="mr-2 text-lg" /> : <FaPlusCircle className="mr-2 text-lg" />)}
+                            {isCurrentlySaving ? (
+                              <FaSpinner className="animate-spin mr-2" />
+                            ) : isSelected ? (
+                              <FaCheckCircle className="mr-2 text-lg text-green-300" />
+                            ) : (
+                              <FaPlusCircle className="mr-2 text-lg opacity-70" />
+                            )}
                             {skill.name}
-                          </button>
+                          </div>
                         );
                       })}
                     </div>
                   </section>
                 ))}
-                {allSkills.length === 0 && !loadingSkills && (
-                   <div className="text-center py-10 px-6 border-2 border-dashed border-gray-700 rounded-lg bg-gray-800/50">
-                      <FaLightbulb className="mx-auto text-6xl text-gray-500 mb-4" />
-                      <p className="text-gray-400 text-xl mb-2">No skills found in the database.</p>
-                      <p className="text-gray-500">You might want to add some skills through your admin panel or seed your database.</p>
-                   </div>
-                )}
               </div>
             )}
           </div>
