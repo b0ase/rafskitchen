@@ -149,6 +149,7 @@ interface SortableProjectCardProps {
   handleBadgeChange: (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => void;
   handleIsFeaturedToggle: (projectId: string, currentIsFeatured: boolean) => void;
   openDeleteModal: (projectId: string, projectName: string) => void;
+  canShowcaseProject: boolean;
   // Styling and options props
   getCardDynamicBorderStyle: (priorityValue: number) => string;
   getPriorityOrderValue: (badgeValue: string | null) => number;
@@ -164,8 +165,9 @@ function SortableProjectCard({
   project, 
   updatingItemId, 
   handleBadgeChange, 
-  handleIsFeaturedToggle,
+  handleIsFeaturedToggle, 
   openDeleteModal,
+  canShowcaseProject,
   getCardDynamicBorderStyle,
   getPriorityOrderValue,
   badge1Options,
@@ -209,8 +211,23 @@ function SortableProjectCard({
       )}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
         <div className="flex items-center gap-x-3">
-          {/* Project Name becomes a direct button to live_url if it exists */}
-          {liveUrl ? (
+          {/* Project Name becomes a direct button to live_url if it exists, with a special case for ninjapunkgirls.com */}
+          {project.name === "ninjapunkgirls.com" ? (
+            <a 
+              href="http://www.ninjapunkgirls.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={(e) => e.stopPropagation()} 
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xl font-semibold rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
+              title={`Visit live site: ${project.name}`}
+            >
+              {project.name}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 ml-2">
+                <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm0 3a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zm0 3a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm8-3a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75z" clipRule="evenodd" />
+                <path d="M14.75 3.5a.75.75 0 00-1.06 1.06l1.72 1.72H10a.75.75 0 000 1.5h5.41l-1.72 1.72a.75.75 0 101.06 1.06l3-3a.75.75 0 000-1.06l-3-3z" />
+              </svg>
+            </a>
+          ) : liveUrl ? (
             <a 
               href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
               target="_blank" 
@@ -227,7 +244,7 @@ function SortableProjectCard({
             </a>
           ) : (
             <Link href={`/myprojects/${project.project_slug}`} legacyBehavior>
-              {/* Fallback: If no live_url, link to internal project page (not styled as a button) */}
+              {/* Fallback: If no live_url and not ninjapunkgirls.com, link to internal project page (not styled as a button) */}
               <a className="text-2xl font-semibold text-sky-400 hover:text-sky-300 hover:underline">
                 {project.name}
               </a>
@@ -259,6 +276,19 @@ function SortableProjectCard({
             <FaProjectDiagram className="mr-1.5 h-4 w-4" /> Open Project Page
           </a>
         </Link>
+        {/* Display live URL button if liveUrl exists AND it's not the special ninjapunkgirls.com case (which is handled by project name button) */}
+        {liveUrl && project.name !== "ninjapunkgirls.com" && (
+          <a 
+            href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
+          >
+            <svg className="mr-1.5 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.881L11.468 12a.75.75 0 001.06-1.06l-.774-.773a2.5 2.5 0 01-.14-3.335L12.232 4.232z"></path><path d="M4.732 3.732a4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.224 1.224a.75.75 0 001.06 1.06L8.768 2a2.5 2.5 0 013.535.14l.774.773a.75.75 0 001.06-1.06L12.87.627a4 4 0 00-5.88- .224l-3 3z"></path></svg>
+            Visit Live Site: {liveUrl}
+          </a>
+        )}
       </div>
       {/* --- END NEW BUTTONS SECTION --- */}
       <div className="mt-2 mb-4 space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
@@ -331,6 +361,38 @@ function SortableProjectCard({
             {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
           </select>
         </div>
+        <div className="flex items-center flex-shrink-0 sm:ml-0 pt-2 sm:pt-0">
+          <input 
+            type="checkbox" 
+            id={`featured-${project.id}`} 
+            checked={project.is_featured || false} 
+            onChange={() => handleIsFeaturedToggle(project.id, project.is_featured || false)}
+            disabled={updatingItemId === project.id}
+            className="h-4 w-4 text-sky-600 bg-gray-700 border-gray-600 rounded focus:ring-sky-500 focus:ring-offset-gray-900 cursor-pointer"
+            onClick={(e) => e.stopPropagation()} // Prevent drag start
+          />
+          <label 
+            htmlFor={`featured-${project.id}`} 
+            className="ml-2 text-xs text-gray-400 cursor-pointer select-none"
+            onClick={(e) => e.stopPropagation()} // Prevent drag start
+          >
+            Showcase on Landing Page
+          </label>
+        </div>
+        {/* --- BEGIN CONDITIONAL DELETE BUTTON --- */}
+        {project.currentUserRole === ProjectRole.ProjectManager && (
+          <div className="flex-shrink-0 ml-auto">
+            <button 
+              onClick={(e) => { e.stopPropagation(); openDeleteModal(project.id, project.name); }} // Prevent drag start
+              disabled={updatingItemId === project.id}
+              className="text-xs text-red-500 hover:text-red-400 font-semibold py-1 px-2 rounded-md border border-red-500/50 hover:border-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
+              title="Delete Project"
+            >
+              <FaTrash /> Delete
+            </button>
+          </div>
+        )}
+        {/* --- END CONDITIONAL DELETE BUTTON --- */}
       </div>
       {project.project_brief ? (
         <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-3">
@@ -466,8 +528,10 @@ export default function MyProjectsPage() {
     });
     
     setProjects(sortedProjects);
+    setUpdatingItemId(null);
+    setIsDeleteModalOpen(false);
     setLoadingProjects(false);
-  }, [supabase, user, authIsLoading]);
+  }, [supabase, user, authIsLoading]); // ADDED user and authIsLoading as dependencies
 
   useEffect(() => {
     // Trigger fetchUserAndProjects when user or authIsLoading state changes.
@@ -639,6 +703,7 @@ export default function MyProjectsPage() {
                     handleBadgeChange={handleBadgeChange}
                     handleIsFeaturedToggle={handleIsFeaturedToggle}
                     openDeleteModal={openDeleteModal}
+                    canShowcaseProject={user?.email === 'richardwboase@gmail.com'}
                     getCardDynamicBorderStyle={getCardDynamicBorderStyle}
                     getPriorityOrderValue={getPriorityOrderValue}
                     badge1Options={badge1Options}

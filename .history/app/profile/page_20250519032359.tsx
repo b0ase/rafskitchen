@@ -972,8 +972,7 @@ export default function ProfilePage() {
               <div className="flex justify-between items-center mb-4">
                 <Link href="/skills" legacyBehavior>
                   <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
-                    <FaLightbulb className="mr-3 text-2xl text-sky-500" />
-                    My Skills
+                    <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
                   </a>
                 </Link>
                 {/* Skill Adder Inputs - MOVED HERE */}

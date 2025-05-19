@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, FormEvent, useCallback } from 'react';
+import React, { useEffect, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash } from 'react-icons/fa'; // Added FaEdit, FaTrash
@@ -21,7 +21,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useAuth } from '@/app/components/Providers'; // ADDED IMPORT
 
 // --- BEGIN ADDED ENUM ---
 enum ProjectRole {
@@ -164,7 +163,7 @@ function SortableProjectCard({
   project, 
   updatingItemId, 
   handleBadgeChange, 
-  handleIsFeaturedToggle,
+  handleIsFeaturedToggle, 
   openDeleteModal,
   getCardDynamicBorderStyle,
   getPriorityOrderValue,
@@ -209,8 +208,23 @@ function SortableProjectCard({
       )}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
         <div className="flex items-center gap-x-3">
-          {/* Project Name becomes a direct button to live_url if it exists */}
-          {liveUrl ? (
+          {/* Project Name becomes a direct button to live_url if it exists, with a special case for ninjapunkgirls.com */}
+          {project.name === "ninjapunkgirls.com" ? (
+            <a 
+              href="http://www.ninjapunkgirls.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={(e) => e.stopPropagation()} 
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xl font-semibold rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
+              title={`Visit live site: ${project.name}`}
+            >
+              {project.name}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 ml-2">
+                <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm0 3a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zm0 3a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm8-3a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75z" clipRule="evenodd" />
+                <path d="M14.75 3.5a.75.75 0 00-1.06 1.06l1.72 1.72H10a.75.75 0 000 1.5h5.41l-1.72 1.72a.75.75 0 101.06 1.06l3-3a.75.75 0 000-1.06l-3-3z" />
+              </svg>
+            </a>
+          ) : liveUrl ? (
             <a 
               href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
               target="_blank" 
@@ -227,7 +241,7 @@ function SortableProjectCard({
             </a>
           ) : (
             <Link href={`/myprojects/${project.project_slug}`} legacyBehavior>
-              {/* Fallback: If no live_url, link to internal project page (not styled as a button) */}
+              {/* Fallback: If no live_url and not ninjapunkgirls.com, link to internal project page (not styled as a button) */}
               <a className="text-2xl font-semibold text-sky-400 hover:text-sky-300 hover:underline">
                 {project.name}
               </a>
@@ -250,7 +264,7 @@ function SortableProjectCard({
         </div>
       </div>
       {/* --- NEW BUTTONS SECTION --- */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-1 mb-4">
+      <div className="flex flex-wrap items-center gap-3 mt-1 mb-4">
         <Link href={`/myprojects/${projectSlug}`} legacyBehavior>
           <a 
             onClick={(e) => e.stopPropagation()}
@@ -331,6 +345,38 @@ function SortableProjectCard({
             {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
           </select>
         </div>
+        <div className="flex items-center flex-shrink-0 sm:ml-0 pt-2 sm:pt-0">
+          <input 
+            type="checkbox" 
+            id={`featured-${project.id}`} 
+            checked={project.is_featured || false} 
+            onChange={() => handleIsFeaturedToggle(project.id, project.is_featured || false)}
+            disabled={updatingItemId === project.id}
+            className="h-4 w-4 text-sky-600 bg-gray-700 border-gray-600 rounded focus:ring-sky-500 focus:ring-offset-gray-900 cursor-pointer"
+            onClick={(e) => e.stopPropagation()} // Prevent drag start
+          />
+          <label 
+            htmlFor={`featured-${project.id}`} 
+            className="ml-2 text-xs text-gray-400 cursor-pointer select-none"
+            onClick={(e) => e.stopPropagation()} // Prevent drag start
+          >
+            Showcase on Landing Page
+          </label>
+        </div>
+        {/* --- BEGIN CONDITIONAL DELETE BUTTON --- */}
+        {project.currentUserRole === ProjectRole.ProjectManager && (
+          <div className="flex-shrink-0 ml-auto">
+            <button 
+              onClick={(e) => { e.stopPropagation(); openDeleteModal(project.id, project.name); }} // Prevent drag start
+              disabled={updatingItemId === project.id}
+              className="text-xs text-red-500 hover:text-red-400 font-semibold py-1 px-2 rounded-md border border-red-500/50 hover:border-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
+              title="Delete Project"
+            >
+              <FaTrash /> Delete
+            </button>
+          </div>
+        )}
+        {/* --- END CONDITIONAL DELETE BUTTON --- */}
       </div>
       {project.project_brief ? (
         <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-3">
@@ -345,8 +391,7 @@ function SortableProjectCard({
 
 export default function MyProjectsPage() {
   const supabase = createClientComponentClient();
-  const { session, isLoading: authIsLoading } = useAuth(); // ADDED useAuth hook
-  const user = session?.user ?? null; // DERIVE user from session
+  const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -354,15 +399,6 @@ export default function MyProjectsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
   const [projectToDeleteName, setProjectToDeleteName] = useState<string | null>(null);
-
-  // Add this console.log to check the user email value
-  if (user) {
-    console.log('[MyProjectsPage] Current user email from useAuth for showcase check:', user.email);
-  } else if (authIsLoading) {
-    console.log('[MyProjectsPage] Auth state is loading...');
-  } else {
-    console.log('[MyProjectsPage] No user object from useAuth for showcase check.');
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -375,24 +411,19 @@ export default function MyProjectsPage() {
     })
   );
 
-  const fetchUserAndProjects = useCallback(async () => { // Wrapped in useCallback
-    if (authIsLoading) { // Don't fetch if auth is still loading
-        console.log('[MyProjectsPage] Waiting for auth to load before fetching projects.');
-        setLoadingProjects(true); // Ensure loading state is true if we defer
-        return;
-    }
+  const fetchUserAndProjects = async () => {
+    setLoadingProjects(true);
+    setError(null);
+    const { data: { user: authUser } } = await supabase.auth.getUser();
 
-    if (!user) { // Check user from useAuth
-      console.log('[MyProjectsPage] No user from useAuth, cannot fetch projects.');
+    if (!authUser) {
       setError('You must be logged in to view your projects.');
       setProjects([]);
       setLoadingProjects(false);
       return;
     }
-    console.log('[MyProjectsPage] User from useAuth found, proceeding to fetch projects for ID:', user.id);
-    setLoadingProjects(true);
-    setError(null);
 
+    setUser(authUser);
     const projectsMap = new Map<string, ClientProject>();
     const selectedProjectFields = 'id, name, project_slug, status, project_brief, badge1, badge2, badge3, is_featured, badge4, badge5, user_id, created_at, live_url';
 
@@ -400,7 +431,7 @@ export default function MyProjectsPage() {
     const { data: userProjectRoles, error: userProjectRolesError } = await supabase
       .from('project_users')
       .select('project_id, role')
-      .eq('user_id', user.id); // Use user.id from useAuth
+      .eq('user_id', authUser.id);
 
     if (userProjectRolesError) {
       console.error('Error fetching user project roles:', userProjectRolesError);
@@ -435,7 +466,7 @@ export default function MyProjectsPage() {
     const { data: ownedProjectsData, error: ownedProjectsError } = await supabase
       .from('clients')
       .select(selectedProjectFields)
-      .eq('user_id', user.id); // Use user.id from useAuth
+      .eq('user_id', authUser.id);
 
     if (ownedProjectsError) {
       console.error('Error fetching owned projects:', ownedProjectsError);
@@ -455,30 +486,22 @@ export default function MyProjectsPage() {
       });
     }
     
-    const sortedProjects = Array.from(projectsMap.values()).sort((a, b) => {
-      const priorityA = getPriorityOrderValue(a.badge3);
-      const priorityB = getPriorityOrderValue(b.badge3);
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
-      }
-      // Fallback to creation date if priorities are the same (newest first)
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    });
+    const finalProjects = Array.from(projectsMap.values());
+    // Sort by creation date, most recent first
+    finalProjects.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     
-    setProjects(sortedProjects);
+    setProjects(finalProjects);
+    setUpdatingItemId(null);
+    setIsDeleteModalOpen(false);
     setLoadingProjects(false);
-  }, [supabase, user, authIsLoading]);
+  };
 
   useEffect(() => {
-    // Trigger fetchUserAndProjects when user or authIsLoading state changes.
-    // It will only run the actual fetch logic if auth is not loading and user is present.
     fetchUserAndProjects();
-  }, [fetchUserAndProjects]); // fetchUserAndProjects is now memoized with useCallback
+  }, [supabase]);
 
   const handleBadgeChange = async (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => {
-    if (!user) { // Check user from useAuth
-      return;
-    }
+    if (!user) return;
     setUpdatingItemId(projectId); // Indicate loading for this specific project item
     const payload: { [key: string]: string | null } = {};
     // If "Pending_setup" is selected for badge1 and it's the effective default (was null before),
@@ -631,7 +654,7 @@ export default function MyProjectsPage() {
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-6">
-                {projects.map((project) => (
+                {projects.map((project) => ( // Map over projects directly
                   <SortableProjectCard 
                     key={project.id} 
                     project={project}

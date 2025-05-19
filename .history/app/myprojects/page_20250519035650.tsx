@@ -149,6 +149,7 @@ interface SortableProjectCardProps {
   handleBadgeChange: (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => void;
   handleIsFeaturedToggle: (projectId: string, currentIsFeatured: boolean) => void;
   openDeleteModal: (projectId: string, projectName: string) => void;
+  canShowcaseProject: boolean;
   // Styling and options props
   getCardDynamicBorderStyle: (priorityValue: number) => string;
   getPriorityOrderValue: (badgeValue: string | null) => number;
@@ -164,8 +165,9 @@ function SortableProjectCard({
   project, 
   updatingItemId, 
   handleBadgeChange, 
-  handleIsFeaturedToggle,
+  handleIsFeaturedToggle, 
   openDeleteModal,
+  canShowcaseProject,
   getCardDynamicBorderStyle,
   getPriorityOrderValue,
   badge1Options,
@@ -331,6 +333,38 @@ function SortableProjectCard({
             {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
           </select>
         </div>
+        <div className="flex items-center flex-shrink-0 sm:ml-0 pt-2 sm:pt-0">
+          <input 
+            type="checkbox" 
+            id={`featured-${project.id}`} 
+            checked={project.is_featured || false} 
+            onChange={() => handleIsFeaturedToggle(project.id, project.is_featured || false)}
+            disabled={updatingItemId === project.id}
+            className="h-4 w-4 text-sky-600 bg-gray-700 border-gray-600 rounded focus:ring-sky-500 focus:ring-offset-gray-900 cursor-pointer"
+            onClick={(e) => e.stopPropagation()} // Prevent drag start
+          />
+          <label 
+            htmlFor={`featured-${project.id}`} 
+            className="ml-2 text-xs text-gray-400 cursor-pointer select-none"
+            onClick={(e) => e.stopPropagation()} // Prevent drag start
+          >
+            Showcase on Landing Page
+          </label>
+        </div>
+        {/* --- BEGIN CONDITIONAL DELETE BUTTON --- */}
+        {project.currentUserRole === ProjectRole.ProjectManager && (
+          <div className="flex-shrink-0 ml-auto">
+            <button 
+              onClick={(e) => { e.stopPropagation(); openDeleteModal(project.id, project.name); }} // Prevent drag start
+              disabled={updatingItemId === project.id}
+              className="text-xs text-red-500 hover:text-red-400 font-semibold py-1 px-2 rounded-md border border-red-500/50 hover:border-red-500 transition-colors flex items-center gap-1 disabled:opacity-50"
+              title="Delete Project"
+            >
+              <FaTrash /> Delete
+            </button>
+          </div>
+        )}
+        {/* --- END CONDITIONAL DELETE BUTTON --- */}
       </div>
       {project.project_brief ? (
         <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-3">
@@ -639,6 +673,7 @@ export default function MyProjectsPage() {
                     handleBadgeChange={handleBadgeChange}
                     handleIsFeaturedToggle={handleIsFeaturedToggle}
                     openDeleteModal={openDeleteModal}
+                    canShowcaseProject={user?.email === 'richardwboase@gmail.com'}
                     getCardDynamicBorderStyle={getCardDynamicBorderStyle}
                     getPriorityOrderValue={getPriorityOrderValue}
                     badge1Options={badge1Options}
