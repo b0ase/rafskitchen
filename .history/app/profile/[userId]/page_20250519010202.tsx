@@ -4,8 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaUserCircle, FaEnvelope, FaIdBadge, FaArrowLeft, FaSpinner, FaSignature, FaInfoCircle, FaBriefcase, FaLightbulb, FaUsers, FaPaintBrush, FaCommentDots } from 'react-icons/fa';
-import { usePageHeader, PageContextType } from '@/app/components/MyCtx';
+import { FaUserCircle, FaEnvelope, FaIdBadge, FaArrowLeft, FaSpinner, FaSignature, FaInfoCircle, FaBriefcase, FaLightbulb, FaUsers, FaPaintBrush } from 'react-icons/fa';
+import { usePageHeader } from '../../components/MyCtx';
 
 interface ViewedProfile {
   id: string;
@@ -18,7 +18,6 @@ interface ViewedProfile {
 interface Skill {
   id: string;
   name: string;
-  category: string | null;
 }
 
 interface Team {
@@ -33,40 +32,12 @@ interface Team {
   } | null;
 }
 
-const predefinedSkillColorClasses = [
-  "bg-sky-600/80 text-white",
-  "bg-emerald-600/80 text-white",
-  "bg-rose-600/80 text-white",
-  "bg-amber-500/90 text-amber-950",
-  "bg-violet-600/80 text-white",
-  "bg-cyan-600/80 text-white",
-  "bg-pink-600/80 text-white",
-  "bg-indigo-600/80 text-white",
-  "bg-teal-600/80 text-white",
-  "bg-fuchsia-600/80 text-white",
-  "bg-lime-600/80 text-white",
-  "bg-orange-600/80 text-white",
-];
-
-const getSkillColorClass = (str: string | null): string => {
-  if (!str) {
-    return predefinedSkillColorClasses[0]; // Default color if no string
-  }
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  const index = Math.abs(hash) % predefinedSkillColorClasses.length;
-  return predefinedSkillColorClasses[index];
-};
-
 export default function UserProfilePage() {
   const supabase = createClientComponentClient();
   const params = useParams();
   const router = useRouter();
   const viewedUserId = params.userId as string;
-  const { setPageContext } = usePageHeader();
+  const { setPageHeader } = usePageHeader();
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [viewedProfile, setViewedProfile] = useState<ViewedProfile | null>(null);
@@ -115,18 +86,18 @@ export default function UserProfilePage() {
       setError('Could not load user profile. The user may not exist or there was a data fetching issue. Check console for details.');
       setViewedProfile(null);
       setLoading(false);
-      setPageContext({ title: 'Profile Not Found', href: `/profile/${viewedUserId}`, icon: FaUserCircle });
+      setPageHeader('Profile Not Found');
       return;
     }
     
     setViewedProfile(profileData as ViewedProfile);
-    const pageTitle = profileData.username ? `@${profileData.username}` : profileData.display_name || "User Profile";
-    setPageContext({ title: pageTitle, href: `/profile/${viewedUserId}`, icon: FaUserCircle });
+    const profileDisplayName = profileData.display_name || profileData.username || "User Profile";
+    setPageHeader(profileDisplayName);
     
     const { data: skillsData, error: skillsError } = await supabase
       .from('user_skills')
       .select(`
-        skills (id, name, category) 
+        skills (id, name) 
       `)
       .eq('user_id', viewedUserId);
 
@@ -157,14 +128,14 @@ export default function UserProfilePage() {
       setUserTeams([]);
     } else {
       const teams = teamMemberships
-        ?.flatMap(tm => tm.teams ? (Array.isArray(tm.teams) ? tm.teams : [tm.teams]) : [])
+        ?.map(tm => tm.teams)
         .filter(team => team && typeof team === 'object' && team.id && team.name && team.slug) as Team[] || [];
       setUserTeams(teams);
     }
     
     setLoading(false);
 
-  }, [viewedUserId, supabase, router, setPageContext]);
+  }, [viewedUserId, supabase, router, setPageHeader]);
 
   useEffect(() => {
     fetchUserProfile();
@@ -240,17 +211,6 @@ export default function UserProfilePage() {
               <div className="text-center sm:text-left flex-grow">
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">{displayName}</h1>
                 {viewedProfile.username && <p className="text-md text-sky-400 mb-1">@{viewedProfile.username}</p>}
-                {currentUser && viewedProfile && currentUser.id !== viewedProfile.id && (
-                  <div className="sm:ml-auto flex-shrink-0 mt-4 sm:mt-0">
-                    <button
-                      onClick={() => router.push(`/messages/user/${viewedProfile.id}`)}
-                      className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
-                    >
-                      <FaCommentDots className="mr-2" />
-                      Message @{viewedProfile.username || 'User'}
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -267,10 +227,7 @@ export default function UserProfilePage() {
                 {userSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {userSkills.map(skill => (
-                      <span 
-                        key={skill.id} 
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full shadow-sm ${getSkillColorClass(skill.category || skill.name)}`}
-                      >
+                      <span key={skill.id} className="bg-sky-600/80 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
                         {skill.name}
                       </span>
                     ))}

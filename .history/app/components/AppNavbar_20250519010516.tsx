@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { usePageHeader, PageContextType } from '@/app/components/MyCtx';
+import { usePageHeader, PageContextType } from './MyCtx';
 import { FaHome, FaCog } from 'react-icons/fa';
 
 interface AppNavbarProps {

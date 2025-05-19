@@ -81,26 +81,14 @@ export default function DirectMessagesPage() {
     const channel = supabase
       .channel(channelName)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, payload => {
-        const newMessage = payload.new as { id: string; sender_id: string; receiver_id: string; content: string; created_at: string };
-        // Ensure this message is part of the current conversation
+        const m = payload.new as any;
+        // only add if this message is between the two of us
         if (
-          (newMessage.sender_id === currentUserId && newMessage.receiver_id === targetUserId) ||
-          (newMessage.sender_id === targetUserId && newMessage.receiver_id === currentUserId)
+          (m.sender_id === currentUserId && m.receiver_id === targetUserId) ||
+          (m.sender_id === targetUserId && m.receiver_id === currentUserId)
         ) {
-          console.log(`[DirectMessages Realtime] RX: Relevant message received. Current User: ${currentUserId}, Target User: ${targetUserId}, Sender: ${newMessage.sender_id}, Receiver: ${newMessage.receiver_id}`);
-          console.log('[DirectMessages Realtime] RX: Payload:', newMessage);
-          setMessages(prevMessages => {
-            console.log('[DirectMessages Realtime] RX: Inside setMessages. Prev message count:', prevMessages.length);
-            if (prevMessages.some(msg => msg.id === newMessage.id)) {
-              console.log('[DirectMessages Realtime] RX: Duplicate message detected by ID, not adding:', newMessage.id);
-              return prevMessages;
-            }
-            const updatedMessages = [...prevMessages, newMessage];
-            console.log('[DirectMessages Realtime] RX: After adding. New message count:', updatedMessages.length);
-            return updatedMessages;
-          });
-        } else {
-          console.log(`[DirectMessages Realtime] RX: Irrelevant message filtered. Current User: ${currentUserId}, Target User: ${targetUserId}, Sender: ${newMessage.sender_id}, Receiver: ${newMessage.receiver_id}`);
+          console.log('[DirectMessages Realtime] New message payload:', m);
+          setMessages(prev => [...prev, m]);
         }
       })
       .subscribe((status, err) => {
@@ -135,17 +123,14 @@ export default function DirectMessagesPage() {
       if (error) {
         throw error;
       }
-      // Update the optimistic message with the actual ID and timestamp from the database
-      if (data) {
-        setMessages(prev => prev.map(m => m.id === tempId ? { ...optimistic, id: data.id, created_at: data.created_at } : m));
-      }
-
     } catch (err) {
-      console.error('[DirectMessages] Send error:', err);
+      console.error(err);
+      // revert
       setMessages(prev => prev.filter(m => m.id !== tempId));
     } finally {
       setPosting(false);
-      console.log('[DirectMessages] Message send attempt complete.');
+      console.log('[DirectMessages] Message send complete; refreshing thread.');
+      await fetchMessages();
     }
   };
 

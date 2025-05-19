@@ -860,6 +860,7 @@ export default function ProfilePage() {
             {profile?.username && (
               <p className="text-md text-gray-400 mt-0">@{profile.username}</p>
             )}
+            <p className="text-lg text-gray-400 mt-1 hidden sm:block">Manage your public identity, personal information, and online presence.</p>
           </div>
 
           {/* MOVED Save Profile Button an its containing div - adjusted classes for new location */}
@@ -886,14 +887,49 @@ export default function ProfilePage() {
 
         {/* Flex container for Skills and Teams */}
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 mt-10">
+          {/* User Teams Display Section - Moved here and renamed */}
+          <section className="pb-6 md:w-1/2">
+            <h3 className="text-xl font-semibold text-sky-400 mb-5 flex items-center">
+              <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+            </h3>
+            {loadingUserTeams && (
+              <div className="flex items-center text-gray-400">
+                <FaSpinner className="animate-spin mr-2" /> Loading teams...
+              </div>
+            )}
+            {errorUserTeams && (
+              <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
+              <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {userTeams.map(team => {
+                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
+                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
+                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+                  return (
+                    <Link 
+                      href={`/teams/${team.slug || team.id}`} 
+                      key={team.id} 
+                      className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
+                    >
+                      <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
+                      <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+          {/* End User Teams Display Section */}
+
           {/* My Skills Section - adjusted to be part of the flex container */}
           <section className="pb-6 md:w-1/2">
             <div className="flex justify-between items-center mb-4">
-              <Link href="/skills" legacyBehavior>
-                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
-                  <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
-                </a>
-              </Link>
+              <h3 className="text-xl font-semibold text-sky-400">My Skills</h3>
             </div>
             
             {loadingSkills ? (
@@ -1006,48 +1042,6 @@ export default function ProfilePage() {
               </div>
             )}
           </section>
-          {/* End My Skills Section */}
-
-          {/* User Teams Display Section - Moved here and renamed */}
-          <section className="pb-6 md:w-1/2">
-            <Link href="/teams/join" legacyBehavior>
-              <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-                <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
-              </a>
-            </Link>
-            {loadingUserTeams && (
-              <div className="flex items-center text-gray-400">
-                <FaSpinner className="animate-spin mr-2" /> Loading teams...
-              </div>
-            )}
-            {errorUserTeams && (
-              <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
-            )}
-            {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
-              <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
-            )}
-            {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
-              <div className="flex flex-wrap gap-3">
-                {userTeams.map(team => {
-                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
-                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
-                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
-                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
-                  return (
-                    <Link 
-                      href={`/teams/${team.slug || team.id}`} 
-                      key={team.id} 
-                      className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
-                    >
-                      <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
-                      <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-          {/* End User Teams Display Section */}
         </div>
 
           {avatarUploadError && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm shadow text-center">{avatarUploadError}</p>}

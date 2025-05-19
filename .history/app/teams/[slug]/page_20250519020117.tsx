@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, FormEvent, useCallback, useRef } from 'react';
-import { useParams, useRouter, usePathname } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 // import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs'; // Keep commented
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // USE THIS
 import { User } from '@supabase/supabase-js'; // USE THIS for User type
@@ -66,7 +66,6 @@ export default function TeamPage() {
   const supabase = getSupabaseBrowserClient(); // Corrected: Use singleton
   const params = useParams();
   const router = useRouter();
-  const pathname = usePathname(); // Get pathname from the hook
   const teamSlugOrId = params.slug as string;
   const { setPageContext } = usePageHeader(); // Added hook usage
 
@@ -158,9 +157,9 @@ export default function TeamPage() {
       // Set a generic error title in the header
       setPageContext({
         title: "Error",
-        href: pathname, // Use current pathname from usePathname()
+        href: router.pathname, // Use current pathname
         icon: FaExclamationTriangle,
-        breadcrumbs: [{ text: "Error", href: pathname }]
+        breadcrumbs: [{ text: "Error", href: router.pathname }]
       });
       return;
     }
@@ -225,7 +224,7 @@ export default function TeamPage() {
     }
 
     setLoadingTeamDetails(false);
-  }, [supabase, teamSlugOrId, currentUser?.id, setPageContext, pathname]);
+  }, [supabase, teamSlugOrId, currentUser?.id, setPageContext, router]);
   
   useEffect(() => {
     // Now call fetchTeamDetailsAndRole instead of fetchTeamDetails

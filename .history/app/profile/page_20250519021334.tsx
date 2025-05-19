@@ -889,11 +889,7 @@ export default function ProfilePage() {
           {/* My Skills Section - adjusted to be part of the flex container */}
           <section className="pb-6 md:w-1/2">
             <div className="flex justify-between items-center mb-4">
-              <Link href="/skills" legacyBehavior>
-                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
-                  <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
-                </a>
-              </Link>
+              <h3 className="text-xl font-semibold text-sky-400">My Skills</h3>
             </div>
             
             {loadingSkills ? (
@@ -1010,11 +1006,9 @@ export default function ProfilePage() {
 
           {/* User Teams Display Section - Moved here and renamed */}
           <section className="pb-6 md:w-1/2">
-            <Link href="/teams/join" legacyBehavior>
-              <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-                <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
-              </a>
-            </Link>
+            <h3 className="text-xl font-semibold text-sky-400 mb-5 flex items-center">
+              <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+            </h3>
             {loadingUserTeams && (
               <div className="flex items-center text-gray-400">
                 <FaSpinner className="animate-spin mr-2" /> Loading teams...

@@ -87,20 +87,15 @@ export default function DirectMessagesPage() {
           (newMessage.sender_id === currentUserId && newMessage.receiver_id === targetUserId) ||
           (newMessage.sender_id === targetUserId && newMessage.receiver_id === currentUserId)
         ) {
-          console.log(`[DirectMessages Realtime] RX: Relevant message received. Current User: ${currentUserId}, Target User: ${targetUserId}, Sender: ${newMessage.sender_id}, Receiver: ${newMessage.receiver_id}`);
-          console.log('[DirectMessages Realtime] RX: Payload:', newMessage);
+          console.log('[DirectMessages Realtime] New message payload:', newMessage);
           setMessages(prevMessages => {
-            console.log('[DirectMessages Realtime] RX: Inside setMessages. Prev message count:', prevMessages.length);
+            // Check if message already exists to prevent duplicates (e.g., from optimistic update + realtime)
             if (prevMessages.some(msg => msg.id === newMessage.id)) {
-              console.log('[DirectMessages Realtime] RX: Duplicate message detected by ID, not adding:', newMessage.id);
+              console.log('[DirectMessages Realtime] Duplicate message detected, not adding:', newMessage.id);
               return prevMessages;
             }
-            const updatedMessages = [...prevMessages, newMessage];
-            console.log('[DirectMessages Realtime] RX: After adding. New message count:', updatedMessages.length);
-            return updatedMessages;
+            return [...prevMessages, newMessage];
           });
-        } else {
-          console.log(`[DirectMessages Realtime] RX: Irrelevant message filtered. Current User: ${currentUserId}, Target User: ${targetUserId}, Sender: ${newMessage.sender_id}, Receiver: ${newMessage.receiver_id}`);
         }
       })
       .subscribe((status, err) => {

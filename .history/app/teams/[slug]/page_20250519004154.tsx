@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect, useState, FormEvent, useCallback, useRef } from 'react';
-import { useParams, useRouter, usePathname } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 // import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs'; // Keep commented
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // USE THIS
 import { User } from '@supabase/supabase-js'; // USE THIS for User type
-import { usePageHeader, PageContextType } from '@/app/components/MyCtx'; // Added import
 
 import Link from 'next/link';
 import { FaPaperPlane, FaSpinner, FaExclamationTriangle, FaUsers, FaCommentDots, FaArrowLeft, FaSignOutAlt, FaTrashAlt, FaSyncAlt, FaInfoCircle } from 'react-icons/fa';
@@ -66,9 +65,7 @@ export default function TeamPage() {
   const supabase = getSupabaseBrowserClient(); // Corrected: Use singleton
   const params = useParams();
   const router = useRouter();
-  const pathname = usePathname(); // Get pathname from the hook
   const teamSlugOrId = params.slug as string;
-  const { setPageContext } = usePageHeader(); // Added hook usage
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [teamDetails, setTeamDetails] = useState<TeamDetails | null>(null);
@@ -155,13 +152,6 @@ export default function TeamPage() {
       setTeamDetails(null);
       setCurrentUserRole(null);
       setLoadingTeamDetails(false);
-      // Set a generic error title in the header
-      setPageContext({
-        title: "Error",
-        href: pathname, // Use current pathname from usePathname()
-        icon: FaExclamationTriangle,
-        breadcrumbs: [{ text: "Error", href: pathname }]
-      });
       return;
     }
     
@@ -194,18 +184,6 @@ export default function TeamPage() {
       icon_name: typedTeamData.icon_name || 'FaUsers',
     });
 
-    // Update page header context
-    const teamIcon = iconMap[typedTeamData.icon_name || 'FaUsers'] || FaUsers;
-    setPageContext({
-      title: typedTeamData.name,
-      href: `/teams/${typedTeamData.slug || typedTeamData.id}`,
-      icon: teamIcon,
-      breadcrumbs: [
-        { text: "My Team", href: "/team" }, // Assuming a "My Team" list page exists
-        { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
-      ]
-    });
-
     // Fetch User Role in this Team
     const { data: roleData, error: roleError } = await supabase
       .from('user_team_memberships')
@@ -225,7 +203,7 @@ export default function TeamPage() {
     }
 
     setLoadingTeamDetails(false);
-  }, [supabase, teamSlugOrId, currentUser?.id, setPageContext, pathname]);
+  }, [supabase, teamSlugOrId, currentUser?.id]);
   
   useEffect(() => {
     // Now call fetchTeamDetailsAndRole instead of fetchTeamDetails
@@ -725,7 +703,7 @@ export default function TeamPage() {
                     <FaSpinner className="animate-spin text-sm text-gray-400" />
                   ) : (
                     teamMembers.map((member, index) => (
-                      <Link key={member.id} href={`/messages/${member.id}`} passHref>
+                      <Link key={member.id} href={`/profile/${member.id}`} passHref>
                         <div title={member.displayName} className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 ${teamDetails?.color_scheme?.borderColor || 'border-gray-600'} overflow-hidden ${index > 0 ? '-ml-2 md:-ml-3' : ''} bg-gray-700 flex items-center justify-center text-xs font-semibold cursor-pointer`}>
                           {member.avatarUrl ? (
                             <img src={member.avatarUrl} alt={member.displayName} className="w-full h-full object-cover" crossOrigin="anonymous" />
@@ -928,7 +906,7 @@ export default function TeamPage() {
           <h2 className="text-sm font-semibold mb-2">Members</h2>
           <div className="space-y-2">
             {teamMembers.map(member => (
-              <Link key={member.id} href={`/messages/${member.id}`} passHref>
+              <Link key={member.id} href={`/profile/${member.id}`} passHref>
                 <div className="flex items-center space-x-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md w-full text-left cursor-pointer">
                   <img
                     src={member.avatarUrl || 'https://via.placeholder.com/32'}

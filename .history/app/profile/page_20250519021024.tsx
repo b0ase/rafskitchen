@@ -806,7 +806,7 @@ export default function ProfilePage() {
         </section>
           {/* --- END RESTORED WELCOME CARD SECTION --- */}
 
-        <div className="sticky top-0 z-40 bg-black flex flex-col sm:flex-row items-center py-4 border-b border-gray-700 shadow-lg">
+        <div className="flex flex-col sm:flex-row items-center mb-10 pb-6 border-b border-gray-700">
             {/* --- NEW Simplified Avatar Display and Upload --- */}
             <div className="relative mr-0 sm:mr-6 mb-4 sm:mb-0">
               {profile?.avatar_url ? (
@@ -860,6 +860,7 @@ export default function ProfilePage() {
             {profile?.username && (
               <p className="text-md text-gray-400 mt-0">@{profile.username}</p>
             )}
+            <p className="text-lg text-gray-400 mt-1 hidden sm:block">Manage your public identity, personal information, and online presence.</p>
           </div>
 
           {/* MOVED Save Profile Button an its containing div - adjusted classes for new location */}
@@ -884,19 +885,13 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Flex container for Skills and Teams */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 mt-10">
-          {/* My Skills Section - adjusted to be part of the flex container */}
-          <section className="pb-6 md:w-1/2">
-            <div className="flex justify-between items-center mb-4">
-              <Link href="/skills" legacyBehavior>
-                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
-                  <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
-                </a>
-              </Link>
-            </div>
-            
-            {loadingSkills ? (
+        {/* --- NEW Section to Display Selected Skill Badges --- */}
+        <section className="mb-10 pb-6 border-b border-gray-700">
+          <div className="flex justify-between items-center mb-4">
+             <h3 className="text-xl font-semibold text-sky-400">My Skills</h3>
+          </div>
+          
+          {loadingSkills ? (
               <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
                 <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
                 <p className="text-lg text-gray-300">Loading your skills...</p>
@@ -1005,16 +1000,14 @@ export default function ProfilePage() {
                 )}
               </div>
             )}
-          </section>
-          {/* End My Skills Section */}
+        </section>
+        {/* --- END NEW Section for Skill Badges --- */}
 
           {/* User Teams Display Section - Moved here and renamed */}
-          <section className="pb-6 md:w-1/2">
-            <Link href="/teams/join" legacyBehavior>
-              <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-                <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
-              </a>
-            </Link>
+          <section className="mt-10 pb-6 mb-10 border-b border-gray-700">
+            <h3 className="text-xl font-semibold text-sky-400 mb-5 flex items-center">
+              <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+            </h3>
             {loadingUserTeams && (
               <div className="flex items-center text-gray-400">
                 <FaSpinner className="animate-spin mr-2" /> Loading teams...
@@ -1048,7 +1041,6 @@ export default function ProfilePage() {
             )}
           </section>
           {/* End User Teams Display Section */}
-        </div>
 
           {avatarUploadError && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm shadow text-center">{avatarUploadError}</p>}
         {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error.split('\n').map((line, idx) => <React.Fragment key={idx}>{line}<br/></React.Fragment>)}</p>}

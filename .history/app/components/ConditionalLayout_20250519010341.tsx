@@ -10,7 +10,7 @@ import UserSidebar from './UserSidebar'; // PageContextType might be removed if 
 import AppNavbar from './AppNavbar';
 import { useAuth } from './Providers'; // Import useAuth
 import { FaRocket } from 'react-icons/fa'; // For loading indicator
-import { MyCtxProvider } from '@/app/components/MyCtx'; // Standardized import path
+import { MyCtxProvider } from './MyCtx'; // Import MyCtxProvider
 
 interface ConditionalLayoutProps {
   // session prop from server can be kept for initial hint or removed if useAuth is robust enough
@@ -97,16 +97,18 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   //  but here we are certain it's not public and not an auth flow page)
   if (isAppPage && isAuthenticated) {
     return (
-      <MyCtxProvider>
+      <MyCtxProvider> { /* Wrap the authenticated layout */ }
         <div className="flex h-screen bg-black">
           <UserSidebar 
             // onSetPageContext={handleSetPageContext} // Remove, UserSidebar will use usePageHeader
             isSidebarOpen={isSidebarOpen} 
             toggleSidebar={toggleSidebar} 
           />
-          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
-            <AppNavbar toggleSidebar={toggleSidebar} />
+          <div 
+            className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
+            <AppNavbar /* pageContext={pageContext} */ toggleSidebar={toggleSidebar} /> { /* Remove pageContext, AppNavbar will use usePageHeader */ }
             <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+              {/* Children no longer need onSetPageContext cloned if they use usePageHeader */}
               {children}
             </main>
           </div>
@@ -115,11 +117,19 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     );
   }
   
+  // Default fallback: This will now primarily catch unauthenticated users trying to access app pages
+  // or any other unhandled routes. Consider a more explicit redirect to login for unauthenticated app page access.
+  // For now, it shows the public layout.
+  // If !isAuthenticated and isAppPage, a redirect to login might be better.
+  // Let's refine this: if it's an app page but user is not authenticated, redirect to login.
   if (isAppPage && !isAuthenticated) {
+    // Ideally, redirect to login. For now, showing public layout as a fallback,
+    // but individual app pages should also protect themselves.
+    // Let's try a client-side redirect here.
     if (typeof window !== 'undefined') {
-      window.location.href = '/login?from=' + pathname;
+      window.location.href = '/login?from=' + pathname; // Add a from parameter
     }
-    return (
+    return ( // Fallback content during redirect
       <div className="flex flex-col min-h-screen items-center justify-center bg-black">
         <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
         <p className="text-xl text-gray-400">Redirecting to login...</p>
@@ -127,6 +137,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     );
   }
 
+  // Default to public layout for any other unhandled case.
+  // This path should ideally be hit less often with the above conditions.
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -137,4 +149,4 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       <Footer />
     </div>
   );
-}
+} 

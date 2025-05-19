@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaUserCircle, FaEnvelope, FaIdBadge, FaArrowLeft, FaSpinner, FaSignature, FaInfoCircle, FaBriefcase, FaLightbulb, FaUsers, FaPaintBrush, FaCommentDots } from 'react-icons/fa';
-import { usePageHeader, PageContextType } from '@/app/components/MyCtx';
+import { usePageHeader, PageContextType } from '../../components/MyCtx';
 
 interface ViewedProfile {
   id: string;

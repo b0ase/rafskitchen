@@ -10,7 +10,7 @@ import UserSidebar from './UserSidebar'; // PageContextType might be removed if 
 import AppNavbar from './AppNavbar';
 import { useAuth } from './Providers'; // Import useAuth
 import { FaRocket } from 'react-icons/fa'; // For loading indicator
-import { MyCtxProvider } from '@/app/components/MyCtx'; // Standardized import path
+import { MyCtxProvider } from '@/app/components/MyCtx'; // Changed import path
 
 interface ConditionalLayoutProps {
   // session prop from server can be kept for initial hint or removed if useAuth is robust enough
@@ -97,44 +97,12 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   //  but here we are certain it's not public and not an auth flow page)
   if (isAppPage && isAuthenticated) {
     return (
-      <MyCtxProvider>
+      <MyCtxProvider> { /* Wrap the authenticated layout */ }
         <div className="flex h-screen bg-black">
           <UserSidebar 
             // onSetPageContext={handleSetPageContext} // Remove, UserSidebar will use usePageHeader
             isSidebarOpen={isSidebarOpen} 
             toggleSidebar={toggleSidebar} 
           />
-          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
-            <AppNavbar toggleSidebar={toggleSidebar} />
-            <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-              {children}
-            </main>
-          </div>
-        </div>
-      </MyCtxProvider>
-    );
-  }
-  
-  if (isAppPage && !isAuthenticated) {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login?from=' + pathname;
-    }
-    return (
-      <div className="flex flex-col min-h-screen items-center justify-center bg-black">
-        <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
-        <p className="text-xl text-gray-400">Redirecting to login...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <SubNavigation />
-      <main className="flex-grow">
-        {children}
-      </main>
-      <Footer />
-    </div>
-  );
-}
+          <div 
+            className={`flex-1 flex flex-col overflow-hidden md:ml-64`

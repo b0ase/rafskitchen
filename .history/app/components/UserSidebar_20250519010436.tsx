@@ -10,7 +10,7 @@ import {
   FaCamera, FaComments
 } from 'react-icons/fa';
 import { useAuth } from './Providers';
-import { usePageHeader, PageContextType } from '@/app/components/MyCtx'; // Changed import path
+import { usePageHeader, PageContextType } from './MyCtx'; // Corrected import path
 
 interface NavLink {
   href: string;
@@ -76,29 +76,24 @@ export default function UserSidebar({ /* onSetPageContext, */ isSidebarOpen, tog
         setUser(null);
         setUserDisplayName('');
         setUserInitial('');
-        setUserAvatarUrl(null);
-        setPageContext(null); // Clear page context ONLY on explicit sign out
+        setUserAvatarUrl(null); // Clear avatar on sign out
+        setPageContext(null); // Clear page context on logout
         window.location.assign('/');
       } else if (session?.user) {
-        console.log('[UserSidebar] User session active (SIGNED_IN, TOKEN_REFRESHED, USER_UPDATED, or INITIAL_SESSION with user). Setting user state.', session.user.id);
+        console.log('[UserSidebar] SIGNED_IN or other event with user. Setting user state.', session.user.id);
         const currentUser = session.user;
         setUser(currentUser);
         // Avatar will be fetched by fetchUserProfile based on user.id
-        // UserSidebar doesn't set pageContext here; pages or link clicks should.
-      } else if (event === 'INITIAL_SESSION' && !session?.user) {
-        // INITIAL_SESSION resolved, but no user. This means user is definitively not logged in.
-        // We might still not want to clear pageContext here if a public page has set it,
-        // but for app context, this is a state where user-specific context isn't valid.
-        // However, ConditionalLayout handles redirection for app pages if not authenticated.
-        // Let's leave setPageContext(null) out for now to see if it reduces flashes.
-        // If ConditionalLayout correctly gatekeeps app pages, this nullification might be redundant or disruptive.
-        console.log('[UserSidebar] INITIAL_SESSION event, no user. User state cleared if necessary by other logic.');
+        // No longer setting userAvatarUrl from user_metadata here to ensure profiles table is the source of truth for custom avatars.
+        console.log('[UserSidebar] User session identified. fetchUserProfile will handle avatar.');
+      } else {
+        console.log('[UserSidebar] No session user. Clearing user state.');
         setUser(null);
         setUserDisplayName('');
         setUserInitial('');
-        setUserAvatarUrl(null);
+        setUserAvatarUrl(null); // Clear avatar if no user
+        setPageContext(null); // Clear page context if no session
       }
-      // Removed the general 'else { setPageContext(null); }' which might have cleared context too often
     });
 
     const getCurrentSession = async () => {
@@ -194,12 +189,12 @@ export default function UserSidebar({ /* onSetPageContext, */ isSidebarOpen, tog
     const channel = supabase
       .channel('unread-dm-user-' + user.id)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${user.id}` }, 
-        () => {
+        (payload) => {
           setUnreadCount(c => c + 1);
         }
       )
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${user.id}` }, 
-        () => {
+        (payload) => {
           supabase.from('direct_messages')
             .select('*', { count: 'exact', head: true })
             .eq('receiver_id', user.id)

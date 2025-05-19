@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaUserCircle, FaEnvelope, FaIdBadge, FaArrowLeft, FaSpinner, FaSignature, FaInfoCircle, FaBriefcase, FaLightbulb, FaUsers, FaPaintBrush, FaCommentDots } from 'react-icons/fa';
-import { usePageHeader, PageContextType } from '@/app/components/MyCtx';
+import { usePageHeader, PageContextType } from '../../components/MyCtx';
 
 interface ViewedProfile {
   id: string;
@@ -18,7 +18,6 @@ interface ViewedProfile {
 interface Skill {
   id: string;
   name: string;
-  category: string | null;
 }
 
 interface Team {
@@ -32,34 +31,6 @@ interface Team {
     accentColor?: string;
   } | null;
 }
-
-const predefinedSkillColorClasses = [
-  "bg-sky-600/80 text-white",
-  "bg-emerald-600/80 text-white",
-  "bg-rose-600/80 text-white",
-  "bg-amber-500/90 text-amber-950",
-  "bg-violet-600/80 text-white",
-  "bg-cyan-600/80 text-white",
-  "bg-pink-600/80 text-white",
-  "bg-indigo-600/80 text-white",
-  "bg-teal-600/80 text-white",
-  "bg-fuchsia-600/80 text-white",
-  "bg-lime-600/80 text-white",
-  "bg-orange-600/80 text-white",
-];
-
-const getSkillColorClass = (str: string | null): string => {
-  if (!str) {
-    return predefinedSkillColorClasses[0]; // Default color if no string
-  }
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  const index = Math.abs(hash) % predefinedSkillColorClasses.length;
-  return predefinedSkillColorClasses[index];
-};
 
 export default function UserProfilePage() {
   const supabase = createClientComponentClient();
@@ -126,7 +97,7 @@ export default function UserProfilePage() {
     const { data: skillsData, error: skillsError } = await supabase
       .from('user_skills')
       .select(`
-        skills (id, name, category) 
+        skills (id, name) 
       `)
       .eq('user_id', viewedUserId);
 
@@ -267,10 +238,7 @@ export default function UserProfilePage() {
                 {userSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {userSkills.map(skill => (
-                      <span 
-                        key={skill.id} 
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full shadow-sm ${getSkillColorClass(skill.category || skill.name)}`}
-                      >
+                      <span key={skill.id} className="bg-sky-600/80 text-white text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
                         {skill.name}
                       </span>
                     ))}

@@ -87,20 +87,15 @@ export default function DirectMessagesPage() {
           (newMessage.sender_id === currentUserId && newMessage.receiver_id === targetUserId) ||
           (newMessage.sender_id === targetUserId && newMessage.receiver_id === currentUserId)
         ) {
-          console.log(`[DirectMessages Realtime] RX: Relevant message received. Current User: ${currentUserId}, Target User: ${targetUserId}, Sender: ${newMessage.sender_id}, Receiver: ${newMessage.receiver_id}`);
-          console.log('[DirectMessages Realtime] RX: Payload:', newMessage);
+          console.log('[DirectMessages Realtime] New message payload:', newMessage);
           setMessages(prevMessages => {
-            console.log('[DirectMessages Realtime] RX: Inside setMessages. Prev message count:', prevMessages.length);
+            // Check if message already exists to prevent duplicates (e.g., from optimistic update + realtime)
             if (prevMessages.some(msg => msg.id === newMessage.id)) {
-              console.log('[DirectMessages Realtime] RX: Duplicate message detected by ID, not adding:', newMessage.id);
+              console.log('[DirectMessages Realtime] Duplicate message detected, not adding:', newMessage.id);
               return prevMessages;
             }
-            const updatedMessages = [...prevMessages, newMessage];
-            console.log('[DirectMessages Realtime] RX: After adding. New message count:', updatedMessages.length);
-            return updatedMessages;
+            return [...prevMessages, newMessage];
           });
-        } else {
-          console.log(`[DirectMessages Realtime] RX: Irrelevant message filtered. Current User: ${currentUserId}, Target User: ${targetUserId}, Sender: ${newMessage.sender_id}, Receiver: ${newMessage.receiver_id}`);
         }
       })
       .subscribe((status, err) => {
@@ -135,17 +130,22 @@ export default function DirectMessagesPage() {
       if (error) {
         throw error;
       }
-      // Update the optimistic message with the actual ID and timestamp from the database
+      // If successful, the optimistic update is confirmed by the backend.
+      // The realtime subscription will also pick this up if configured to do so.
+      // We might need to update the optimistic message's ID and created_at if the DB returns them.
       if (data) {
         setMessages(prev => prev.map(m => m.id === tempId ? { ...optimistic, id: data.id, created_at: data.created_at } : m));
       }
 
     } catch (err) {
       console.error('[DirectMessages] Send error:', err);
+      // revert optimistic update on error
       setMessages(prev => prev.filter(m => m.id !== tempId));
+      // Optionally, inform the user about the failure
     } finally {
       setPosting(false);
       console.log('[DirectMessages] Message send attempt complete.');
+      // await fetchMessages(); // Removed this line
     }
   };
 
