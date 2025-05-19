@@ -17,8 +17,6 @@ interface Profile {
   twitter_url?: string | null;
   linkedin_url?: string | null;
   github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
 }
 
 // Define a specific interface for the update payload
@@ -31,8 +29,6 @@ interface ProfileForUpdate {
   twitter_url?: string | null;
   linkedin_url?: string | null;
   github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
   updated_at: string; 
   // avatar_url is intentionally omitted as it's handled separately
 }
@@ -129,8 +125,6 @@ export default function ProfilePage() {
   const [newTwitterUrl, setNewTwitterUrl] = useState<string>('');
   const [newLinkedInUrl, setNewLinkedInUrl] = useState<string>('');
   const [newGitHubUrl, setNewGitHubUrl] = useState<string>('');
-  const [newInstagramUrl, setNewInstagramUrl] = useState<string>('');
-  const [newDiscordUrl, setNewDiscordUrl] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -213,8 +207,6 @@ export default function ProfilePage() {
         setNewTwitterUrl('');
         setNewLinkedInUrl('');
         setNewGitHubUrl('');
-        setNewInstagramUrl('');
-        setNewDiscordUrl('');
         setSelectedSkills([]);
         setSuccessMessage(null);
         setAvatarUploadError(null);
@@ -287,8 +279,6 @@ export default function ProfilePage() {
           setNewTwitterUrl((profileData as any).twitter_url || ''); 
           setNewLinkedInUrl((profileData as any).linkedin_url || '');
           setNewGitHubUrl((profileData as any).github_url || ''); 
-          setNewInstagramUrl((profileData as any).instagram_url || '');
-          setNewDiscordUrl((profileData as any).discord_url || '');
 
           // Step 2: Fetch User's Skills
           console.log("[ProfilePage] Fetching user skills for user:", user.id);
@@ -767,8 +757,6 @@ export default function ProfilePage() {
       twitter_url: newTwitterUrl.trim() || null,
       linkedin_url: newLinkedInUrl.trim() || null,
       github_url: newGitHubUrl.trim() || null,
-      instagram_url: newInstagramUrl.trim() || null,
-      discord_url: newDiscordUrl.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -795,8 +783,6 @@ export default function ProfilePage() {
           twitter_url: updates.twitter_url !== undefined ? updates.twitter_url : prevProfile.twitter_url,
           linkedin_url: updates.linkedin_url !== undefined ? updates.linkedin_url : prevProfile.linkedin_url,
           github_url: updates.github_url !== undefined ? updates.github_url : prevProfile.github_url,
-          instagram_url: updates.instagram_url !== undefined ? updates.instagram_url : prevProfile.instagram_url,
-          discord_url: updates.discord_url !== undefined ? updates.discord_url : prevProfile.discord_url,
         };
         return updatedProfileState;
       });
@@ -808,8 +794,6 @@ export default function ProfilePage() {
       setNewTwitterUrl(updates.twitter_url || '');
       setNewLinkedInUrl(updates.linkedin_url || '');
       setNewGitHubUrl(updates.github_url || '');
-      setNewInstagramUrl(updates.instagram_url || '');
-      setNewDiscordUrl(updates.discord_url || '');
       setSuccessMessage('Profile updated successfully!');
     }
     setSaving(false);
@@ -940,9 +924,7 @@ export default function ProfilePage() {
                     newWebsiteUrl === (profile?.website_url || '') &&
                     newTwitterUrl === (profile?.twitter_url || '') &&
                     newLinkedInUrl === (profile?.linkedin_url || '') &&
-                    newGitHubUrl === (profile?.github_url || '') &&
-                    newInstagramUrl === (profile?.instagram_url || '') &&
-                    newDiscordUrl === (profile?.discord_url || '')
+                    newGitHubUrl === (profile?.github_url || '')
                   )
               }
               className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
@@ -1213,10 +1195,10 @@ export default function ProfilePage() {
                   <FaLink className="mr-2" /> Online Presence
                 </h3>
 
-                {/* Row 1: Website URL, Twitter URL, Instagram URL */}
+                {/* Row 1: Website URL and Twitter URL */}
                 <div className="flex flex-col sm:flex-row gap-x-4 gap-y-4">
                   {/* Website URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
+                  <div className="flex-1 min-w-0 sm:w-1/2">
                     <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
                       Website URL
                     </label>
@@ -1232,7 +1214,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Twitter URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
+                  <div className="flex-1 min-w-0 sm:w-1/2">
                     <label htmlFor="twitter_url" className="block text-sm font-medium text-gray-300 mb-1">
                       Twitter (X) URL
                     </label>
@@ -1246,28 +1228,12 @@ export default function ProfilePage() {
                       placeholder="https://twitter.com/yourhandle"
                     />
                   </div>
-
-                  {/* Instagram URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="instagram_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      Instagram URL
-                    </label>
-                    <input
-                      type="url"
-                      name="instagram_url"
-                      id="instagram_url"
-                      value={newInstagramUrl}
-                      onChange={(e) => setNewInstagramUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://instagram.com/yourprofile"
-                    />
-                  </div>
                 </div>
 
-                {/* Row 2: LinkedIn URL, GitHub URL, Discord URL */}
+                {/* Row 2: LinkedIn URL and GitHub URL */}
                 <div className="flex flex-col sm:flex-row gap-x-4 gap-y-4 mt-4">
                   {/* LinkedIn URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
+                  <div className="flex-1 min-w-0 sm:w-1/2">
                     <label htmlFor="linkedin_url" className="block text-sm font-medium text-gray-300 mb-1">
                       LinkedIn URL
                     </label>
@@ -1283,7 +1249,7 @@ export default function ProfilePage() {
                   </div>
 
                   {/* GitHub URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
+                  <div className="flex-1 min-w-0 sm:w-1/2">
                     <label htmlFor="github_url" className="block text-sm font-medium text-gray-300 mb-1">
                       GitHub URL
                     </label>
@@ -1295,22 +1261,6 @@ export default function ProfilePage() {
                       onChange={(e) => setNewGitHubUrl(e.target.value)}
                       className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
                       placeholder="https://github.com/yourusername"
-                    />
-                  </div>
-
-                  {/* Discord Profile URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="discord_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      Discord Profile URL
-                    </label>
-                    <input
-                      type="url"
-                      name="discord_url"
-                      id="discord_url"
-                      value={newDiscordUrl}
-                      onChange={(e) => setNewDiscordUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://discord.com/users/yourid"
                     />
                   </div>
                 </div>

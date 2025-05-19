@@ -17,8 +17,6 @@ interface Profile {
   twitter_url?: string | null;
   linkedin_url?: string | null;
   github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
 }
 
 // Define a specific interface for the update payload
@@ -31,8 +29,6 @@ interface ProfileForUpdate {
   twitter_url?: string | null;
   linkedin_url?: string | null;
   github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
   updated_at: string; 
   // avatar_url is intentionally omitted as it's handled separately
 }
@@ -129,8 +125,6 @@ export default function ProfilePage() {
   const [newTwitterUrl, setNewTwitterUrl] = useState<string>('');
   const [newLinkedInUrl, setNewLinkedInUrl] = useState<string>('');
   const [newGitHubUrl, setNewGitHubUrl] = useState<string>('');
-  const [newInstagramUrl, setNewInstagramUrl] = useState<string>('');
-  const [newDiscordUrl, setNewDiscordUrl] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -213,8 +207,6 @@ export default function ProfilePage() {
         setNewTwitterUrl('');
         setNewLinkedInUrl('');
         setNewGitHubUrl('');
-        setNewInstagramUrl('');
-        setNewDiscordUrl('');
         setSelectedSkills([]);
         setSuccessMessage(null);
         setAvatarUploadError(null);
@@ -276,19 +268,15 @@ export default function ProfilePage() {
           // setLoadingSkills(false); // Moved to finally block
         } else if (profileData) {
           console.log("[ProfilePage] Profile data fetched:", profileData);
-          // const typedProfileData = profileData as unknown as Profile; // Keep if needed, but access directly for now
-
-          setProfile(profileData as unknown as Profile); // This cast is for the state setter
-          setNewUsername((profileData as any).username || '');
-          setNewDisplayName((profileData as any).display_name || '');
-          setNewFullName((profileData as any).full_name || '');
-          setNewBio((profileData as any).bio || '');
-          setNewWebsiteUrl((profileData as any).website_url || '');
-          setNewTwitterUrl((profileData as any).twitter_url || ''); 
-          setNewLinkedInUrl((profileData as any).linkedin_url || '');
-          setNewGitHubUrl((profileData as any).github_url || ''); 
-          setNewInstagramUrl((profileData as any).instagram_url || '');
-          setNewDiscordUrl((profileData as any).discord_url || '');
+          setProfile(profileData as unknown as Profile);
+          setNewUsername(profileData.username || '');
+          setNewDisplayName(profileData.display_name || '');
+          setNewFullName(profileData.full_name || '');
+          setNewBio(profileData.bio || '');
+          setNewWebsiteUrl(profileData.website_url || '');
+          setNewTwitterUrl(profileData.twitter_url || '');
+          setNewLinkedInUrl(profileData.linkedin_url || '');
+          setNewGitHubUrl(profileData.github_url || '');
 
           // Step 2: Fetch User's Skills
           console.log("[ProfilePage] Fetching user skills for user:", user.id);
@@ -767,8 +755,6 @@ export default function ProfilePage() {
       twitter_url: newTwitterUrl.trim() || null,
       linkedin_url: newLinkedInUrl.trim() || null,
       github_url: newGitHubUrl.trim() || null,
-      instagram_url: newInstagramUrl.trim() || null,
-      discord_url: newDiscordUrl.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -783,33 +769,15 @@ export default function ProfilePage() {
     } else {
       // For the profile state, we spread the existing profile and then the updates.
       // Since updates doesn't have avatar_url, profile.avatar_url will persist if it exists.
-      setProfile(prevProfile => {
-        if (!prevProfile) return null; 
-        const updatedProfileState: Profile = {
-          ...prevProfile, // Keeps avatar_url and any other non-updated fields from prevProfile
-          username: updates.username !== undefined ? updates.username : prevProfile.username,
-          display_name: updates.display_name !== undefined ? updates.display_name : prevProfile.display_name,
-          full_name: updates.full_name !== undefined ? updates.full_name : prevProfile.full_name,
-          bio: updates.bio !== undefined ? updates.bio : prevProfile.bio,
-          website_url: updates.website_url !== undefined ? updates.website_url : prevProfile.website_url,
-          twitter_url: updates.twitter_url !== undefined ? updates.twitter_url : prevProfile.twitter_url,
-          linkedin_url: updates.linkedin_url !== undefined ? updates.linkedin_url : prevProfile.linkedin_url,
-          github_url: updates.github_url !== undefined ? updates.github_url : prevProfile.github_url,
-          instagram_url: updates.instagram_url !== undefined ? updates.instagram_url : prevProfile.instagram_url,
-          discord_url: updates.discord_url !== undefined ? updates.discord_url : prevProfile.discord_url,
-        };
-        return updatedProfileState;
-      });
-      setNewUsername(updates.username || ''); // Use || '' as fallback if updates.username is null
-      setNewDisplayName(updates.display_name || '');
+      setProfile(prevProfile => prevProfile ? { ...prevProfile, ...updates } : null);
+      setNewUsername(sanitizedUsername);
+      setNewDisplayName(updates.display_name!);
       setNewFullName(updates.full_name || '');
       setNewBio(updates.bio || '');
       setNewWebsiteUrl(updates.website_url || '');
       setNewTwitterUrl(updates.twitter_url || '');
       setNewLinkedInUrl(updates.linkedin_url || '');
       setNewGitHubUrl(updates.github_url || '');
-      setNewInstagramUrl(updates.instagram_url || '');
-      setNewDiscordUrl(updates.discord_url || '');
       setSuccessMessage('Profile updated successfully!');
     }
     setSaving(false);
@@ -940,9 +908,7 @@ export default function ProfilePage() {
                     newWebsiteUrl === (profile?.website_url || '') &&
                     newTwitterUrl === (profile?.twitter_url || '') &&
                     newLinkedInUrl === (profile?.linkedin_url || '') &&
-                    newGitHubUrl === (profile?.github_url || '') &&
-                    newInstagramUrl === (profile?.instagram_url || '') &&
-                    newDiscordUrl === (profile?.discord_url || '')
+                    newGitHubUrl === (profile?.github_url || '')
                   )
               }
               className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
@@ -1045,46 +1011,24 @@ export default function ProfilePage() {
                                         ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
                           >
                             <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                            {((): React.ReactNode => {
-                              const skillGroups = allSkills
+                            {Object.entries(
+                              allSkills
                                 .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
                                 .reduce((acc, skill) => {
                                   const category = skill.category || 'Other';
                                   if (!acc[category]) acc[category] = [];
                                   acc[category].push(skill);
                                   return acc;
-                                }, {} as Record<string, Skill[]>);
-
-                              const allCategoryEntries = Object.entries(skillGroups);
-                              const softSkillsEntry = allCategoryEntries.find(([category]) => category.toLowerCase() === 'soft skills');
-                              const otherCategoryEntries = allCategoryEntries.filter(([category]) => category.toLowerCase() !== 'soft skills');
-                              
-                              // Optional: Sort otherCategoryEntries if needed, e.g., alphabetically by category name
-                              // otherCategoryEntries.sort((a, b) => a[0].localeCompare(b[0]));
-
-                              return (
-                                <>
-                                  {otherCategoryEntries.map(([category, skillsInCategory]) => (
-                                    <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                                      {skillsInCategory.map(skill => (
-                                        <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                          {skill.name}
-                                        </option>
-                                      ))}
-                                    </optgroup>
-                                  ))}
-                                  {softSkillsEntry && (
-                                    <optgroup label={softSkillsEntry[0]} key={softSkillsEntry[0]} className="bg-gray-750 text-sky-300 font-semibold">
-                                      {softSkillsEntry[1].map(skill => (
-                                        <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                          {skill.name}
-                                        </option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                </>
-                              );
-                            })()}
+                                }, {} as Record<string, Skill[]>)
+                            ).map(([category, skillsInCategory]) => (
+                              <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                                {skillsInCategory.map(skill => (
+                                  <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                    {skill.name}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
                           </select>
                         </div>
                       )}
@@ -1212,111 +1156,23 @@ export default function ProfilePage() {
                 <h3 className="text-lg font-medium leading-6 text-sky-400 flex items-center">
                   <FaLink className="mr-2" /> Online Presence
                 </h3>
-
-                {/* Row 1: Website URL, Twitter URL, Instagram URL */}
-                <div className="flex flex-col sm:flex-row gap-x-4 gap-y-4">
-                  {/* Website URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      Website URL
-                    </label>
-                    <input
-                      type="url"
-                      name="website_url"
-                      id="website_url"
-                      value={newWebsiteUrl}
-                      onChange={(e) => setNewWebsiteUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://your.website.com"
-                    />
-                  </div>
-
-                  {/* Twitter URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="twitter_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      Twitter (X) URL
-                    </label>
-                    <input
-                      type="url"
-                      name="twitter_url"
-                      id="twitter_url"
-                      value={newTwitterUrl}
-                      onChange={(e) => setNewTwitterUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://twitter.com/yourhandle"
-                    />
-                  </div>
-
-                  {/* Instagram URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="instagram_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      Instagram URL
-                    </label>
-                    <input
-                      type="url"
-                      name="instagram_url"
-                      id="instagram_url"
-                      value={newInstagramUrl}
-                      onChange={(e) => setNewInstagramUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://instagram.com/yourprofile"
-                    />
-                  </div>
+                {/* Website URL */}
+                <div>
+                  <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
+                    Website URL
+                  </label>
+                  <input
+                    type="url"
+                    name="website_url"
+                    id="website_url"
+                    value={newWebsiteUrl}
+                    onChange={(e) => setNewWebsiteUrl(e.target.value)}
+                    className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                    placeholder="https://your.website.com"
+                  />
                 </div>
-
-                {/* Row 2: LinkedIn URL, GitHub URL, Discord URL */}
-                <div className="flex flex-col sm:flex-row gap-x-4 gap-y-4 mt-4">
-                  {/* LinkedIn URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="linkedin_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      LinkedIn URL
-                    </label>
-                    <input
-                      type="url"
-                      name="linkedin_url"
-                      id="linkedin_url"
-                      value={newLinkedInUrl}
-                      onChange={(e) => setNewLinkedInUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://linkedin.com/in/yourprofile"
-                    />
-                  </div>
-
-                  {/* GitHub URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="github_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      GitHub URL
-                    </label>
-                    <input
-                      type="url"
-                      name="github_url"
-                      id="github_url"
-                      value={newGitHubUrl}
-                      onChange={(e) => setNewGitHubUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://github.com/yourusername"
-                    />
-                  </div>
-
-                  {/* Discord Profile URL */}
-                  <div className="flex-1 min-w-0 sm:w-1/3">
-                    <label htmlFor="discord_url" className="block text-sm font-medium text-gray-300 mb-1">
-                      Discord Profile URL
-                    </label>
-                    <input
-                      type="url"
-                      name="discord_url"
-                      id="discord_url"
-                      value={newDiscordUrl}
-                      onChange={(e) => setNewDiscordUrl(e.target.value)}
-                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                      placeholder="https://discord.com/users/yourid"
-                    />
-                  </div>
-                </div>
-                
                 {/* Bio / About Me */}
-                <div className="mt-4"> {/* Ensures spacing from the grid above */}
+                <div>
                   <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1">
                     Bio / About Me
                   </label>
