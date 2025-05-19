@@ -975,55 +975,102 @@ export default function ProfilePage() {
                     <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
                   </a>
                 </Link>
-                {/* Skill Adder Inputs - MOVED HERE */}
-                {!loadingSkills && (
-                  <div className="flex items-center gap-x-2 ml-auto">
-                    <input
-                      type="text"
-                      value={customSkillInput}
-                      onChange={(e) => setCustomSkillInput(e.target.value)}
-                      onKeyDown={async (e) => {
-                        if (e.key === 'Enter' && customSkillInput.trim()) {
-                          e.preventDefault();
-                          await handleAddCustomSkill(customSkillInput.trim());
-                        }
-                      }}
-                      placeholder="+ Add Custom Skill" // CHANGED PLACEHOLDER
-                      className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[150px] sm:min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={savingSkills}
-                      title="Add a skill not in the list"
-                    />
-                    {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
-                      <div className="inline-block relative animate-fadeInQuickly">
-                        <select 
-                          value={skillChoiceInAdder}
-                          onChange={async (e) => {
-                            const selectedValue = e.target.value;
-                            if (selectedValue) {
-                              setSkillChoiceInAdder(selectedValue); 
-                              await handleSkillToggle(selectedValue, false); 
-                              setSkillChoiceInAdder(''); 
-                            }
-                          }}
-                          disabled={savingSkills}
-                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[130px] sm:min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                                      ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
-                        >
-                          <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                          {((): React.ReactNode => {
-                            const skillGroups = allSkills
-                              .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
-                              .reduce((acc, skill) => {
-                                const category = skill.category || 'Other';
-                                if (!acc[category]) acc[category] = [];
-                                acc[category].push(skill);
-                                return acc;
-                              }, {} as Record<string, Skill[]>);
+              </div>
+              
+              {loadingSkills ? (
+                <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
+                  <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
+                  <p className="text-lg text-gray-300">Loading your skills...</p>
+                </div>
+              ) : error && !profile ? (
+                <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
+              ) : (
+                <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
+                  {selectedSkills.length > 0 && (
+                    <div className="mb-6 flex flex-wrap gap-2">
+                      {selectedSkills.map(skill => (
+                    <span 
+                      key={skill.id} 
+                      className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
+                      title={skill.description || skill.name}
+                    >
+                      {skill.name}
+                      <button
+                        onClick={() => handleSkillToggle(skill.id, true)}
+                        disabled={savingSkills}
+                        className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
+                        aria-label={`Remove ${skill.name} skill`}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                    </div>
+                  )}
+                  {(!loadingSkills && selectedSkills.length === 0) && (
+                    <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
+                      <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
+                      <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
+                    </div>
+                  )}
+
+                  <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
+                  {loadingSkills && allSkills.length === 0 ? (
+                    <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
+                      <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
+                      <p className="text-md text-gray-300">Loading available skills...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <input
+                        type="text"
+                        value={customSkillInput}
+                        onChange={(e) => setCustomSkillInput(e.target.value)}
+                        onKeyDown={async (e) => {
+                          if (e.key === 'Enter' && customSkillInput.trim()) {
+                            e.preventDefault();
+                            await handleAddCustomSkill(customSkillInput.trim());
+                          }
+                        }}
+                        placeholder="+ Type custom skill & Enter"
+                        className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={savingSkills}
+                        title="Add a skill not in the list"
+                      />
+                      {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
+                        <div className="inline-block relative animate-fadeInQuickly">
+                          <select 
+                            value={skillChoiceInAdder}
+                            onChange={async (e) => {
+                              const selectedValue = e.target.value;
+                              if (selectedValue) {
+                                setSkillChoiceInAdder(selectedValue); 
+                                await handleSkillToggle(selectedValue, false); 
+                                setSkillChoiceInAdder(''); 
+                              }
+                            }}
+                            disabled={savingSkills}
+                            className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                                        ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
+                          >
+                            <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
+                            {((): React.ReactNode => {
+                              const skillGroups = allSkills
+                                .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
+                                .reduce((acc, skill) => {
+                                  const category = skill.category || 'Other';
+                                  if (!acc[category]) acc[category] = [];
+                                  acc[category].push(skill);
+                                  return acc;
+                                }, {} as Record<string, Skill[]>);
 
                               const allCategoryEntries = Object.entries(skillGroups);
                               const softSkillsEntry = allCategoryEntries.find(([category]) => category.toLowerCase() === 'soft skills');
                               const otherCategoryEntries = allCategoryEntries.filter(([category]) => category.toLowerCase() !== 'soft skills');
                               
+                              // Optional: Sort otherCategoryEntries if needed, e.g., alphabetically by category name
+                              // otherCategoryEntries.sort((a, b) => a[0].localeCompare(b[0]));
+
                               return (
                                 <>
                                   {otherCategoryEntries.map(([category, skillsInCategory]) => (
@@ -1051,47 +1098,7 @@ export default function ProfilePage() {
                         </div>
                       )}
                     </div>
-                )}
-              </div>
-              
-              {/* This is the main display box for skills, conditionally rendered */}
-              {loadingSkills ? (
-                <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
-                  <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
-                  <p className="text-lg text-gray-300">Loading your skills...</p>
-                </div>
-              ) : error && !profile ? (
-                <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
-              ) : (
-                <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
-                  {selectedSkills.length > 0 && (
-                    <div className="mb-6 flex flex-wrap gap-2">
-                      {selectedSkills.map(skill => (
-                        <span 
-                          key={skill.id} 
-                          className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
-                          title={skill.description || skill.name}
-                        >
-                          {skill.name}
-                          <button
-                            onClick={() => handleSkillToggle(skill.id, true)}
-                            disabled={savingSkills}
-                            className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
-                            aria-label={`Remove ${skill.name} skill`}
-                          >
-                            &times;
-                          </button>
-                        </span>
-                      ))}
-                    </div>
                   )}
-                  {(!loadingSkills && selectedSkills.length === 0) && (
-                    <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
-                      <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
-                      <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
-                    </div>
-                  )}
-                  {/* The h3 for Add New Skills and the old input location were here, now removed/moved */}
                   {userSkillIds.size > 0 && 
                    !loadingSkills && 
                    allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&

@@ -1020,87 +1020,77 @@ export default function ProfilePage() {
                                 return acc;
                               }, {} as Record<string, Skill[]>);
 
-                              const allCategoryEntries = Object.entries(skillGroups);
-                              const softSkillsEntry = allCategoryEntries.find(([category]) => category.toLowerCase() === 'soft skills');
-                              const otherCategoryEntries = allCategoryEntries.filter(([category]) => category.toLowerCase() !== 'soft skills');
-                              
-                              return (
-                                <>
-                                  {otherCategoryEntries.map(([category, skillsInCategory]) => (
-                                    <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                                      {skillsInCategory.map(skill => (
-                                        <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                          {skill.name}
-                                        </option>
-                                      ))}
-                                    </optgroup>
-                                  ))}
-                                  {softSkillsEntry && (
-                                    <optgroup label={softSkillsEntry[0]} key={softSkillsEntry[0]} className="bg-gray-750 text-sky-300 font-semibold">
-                                      {softSkillsEntry[1].map(skill => (
-                                        <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                          {skill.name}
-                                        </option>
-                                      ))}
-                                    </optgroup>
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </select>
-                        </div>
-                      )}
-                    </div>
+                            const allCategoryEntries = Object.entries(skillGroups);
+                            const softSkillsEntry = allCategoryEntries.find(([category]) => category.toLowerCase() === 'soft skills');
+                            const otherCategoryEntries = allCategoryEntries.filter(([category]) => category.toLowerCase() !== 'soft skills');
+                            
+                            // Optional: Sort otherCategoryEntries if needed, e.g., alphabetically by category name
+                            // otherCategoryEntries.sort((a, b) => a[0].localeCompare(b[0]));
+
+                            return (
+                              <>
+                                {otherCategoryEntries.map(([category, skillsInCategory]) => (
+                                  <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                                    {skillsInCategory.map(skill => (
+                                      <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                        {skill.name}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                ))}
+                                {softSkillsEntry && (
+                                  <optgroup label={softSkillsEntry[0]} key={softSkillsEntry[0]} className="bg-gray-750 text-sky-300 font-semibold">
+                                    {softSkillsEntry[1].map(skill => (
+                                      <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                        {skill.name}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </select>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </div>
-              
-              {/* This is the main display box for skills, conditionally rendered */}
-              {loadingSkills ? (
-                <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
-                  <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
-                  <p className="text-lg text-gray-300">Loading your skills...</p>
-                </div>
-              ) : error && !profile ? (
-                <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
-              ) : (
-                <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
-                  {selectedSkills.length > 0 && (
-                    <div className="mb-6 flex flex-wrap gap-2">
-                      {selectedSkills.map(skill => (
-                        <span 
-                          key={skill.id} 
-                          className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
-                          title={skill.description || skill.name}
+                {selectedSkills.length > 0 && (
+                  <div className="mb-6 flex flex-wrap gap-2">
+                    {selectedSkills.map(skill => (
+                      <span 
+                        key={skill.id} 
+                        className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
+                        title={skill.description || skill.name}
+                      >
+                        {skill.name}
+                        <button
+                          onClick={() => handleSkillToggle(skill.id, true)}
+                          disabled={savingSkills}
+                          className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
+                          aria-label={`Remove ${skill.name} skill`}
                         >
-                          {skill.name}
-                          <button
-                            onClick={() => handleSkillToggle(skill.id, true)}
-                            disabled={savingSkills}
-                            className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
-                            aria-label={`Remove ${skill.name} skill`}
-                          >
-                            &times;
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {(!loadingSkills && selectedSkills.length === 0) && (
-                    <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
-                      <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
-                      <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
-                    </div>
-                  )}
-                  {/* The h3 for Add New Skills and the old input location were here, now removed/moved */}
-                  {userSkillIds.size > 0 && 
-                   !loadingSkills && 
-                   allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
-                     allSkills.some(skill => skill.category !== 'User-defined') &&
+                          &times;
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {(!loadingSkills && selectedSkills.length === 0) && (
+                  <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
+                    <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
+                    <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
+                  </div>
+                )}
+
+                {userSkillIds.size > 0 && 
+                 !loadingSkills && 
+                 allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
+                   allSkills.some(skill => skill.category !== 'User-defined') &&
                   (
                     <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
                   )}
-                </div>
-              )}
+              </div>
             </section>
             {/* End My Skills Section */}
 
