@@ -96,7 +96,7 @@ export default function EditProfileForm({
             value={newUsername}
             onChange={onUsernameChange}
             required
-            className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
             placeholder="Your unique username"
           />
         </div>
@@ -107,7 +107,7 @@ export default function EditProfileForm({
             id="display_name"
             value={newDisplayName}
             onChange={onDisplayNameChange}
-            className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
             placeholder="Name shown publicly (defaults to username)"
           />
         </div>
@@ -118,7 +118,7 @@ export default function EditProfileForm({
             id="full_name"
             value={newFullName}
             onChange={onFullNameChange}
-            className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
             placeholder="Your full legal name (optional)"
           />
         </div>
@@ -129,7 +129,7 @@ export default function EditProfileForm({
             rows={4}
             value={newBio}
             onChange={onBioChange}
-            className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
             placeholder="Tell us about yourself..."
           ></textarea>
         </div>
@@ -144,7 +144,7 @@ export default function EditProfileForm({
               id="website_url"
               value={newWebsiteUrl}
               onChange={onWebsiteUrlChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="https://yourwebsite.com"
             />
           </div>
@@ -155,7 +155,7 @@ export default function EditProfileForm({
               id="github_url"
               value={newGitHubUrl}
               onChange={onGitHubUrlChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="https://github.com/yourprofile"
             />
           </div>
@@ -166,7 +166,7 @@ export default function EditProfileForm({
               id="linkedin_url"
               value={newLinkedInUrl}
               onChange={onLinkedInUrlChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="https://linkedin.com/in/yourprofile"
             />
           </div>
@@ -177,7 +177,7 @@ export default function EditProfileForm({
               id="twitter_url"
               value={newTwitterUrl}
               onChange={onTwitterUrlChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="https://twitter.com/yourhandle"
             />
           </div>
@@ -188,7 +188,7 @@ export default function EditProfileForm({
               id="instagram_url"
               value={newInstagramUrl}
               onChange={onInstagramUrlChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="https://instagram.com/yourhandle"
             />
           </div>
@@ -199,7 +199,7 @@ export default function EditProfileForm({
               id="discord_url"
               value={newDiscordUrl}
               onChange={onDiscordUrlChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="Your Discord invite link or tag"
             />
           </div>
@@ -210,7 +210,7 @@ export default function EditProfileForm({
               id="phone_whatsapp"
               value={newPhoneWhatsapp}
               onChange={onPhoneWhatsappChange}
-              className="mt-1 block w-full rounded-md bg-black border-gray-600 shadow-sm text-gray-300 placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md bg-black border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
               placeholder="Your phone or WhatsApp number (optional)"
             />
           </div>

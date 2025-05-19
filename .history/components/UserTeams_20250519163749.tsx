@@ -55,19 +55,15 @@ export default function UserTeams({
             {userTeams.map(team => {
               const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
               
+              // Vercel-like monochrome style for team badges
               const badgeBaseStyle = "flex items-center px-4 py-2 rounded-lg shadow-sm border transition-colors duration-150 ease-in-out";
               
               let teamStyle;
-              let iconColorClass = 'text-gray-300'; // Default icon color
-
               if (team.color_scheme) {
-                // Using brightness filter for a subtle hover effect on scheme-defined colors
-                teamStyle = `${team.color_scheme.bgColor} ${team.color_scheme.textColor} ${team.color_scheme.borderColor} hover:brightness-90 transition-all`;
-                iconColorClass = team.color_scheme.textColor;
+                teamStyle = `${team.color_scheme.bgColor} ${team.color_scheme.textColor} ${team.color_scheme.borderColor} hover:opacity-80`; // Added hover effect
               } else {
-                // Adjusted fallback to be slightly darker and match muted skill badges
-                teamStyle = "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 transition-colors";
-                // iconColorClass remains 'text-gray-300' for fallback
+                // Fallback to a default style (e.g., the previous monochrome or a new default)
+                teamStyle = "bg-gray-700 text-gray-200 border-gray-600 hover:bg-gray-600";
               }
               
               return (
@@ -76,7 +72,7 @@ export default function UserTeams({
                   href={`/teams/${team.slug || team.id}`}
                   className={`${badgeBaseStyle} ${teamStyle}`}
                 >
-                  <IconComponent className={`mr-2 text-lg ${iconColorClass}`}/>
+                  <IconComponent className="mr-2 text-lg ${team.color_scheme ? team.color_scheme.textColor : 'text-gray-300'}`}/>
                   <span className="font-medium">{team.name}</span>
                 </Link>
               );

@@ -29,8 +29,8 @@ export default function AppNavbar({ toggleFullScreenMenu, isFullScreenMenuOpen }
     IconToShow = pageContext.icon || FaHome;
 
     // Check for sub-paths beyond the pageContext's href
-    if (pageContext.href && (pathname ?? '').startsWith(pageContext.href) && pathname !== pageContext.href) {
-      const subPath = (pathname ?? '').substring(pageContext.href.length).replace(/^\/+/, '');
+    if (pageContext.href && pathname.startsWith(pageContext.href) && pathname !== pageContext.href) {
+      const subPath = pathname.substring(pageContext.href.length).replace(/^\/+/, '');
       if (subPath) {
         const subPathSegments = subPath.split('/');
         let currentSubPath = pageContext.href;
@@ -58,7 +58,7 @@ export default function AppNavbar({ toggleFullScreenMenu, isFullScreenMenuOpen }
     } else {
       // Add "Home" as the root breadcrumb for non-root paths
       breadcrumbSegments.push({ text: "Home", href: "/" });
-      const pathSegments = (pathname ?? '').replace(/^\/+/, '').split('/');
+      const pathSegments = pathname.replace(/^\/+/, '').split('/');
       let currentBuiltPath = ''; // Path built from root for subsequent segments
 
       pathSegments.forEach((segment) => {

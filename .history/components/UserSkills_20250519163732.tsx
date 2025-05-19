@@ -14,19 +14,19 @@ interface Skill {
 
 // --- Skill Badge Styling Function --- (Keep or import if used elsewhere)
 const getSkillBadgeStyle = (category: string | null): string => {
-  const baseStyle = "px-3 py-1.5 text-xs font-semibold rounded-full shadow-md flex items-center justify-center hover:opacity-90 transition-opacity";
+  const baseStyle = "px-3 py-1.5 text-xs font-semibold rounded-full shadow-md flex items-center justify-center";
   switch (category?.toLowerCase().trim()) {
-    case 'frontend development': return `${baseStyle} bg-green-800 text-green-200 border border-green-700`;
-    case 'backend development': return `${baseStyle} bg-blue-800 text-blue-200 border border-blue-700`;
-    case 'programming': return `${baseStyle} bg-indigo-800 text-indigo-200 border border-indigo-700`;
-    case 'design': return `${baseStyle} bg-pink-800 text-pink-200 border border-pink-700`;
-    case 'management': return `${baseStyle} bg-purple-800 text-purple-200 border border-purple-700`;
-    case 'databases': return `${baseStyle} bg-yellow-700 text-yellow-100 border border-yellow-600`;
-    case 'devops': return `${baseStyle} bg-red-800 text-red-200 border border-red-700`;
-    case 'cloud computing': return `${baseStyle} bg-cyan-800 text-cyan-200 border border-cyan-700`;
-    case 'marketing': return `${baseStyle} bg-orange-800 text-orange-200 border border-orange-700`;
-    case 'user-defined': return `${baseStyle} bg-teal-800 text-teal-200 border border-teal-700`;
-    default: return `${baseStyle} bg-gray-700 text-gray-200 border border-gray-600`;
+    case 'frontend development': return `${baseStyle} bg-green-600 text-green-100 border border-green-500`;
+    case 'backend development': return `${baseStyle} bg-blue-600 text-blue-100 border border-blue-500`;
+    case 'programming': return `${baseStyle} bg-indigo-600 text-indigo-100 border border-indigo-500`;
+    case 'design': return `${baseStyle} bg-pink-600 text-pink-100 border border-pink-500`;
+    case 'management': return `${baseStyle} bg-purple-600 text-purple-100 border border-purple-500`;
+    case 'databases': return `${baseStyle} bg-yellow-500 text-yellow-900 border border-yellow-400`;
+    case 'devops': return `${baseStyle} bg-red-600 text-red-100 border border-red-500`;
+    case 'cloud computing': return `${baseStyle} bg-cyan-600 text-cyan-100 border border-cyan-500`;
+    case 'marketing': return `${baseStyle} bg-orange-600 text-orange-100 border border-orange-500`;
+    case 'user-defined': return `${baseStyle} bg-teal-600 text-teal-100 border border-teal-500`;
+    default: return `${baseStyle} bg-gray-600 text-gray-100 border border-gray-500`;
   }
 };
 // --- END Skill Badge Styling Function ---

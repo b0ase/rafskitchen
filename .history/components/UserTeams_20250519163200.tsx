@@ -55,28 +55,17 @@ export default function UserTeams({
             {userTeams.map(team => {
               const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
               
+              // Vercel-like monochrome style for team badges
               const badgeBaseStyle = "flex items-center px-4 py-2 rounded-lg shadow-sm border transition-colors duration-150 ease-in-out";
-              
-              let teamStyle;
-              let iconColorClass = 'text-gray-300'; // Default icon color
-
-              if (team.color_scheme) {
-                // Using brightness filter for a subtle hover effect on scheme-defined colors
-                teamStyle = `${team.color_scheme.bgColor} ${team.color_scheme.textColor} ${team.color_scheme.borderColor} hover:brightness-90 transition-all`;
-                iconColorClass = team.color_scheme.textColor;
-              } else {
-                // Adjusted fallback to be slightly darker and match muted skill badges
-                teamStyle = "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 transition-colors";
-                // iconColorClass remains 'text-gray-300' for fallback
-              }
+              const monochromeStyle = "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 hover:text-white";
               
               return (
                 <Link 
                   key={team.id} 
                   href={`/teams/${team.slug || team.id}`}
-                  className={`${badgeBaseStyle} ${teamStyle}`}
+                  className={`${badgeBaseStyle} ${monochromeStyle}`}
                 >
-                  <IconComponent className={`mr-2 text-lg ${iconColorClass}`}/>
+                  <IconComponent className="mr-2 text-lg text-gray-400"/>
                   <span className="font-medium">{team.name}</span>
                 </Link>
               );

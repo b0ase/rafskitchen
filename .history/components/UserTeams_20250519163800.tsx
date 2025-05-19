@@ -61,13 +61,11 @@ export default function UserTeams({
               let iconColorClass = 'text-gray-300'; // Default icon color
 
               if (team.color_scheme) {
-                // Using brightness filter for a subtle hover effect on scheme-defined colors
-                teamStyle = `${team.color_scheme.bgColor} ${team.color_scheme.textColor} ${team.color_scheme.borderColor} hover:brightness-90 transition-all`;
+                teamStyle = `${team.color_scheme.bgColor} ${team.color_scheme.textColor} ${team.color_scheme.borderColor} hover:opacity-80`;
                 iconColorClass = team.color_scheme.textColor;
               } else {
-                // Adjusted fallback to be slightly darker and match muted skill badges
-                teamStyle = "bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 transition-colors";
-                // iconColorClass remains 'text-gray-300' for fallback
+                teamStyle = "bg-gray-700 text-gray-200 border-gray-600 hover:bg-gray-600";
+                // iconColorClass remains 'text-gray-300'
               }
               
               return (

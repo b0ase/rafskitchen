@@ -82,7 +82,7 @@ export default function ProfilePage() {
           form="profile-form" // Associate button with the form by id
           type="submit"
           disabled={saving}
-          className="w-56 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-56 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? <FaSpinner className="animate-spin mr-2" /> : <FaSave className="mr-2" />}
           {saving ? 'Saving...' : 'Save Profile'}
