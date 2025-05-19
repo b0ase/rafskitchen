@@ -39,7 +39,7 @@ const minimalLayoutPathPrefixes = [
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
-  const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
+  const { session: clientSession, isLoading: isLoadingAuth, user: authUser } = useAuth(); // Get user for display name
   const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
   // --- NEW: Check for minimal layout paths first --- 
@@ -189,8 +189,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             isOpen={isFullScreenMenuOpen}
             onClose={toggleFullScreenMenu}
             handleLogout={handleLogout}
-            userDisplayName={clientSession?.user?.user_metadata?.display_name || clientSession?.user?.email}
-            userAvatarUrl={clientSession?.user?.user_metadata?.avatar_url}
+            userDisplayName={authUser?.user_metadata?.display_name || authUser?.email}
+            userAvatarUrl={authUser?.user_metadata?.avatar_url}
           />
         </div>
       </MyCtxProvider>
