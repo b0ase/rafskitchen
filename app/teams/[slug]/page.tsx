@@ -87,7 +87,6 @@ export default function TeamPage() {
   const [deletingTeam, setDeletingTeam] = useState<boolean>(false); // For team deletion
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loadingMembers, setLoadingMembers] = useState<boolean>(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for mobile sidebar
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for scrolling
   const currentTeamIdRef = useRef<string | null>(null); // Ref to track current team ID for resetting flags
@@ -773,14 +772,6 @@ export default function TeamPage() {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-md md:hidden flex items-center transition-colors 
-                        text-gray-100 hover:bg-white/10"
-            title="Toggle Members Sidebar"
-          >
-            <FaUsers className="h-5 w-5" />
-          </button>
-          <button
             onClick={() => fetchMessages(teamDetails.id, true)}
             disabled={refreshingMessages || loadingMessages}
             title="Refresh Messages"
@@ -954,29 +945,9 @@ export default function TeamPage() {
             </footer>
           )}
         </div> {/* End Left: Chat Section */}
-        {/* Right: Members Sidebar - Conditional rendering for mobile */}
-        <aside 
-          className={`
-            bg-gray-800/50 border-l border-gray-700 p-4 overflow-y-auto 
-            transition-all duration-300 ease-in-out
-            fixed md:static top-0 right-0 h-full z-20 w-64
-            ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} 
-            md:w-64 md:translate-x-0 
-          `}
-        >
-          <div className="flex justify-between items-center md:hidden mb-4">
-            <h2 className="text-lg font-semibold">Members</h2>
-            <button 
-              onClick={() => setIsSidebarOpen(false)} 
-              className="p-1 rounded-md text-gray-300 hover:bg-white/10"
-              aria-label="Close sidebar"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <h2 className="text-sm font-semibold mb-2 hidden md:block">Members</h2>
+        {/* Right: Members Sidebar */}
+        <aside className="w-64 bg-gray-800/50 border-l border-gray-700 p-4 overflow-y-auto">
+          <h2 className="text-sm font-semibold mb-2">Members</h2>
           <div className="space-y-2">
             {teamMembers.map(member => (
               <Link key={member.id} href={`/messages/${member.id}`} passHref>
