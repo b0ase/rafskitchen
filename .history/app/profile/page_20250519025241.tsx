@@ -850,15 +850,29 @@ export default function ProfilePage() {
             {/* --- END NEW Simplified Avatar Display and Upload --- */}
             
           <div className="text-center sm:text-left ml-0 sm:ml-6 flex-grow">
-            {/* Display Name and Username are now primarily managed in the form below */}
-            {/* Retain a display version in the header for context if profile data exists */}
-            {(newDisplayName || profile?.display_name || profile?.username) ? (
-              <h1 className="text-3xl font-semibold text-white bg-transparent focus:outline-none w-full mb-0.5 placeholder-gray-500 truncate" title={newDisplayName || profile?.display_name || ''}>
-                {newDisplayName || profile?.display_name || 'User Profile'}
-                {profile?.username && <span className="text-lg text-gray-400 ml-2">(@{profile.username})</span>}
+            {/* Editable Display Name - This has been moved into the form row below */}
+            {/* 
+            <input
+              type="text"
+              value={newDisplayName}
+              onChange={(e) => setNewDisplayName(e.target.value)}
+              maxLength={50}
+              placeholder="Your Display Name"
+              className="text-3xl font-semibold text-white bg-transparent focus:outline-none focus:border-b focus:border-sky-500 w-full mb-0.5 placeholder-gray-500"
+              aria-label="Display Name"
+            />
+            */}
+            {/* Static Username Display - Username input is now in the form below */}
+            {/* 
+            {profile?.username && (
+              <p className="text-md text-gray-400 mt-0">@{profile.username}</p>
+            )}
+            */}
+             {/* Display the newDisplayName from state here if needed, or it will be in the form */}
+             {profile?.display_name && (
+              <h1 className="text-3xl font-semibold text-white bg-transparent focus:outline-none w-full mb-0.5 placeholder-gray-500">
+                {newDisplayName || profile.display_name} <span className="text-lg text-gray-400">(@{profile.username})</span>
               </h1>
-            ) : (
-              <div className="h-9 bg-gray-700 rounded w-3/4 animate-pulse"></div> // Placeholder while loading
             )}
           </div>
 
@@ -885,285 +899,246 @@ export default function ProfilePage() {
         </div>
 
         {/* This mt-10 creates space below the sticky header. Adjust if header height changes significantly. */}
-        {/* New parent container for Skills and Teams to be side-by-side, and Edit Profile below */}
-        <div className="mt-10">
-          {/* Container for Skills and Teams (side-by-side on large screens) */}
-          <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-            {/* My Skills Section - adjusted for new layout */}
-            <section className="pb-6 lg:w-1/2">
-              <div className="flex justify-between items-center mb-4">
-                <Link href="/skills" legacyBehavior>
-                  <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
-                    <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
-                  </a>
-                </Link>
-              </div>
-              
-              {loadingSkills ? (
-                <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
-                  <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
-                  <p className="text-lg text-gray-300">Loading your skills...</p>
-                </div>
-              ) : error && !profile ? (
-                <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
-              ) : (
-                <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
-                  {selectedSkills.length > 0 && (
-                    <div className="mb-6 flex flex-wrap gap-2">
-                      {selectedSkills.map(skill => (
-                    <span 
-                      key={skill.id} 
-                      className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
-                      title={skill.description || skill.name}
-                    >
-                      {skill.name}
-                      <button
-                        onClick={() => handleSkillToggle(skill.id, true)}
-                        disabled={savingSkills}
-                        className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
-                        aria-label={`Remove ${skill.name} skill`}
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  ))}
-                    </div>
-                  )}
-                  {(!loadingSkills && selectedSkills.length === 0) && (
-                    <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
-                      <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
-                      <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
-                    </div>
-                  )}
-
-                  <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
-                  {loadingSkills && allSkills.length === 0 ? (
-                    <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
-                      <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
-                      <p className="text-md text-gray-300">Loading available skills...</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <input
-                        type="text"
-                        value={customSkillInput}
-                        onChange={(e) => setCustomSkillInput(e.target.value)}
-                        onKeyDown={async (e) => {
-                          if (e.key === 'Enter' && customSkillInput.trim()) {
-                            e.preventDefault();
-                            await handleAddCustomSkill(customSkillInput.trim());
-                          }
-                        }}
-                        placeholder="+ Type custom skill & Enter"
-                        className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={savingSkills}
-                        title="Add a skill not in the list"
-                      />
-                      {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
-                        <div className="inline-block relative animate-fadeInQuickly">
-                          <select 
-                            value={skillChoiceInAdder}
-                            onChange={async (e) => {
-                              const selectedValue = e.target.value;
-                              if (selectedValue) {
-                                setSkillChoiceInAdder(selectedValue); 
-                                await handleSkillToggle(selectedValue, false); 
-                                setSkillChoiceInAdder(''); 
-                              }
-                            }}
-                            disabled={savingSkills}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                                        ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
-                          >
-                            <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                            {Object.entries(
-                              allSkills
-                                .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
-                                .reduce((acc, skill) => {
-                                  const category = skill.category || 'Other';
-                                  if (!acc[category]) acc[category] = [];
-                                  acc[category].push(skill);
-                                  return acc;
-                                }, {} as Record<string, Skill[]>)
-                            ).map(([category, skillsInCategory]) => (
-                              <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                                {skillsInCategory.map(skill => (
-                                  <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                    {skill.name}
-                                  </option>
-                                ))}
-                              </optgroup>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {userSkillIds.size > 0 && 
-                   !loadingSkills && 
-                   allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
-                     allSkills.some(skill => skill.category !== 'User-defined') &&
-                  (
-                    <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
-                  )}
-                </div>
-              )}
-            </section>
-            {/* End My Skills Section */}
-
-            {/* User Teams Display Section - MOVED UP to be side-by-side with Skills */}
-            <section className="pb-6 lg:w-1/2"> {/* Ensure this also takes lg:w-1/2 for side-by-side */} 
-              <Link href="/teams/join" legacyBehavior>
-                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-                  <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 mt-10">
+          {/* My Skills Section - adjusted to be part of the flex container */}
+          <section className="pb-6 md:w-1/2">
+            <div className="flex justify-between items-center mb-4">
+              <Link href="/skills" legacyBehavior>
+                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
+                  <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
                 </a>
               </Link>
-              {loadingUserTeams && (
-                <div className="flex items-center text-gray-400">
-                  <FaSpinner className="animate-spin mr-2" /> Loading teams...
-                </div>
-              )}
-              {errorUserTeams && (
-                <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
-              )}
-              {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
-                <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
-              )}
-              {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
-                <div className="flex flex-wrap gap-3">
-                  {userTeams.map(team => {
-                    const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
-                    const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
-                    const textColor = team.color_scheme?.textColor || 'text-gray-100';
-                    const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
-                    return (
-                      <Link 
-                        href={`/teams/${team.slug || team.id}`} 
-                        key={team.id} 
-                        className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
-                      >
-                        <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
-                        <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-            {/* End User Teams Display Section */}
-          </div> {/* This div now closes the Skills and Teams row */}
+            </div>
+            
+            {loadingSkills ? (
+              <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
+                <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
+                <p className="text-lg text-gray-300">Loading your skills...</p>
+              </div>
+            ) : error && !profile ? (
+              <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
+            ) : (
+              <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
+                {selectedSkills.length > 0 && (
+                  <div className="mb-6 flex flex-wrap gap-2">
+                    {selectedSkills.map(skill => (
+                  <span 
+                    key={skill.id} 
+                    className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
+                    title={skill.description || skill.name}
+                  >
+                    {skill.name}
+                    <button
+                      onClick={() => handleSkillToggle(skill.id, true)}
+                      disabled={savingSkills}
+                      className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
+                      aria-label={`Remove ${skill.name} skill`}
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+                  </div>
+                )}
+                {(!loadingSkills && selectedSkills.length === 0) && (
+                  <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
+                    <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
+                    <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
+                  </div>
+                )}
 
-          {/* User Profile Form Section - MOVED DOWN and made full width */}
-          <section className="pb-6 w-full mt-6 md:mt-8"> {/* Changed md:w-1/2 to w-full and added margin-top */}
-            <h2 className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-              <FaUserCircle className="mr-3 text-2xl text-sky-500" /> Edit Profile
-            </h2>
-            <form id="profileForm" onSubmit={handleUpdateProfile} className="space-y-6 bg-gray-750 p-6 rounded-lg border border-gray-600 shadow-xl">
-              
-              {/* Row for Username and Display Name */}
-              <div className="flex flex-col sm:flex-row gap-x-4 gap-y-6">
-                {/* Username Input */}
-                <div className="flex-1 min-w-0 sm:w-1/2">
+                <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
+                {loadingSkills && allSkills.length === 0 ? (
+                  <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
+                    <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
+                    <p className="text-md text-gray-300">Loading available skills...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <input
+                      type="text"
+                      value={customSkillInput}
+                      onChange={(e) => setCustomSkillInput(e.target.value)}
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter' && customSkillInput.trim()) {
+                          e.preventDefault();
+                          await handleAddCustomSkill(customSkillInput.trim());
+                        }
+                      }}
+                      placeholder="+ Type custom skill & Enter"
+                      className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={savingSkills}
+                      title="Add a skill not in the list"
+                    />
+                    {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
+                      <div className="inline-block relative animate-fadeInQuickly">
+                        <select 
+                            value={skillChoiceInAdder}
+                          onChange={async (e) => {
+                            const selectedValue = e.target.value;
+                            if (selectedValue) {
+                              setSkillChoiceInAdder(selectedValue); 
+                              await handleSkillToggle(selectedValue, false); 
+                              setSkillChoiceInAdder(''); 
+                            }
+                          }}
+                          disabled={savingSkills}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                                      ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
+                        >
+                          <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
+                          {Object.entries(
+                            allSkills
+                                .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
+                              .reduce((acc, skill) => {
+                                const category = skill.category || 'Other';
+                                if (!acc[category]) acc[category] = [];
+                                acc[category].push(skill);
+                                return acc;
+                              }, {} as Record<string, Skill[]>)
+                          ).map(([category, skillsInCategory]) => (
+                            <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                              {skillsInCategory.map(skill => (
+                                <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                  {skill.name}
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {userSkillIds.size > 0 && 
+                 !loadingSkills && 
+                 allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
+                   allSkills.some(skill => skill.category !== 'User-defined') &&
+                (
+                  <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
+                )}
+              </div>
+            )}
+          </section>
+          {/* End My Skills Section */}
+
+          {/* User Teams Display Section - Moved here and renamed */}
+          <section className="pb-6 md:w-1/2">
+            <Link href="/teams/join" legacyBehavior>
+              <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
+                <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+              </a>
+            </Link>
+            {loadingUserTeams && (
+              <div className="flex items-center text-gray-400">
+                <FaSpinner className="animate-spin mr-2" /> Loading teams...
+              </div>
+            )}
+            {errorUserTeams && (
+              <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
+              <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {userTeams.map(team => {
+                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
+                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
+                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+                  return (
+                    <Link 
+                      href={`/teams/${team.slug || team.id}`} 
+                      key={team.id} 
+                      className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
+                    >
+                      <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
+                      <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+          {/* End User Teams Display Section */}
+        </div>
+
+          {avatarUploadError && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-4 text-sm shadow text-center">{avatarUploadError}</p>}
+        {error && <p className="text-red-400 bg-red-900/30 p-4 rounded-md mb-8 text-sm shadow">{error.split('\n').map((line, idx) => <React.Fragment key={idx}>{line}<br/></React.Fragment>)}</p>}
+        {successMessage && <p className="text-green-400 bg-green-900/30 p-4 rounded-md mb-8 text-sm shadow">{successMessage}</p>}
+        
+        {!user || !profile ? (
+          <p className="text-center text-gray-400 py-10">Could not load profile information. Please try again later.</p>
+        ) : (
+          <form onSubmit={handleUpdateProfile} id="profileForm" className="space-y-8"> {/* Added id="profileForm" */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <div>
                   <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
-                    Username
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Username
                   </label>
                   <input
-                    type="text"
-                    name="username"
-                    id="username"
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
-                    placeholder="your_username"
-                    maxLength={20}
-                    aria-describedby="username-description"
+                    type="text" id="username" value={newUsername} onChange={(e) => setNewUsername(e.target.value)}
+                    required minLength={3} maxLength={20} placeholder="e.g., janedoe (publicly visible)"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
-                  <p id="username-description" className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
+                  <p className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
                 </div>
-
-                {/* Display Name Input */}
-                <div className="flex-1 min-w-0 sm:w-1/2">
-                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">
-                    Display Name (Editable)
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaUserCircle className="inline mr-2 mb-0.5 text-gray-500" /> Email Address
+                  </label>
+                  <input type="email" id="email" value={user.email || 'Not available'} disabled
+                    className="w-full px-4 py-2.5 bg-gray-800/70 border-gray-700 rounded-md text-gray-500 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-gray-600 shadow-sm"
+                  />
+                </div>
+                {/* ADDED New Display Name Input Field */}
+                <div>
+                  <label htmlFor="displayNameInput" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaSignature className="inline mr-2 mb-0.5 text-gray-500" /> Display Name (Editable)
                   </label>
                   <input
                     type="text"
-                    name="displayName"
-                    id="displayName"
-                    value={newDisplayName}
+                    id="displayNameInput"
+                    value={newDisplayName} 
                     onChange={(e) => setNewDisplayName(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
-                    placeholder="Your Public Name"
-                    maxLength={50}
-                    aria-describedby="displayname-description"
+                    maxLength={50} 
+                    placeholder="Your public display name"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                   />
-                  <p id="displayname-description" className="mt-1.5 text-xs text-gray-500">This is the name shown publicly (e.g., on messages, teams).</p>
+                  <p className="mt-1.5 text-xs text-gray-500">This is the name shown publicly (e.g., on messages, teams).</p>
+                </div>
+            </div>
+
+            <section>
+              <h3 className="text-xl font-semibold text-sky-400 mb-4 pb-2 border-b border-gray-700">Online Presence</h3>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <div>
+                  <label htmlFor="websiteUrl" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    <FaLink className="inline mr-2 mb-0.5 text-gray-500" /> Website URL
+                  </label>
+                  <input
+                    type="url" id="websiteUrl" value={newWebsiteUrl} onChange={(e) => setNewWebsiteUrl(e.target.value)}
+                    placeholder="https://your-portfolio.com"
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
+                  />
                 </div>
               </div>
-
-              {/* Email Address (Read-only) - Full width on its own row */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Email Address
+              <div className="mt-6">
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1.5">
+                  <FaInfoCircle className="inline mr-2 mb-0.5 text-gray-500" /> Bio / About Me
                 </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={user?.email || ''}
-                  readOnly
-                  className="w-full px-4 py-2.5 bg-gray-800/50 border-gray-700 text-gray-400 rounded-md shadow-sm cursor-not-allowed transition-colors"
+                <textarea
+                  id="bio" value={newBio} onChange={(e) => setNewBio(e.target.value)}
+                  rows={5} maxLength={500} placeholder="Share a bit about yourself, your skills, or interests (max 500 characters)."
+                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm"
                 />
               </div>
-              
-              {/* Online Presence Section */}
-              <div className="space-y-4 pt-4 border-t border-gray-600">
-                <h3 className="text-lg font-medium leading-6 text-sky-400 flex items-center">
-                  <FaLink className="mr-2" /> Online Presence
-                </h3>
-                {/* Website URL */}
-                <div>
-                  <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
-                    Website URL
-                  </label>
-                  <input
-                    type="url"
-                    name="website_url"
-                    id="website_url"
-                    value={newWebsiteUrl}
-                    onChange={(e) => setNewWebsiteUrl(e.target.value)}
-                    className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                    placeholder="https://your.website.com"
-                  />
-                </div>
-                {/* Bio / About Me */}
-                <div>
-                  <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1">
-                    Bio / About Me
-                  </label>
-                  <textarea
-                    id="bio"
-                    name="bio"
-                    rows={4}
-                    value={newBio}
-                    onChange={(e) => setNewBio(e.target.value)}
-                    className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                    placeholder="Tell us a bit about yourself..."
-                    maxLength={500}
-                  />
-                  <p className="mt-1 text-xs text-gray-400">Max 500 characters.</p>
-                </div>
-              </div>
-
-              {/* Save button is part of the sticky header, associated by form="profileForm" */}
-              {error && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>}
-              {successMessage && <p className="text-sm text-green-400 bg-green-900/30 p-3 rounded-md">{successMessage}</p>}
-            </form>
-          </section>
-          {/* End User Profile Form Section */}
-        </div>
+            </section>
+          </form>
+        )}
       </div>
-    </main>
-  </div>
+      </main>
+    </div>
   );
 } 

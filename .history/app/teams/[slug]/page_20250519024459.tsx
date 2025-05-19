@@ -152,7 +152,6 @@ export default function TeamPage() {
     if (teamError || !teamData) {
       console.error('Error fetching team details:', teamError);
       setError('Team not found or error loading details.');
-      console.log('[fetchTeamDetailsAndRole] Setting teamDetails to null due to error/no data.');
       setTeamDetails(null);
       setCurrentUserRole(null);
       setLoadingTeamDetails(false);
@@ -160,8 +159,8 @@ export default function TeamPage() {
       setPageContext({
         title: "Error",
         href: pathname, // Use current pathname from usePathname()
-        icon: FaExclamationTriangle
-        // breadcrumbs: [{ text: "Error", href: pathname }] // Removed due to linter error
+        icon: FaExclamationTriangle,
+        breadcrumbs: [{ text: "Error", href: pathname }]
       });
       return;
     }
@@ -200,11 +199,11 @@ export default function TeamPage() {
     setPageContext({
       title: typedTeamData.name,
       href: `/teams/${typedTeamData.slug || typedTeamData.id}`,
-      icon: teamIcon
-      // breadcrumbs: [ // Removed due to linter error
-      //   { text: "My Team", href: "/team" }, 
-      //   { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
-      // ]
+      icon: teamIcon,
+      breadcrumbs: [
+        { text: "My Team", href: "/team" }, // Assuming a "My Team" list page exists
+        { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
+      ]
     });
 
     // Fetch User Role in this Team
@@ -385,7 +384,7 @@ export default function TeamPage() {
       currentTeamIdRef.current = null;
       console.log("[Team Effect] No teamDetails.id. Cleared messages and reset initial load flags.");
     }
-  }, [teamDetails?.id, fetchMessages]);
+  }, [teamDetails, fetchMessages]);
 
   // Real-time subscription for new messages
   useEffect(() => {
@@ -747,7 +746,7 @@ export default function TeamPage() {
                     <FaSpinner className="animate-spin text-sm text-gray-400" />
                   ) : (
                     teamMembers.map((member, index) => (
-                      <Link key={member.id} href={`/profile/${member.id}`} passHref>
+                      <Link key={member.id} href={`/messages/${member.id}`} passHref>
                         <div title={member.displayName} className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 ${teamDetails?.color_scheme?.borderColor || 'border-gray-600'} overflow-hidden ${index > 0 ? '-ml-2 md:-ml-3' : ''} bg-gray-700 flex items-center justify-center text-xs font-semibold cursor-pointer`}>
                           {member.avatarUrl ? (
                             <img src={member.avatarUrl} alt={member.displayName} className="w-full h-full object-cover" crossOrigin="anonymous" />

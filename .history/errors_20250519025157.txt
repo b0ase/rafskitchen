@@ -1,0 +1,1 @@
+[UserSidebar] NEXT_PUBLIC_SUPABASE_URL:"https://klaputzxeqgypphzdxpr.supabase.co"[TeamPage Render State]

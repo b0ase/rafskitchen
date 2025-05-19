@@ -945,116 +945,83 @@ export default function ProfilePage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <input
-                        type="text"
-                        value={customSkillInput}
-                        onChange={(e) => setCustomSkillInput(e.target.value)}
-                        onKeyDown={async (e) => {
-                          if (e.key === 'Enter' && customSkillInput.trim()) {
-                            e.preventDefault();
-                            await handleAddCustomSkill(customSkillInput.trim());
-                          }
-                        }}
-                        placeholder="+ Type custom skill & Enter"
-                        className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={savingSkills}
-                        title="Add a skill not in the list"
-                      />
-                      {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
-                        <div className="inline-block relative animate-fadeInQuickly">
-                          <select 
+                <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
+                {loadingSkills && allSkills.length === 0 ? (
+                  <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
+                    <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
+                    <p className="text-md text-gray-300">Loading available skills...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <input
+                      type="text"
+                      value={customSkillInput}
+                      onChange={(e) => setCustomSkillInput(e.target.value)}
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter' && customSkillInput.trim()) {
+                          e.preventDefault();
+                          await handleAddCustomSkill(customSkillInput.trim());
+                        }
+                      }}
+                      placeholder="+ Type custom skill & Enter"
+                      className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={savingSkills}
+                      title="Add a skill not in the list"
+                    />
+                    {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
+                      <div className="inline-block relative animate-fadeInQuickly">
+                        <select 
                             value={skillChoiceInAdder}
-                            onChange={async (e) => {
-                              const selectedValue = e.target.value;
-                              if (selectedValue) {
-                                setSkillChoiceInAdder(selectedValue); 
-                                await handleSkillToggle(selectedValue, false); 
-                                setSkillChoiceInAdder(''); 
-                              }
-                            }}
-                            disabled={savingSkills}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                                        ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
-                          >
-                            <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                            {Object.entries(
-                              allSkills
+                          onChange={async (e) => {
+                            const selectedValue = e.target.value;
+                            if (selectedValue) {
+                              setSkillChoiceInAdder(selectedValue); 
+                              await handleSkillToggle(selectedValue, false); 
+                              setSkillChoiceInAdder(''); 
+                            }
+                          }}
+                          disabled={savingSkills}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                                      ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
+                        >
+                          <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
+                          {Object.entries(
+                            allSkills
                                 .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
-                                .reduce((acc, skill) => {
-                                  const category = skill.category || 'Other';
-                                  if (!acc[category]) acc[category] = [];
-                                  acc[category].push(skill);
-                                  return acc;
-                                }, {} as Record<string, Skill[]>)
-                            ).map(([category, skillsInCategory]) => (
-                              <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                                {skillsInCategory.map(skill => (
-                                  <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                    {skill.name}
-                                  </option>
-                                ))}
-                              </optgroup>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {userSkillIds.size > 0 && 
-                   !loadingSkills && 
-                   allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
-                     allSkills.some(skill => skill.category !== 'User-defined') &&
-                  (
-                    <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
-                  )}
-                </div>
-              )}
-            </section>
-            {/* End My Skills Section */}
+                              .reduce((acc, skill) => {
+                                const category = skill.category || 'Other';
+                                if (!acc[category]) acc[category] = [];
+                                acc[category].push(skill);
+                                return acc;
+                              }, {} as Record<string, Skill[]>)
+                          ).map(([category, skillsInCategory]) => (
+                            <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
+                              {skillsInCategory.map(skill => (
+                                <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
+                                  {skill.name}
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {userSkillIds.size > 0 && 
+                 !loadingSkills && 
+                 allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
+                   allSkills.some(skill => skill.category !== 'User-defined') &&
+                (
+                  <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
+                )}
+              </div>
+            )}
+          </section>
+          {/* End My Skills Section */}
 
-            {/* User Teams Display Section - MOVED UP to be side-by-side with Skills */}
-            <section className="pb-6 lg:w-1/2"> {/* Ensure this also takes lg:w-1/2 for side-by-side */} 
-              <Link href="/teams/join" legacyBehavior>
-                <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-                  <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
-                </a>
-              </Link>
-              {loadingUserTeams && (
-                <div className="flex items-center text-gray-400">
-                  <FaSpinner className="animate-spin mr-2" /> Loading teams...
-                </div>
-              )}
-              {errorUserTeams && (
-                <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
-              )}
-              {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
-                <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
-              )}
-              {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
-                <div className="flex flex-wrap gap-3">
-                  {userTeams.map(team => {
-                    const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
-                    const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
-                    const textColor = team.color_scheme?.textColor || 'text-gray-100';
-                    const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
-                    return (
-                      <Link 
-                        href={`/teams/${team.slug || team.id}`} 
-                        key={team.id} 
-                        className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
-                      >
-                        <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
-                        <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-            {/* End User Teams Display Section */}
-          </div> {/* This div now closes the Skills and Teams row */}
-
-          {/* User Profile Form Section - MOVED DOWN and made full width */}
-          <section className="pb-6 w-full mt-6 md:mt-8"> {/* Changed md:w-1/2 to w-full and added margin-top */}
+          {/* User Profile Form Section */}
+          <section className="pb-6 md:w-1/2">
             <h2 className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
               <FaUserCircle className="mr-3 text-2xl text-sky-500" /> Edit Profile
             </h2>
@@ -1161,9 +1128,50 @@ export default function ProfilePage() {
             </form>
           </section>
           {/* End User Profile Form Section */}
+
+          {/* User Teams Display Section - Moved here and renamed */}
+          <section className="pb-6 md:w-1/2">
+            <Link href="/teams/join" legacyBehavior>
+              <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
+                <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
+              </a>
+            </Link>
+            {loadingUserTeams && (
+              <div className="flex items-center text-gray-400">
+                <FaSpinner className="animate-spin mr-2" /> Loading teams...
+              </div>
+            )}
+            {errorUserTeams && (
+              <p className="text-red-400 bg-red-900/20 p-3 rounded-md">Error loading teams: {errorUserTeams}</p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length === 0 && (
+              <p className="text-gray-500 italic">Not currently a member of any teams. <Link href="/teams/join" className="text-sky-500 hover:underline">Find a team!</Link></p>
+            )}
+            {!loadingUserTeams && !errorUserTeams && userTeams.length > 0 && (
+              <div className="flex flex-wrap gap-3">
+                {userTeams.map(team => {
+                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                  const bgColor = team.color_scheme?.bgColor || 'bg-gray-700';
+                  const textColor = team.color_scheme?.textColor || 'text-gray-100';
+                  const borderColor = team.color_scheme?.borderColor || 'border-gray-500';
+                  return (
+                    <Link 
+                      href={`/teams/${team.slug || team.id}`} 
+                      key={team.id} 
+                      className={`px-4 py-2 rounded-lg shadow-md flex items-center border transition-all duration-150 ease-in-out hover:shadow-lg hover:scale-105 ${bgColor} ${borderColor}`}
+                    >
+                      <IconComponent className={`mr-2.5 text-lg ${textColor}`} />
+                      <span className={`text-sm font-medium ${textColor}`}>{team.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+          {/* End User Teams Display Section */}
         </div>
       </div>
-    </main>
-  </div>
+      </main>
+    </div>
   );
 } 

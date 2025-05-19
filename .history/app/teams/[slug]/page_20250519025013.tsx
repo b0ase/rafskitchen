@@ -747,7 +747,7 @@ export default function TeamPage() {
                     <FaSpinner className="animate-spin text-sm text-gray-400" />
                   ) : (
                     teamMembers.map((member, index) => (
-                      <Link key={member.id} href={`/profile/${member.id}`} passHref>
+                      <Link key={member.id} href={`/messages/${member.id}`} passHref>
                         <div title={member.displayName} className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 ${teamDetails?.color_scheme?.borderColor || 'border-gray-600'} overflow-hidden ${index > 0 ? '-ml-2 md:-ml-3' : ''} bg-gray-700 flex items-center justify-center text-xs font-semibold cursor-pointer`}>
                           {member.avatarUrl ? (
                             <img src={member.avatarUrl} alt={member.displayName} className="w-full h-full object-cover" crossOrigin="anonymous" />

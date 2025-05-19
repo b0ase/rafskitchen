@@ -63,6 +63,7 @@ interface TeamMember {
 }
 
 export default function TeamPage() {
+  console.log('[TeamPage Render] Component rendering/re-rendering.');
   const supabase = getSupabaseBrowserClient(); // Corrected: Use singleton
   const params = useParams();
   const router = useRouter();
@@ -108,7 +109,7 @@ export default function TeamPage() {
 
   // Effect to scroll when messages change (new message sent/received, or initial load)
   useEffect(() => {
-    console.log('[Scroll Effect] Triggered. Messages count:', messages.length);
+    console.log('[useEffect Scroll] Triggered. Deps - messages.length:', messages.length, 'scrollToBottom:', typeof scrollToBottom);
     if (messages.length > 0) {
       // Using a timeout to allow the DOM to update before scrolling
       const timerId = setTimeout(() => {
@@ -124,8 +125,10 @@ export default function TeamPage() {
 
   // Fetch current user
   useEffect(() => {
+    console.log('[useEffect GetUser] Triggered. Deps - supabase:', !!supabase, 'router:', !!router);
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('[useEffect GetUser] Fetched user:', user?.id);
       setCurrentUser(user);
       if (!user) {
         // router.push('/login'); 
@@ -136,7 +139,11 @@ export default function TeamPage() {
 
   // Fetch team details and user role
   const fetchTeamDetailsAndRole = useCallback(async () => {
-    if (!teamSlugOrId || !currentUser?.id) return;
+    console.log('[fetchTeamDetailsAndRole] Called. Deps - teamSlugOrId:', teamSlugOrId, 'currentUser.id:', currentUser?.id);
+    if (!teamSlugOrId || !currentUser?.id) {
+      console.log('[fetchTeamDetailsAndRole] Aborted: Missing teamSlugOrId or currentUser.id');
+      return;
+    }
     setLoadingTeamDetails(true);
     setError(null);
     
@@ -160,13 +167,14 @@ export default function TeamPage() {
       setPageContext({
         title: "Error",
         href: pathname, // Use current pathname from usePathname()
-        icon: FaExclamationTriangle
-        // breadcrumbs: [{ text: "Error", href: pathname }] // Removed due to linter error
+        icon: FaExclamationTriangle,
+        breadcrumbs: [{ text: "Error", href: pathname }]
       });
       return;
     }
     
     const typedTeamData = teamData as any;
+    console.log('[fetchTeamDetailsAndRole] Fetched teamData:', typedTeamData);
     let creatorDisplayName: string | null = null;
 
     if (typedTeamData.created_by) {
@@ -184,7 +192,7 @@ export default function TeamPage() {
       }
     }
 
-    setTeamDetails({
+    const newTeamDetails = {
       id: typedTeamData.id,
       name: typedTeamData.name,
       description: typedTeamData.description,
@@ -193,18 +201,20 @@ export default function TeamPage() {
       creator_display_name: creatorDisplayName, // Store display name
       color_scheme: typedTeamData.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
       icon_name: typedTeamData.icon_name || 'FaUsers',
-    });
+    };
+    console.log('[fetchTeamDetailsAndRole] Setting teamDetails:', newTeamDetails);
+    setTeamDetails(newTeamDetails);
 
     // Update page header context
     const teamIcon = iconMap[typedTeamData.icon_name || 'FaUsers'] || FaUsers;
     setPageContext({
       title: typedTeamData.name,
       href: `/teams/${typedTeamData.slug || typedTeamData.id}`,
-      icon: teamIcon
-      // breadcrumbs: [ // Removed due to linter error
-      //   { text: "My Team", href: "/team" }, 
-      //   { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
-      // ]
+      icon: teamIcon,
+      breadcrumbs: [
+        { text: "My Team", href: "/team" }, // Assuming a "My Team" list page exists
+        { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
+      ]
     });
 
     // Fetch User Role in this Team
@@ -230,12 +240,14 @@ export default function TeamPage() {
   
   useEffect(() => {
     // Now call fetchTeamDetailsAndRole instead of fetchTeamDetails
+    console.log('[useEffect FetchTeamDetailsAndRole] Triggered. Deps - currentUser.id:', currentUser?.id, 'fetchTeamDetailsAndRole:', typeof fetchTeamDetailsAndRole);
     if (currentUser?.id) { // Ensure currentUser is loaded before fetching details that depend on its ID
       fetchTeamDetailsAndRole();
     }
   }, [fetchTeamDetailsAndRole, currentUser?.id]);
 
   const fetchTeamMembers = useCallback(async (teamId: string) => {
+    console.log('[fetchTeamMembers] Called. Deps - supabase:', !!supabase, 'Arg teamId:', teamId);
     if (!teamId) return;
     setLoadingMembers(true);
     try {
@@ -269,6 +281,7 @@ export default function TeamPage() {
   }, [supabase]);
 
   useEffect(() => {
+    console.log('[useEffect FetchTeamMembers] Triggered. Deps - teamDetails.id:', teamDetails?.id, 'fetchTeamMembers:', typeof fetchTeamMembers);
     if (teamDetails?.id) {
       fetchTeamMembers(teamDetails.id);
     }
@@ -276,6 +289,7 @@ export default function TeamPage() {
 
   // Fetch messages
   const fetchMessages = useCallback(async (teamId: string, isManualRefresh: boolean = false) => {
+    console.log('[fetchMessages] Called. Deps - supabase:', !!supabase, 'Args - teamId:', teamId, 'isManualRefresh:', isManualRefresh);
     if (!teamId) return;
     const isThisCallAnInitialLoadAttempt = !initialMessagesLoadCompleted.current;
 
@@ -370,6 +384,7 @@ export default function TeamPage() {
   }, [supabase]); // Only supabase as dependency, teamId is passed as argument.
   
   useEffect(() => {
+    console.log('[useEffect FetchMessages] Triggered. Deps - teamDetails.id:', teamDetails?.id, 'fetchMessages:', typeof fetchMessages);
     if (teamDetails?.id) {
       if (currentTeamIdRef.current !== teamDetails.id) {
           console.log(`[Team Effect] New team detected (or first load). Old: ${currentTeamIdRef.current}, New: ${teamDetails.id}. Resetting initial load flags for new team.`);
@@ -389,7 +404,7 @@ export default function TeamPage() {
 
   // Real-time subscription for new messages
   useEffect(() => {
-    console.log('[Realtime Effect] Hook triggered. teamDetails?.id:', teamDetails?.id);
+    console.log('[useEffect Realtime] Triggered. Deps - teamDetails.id:', teamDetails?.id, 'supabase:', !!supabase);
     if (!teamDetails?.id) {
       console.log('[Realtime Effect] Aborting: teamDetails.id is missing.');
       return;
@@ -488,6 +503,7 @@ export default function TeamPage() {
   }, [teamDetails?.id, supabase]); // Dependencies are now teamDetails.id and supabase.
 
   const handleLeaveTeam = async () => {
+    console.log('[handleLeaveTeam] Called.');
     if (!currentUser || !teamDetails) {
       setError('User or team details not loaded. Cannot leave team.');
       return;
@@ -521,6 +537,7 @@ export default function TeamPage() {
 
   const handlePostMessage = async (e: FormEvent) => {
     e.preventDefault();
+    console.log('[handlePostMessage] Called.');
     if (!newMessageContent.trim() || !currentUser || !teamDetails) {
         console.log('[PostMessage] Aborted: Missing content, user, or teamDetails.');
         return;
@@ -585,6 +602,7 @@ export default function TeamPage() {
   };
 
   const handleDeleteMessage = async (messageId: string) => {
+    console.log('[handleDeleteMessage] Called. messageId:', messageId);
     if (!currentUser) return;
 
     const confirmed = window.confirm("Are you sure you want to delete this message?");
@@ -616,6 +634,7 @@ export default function TeamPage() {
   };
 
   const handleDeleteTeam = async () => {
+    console.log('[handleDeleteTeam] Called.');
     // Updated permission check to include Super Admin
     const isSuperAdmin = currentUser?.email === SUPER_ADMIN_EMAIL;
     const isOwner = currentUserRole === 'owner';
@@ -688,17 +707,19 @@ export default function TeamPage() {
   };
 
   // Debug log before render
-  console.log('[TeamPage Render State]', {
+  console.log('[TeamPage Render State Final Check]', {
+    currentUser: currentUser?.id,
+    teamDetails: teamDetails?.id,
     loadingTeamDetails,
     loadingMessages,
     error,
-    teamId: teamDetails?.id,
     messageCount: messages.length,
     initialMessagesLoadStarted: initialMessagesLoadStarted.current,
     initialMessagesLoadCompleted: initialMessagesLoadCompleted.current,
   });
 
   if (loadingTeamDetails || !teamDetails) {
+    console.log('[TeamPage Render] Rendering loading state for team details. loadingTeamDetails:', loadingTeamDetails, 'teamDetails:', !!teamDetails);
     return (
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
         <FaSpinner className="animate-spin text-4xl text-sky-500 mb-4" />
@@ -710,6 +731,7 @@ export default function TeamPage() {
 
   const IconComponent = iconMap[teamDetails.icon_name || 'FaUsers'] || FaUsers;
   // Use teamDetails.color_scheme for button text color, or default
+  console.log('[TeamPage Render] Rendering main content. teamDetails.id:', teamDetails.id);
   const buttonTextColor = teamDetails.color_scheme?.textColor || 'text-gray-100'; 
   const buttonBorderColor = teamDetails.color_scheme?.borderColor || 'border-gray-700';
 
@@ -747,7 +769,7 @@ export default function TeamPage() {
                     <FaSpinner className="animate-spin text-sm text-gray-400" />
                   ) : (
                     teamMembers.map((member, index) => (
-                      <Link key={member.id} href={`/profile/${member.id}`} passHref>
+                      <Link key={member.id} href={`/messages/${member.id}`} passHref>
                         <div title={member.displayName} className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 ${teamDetails?.color_scheme?.borderColor || 'border-gray-600'} overflow-hidden ${index > 0 ? '-ml-2 md:-ml-3' : ''} bg-gray-700 flex items-center justify-center text-xs font-semibold cursor-pointer`}>
                           {member.avatarUrl ? (
                             <img src={member.avatarUrl} alt={member.displayName} className="w-full h-full object-cover" crossOrigin="anonymous" />

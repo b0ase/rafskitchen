@@ -6,6 +6,7 @@ import { FaSave, FaUserCircle, FaImage, FaSignature, FaInfoCircle, FaLink, FaRoc
 import { useRouter, usePathname } from 'next/navigation';
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // Adjust path if needed
 import { User } from '@supabase/supabase-js'; // Added import for User type
+import UserSkills from './components/UserSkills'; // Import the new component
 
 interface Profile {
   username: string | null;
@@ -889,130 +890,135 @@ export default function ProfilePage() {
         <div className="mt-10">
           {/* Container for Skills and Teams (side-by-side on large screens) */}
           <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
-            {/* My Skills Section - adjusted for new layout */}
-            <section className="pb-6 lg:w-1/2">
-              <div className="flex justify-between items-center mb-4">
-                <Link href="/skills" legacyBehavior>
-                  <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center">
-                    <FaLightbulb className="mr-3 text-2xl text-yellow-400" /> My Skills
-                  </a>
-                </Link>
-              </div>
-              
-              {loadingSkills ? (
-                <div className="flex items-center justify-center p-6 rounded-md bg-gray-700">
-                  <FaRocket className="h-8 w-8 animate-spin text-green-400 mr-3" />
-                  <p className="text-lg text-gray-300">Loading your skills...</p>
-                </div>
-              ) : error && !profile ? (
-                <p className="text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>
-              ) : (
-                <div className="p-4 bg-gray-750 rounded-lg border border-gray-600">
-                  {selectedSkills.length > 0 && (
-                    <div className="mb-6 flex flex-wrap gap-2">
-                      {selectedSkills.map(skill => (
-                    <span 
-                      key={skill.id} 
-                      className={`${getSkillBadgeStyle(skill.category)} transition-all duration-150 ease-in-out transform hover:scale-105`}
-                      title={skill.description || skill.name}
-                    >
-                      {skill.name}
-                      <button
-                        onClick={() => handleSkillToggle(skill.id, true)}
-                        disabled={savingSkills}
-                        className="ml-2 p-0.5 rounded-full text-xs leading-none hover:bg-black/20 focus:outline-none disabled:opacity-50 transition-colors"
-                        aria-label={`Remove ${skill.name} skill`}
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  ))}
-                    </div>
-                  )}
-                  {(!loadingSkills && selectedSkills.length === 0) && (
-                    <div className="text-center py-6 px-4 border-2 border-dashed border-gray-600 rounded-lg bg-gray-750 mb-6">
-                      <FaBriefcase className="mx-auto text-5xl text-gray-500 mb-4" />
-                      <p className="text-gray-400 text-lg mb-2">No skills added yet.</p>
-                    </div>
-                  )}
+            {/* My Skills Section - replaced with UserSkills component */}
+            <UserSkills
+              loadingSkills={loadingSkills}
+              pageError={error} // Pass the main error state
+              pageProfile={profile} // Pass the main profile state
+              selectedSkills={selectedSkills}
+              userSkillIds={userSkillIds}
+              allSkills={allSkills}
+              savingSkills={savingSkills}
+              customSkillInput={customSkillInput}
+              skillChoiceInAdder={skillChoiceInAdder}
+              onSkillToggle={handleSkillToggle}
+              onAddCustomSkill={handleAddCustomSkill}
+              onCustomSkillInputChange={setCustomSkillInput}
+              onSkillChoiceInAdderChange={setSkillChoiceInAdder}
+            />
+            {/* End My Skills Section - component used above */}
 
-                  <h3 className="text-xl font-semibold mt-0 mb-4 text-gray-200">Add New Skills</h3>
-                  {loadingSkills && allSkills.length === 0 ? (
-                    <div className="flex items-center justify-center p-4 rounded-md bg-gray-700">
-                      <FaRocket className="h-6 w-6 animate-spin text-blue-400 mr-2" />
-                      <p className="text-md text-gray-300">Loading available skills...</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      <input
-                        type="text"
-                        value={customSkillInput}
-                        onChange={(e) => setCustomSkillInput(e.target.value)}
-                        onKeyDown={async (e) => {
-                          if (e.key === 'Enter' && customSkillInput.trim()) {
-                            e.preventDefault();
-                            await handleAddCustomSkill(customSkillInput.trim());
-                          }
-                        }}
-                        placeholder="+ Type custom skill & Enter"
-                        className="px-3 py-1.5 text-xs font-semibold rounded-full shadow-md bg-gray-700 text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={savingSkills}
-                        title="Add a skill not in the list"
-                      />
-                      {allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length > 0 && (
-                        <div className="inline-block relative animate-fadeInQuickly">
-                          <select 
-                            value={skillChoiceInAdder}
-                            onChange={async (e) => {
-                              const selectedValue = e.target.value;
-                              if (selectedValue) {
-                                setSkillChoiceInAdder(selectedValue); 
-                                await handleSkillToggle(selectedValue, false); 
-                                setSkillChoiceInAdder(''); 
-                              }
-                            }}
-                            disabled={savingSkills}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md appearance-none min-w-[150px] focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                                        ${skillChoiceInAdder === '' ? 'bg-gray-700 text-gray-400 hover:bg-gray-600' : 'bg-gray-800 text-gray-300'} `}
-                          >
-                            <option value="" disabled={skillChoiceInAdder !== ''} className="text-gray-500">+ Add from list</option>
-                            {Object.entries(
-                              allSkills
-                                .filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined')
-                                .reduce((acc, skill) => {
-                                  const category = skill.category || 'Other';
-                                  if (!acc[category]) acc[category] = [];
-                                  acc[category].push(skill);
-                                  return acc;
-                                }, {} as Record<string, Skill[]>)
-                            ).map(([category, skillsInCategory]) => (
-                              <optgroup label={category} key={category} className="bg-gray-750 text-sky-300 font-semibold">
-                                {skillsInCategory.map(skill => (
-                                  <option key={skill.id} value={skill.id} className="bg-gray-800 text-gray-200">
-                                    {skill.name}
-                                  </option>
-                                ))}
-                              </optgroup>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {userSkillIds.size > 0 && 
-                   !loadingSkills && 
-                   allSkills.filter(skill => !userSkillIds.has(skill.id) && skill.category !== 'User-defined').length === 0 &&
-                     allSkills.some(skill => skill.category !== 'User-defined') &&
-                  (
-                    <p className="text-xs text-amber-400 italic ml-2">All predefined skills added! Add more custom ones using the input field.</p>
-                  )}
+            {/* User Profile Form Section */}
+            <section className="pb-6 md:w-1/2">
+              <h2 className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
+                <FaUserCircle className="mr-3 text-2xl text-sky-500" /> Edit Profile
+              </h2>
+              <form id="profileForm" onSubmit={handleUpdateProfile} className="space-y-6 bg-gray-750 p-6 rounded-lg border border-gray-600 shadow-xl">
+                
+                {/* Row for Username and Display Name */}
+                <div className="flex flex-col sm:flex-row gap-x-4 gap-y-6">
+                  {/* Username Input */}
+                  <div className="flex-1 min-w-0 sm:w-1/2">
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      id="username"
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
+                      placeholder="your_username"
+                      maxLength={20}
+                      aria-describedby="username-description"
+                    />
+                    <p id="username-description" className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
+                  </div>
+
+                  {/* Display Name Input */}
+                  <div className="flex-1 min-w-0 sm:w-1/2">
+                    <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">
+                      Display Name (Editable)
+                    </label>
+                    <input
+                      type="text"
+                      name="displayName"
+                      id="displayName"
+                      value={newDisplayName}
+                      onChange={(e) => setNewDisplayName(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
+                      placeholder="Your Public Name"
+                      maxLength={50}
+                      aria-describedby="displayname-description"
+                    />
+                    <p id="displayname-description" className="mt-1.5 text-xs text-gray-500">This is the name shown publicly (e.g., on messages, teams).</p>
+                  </div>
                 </div>
-              )}
+
+                {/* Email Address (Read-only) - Full width on its own row */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={user?.email || ''}
+                    readOnly
+                    className="w-full px-4 py-2.5 bg-gray-800/50 border-gray-700 text-gray-400 rounded-md shadow-sm cursor-not-allowed transition-colors"
+                  />
+                </div>
+                
+                {/* Online Presence Section */}
+                <div className="space-y-4 pt-4 border-t border-gray-600">
+                  <h3 className="text-lg font-medium leading-6 text-sky-400 flex items-center">
+                    <FaLink className="mr-2" /> Online Presence
+                  </h3>
+                  {/* Website URL */}
+                  <div>
+                    <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
+                      Website URL
+                    </label>
+                    <input
+                      type="url"
+                      name="website_url"
+                      id="website_url"
+                      value={newWebsiteUrl}
+                      onChange={(e) => setNewWebsiteUrl(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="https://your.website.com"
+                    />
+                  </div>
+                  {/* Bio / About Me */}
+                  <div>
+                    <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1">
+                      Bio / About Me
+                    </label>
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      rows={4}
+                      value={newBio}
+                      onChange={(e) => setNewBio(e.target.value)}
+                      className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
+                      placeholder="Tell us a bit about yourself..."
+                      maxLength={500}
+                    />
+                    <p className="mt-1 text-xs text-gray-400">Max 500 characters.</p>
+                  </div>
+                </div>
+
+                {/* Save button is part of the sticky header, associated by form="profileForm" */}
+                {error && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>}
+                {successMessage && <p className="text-sm text-green-400 bg-green-900/30 p-3 rounded-md">{successMessage}</p>}
+              </form>
             </section>
-            {/* End My Skills Section */}
+            {/* End User Profile Form Section */}
 
-            {/* User Teams Display Section - MOVED UP to be side-by-side with Skills */}
-            <section className="pb-6 lg:w-1/2"> {/* Ensure this also takes lg:w-1/2 for side-by-side */} 
+            {/* User Teams Display Section - Moved here and renamed */}
+            <section className="pb-6 md:w-1/2">
               <Link href="/teams/join" legacyBehavior>
                 <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
                   <FaUsers className="mr-3 text-2xl text-sky-500" /> My Teams
@@ -1051,119 +1057,9 @@ export default function ProfilePage() {
               )}
             </section>
             {/* End User Teams Display Section */}
-          </div> {/* This div now closes the Skills and Teams row */}
-
-          {/* User Profile Form Section - MOVED DOWN and made full width */}
-          <section className="pb-6 w-full mt-6 md:mt-8"> {/* Changed md:w-1/2 to w-full and added margin-top */}
-            <h2 className="text-xl font-semibold text-sky-400 hover:text-sky-300 transition-colors duration-150 flex items-center mb-5">
-              <FaUserCircle className="mr-3 text-2xl text-sky-500" /> Edit Profile
-            </h2>
-            <form id="profileForm" onSubmit={handleUpdateProfile} className="space-y-6 bg-gray-750 p-6 rounded-lg border border-gray-600 shadow-xl">
-              
-              {/* Row for Username and Display Name */}
-              <div className="flex flex-col sm:flex-row gap-x-4 gap-y-6">
-                {/* Username Input */}
-                <div className="flex-1 min-w-0 sm:w-1/2">
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1.5">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    name="username"
-                    id="username"
-                    value={newUsername}
-                    onChange={(e) => setNewUsername(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
-                    placeholder="your_username"
-                    maxLength={20}
-                    aria-describedby="username-description"
-                  />
-                  <p id="username-description" className="mt-1.5 text-xs text-gray-500">Min 3, Max 20. Alphanumeric & underscores. Used in URLs.</p>
-                </div>
-
-                {/* Display Name Input */}
-                <div className="flex-1 min-w-0 sm:w-1/2">
-                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">
-                    Display Name (Editable)
-                  </label>
-                  <input
-                    type="text"
-                    name="displayName"
-                    id="displayName"
-                    value={newDisplayName}
-                    onChange={(e) => setNewDisplayName(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors shadow-sm placeholder-gray-400"
-                    placeholder="Your Public Name"
-                    maxLength={50}
-                    aria-describedby="displayname-description"
-                  />
-                  <p id="displayname-description" className="mt-1.5 text-xs text-gray-500">This is the name shown publicly (e.g., on messages, teams).</p>
-                </div>
-              </div>
-
-              {/* Email Address (Read-only) - Full width on its own row */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1.5">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  value={user?.email || ''}
-                  readOnly
-                  className="w-full px-4 py-2.5 bg-gray-800/50 border-gray-700 text-gray-400 rounded-md shadow-sm cursor-not-allowed transition-colors"
-                />
-              </div>
-              
-              {/* Online Presence Section */}
-              <div className="space-y-4 pt-4 border-t border-gray-600">
-                <h3 className="text-lg font-medium leading-6 text-sky-400 flex items-center">
-                  <FaLink className="mr-2" /> Online Presence
-                </h3>
-                {/* Website URL */}
-                <div>
-                  <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1">
-                    Website URL
-                  </label>
-                  <input
-                    type="url"
-                    name="website_url"
-                    id="website_url"
-                    value={newWebsiteUrl}
-                    onChange={(e) => setNewWebsiteUrl(e.target.value)}
-                    className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                    placeholder="https://your.website.com"
-                  />
-                </div>
-                {/* Bio / About Me */}
-                <div>
-                  <label htmlFor="bio" className="block text-sm font-medium text-gray-300 mb-1">
-                    Bio / About Me
-                  </label>
-                  <textarea
-                    id="bio"
-                    name="bio"
-                    rows={4}
-                    value={newBio}
-                    onChange={(e) => setNewBio(e.target.value)}
-                    className="w-full bg-gray-800 border-gray-600 text-white rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2.5 placeholder-gray-400 transition-colors"
-                    placeholder="Tell us a bit about yourself..."
-                    maxLength={500}
-                  />
-                  <p className="mt-1 text-xs text-gray-400">Max 500 characters.</p>
-                </div>
-              </div>
-
-              {/* Save button is part of the sticky header, associated by form="profileForm" */}
-              {error && <p className="text-sm text-red-400 bg-red-900/30 p-3 rounded-md">{error}</p>}
-              {successMessage && <p className="text-sm text-green-400 bg-green-900/30 p-3 rounded-md">{successMessage}</p>}
-            </form>
-          </section>
-          {/* End User Profile Form Section */}
+          </div>
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
   );
 } 
