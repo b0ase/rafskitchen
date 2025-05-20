@@ -91,6 +91,14 @@ export default function AppNavbar({ toggleFullScreenMenu, isFullScreenMenuOpen }
         </button>
 
         <div className="flex items-center flex-grow min-w-0">
+          <Link href="/" legacyBehavior>
+            <a 
+              className="text-xl sm:text-2xl font-bold text-white hover:text-gray-300 mr-4 transition-colors whitespace-nowrap"
+              style={{ fontFamily: 'Arial, sans-serif' }}
+            >
+              b0ase.com
+            </a>
+          </Link>
           {IconToShow && <IconToShow className="mr-2 sm:mr-3 h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0 text-gray-400" />}
           <div className="flex items-center overflow-hidden whitespace-nowrap">
             {breadcrumbSegments.map((segment, index) => (
