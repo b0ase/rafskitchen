@@ -126,8 +126,7 @@ export default function useProfileData() {
     setError(null);
     setSuccessMessage(null);
 
-    // Define updates without updated_at initially
-    const updates: Omit<Partial<Profile>, 'id' | 'has_seen_welcome_card'> = {
+    const updates: Partial<Profile> = {
       username: newUsername,
       display_name: newDisplayName,
       full_name: newFullName,
@@ -145,28 +144,33 @@ export default function useProfileData() {
       dollar_handle: newDollarHandle,
       token_name: newTokenName,
       supply: newSupply,
-      // Supabase typically handles updated_at automatically
+      updated_at: new Date().toISOString(),
     };
 
+    // Filter out unchanged values to avoid unnecessary updates if profile is loaded
     const changedUpdates: Partial<Profile> = {};
     let hasChanges = false;
-
     if (profile) {
       for (const key in updates) {
-        const typedKey = key as keyof typeof updates;
-        if (updates[typedKey] !== profile[typedKey]) {
-          // @ts-ignore - We know typedKey is a valid key of Profile here
-          changedUpdates[typedKey] = updates[typedKey];
+        if (updates[key as keyof Profile] !== profile[key as keyof Profile]) {
+          changedUpdates[key as keyof Profile] = updates[key as keyof Profile];
           hasChanges = true;
         }
       }
     } else {
+      // If profile isn't loaded, assume all new values are changes
       Object.assign(changedUpdates, updates);
       hasChanges = true;
+    }
+    
+    // Ensure updated_at is always included if there are other changes
+    if (hasChanges) {
+      changedUpdates.updated_at = new Date().toISOString();
     }
 
     if (!hasChanges) {
       console.log('[useProfileData] No changes detected, skipping save.');
+      // setSuccessMessage("No changes to save."); // Optional: provide feedback
       setSaving(false);
       return;
     }
@@ -175,7 +179,6 @@ export default function useProfileData() {
     try {
       const { error: saveError } = await supabase
         .from('profiles')
-        // Pass only the changed fields to update
         .update(changedUpdates)
         .eq('id', user.id);
 

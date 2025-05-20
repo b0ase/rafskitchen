@@ -171,7 +171,7 @@ export default function ProfilePage() {
               form="profile-form" // Explicitly link to the form in EditProfileForm
               onClick={handleSaveProfile} // Use the existing save handler
               disabled={saving}
-              className="px-4 py-3 rounded-lg text-base font-semibold flex items-center bg-sky-600 hover:bg-sky-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-sky-500 disabled:opacity-60 shadow-xl transition-all duration-150 ease-in-out transform hover:scale-105 text-center justify-center"
+              className="px-6 py-3 rounded-lg text-base font-semibold flex items-center bg-sky-600 hover:bg-sky-700 text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-sky-500 disabled:opacity-60 shadow-xl transition-all duration-150 ease-in-out transform hover:scale-105"
               aria-label="Save Profile Changes"
             >
               {saving ? (

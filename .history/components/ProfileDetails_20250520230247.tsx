@@ -84,7 +84,7 @@ export default function ProfileDetails({
         {/* Profile Info */}
         <div className="flex-grow text-center md:text-left">
           <h1 className="text-4xl font-bold mb-1 tracking-tight">{profile?.display_name || profile?.username || 'New User'}</h1>
-          {profile?.username && <p className="text-lg text-sky-400 mb-2">@{profile.username}</p>}
+          {profile?.full_name && <p className="text-lg text-gray-200 mb-2">{profile.full_name}</p>}
           
           {/* Social and Website Links - Moved Here */}
           <div className="mt-3 mb-3 flex flex-wrap justify-center md:justify-start items-center gap-x-4 gap-y-2 text-gray-300">
