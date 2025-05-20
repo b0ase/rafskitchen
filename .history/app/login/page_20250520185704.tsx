@@ -260,7 +260,7 @@ export default function LoginPage() {
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading || isAuthProcessing}
-            className={googleButtonClasses.replace(' mb-3', '')}
+            className={googleButtonClasses}
           >
             <FaGoogle className="mr-3" />
             {isLoading ? 'Redirecting to Google...' : 'Sign in with Google'}
@@ -290,7 +290,7 @@ export default function LoginPage() {
           <button
             onClick={handlePhantomSignIn}
             disabled={isLoading || isAuthProcessing}
-            className="w-full flex items-center justify-center py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 disabled:opacity-70"
+            className="w-full flex items-center justify-center py-3 px-4 mb-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 disabled:opacity-70"
           >
             <SiSolana className="mr-3" />
             {'Sign in with Phantom'}

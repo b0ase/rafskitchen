@@ -240,7 +240,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col items-center justify-center p-4">
-      <div className="bg-gray-900 p-8 md:p-12 border border-gray-700 shadow-2xl rounded-lg text-center max-w-4xl w-full">
+      <div className="bg-gray-900 p-8 md:p-12 border border-gray-700 shadow-2xl rounded-lg text-center max-w-2xl w-full">
         <h1 className="text-3xl font-bold text-white mb-6">{isSignUpMode ? 'Create Account' : 'Login'}</h1>
         <p className="text-gray-400 mb-8">
           {isSignUpMode ? 'Join us to access your profile and tools.' : 'Access your profile and application tools.'}
@@ -255,18 +255,28 @@ export default function LoginPage() {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-          {/* Row 1, Col 1: Google (Web2) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Column 1, Row 1: Google (Web2) */}
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading || isAuthProcessing}
-            className={googleButtonClasses.replace(' mb-3', '')}
+            className={googleButtonClasses}
           >
             <FaGoogle className="mr-3" />
             {isLoading ? 'Redirecting to Google...' : 'Sign in with Google'}
           </button>
 
-          {/* Row 1, Col 2: GitHub (Web2) */}
+          {/* Column 2, Row 1: Phantom (Web3) */}
+          <button
+            onClick={handlePhantomSignIn}
+            disabled={isLoading || isAuthProcessing}
+            className="w-full flex items-center justify-center py-3 px-4 mb-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 disabled:opacity-70"
+          >
+            <SiSolana className="mr-3" />
+            {'Sign in with Phantom'}
+          </button>
+
+          {/* Column 1, Row 2: GitHub (Web2) */}
           <button
             onClick={handleGitHubSignIn}
             disabled={isLoading || isAuthProcessing}
@@ -276,27 +286,7 @@ export default function LoginPage() {
             {'Sign in with GitHub'}
           </button>
 
-          {/* Row 1, Col 3: X.com (Web2) */}
-          <button
-            onClick={handleXSignIn}
-            disabled={isLoading || isAuthProcessing}
-            className="w-full flex items-center justify-center py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 disabled:opacity-70"
-          >
-            <FaTwitter className="mr-3" />
-            {'Sign in with X.com'}
-          </button>
-
-          {/* Row 2, Col 1: Phantom (Web3) */}
-          <button
-            onClick={handlePhantomSignIn}
-            disabled={isLoading || isAuthProcessing}
-            className="w-full flex items-center justify-center py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 disabled:opacity-70"
-          >
-            <SiSolana className="mr-3" />
-            {'Sign in with Phantom'}
-          </button>
-
-          {/* Row 2, Col 2: HandCash (Web3) */}
+          {/* Column 2, Row 2: HandCash (Web3) */}
           <button
             onClick={handleHandCashSignIn}
             disabled={isLoading || isAuthProcessing}
@@ -306,7 +296,17 @@ export default function LoginPage() {
             {'Sign in with HandCash'}
           </button>
 
-          {/* Row 2, Col 3: MetaMask (Web3) */}
+          {/* Column 1, Row 3: X.com (Web2) */}
+          <button
+            onClick={handleXSignIn}
+            disabled={isLoading || isAuthProcessing}
+            className="w-full flex items-center justify-center py-3 px-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 disabled:opacity-70"
+          >
+            <FaTwitter className="mr-3" />
+            {'Sign in with X.com'}
+          </button>
+
+          {/* Column 2, Row 3: MetaMask (Web3) */}
           <button
             onClick={handleMetaMaskSignIn}
             disabled={isLoading || isAuthProcessing}
