@@ -597,10 +597,10 @@ export default function MyProjectsPage() {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
-            {/* <div className="flex items-center mb-4 sm:mb-0">
+            <div className="flex items-center mb-4 sm:mb-0">
                 <FaProjectDiagram className="text-3xl text-sky-400 mr-3" />
                 <h1 className="text-3xl md:text-4xl font-bold text-white">My Projects</h1>
-            </div> */}
+            </div>
             {/* {user && (
                 <Link href="/projects/new" passHref legacyBehavior>
                     <a className="inline-flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-md hover:shadow-lg">
