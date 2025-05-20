@@ -31,7 +31,7 @@ const navLinksPrimaryConst: NavLink[] = [
   { title: 'Work In Progress', href: '/workinprogress', icon: FaTasks },
   { title: 'Calendar', href: '/gigs/calendar', icon: FaCalendarAlt },
   { title: 'Finances', href: '/finances', icon: FaDollarSign },
-  { title: 'Gigs', href: '/gigs', icon: FaListAlt },
+  { title: 'My Gigs', href: '/gigs', icon: FaListAlt },
   { title: 'Research', href: '/gigs/research', icon: FaSearchDollar },
   { title: 'Strategy', href: '/gigs/strategy', icon: FaBullseye },
   { title: 'Action Plan', href: '/gigs/action', icon: FaTasks },
