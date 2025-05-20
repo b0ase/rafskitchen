@@ -168,7 +168,7 @@ export default function UserTeams({
     <section className="pb-6 lg:w-1/2 p-6 bg-black rounded-xl shadow-md border border-gray-800 flex flex-col">
       <h2 className="text-2xl font-semibold mb-6 text-white flex items-center">
         <FaHandshake className="mr-3 text-sky-500"/> 
-        <Link href="/teams/join" className="hover:underline">
+        <Link href="/teams" className="hover:underline">
           Your Teams
         </Link>
       </h2>
