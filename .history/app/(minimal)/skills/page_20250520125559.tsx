@@ -216,7 +216,7 @@ export default function SkillsPage() {
   return (
     <MyCtxProvider>
       <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 flex text-white">
-        <UserSidebar />
+        <UserSidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         <main className="flex-1 p-6 md:p-10 overflow-y-auto h-screen">
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-700">

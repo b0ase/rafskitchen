@@ -39,38 +39,6 @@ const minimalLayoutPathPrefixes = [
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname() ?? '';
-  // const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
-  // const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
-
-  // AGGRESSIVE CHECK AT THE VERY TOP
-  if (typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true') {
-    if (pathname === '/') {
-      // On landing page, logout just finished. Clear flag, allow normal render.
-      console.log('[ConditionalLayout] TOP LEVEL: On landing page (/) with isLoggingOut flag. Clearing flag, proceeding to normal render.');
-      sessionStorage.removeItem('isLoggingOut');
-      // Fall through to normal rendering for the landing page
-    } else {
-      // Not on landing page, but logout is in progress. Show "Logout in progress..." UI.
-      console.log(`[ConditionalLayout] TOP LEVEL: On path ${pathname} (not landing page) with isLoggingOut flag. Rendering minimal logout UI.`);
-      return (
-        <div style={{
-          width: "100vw", 
-          height: "100vh", 
-          display: "flex", 
-          flexDirection: "column", // Align icon and text vertically
-          alignItems: "center", 
-          justifyContent: "center", 
-          backgroundColor: "black", 
-          color: "white", 
-          fontSize: "20px"
-        }}>
-          <FaRocket style={{ fontSize: "60px", color: "#0ea5e9", marginBottom: "1rem" }} className="animate-pulse" />
-          <p>Logout in progress... redirecting to landing page.</p>
-        </div>
-      );
-    }
-  }
-
   const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
   const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
@@ -135,15 +103,12 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       });
     }
 
-    // Initiate signOut but don't await it here
+    // Initiate signOut but don't await it here to prevent race conditions with redirect
     supabase.auth.signOut().catch(error => {
       console.error('[ConditionalLayout] Error during background signOut:', error?.message);
     });
 
-    // Set flag and immediately redirect to the landing page.
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('isLoggingOut', 'true');
-    }
+    // Immediately redirect to the landing page.
     console.log('[ConditionalLayout] Redirecting to / immediately after initiating signOut.');
     window.location.assign('/'); 
   };
@@ -231,35 +196,15 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   }
   
   if (isAppPage && !isAuthenticated) {
-    let isCurrentlyLoggingOut = false;
     if (typeof window !== 'undefined') {
-      if (sessionStorage.getItem('isLoggingOut') === 'true') {
-        isCurrentlyLoggingOut = true;
-      }
+      window.location.href = '/login?from=' + pathname;
     }
-
-    console.log('[ConditionalLayout] Pre-redirect check. Path:', pathname, 'isAppPage:', isAppPage, '!isAuthenticated:', !isAuthenticated, 'isCurrentlyLoggingOut (from sessionStorage direct check):', isCurrentlyLoggingOut);
-
-    if (!isCurrentlyLoggingOut) {
-      console.log('[ConditionalLayout] EXECUTING REDIRECT to /login?from=' + pathname);
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login?from=' + pathname;
-      }
-      return (
-        <div className="flex flex-col min-h-screen items-center justify-center bg-black">
-          <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
-          <p className="text-xl text-gray-400">Redirecting to login...</p>
-        </div>
-      );
-    } else {
-      console.log('[ConditionalLayout] Redirect to /login SKIPPED due to isCurrentlyLoggingOut flag being true.');
-      return (
-        <div className="flex flex-col min-h-screen items-center justify-center bg-black">
-          <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
-          <p className="text-xl text-gray-400">Finalizing logout...</p>
-        </div>
-      );
-    }
+    return (
+      <div className="flex flex-col min-h-screen items-center justify-center bg-black">
+        <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
+        <p className="text-xl text-gray-400">Redirecting to login...</p>
+      </div>
+    );
   }
 
   // Fallback to public layout if no other conditions met (should ideally not be reached for app pages)

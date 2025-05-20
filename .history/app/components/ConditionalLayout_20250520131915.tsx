@@ -38,39 +38,28 @@ const minimalLayoutPathPrefixes = [
 // Note: The session prop passed to ConditionalLayout from RootLayout is the server-side session.
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
-  const pathname = usePathname() ?? '';
-  // const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
-  // const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
-
   // AGGRESSIVE CHECK AT THE VERY TOP
   if (typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true') {
-    if (pathname === '/') {
-      // On landing page, logout just finished. Clear flag, allow normal render.
-      console.log('[ConditionalLayout] TOP LEVEL: On landing page (/) with isLoggingOut flag. Clearing flag, proceeding to normal render.');
-      sessionStorage.removeItem('isLoggingOut');
-      // Fall through to normal rendering for the landing page
-    } else {
-      // Not on landing page, but logout is in progress. Show "Logout in progress..." UI.
-      console.log(`[ConditionalLayout] TOP LEVEL: On path ${pathname} (not landing page) with isLoggingOut flag. Rendering minimal logout UI.`);
-      return (
-        <div style={{
-          width: "100vw", 
-          height: "100vh", 
-          display: "flex", 
-          flexDirection: "column", // Align icon and text vertically
-          alignItems: "center", 
-          justifyContent: "center", 
-          backgroundColor: "black", 
-          color: "white", 
-          fontSize: "20px"
-        }}>
-          <FaRocket style={{ fontSize: "60px", color: "#0ea5e9", marginBottom: "1rem" }} className="animate-pulse" />
-          <p>Logout in progress... redirecting to landing page.</p>
-        </div>
-      );
-    }
+    console.log('[ConditionalLayout] TOP LEVEL: Detected isLoggingOut flag. Rendering minimal logout UI and halting further processing.');
+    return (
+      <div style={{
+        width: "100vw", 
+        height: "100vh", 
+        display: "flex", 
+        flexDirection: "column", // Align icon and text vertically
+        alignItems: "center", 
+        justifyContent: "center", 
+        backgroundColor: "black", 
+        color: "white", 
+        fontSize: "20px"
+      }}>
+        <FaRocket style={{ fontSize: "60px", color: "#0ea5e9", marginBottom: "1rem" }} className="animate-pulse" />
+        <p>Logout in progress... redirecting to landing page.</p>
+      </div>
+    );
   }
 
+  const pathname = usePathname() ?? '';
   const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
   const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
