@@ -313,44 +313,39 @@ export default function NewProjectPage() {
               {/* Left Column: Main project details */}
               <div className="lg:col-span-2 space-y-8">
                 {/* Moved Team and Token Options Section here */}
-                <div className="pb-4 border-b border-gray-800">
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex flex-wrap items-start gap-x-6 gap-y-4"> 
-                    {/* Team Checkbox */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectTeam"
-                          name="addProjectTeam"
-                          type="checkbox"
-                          checked={form.addProjectTeam}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectTeam" className="font-medium text-gray-300 flex items-center">
-                          <FaUsers className="w-5 h-5 mr-2 text-sky-400" /> Create a Team for this Project
-                        </label>
-                      </div>
+                <div className="space-y-6 pb-4 border-b border-gray-800">
+                  <div className="relative flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="addProjectTeam"
+                        name="addProjectTeam"
+                        type="checkbox"
+                        checked={form.addProjectTeam}
+                        onChange={handleChange}
+                        className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
+                      />
                     </div>
-                    {/* Token Checkbox */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectToken"
-                          name="addProjectToken"
-                          type="checkbox"
-                          checked={form.addProjectToken}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
-                          <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Create a Token for this Project
-                        </label>
-                      </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="addProjectTeam" className="font-medium text-gray-300 flex items-center">
+                        <FaUsers className="w-5 h-5 mr-2 text-sky-400" /> Create a Team for this Project
+                      </label>
+                    </div>
+                  </div>
+                  <div className="relative flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="addProjectToken"
+                        name="addProjectToken"
+                        type="checkbox"
+                        checked={form.addProjectToken}
+                        onChange={handleChange}
+                        className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
+                      />
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
+                        <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Add a Token for this Project
+                      </label>
                     </div>
                   </div>
                 </div>

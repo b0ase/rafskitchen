@@ -63,8 +63,8 @@ export default function NewProjectPage() {
     socialLinks: {}, // Initialized
     inspiration_links: '',
     how_heard: '',
-    addProjectTeam: true, // Changed to true
-    addProjectToken: true, // Changed to true
+    addProjectTeam: false, // Initialized
+    addProjectToken: false, // Initialized
   });
   const [visibleSocialInputs, setVisibleSocialInputs] = useState<{ [key: string]: boolean }>({});
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
@@ -298,9 +298,9 @@ export default function NewProjectPage() {
           <div className="flex justify-between items-start mb-10">
             <div className="text-left">
               <FaRocket className="text-5xl text-sky-500 mb-4" />
-              <h1 className="text-4xl font-bold text-white">Start a Project</h1>
+              <h1 className="text-4xl font-bold text-white">Capture Your Project Idea</h1>
               <p className="text-lg text-gray-400 mt-2">
-                Kickstart your venture here. Launch a project, form a team with integrated chat, and issue a token. Team contributions are rewarded with tokens, which can represent direct equity and potentially convert to shares if your project incorporates. What's your vision? What will you build? What's your ideal Website, App, or Platform? Let's begin!
+                Let's get the details down for your brilliant concept.
               </p>
             </div>
           </div>
@@ -308,173 +308,163 @@ export default function NewProjectPage() {
           {error && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-6 text-sm shadow">{error}</p>}
           {successMessage && !error && <p className="text-green-400 bg-green-900/30 p-3 rounded-md mb-6 text-sm shadow">{successMessage}</p>}
 
-          <form onSubmit={handleSubmit} id="project-creation-form">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-8">
-              {/* Left Column: Main project details */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Moved Team and Token Options Section here */}
-                <div className="pb-4 border-b border-gray-800">
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex flex-wrap items-start gap-x-6 gap-y-4"> 
-                    {/* Team Checkbox */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectTeam"
-                          name="addProjectTeam"
-                          type="checkbox"
-                          checked={form.addProjectTeam}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectTeam" className="font-medium text-gray-300 flex items-center">
-                          <FaUsers className="w-5 h-5 mr-2 text-sky-400" /> Create a Team for this Project
-                        </label>
-                      </div>
-                    </div>
-                    {/* Token Checkbox */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectToken"
-                          name="addProjectToken"
-                          type="checkbox"
-                          checked={form.addProjectToken}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
-                          <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Create a Token for this Project
-                        </label>
-                      </div>
-                    </div>
+          <form onSubmit={handleSubmit} id="project-creation-form" className="space-y-8">
+            <div className="space-y-4 pb-4 border-b border-gray-800 w-1/2 ml-auto">
+              <h3 className="text-md font-medium text-gray-300">Connect Social Profiles</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {socialPlatforms.map((platform) => (
+                  <div key={platform.key}>
+                    <button
+                      type="button"
+                      onClick={() => toggleSocialInput(platform.key)}
+                      className={`w-full inline-flex items-center justify-center px-4 py-2 border text-sm font-medium rounded-md transition-colors
+                        ${visibleSocialInputs[platform.key] 
+                          ? 'bg-sky-700 text-white border-sky-700' 
+                          : 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600'}`}
+                    >
+                      {platform.key === 'x' ? (
+                        <span className="mr-2 text-lg font-bold">X</span>
+                      ) : (
+                        <platform.icon className="w-5 h-5 mr-2" />
+                      )}
+                      {platform.name}
+                    </button>
+                    {visibleSocialInputs[platform.key] && (
+                      <input
+                        type="text"
+                        name={`socialLinks.${platform.key}`}
+                        value={form.socialLinks[platform.key] || ''}
+                        onChange={(e) => handleSocialLinkChange(platform.key, e.target.value)}
+                        placeholder={platform.placeholder}
+                        className="mt-2 w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                      />
+                    )}
                   </div>
-                </div>
-
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">Project Name/Idea <span className="text-red-400">*</span></label>
-                  <input
-                    type="text" name="name" id="name" required value={form.name} onChange={handleChange}
-                    placeholder="e.g., An AI for custom meal plans, A platform for local artists"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="project_brief" className="block text-sm font-medium text-gray-300 mb-1.5">What is your big idea? (Briefly describe)</label>
-                  <textarea
-                    name="project_brief" id="project_brief" value={form.project_brief} onChange={handleChange}
-                    rows={3} placeholder="e.g., A mobile app that helps users find and book local dog walkers..."
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="what_to_build" className="block text-sm font-medium text-gray-300 mb-1.5">What would you like to build? (More details)</label>
-                  <textarea
-                    name="what_to_build" id="what_to_build" value={form.what_to_build} onChange={handleChange}
-                    rows={5} placeholder="Describe the core features, target users, and the problem it solves..."
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="desired_domain_name" className="block text-sm font-medium text-gray-300 mb-1.5">What is your desired Domain Name? (Optional)</label>
-                  <input
-                    type="text" name="desired_domain_name" id="desired_domain_name" value={form.desired_domain_name} onChange={handleChange}
-                    placeholder="e.g., myawesomeidea.com"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="project_type" className="block text-sm font-medium text-gray-300 mb-1.5">Project Type:</label>
-                  <select
-                    name="project_type" id="project_type" value={form.project_type} onChange={handleChange}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  >
-                    <option value="">Select a type...</option>
-                    {projectTypeOptions.map(type => (<option key={type} value={type}>{type}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1.5">Current Website URL (if any)</label>
-                  <input
-                    type="url" name="website_url" id="website_url" value={form.website_url} onChange={handleChange}
-                    placeholder="https://example.com"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="logo_url" className="block text-sm font-medium text-gray-300 mb-1.5">Logo URL (if you have one hosted)</label>
-                  <input
-                    type="url" name="logo_url" id="logo_url" value={form.logo_url} onChange={handleChange}
-                    placeholder="https://example.com/logo.png"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                  {form.logo_url && <img src={form.logo_url} alt="Logo Preview" className="mt-3 h-16 w-auto object-contain bg-gray-700 p-1 rounded shadow" />}
-                </div>
-                <div>
-                  <label htmlFor="requested_budget" className="block text-sm font-medium text-gray-300 mb-1.5">How much do you want to raise to develop your idea? (Optional)</label>
-                  <input
-                    type="number" name="requested_budget" id="requested_budget" value={form.requested_budget} onChange={handleChange}
-                    placeholder="e.g., 10000 (numeric value, e.g., USD)"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-                  />
-                </div>
-                <div className="space-y-4 pt-4 border-t border-gray-800">
-                  <h3 className="text-md font-medium text-gray-300">Additional Information</h3>
-                  <div>
-                    <label htmlFor="inspiration_links" className="block text-sm font-medium text-gray-300 mb-1.5">Inspiration Links (sites, apps, designs - one per line)</label>
-                    <textarea name="inspiration_links" id="inspiration_links" value={form.inspiration_links} onChange={handleChange} rows={3} placeholder="e.g., https://inspiration1.com\nhttps://inspiration2.com" className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" />
-                  </div>
-                  <div>
-                    <label htmlFor="how_heard" className="block text-sm font-medium text-gray-300 mb-1.5">How did you hear about us? (Optional)</label>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-4 pb-4 border-b border-gray-800">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="relative flex items-start">
+                  <div className="flex items-center h-5">
                     <input
-                      type="text" name="how_heard" id="how_heard" value={form.how_heard} onChange={handleChange}
-                      placeholder="e.g., Google Search, Friend, Social Media"
-                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      id="addProjectTeam"
+                      name="addProjectTeam"
+                      type="checkbox"
+                      checked={form.addProjectTeam}
+                      onChange={handleChange}
+                      className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
                     />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="addProjectTeam" className="font-medium text-gray-300 flex items-center">
+                      <FaUsers className="w-5 h-5 mr-2 text-sky-400" /> Create a Team for this Project
+                    </label>
+                  </div>
+                </div>
+                <div className="relative flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="addProjectToken"
+                      name="addProjectToken"
+                      type="checkbox"
+                      checked={form.addProjectToken}
+                      onChange={handleChange}
+                      className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
+                       <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Add a Token for this Project
+                    </label>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Right Column: Socials and Extras */}
-              <div className="lg:col-span-1 space-y-8">
-                <div className="space-y-4 pb-4 border-b border-gray-800">
-                  <h3 className="text-md font-medium text-gray-300">Connect Social Profiles</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    {socialPlatforms.map((platform) => (
-                      <div key={platform.key}>
-                        <button
-                          type="button"
-                          onClick={() => toggleSocialInput(platform.key)}
-                          className={`w-full inline-flex items-center justify-center px-4 py-2 border text-sm font-medium rounded-md transition-colors
-                            ${visibleSocialInputs[platform.key] 
-                              ? 'bg-sky-700 text-white border-sky-700' 
-                              : 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600'}`}
-                        >
-                          {platform.key === 'x' ? (
-                            <span className="mr-2 text-lg font-bold">X</span>
-                          ) : (
-                            <platform.icon className="w-5 h-5 mr-2" />
-                          )}
-                          {platform.name}
-                        </button>
-                        {visibleSocialInputs[platform.key] && (
-                          <input
-                            type="text"
-                            name={`socialLinks.${platform.key}`}
-                            value={form.socialLinks[platform.key] || ''}
-                            onChange={(e) => handleSocialLinkChange(platform.key, e.target.value)}
-                            placeholder={platform.placeholder}
-                            className="mt-2 w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                          />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">Project Idea <span className="text-red-400">*</span></label>
+              <input
+                type="text" name="name" id="name" required value={form.name} onChange={handleChange}
+                placeholder="e.g., An AI for custom meal plans, A platform for local artists"
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="project_brief" className="block text-sm font-medium text-gray-300 mb-1.5">What is your big idea? (Briefly describe)</label>
+              <textarea
+                name="project_brief" id="project_brief" value={form.project_brief} onChange={handleChange}
+                rows={3} placeholder="e.g., A mobile app that helps users find and book local dog walkers..."
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="what_to_build" className="block text-sm font-medium text-gray-300 mb-1.5">What would you like to build? (More details)</label>
+              <textarea
+                name="what_to_build" id="what_to_build" value={form.what_to_build} onChange={handleChange}
+                rows={5} placeholder="Describe the core features, target users, and the problem it solves..."
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="desired_domain_name" className="block text-sm font-medium text-gray-300 mb-1.5">What is your desired Domain Name? (Optional)</label>
+              <input
+                type="text" name="desired_domain_name" id="desired_domain_name" value={form.desired_domain_name} onChange={handleChange}
+                placeholder="e.g., myawesomeidea.com"
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="project_type" className="block text-sm font-medium text-gray-300 mb-1.5">Project Type:</label>
+              <select
+                name="project_type" id="project_type" value={form.project_type} onChange={handleChange}
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              >
+                <option value="">Select a type...</option>
+                {projectTypeOptions.map(type => (<option key={type} value={type}>{type}</option>))}
+              </select>
+            </div>
+            
+            <div>
+              <label htmlFor="website_url" className="block text-sm font-medium text-gray-300 mb-1.5">Current Website URL (if any)</label>
+              <input
+                type="url" name="website_url" id="website_url" value={form.website_url} onChange={handleChange}
+                placeholder="https://example.com"
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="logo_url" className="block text-sm font-medium text-gray-300 mb-1.5">Logo URL (if you have one hosted)</label>
+              <input
+                type="url" name="logo_url" id="logo_url" value={form.logo_url} onChange={handleChange}
+                placeholder="https://example.com/logo.png"
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+              {form.logo_url && <img src={form.logo_url} alt="Logo Preview" className="mt-3 h-16 w-auto object-contain bg-gray-700 p-1 rounded shadow" />}
+            </div>
+            <div>
+              <label htmlFor="requested_budget" className="block text-sm font-medium text-gray-300 mb-1.5">How much do you want to raise to develop your idea? (Optional)</label>
+              <input
+                type="number" name="requested_budget" id="requested_budget" value={form.requested_budget} onChange={handleChange}
+                placeholder="e.g., 10000 (numeric value, e.g., USD)"
+                className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+              />
+            </div>
+            
+            <div className="space-y-4 pt-4 border-t border-gray-800">
+              <h3 className="text-md font-medium text-gray-300">Additional Information</h3>
+              <div>
+                <label htmlFor="inspiration_links" className="block text-sm font-medium text-gray-300 mb-1.5">Inspiration Links (sites, apps, designs - one per line)</label>
+                <textarea name="inspiration_links" id="inspiration_links" value={form.inspiration_links} onChange={handleChange} rows={3} placeholder="e.g., https://inspiration1.com\nhttps://inspiration2.com" className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" />
+              </div>
+               <div>
+                <label htmlFor="how_heard" className="block text-sm font-medium text-gray-300 mb-1.5">How did you hear about us? (Optional)</label>
+                <input
+                  type="text" name="how_heard" id="how_heard" value={form.how_heard} onChange={handleChange}
+                  placeholder="e.g., Google Search, Friend, Social Media"
+                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                />
               </div>
             </div>
 

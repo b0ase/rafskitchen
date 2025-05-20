@@ -25,7 +25,7 @@ export const navLinksPrimaryConst: NavLink[] = [
   {
     href: '/profile',
     icon: FaUserAlt,
-    title: 'Profile',
+    label: 'Profile',
     activeSubpaths: ['/profile/edit'], 
   },
   { title: 'Projects', href: '/myprojects', icon: FaProjectDiagram },
@@ -33,7 +33,7 @@ export const navLinksPrimaryConst: NavLink[] = [
   {
     href: '/myagents',
     icon: FaRobot,
-    title: 'Agents',
+    label: 'Agents',
     activeSubpaths: ['/myagents/new', '/myagents/configure'],
   },
   { title: 'Tokens', href: '/mytoken', icon: FaCubes },
@@ -49,6 +49,7 @@ export const navLinksPrimaryConst: NavLink[] = [
   { title: 'Learning Path', href: '/gigs/learning-path', icon: FaChalkboardTeacher },
   { title: 'Platforms', href: '/gigs/platforms', icon: FaListAlt },
   { title: 'Work Path', href: '/gigs/work-path', icon: FaRoute },
+  { title: 'Fiverr Explorer', href: '/gigs/fiverr-explorer', icon: FaSearchDollar },
 ];
 
 const navLinksSecondaryConst: NavLink[] = [

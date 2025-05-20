@@ -63,8 +63,8 @@ export default function NewProjectPage() {
     socialLinks: {}, // Initialized
     inspiration_links: '',
     how_heard: '',
-    addProjectTeam: true, // Changed to true
-    addProjectToken: true, // Changed to true
+    addProjectTeam: false, // Initialized
+    addProjectToken: false, // Initialized
   });
   const [visibleSocialInputs, setVisibleSocialInputs] = useState<{ [key: string]: boolean }>({});
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
@@ -312,51 +312,8 @@ export default function NewProjectPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-8">
               {/* Left Column: Main project details */}
               <div className="lg:col-span-2 space-y-8">
-                {/* Moved Team and Token Options Section here */}
-                <div className="pb-4 border-b border-gray-800">
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex flex-wrap items-start gap-x-6 gap-y-4"> 
-                    {/* Team Checkbox */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectTeam"
-                          name="addProjectTeam"
-                          type="checkbox"
-                          checked={form.addProjectTeam}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectTeam" className="font-medium text-gray-300 flex items-center">
-                          <FaUsers className="w-5 h-5 mr-2 text-sky-400" /> Create a Team for this Project
-                        </label>
-                      </div>
-                    </div>
-                    {/* Token Checkbox */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectToken"
-                          name="addProjectToken"
-                          type="checkbox"
-                          checked={form.addProjectToken}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
-                          <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Create a Token for this Project
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">Project Name/Idea <span className="text-red-400">*</span></label>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">Project Idea <span className="text-red-400">*</span></label>
                   <input
                     type="text" name="name" id="name" required value={form.name} onChange={handleChange}
                     placeholder="e.g., An AI for custom meal plans, A platform for local artists"
@@ -473,6 +430,43 @@ export default function NewProjectPage() {
                         )}
                       </div>
                     ))}
+                  </div>
+                </div>
+            
+                <div className="space-y-6"> {/* Adjusted for stacking checkboxes */}
+                  <div className="relative flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="addProjectTeam"
+                        name="addProjectTeam"
+                        type="checkbox"
+                        checked={form.addProjectTeam}
+                        onChange={handleChange}
+                        className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
+                      />
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="addProjectTeam" className="font-medium text-gray-300 flex items-center">
+                        <FaUsers className="w-5 h-5 mr-2 text-sky-400" /> Create a Team for this Project
+                      </label>
+                    </div>
+                  </div>
+                  <div className="relative flex items-start">
+                    <div className="flex items-center h-5">
+                      <input
+                        id="addProjectToken"
+                        name="addProjectToken"
+                        type="checkbox"
+                        checked={form.addProjectToken}
+                        onChange={handleChange}
+                        className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
+                      />
+                    </div>
+                    <div className="ml-3 text-sm">
+                      <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
+                        <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Add a Token for this Project
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>

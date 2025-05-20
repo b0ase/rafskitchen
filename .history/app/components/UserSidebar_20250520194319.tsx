@@ -49,6 +49,7 @@ export const navLinksPrimaryConst: NavLink[] = [
   { title: 'Learning Path', href: '/gigs/learning-path', icon: FaChalkboardTeacher },
   { title: 'Platforms', href: '/gigs/platforms', icon: FaListAlt },
   { title: 'Work Path', href: '/gigs/work-path', icon: FaRoute },
+  { title: 'Fiverr Explorer', href: '/gigs/fiverr-explorer', icon: FaSearchDollar },
 ];
 
 const navLinksSecondaryConst: NavLink[] = [

@@ -348,7 +348,7 @@ export default function NewProjectPage() {
                       </div>
                       <div className="ml-3 text-sm">
                         <label htmlFor="addProjectToken" className="font-medium text-gray-300 flex items-center">
-                          <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Create a Token for this Project
+                          <FaCoins className="w-5 h-5 mr-2 text-yellow-400" /> Add a Token for this Project
                         </label>
                       </div>
                     </div>
