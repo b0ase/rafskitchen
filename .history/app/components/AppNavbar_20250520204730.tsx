@@ -8,7 +8,7 @@ import getSupabaseBrowserClient from '@/lib/supabase/client'; // For logout
 
 interface AppNavbarProps {
   toggleFullScreenMenu: () => void;
-  isFullScreenMenuActuallyOpen: boolean;
+  isFullScreenMenuActuallyOpen: boolean; // Added prop for actual menu state
 }
 
 const formatBreadcrumbSegment = (segment: string) => {
@@ -20,8 +20,8 @@ const formatBreadcrumbSegment = (segment: string) => {
 };
 
 export default function AppNavbar({ 
-  toggleFullScreenMenu,
-  isFullScreenMenuActuallyOpen
+  toggleFullScreenMenu, 
+  isFullScreenMenuActuallyOpen 
 }: AppNavbarProps) {
   const pathname = usePathname();
   const { pageContext } = usePageHeader();
@@ -113,11 +113,14 @@ export default function AppNavbar({
       {/* Main Navbar Content Bar */}
       <div className="container mx-auto flex items-center justify-between p-4 h-[70px]"> {/* Standard height for the bar */}
         <button 
-          onClick={toggleFullScreenMenu}
+          onClick={() => {
+            // toggleMobileDropdown(); // No longer calling this here
+            toggleFullScreenMenu(); // NOW ONLY calls this
+          }}
           className="text-gray-400 hover:text-white focus:outline-none md:hidden mr-3"
-          aria-label={isFullScreenMenuActuallyOpen ? "Close menu" : "Open menu"}
+          aria-label={isFullScreenMenuActuallyOpen ? "Close menu" : "Open menu"} // Use prop for aria-label
         >
-          {isFullScreenMenuActuallyOpen ? <FaTimes className="w-7 h-7" /> : <FaBars className="w-7 h-7" />}
+          {isFullScreenMenuActuallyOpen ? <FaTimes className="w-7 h-7" /> : <FaBars className="w-7 h-7" />} {/* Use prop for icon */}
         </button>
 
         <div className="flex items-center flex-grow min-w-0">

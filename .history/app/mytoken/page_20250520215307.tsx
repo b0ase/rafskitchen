@@ -18,14 +18,54 @@ interface Token {
   // mint_private_key is not needed for UI
 }
 
-const MyTokenPage = () => {
-  const [profileToken, setProfileToken] = useState<Token | null>(null);
-  const [projectTokens, setProjectTokens] = useState<Token[]>([]);
-  const [teamTokens, setTeamTokens] = useState<Token[]>([]);
+// Dummy data using the new Token interface
+const dummyProfileToken: Token | null = {
+  id: 'user1-token',
+  name: 'My Profile Token',
+  ticker_symbol: '$MYSELF',
+  token_category: 'profile',
+  token_chain: 'ETH',
+  total_supply: 1000000,
+  dividend_bearing: true,
+};
 
-  // TODO: Fetch actual user profile token, project tokens, and team tokens data from Supabase
+const dummyProjectTokens: Token[] = [
+  {
+    id: 'proj1-token',
+    name: 'Project Alpha Token',
+    ticker_symbol: '$ALPHA',
+    token_category: 'project',
+    token_chain: 'SOL',
+    total_supply: 10000000,
+    dividend_bearing: false,
+  },
+  {
+    id: 'proj2-token',
+    name: 'Project Beta Initiative', // Example of a project that hasn't launched its token yet
+    ticker_symbol: '$BETA',
+    token_category: 'project',
+    token_chain: null, // Not yet launched/selected
+    total_supply: null,
+    dividend_bearing: false,
+  },
+];
+
+const dummyTeamTokens: Token[] = []; // Start with no team tokens to show placeholder
+
+const MyTokenPage = () => {
+  const [profileToken, setProfileToken] = useState<Token | null>(null); // Set to null initially to show "haven't launched"
+  const [projectTokens, setProjectTokens] = useState<Token[]>(dummyProjectTokens);
+  const [teamTokens, setTeamTokens] = useState<Token[]>(dummyTeamTokens);
+
+  // useEffect to simulate fetching data - remove when actual fetching is implemented
+  useEffect(() => {
+    // Simulate fetching profile token, set to dummyProfileToken or null
+    // setProfileToken(dummyProfileToken); 
+  }, []);
+
+
+  // TODO: Fetch actual user profile token, project tokens, and team tokens data
   // TODO: Implement wallet connection logic
-  // TODO: Implement actual token launch functionality
 
   const getChainIcon = (chain: Token['token_chain']) => {
     if (chain === 'BSV') return <SiBitcoinsv className="mr-1.5 text-yellow-500" />;
@@ -73,15 +113,8 @@ const MyTokenPage = () => {
             </button>
           </div>
         ) : (
-          <div className="text-center py-4">
-            <FaUserCircle className="mx-auto text-4xl text-gray-500 mb-4" />
-            <p className="text-gray-300 mb-3 font-semibold">Launch Your Unique Profile Token</p>
-            <p className="text-gray-400 mb-2 text-sm">
-              Create a personal token to represent your identity, brand, or influence within the platform.
-            </p>
-            <p className="text-gray-500 mb-4 text-xs">
-              This can be used for exclusive access, fan engagement, or simply to tokenize your presence.
-            </p>
+          <div>
+            <p className="text-gray-300 mb-3">You haven't launched a profile token yet.</p>
             <button className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm transition-colors">
               <FaPlusCircle className="mr-2" /> Launch Profile Token
             </button>
@@ -106,13 +139,13 @@ const MyTokenPage = () => {
                     </div>
                      <p className="text-xs text-sky-400 ml-1">{token.ticker_symbol || 'No Ticker'}</p>
                   </div>
-                  {token.total_supply !== null ? (
+                  {token.total_supply !== null ? ( // Assuming if total_supply is set, token is launched
                     <button className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs transition-colors whitespace-nowrap">
                       Manage Token
                     </button>
                   ) : (
                     <button className="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs transition-colors whitespace-nowrap">
-                      <FaPlusCircle className="mr-1.5" /> Launch Token for Project
+                      <FaPlusCircle className="mr-1.5" /> Launch Token
                     </button>
                   )}
                 </div>
@@ -126,16 +159,12 @@ const MyTokenPage = () => {
           </ul>
         ) : (
           <div className="text-center py-4">
-            <FaProjectDiagram className="mx-auto text-4xl text-gray-500 mb-4" />
-            <p className="text-gray-300 mb-3 font-semibold">Power Your Projects with Tokens</p>
-            <p className="text-gray-400 mb-2 text-sm">
-              When you create or join innovative projects on this platform, you can launch dedicated tokens right here.
+            <FaProjectDiagram className="mx-auto text-3xl text-gray-500 mb-3" />
+            <p className="text-gray-400 mb-2">
+              When you create or join projects, you'll be able to launch and manage their dedicated tokens from this section. 
             </p>
-            <p className="text-gray-500 mb-2 text-xs">
-              Project tokens can be used to fund development, grant governance rights, represent equity, or provide utility within your project's ecosystem.
-            </p>
-             <p className="text-gray-500 mb-4 text-xs">
-              This is your hub for managing the financial engine of your creations.
+            <p className="text-sm text-gray-500 mb-4">
+              Project tokens can represent equity, utility, or rewards within your project's ecosystem.
             </p>
             <Link href="/myprojects" className="inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-md text-sm transition-colors">
               Go to My Projects <FaExternalLinkAlt className="ml-2 w-3 h-3" />
@@ -167,7 +196,7 @@ const MyTokenPage = () => {
                     </button>
                   ) : (
                     <button className="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-xs transition-colors whitespace-nowrap">
-                      <FaPlusCircle className="mr-1.5" /> Launch Token for Team
+                      <FaPlusCircle className="mr-1.5" /> Launch Token
                     </button>
                   )}
                 </div>
@@ -181,16 +210,12 @@ const MyTokenPage = () => {
           </ul>
         ) : (
           <div className="text-center py-4">
-            <FaUsers className="mx-auto text-4xl text-gray-500 mb-4" />
-            <p className="text-gray-300 mb-3 font-semibold">Collaborate with Team Tokens</p>
-            <p className="text-gray-400 mb-2 text-sm">
-              Once you form or become part of a team, this section will allow you to launch and manage your team's token.
+            <FaUsers className="mx-auto text-3xl text-gray-500 mb-3" />
+            <p className="text-gray-400 mb-2">
+              Once you form or become part of a team, this area will allow you to launch and manage your team's token.
             </p>
-            <p className="text-gray-500 mb-2 text-xs">
-              Team tokens can be used for shared governance, resource pooling, collaborative incentives, or to represent collective ownership.
-            </p>
-            <p className="text-gray-500 mb-4 text-xs">
-               Solidify your team's synergy and goals with a dedicated token.
+            <p className="text-sm text-gray-500 mb-4">
+              Team tokens can be used for governance, shared resources, or collaborative incentives.
             </p>
             <Link href="/team" className="inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-md text-sm transition-colors">
               Go to My Teams <FaExternalLinkAlt className="ml-2 w-3 h-3" />

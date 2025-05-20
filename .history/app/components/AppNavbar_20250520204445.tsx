@@ -7,8 +7,7 @@ import { navLinksPrimaryConst } from '@/app/components/UserSidebar'; // Import l
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // For logout
 
 interface AppNavbarProps {
-  toggleFullScreenMenu: () => void;
-  isFullScreenMenuActuallyOpen: boolean;
+  toggleFullScreenMenu: () => void; // Added prop
 }
 
 const formatBreadcrumbSegment = (segment: string) => {
@@ -19,10 +18,7 @@ const formatBreadcrumbSegment = (segment: string) => {
     .join(' ');
 };
 
-export default function AppNavbar({ 
-  toggleFullScreenMenu,
-  isFullScreenMenuActuallyOpen
-}: AppNavbarProps) {
+export default function AppNavbar({ toggleFullScreenMenu }: AppNavbarProps) {
   const pathname = usePathname();
   const { pageContext } = usePageHeader();
   const [isMobileDropdownOpen, setIsMobileDropdownOpen] = React.useState(false);
@@ -113,11 +109,21 @@ export default function AppNavbar({
       {/* Main Navbar Content Bar */}
       <div className="container mx-auto flex items-center justify-between p-4 h-[70px]"> {/* Standard height for the bar */}
         <button 
-          onClick={toggleFullScreenMenu}
+          onClick={() => {
+            toggleMobileDropdown(); // This toggles AppNavbar's own dropdown
+            // We likely want the main hamburger to ONLY control the FullScreenMobileMenu
+            // So, instead of toggleMobileDropdown(), we should call the prop for the main menu
+            // However, the current AppNavbar has its own dropdown for quick links/settings.
+            // For now, let's assume the hamburger button in AppNavbar should *primarily* control the FullScreenMobileMenu.
+            // If AppNavbar's internal dropdown is still needed, a separate button or logic would be required.
+            // Let's simplify: this button now calls toggleFullScreenMenu from props.
+            // toggleMobileDropdown(); // Commenting this out
+            toggleFullScreenMenu(); // Calling the prop
+          }}
           className="text-gray-400 hover:text-white focus:outline-none md:hidden mr-3"
-          aria-label={isFullScreenMenuActuallyOpen ? "Close menu" : "Open menu"}
+          aria-label={isMobileDropdownOpen ? "Close menu" : "Open menu"} // This aria-label might need to sync with FullScreenMobileMenu state
         >
-          {isFullScreenMenuActuallyOpen ? <FaTimes className="w-7 h-7" /> : <FaBars className="w-7 h-7" />}
+          {isMobileDropdownOpen ? <FaTimes className="w-7 h-7" /> : <FaBars className="w-7 h-7" />} {/* This icon also might need to sync */}
         </button>
 
         <div className="flex items-center flex-grow min-w-0">

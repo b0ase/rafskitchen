@@ -12,7 +12,7 @@ import AppSubNavbar from './AppSubNavbar'; // Added import
 import { useAuth } from './Providers'; // Import useAuth
 import { FaRocket } from 'react-icons/fa'; // For loading indicator
 import { MyCtxProvider } from './MyCtx'; // Corrected to MyCtxProvider
-import FullScreenMobileMenu from './FullScreenMobileMenu'; // Ensure this is uncommented
+import FullScreenMobileMenu from './FullScreenMobileMenu'; // UNCOMMENTED
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // For logout
 import useProfileData from '@/lib/hooks/useProfileData'; // Corrected import for default export
 // User type might not be needed here if useProfileData handles user context internally
@@ -262,7 +262,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
     return (
       <MyCtxProvider>
-        <div className="flex h-screen bg-black">
+        <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
           <UserSidebar />
           <FullScreenMobileMenu 
             isOpen={isFullScreenMenuOpen} 
@@ -271,16 +271,13 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             userDisplayName={profile?.display_name || profile?.username || 'User'}
             userAvatarUrl={profile?.avatar_url}
           />
-          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
-            <AppNavbar 
-              toggleFullScreenMenu={toggleFullScreenMenu} 
-              isFullScreenMenuActuallyOpen={isFullScreenMenuOpen} 
-            />
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <AppNavbar toggleFullScreenMenu={toggleFullScreenMenu} />
             <AppSubNavbar 
               initialIsExpanded={!showWelcomeCard} 
               onCollapse={handleDismissWelcomeCard}
             />
-            <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 p-4 md:p-6">
               {children}
             </main>
           </div>
