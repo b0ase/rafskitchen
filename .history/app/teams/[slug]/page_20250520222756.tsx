@@ -67,7 +67,7 @@ export default function TeamPage() {
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname(); // Get pathname from the hook
-  const teamSlugOrId = params?.slug as string | undefined; // Allow undefined initially
+  const teamSlugOrId = params.slug as string;
   const { setPageContext } = usePageHeader(); // Added hook usage
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -137,17 +137,12 @@ export default function TeamPage() {
 
   // Fetch team details and user role
   const fetchTeamDetailsAndRole = useCallback(async () => {
-    if (!teamSlugOrId || !currentUser?.id) { // Ensure teamSlugOrId is not undefined/null here
-      if (!teamSlugOrId) setError("Team identifier is missing from URL.");
-      // Optionally, don't proceed if currentUser.id is missing yet, or handle appropriately
-      setLoadingTeamDetails(false);
-      return;
-    }
+    if (!teamSlugOrId || !currentUser?.id) return;
     setLoadingTeamDetails(true);
     setError(null);
     
+    // Fetch Team Details
     let teamQuery = supabase.from('teams').select('*');
-    // Check if teamSlugOrId is a UUID (potential ID) or a slug string
     if (teamSlugOrId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
         teamQuery = teamQuery.eq('id', teamSlugOrId);
     } else {
@@ -158,18 +153,21 @@ export default function TeamPage() {
     if (teamError || !teamData) {
       console.error('Error fetching team details:', teamError);
       setError('Team not found or error loading details.');
+      console.log('[fetchTeamDetailsAndRole] Setting teamDetails to null due to error/no data.');
       setTeamDetails(null);
       setCurrentUserRole(null);
       setLoadingTeamDetails(false);
+      // Set a generic error title in the header
       setPageContext({
         title: "Error",
-        href: pathname || '/', // Provide a fallback for href
+        href: pathname, // Use current pathname from usePathname()
         icon: FaExclamationTriangle
+        // breadcrumbs: [{ text: "Error", href: pathname }] // Removed due to linter error
       });
       return;
     }
     
-    const typedTeamData = teamData as any; // Assuming structure, consider defining a more precise type
+    const typedTeamData = teamData as any;
     let creatorDisplayName: string | null = null;
 
     if (typedTeamData.created_by) {
@@ -192,17 +190,22 @@ export default function TeamPage() {
       name: typedTeamData.name,
       description: typedTeamData.description,
       slug: typedTeamData.slug,
-      created_by: typedTeamData.created_by,
-      creator_display_name: creatorDisplayName, // This was defined earlier in the function
-      color_scheme: typedTeamData.color_scheme, // Keep as is, handle null/undefined in JSX
+      created_by: typedTeamData.created_by, // Store created_by ID
+      creator_display_name: creatorDisplayName, // Store display name
+      color_scheme: typedTeamData.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
       icon_name: typedTeamData.icon_name || 'FaUsers',
     });
 
+    // Update page header context
     const teamIcon = iconMap[typedTeamData.icon_name || 'FaUsers'] || FaUsers;
     setPageContext({
       title: typedTeamData.name,
       href: `/teams/${typedTeamData.slug || typedTeamData.id}`,
       icon: teamIcon
+      // breadcrumbs: [ // Removed due to linter error
+      //   { text: "My Team", href: "/team" }, 
+      //   { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
+      // ]
     });
 
     // Fetch User Role in this Team
@@ -227,11 +230,11 @@ export default function TeamPage() {
   }, [supabase, teamSlugOrId, currentUser?.id, setPageContext, pathname]);
   
   useEffect(() => {
-    if (params && params.slug && currentUser?.id) { // Check params and params.slug here
+    // Now call fetchTeamDetailsAndRole instead of fetchTeamDetails
+    if (currentUser?.id) { // Ensure currentUser is loaded before fetching details that depend on its ID
       fetchTeamDetailsAndRole();
     }
-    // If teamSlugOrId is not available yet (e.g. params not populated), this effect will re-run when it is.
-  }, [params, currentUser?.id, fetchTeamDetailsAndRole]); // Add params to dependency array
+  }, [fetchTeamDetailsAndRole, currentUser?.id]);
 
   const fetchTeamMembers = useCallback(async (teamId: string) => {
     if (!teamId) return;
@@ -699,11 +702,12 @@ export default function TeamPage() {
   if (loadingTeamDetails || !teamDetails) {
     let headerBgColor = 'bg-gray-800 dark:bg-gray-900';
     let headerBorderColor = 'border-gray-700 dark:border-gray-800';
-    let baseBgColor = 'bg-gray-800 dark:bg-gray-900';
-    // Check if teamDetails and teamDetails.color_scheme are available
+    let baseBgColor = 'bg-gray-800 dark:bg-gray-900'; // Fallback if teamDetails or color_scheme is null
+
+    // Determine if teamDetails and its color_scheme exist
     const hasTeamColor = teamDetails && teamDetails.color_scheme;
 
-    if (hasTeamColor) { // No need to check teamDetails.color_scheme again, hasTeamColor covers it
+    if (hasTeamColor && teamDetails && teamDetails.color_scheme) { // Extra check for teamDetails.color_scheme
         headerBgColor = teamDetails.color_scheme.bgColor || 'bg-gray-800 dark:bg-gray-900';
         headerBorderColor = teamDetails.color_scheme.borderColor || 'border-gray-700 dark:border-gray-800';
         baseBgColor = teamDetails.color_scheme.bgColor || 'bg-gray-800 dark:bg-gray-900';

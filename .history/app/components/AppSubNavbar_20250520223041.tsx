@@ -56,7 +56,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
       : 'flex items-center space-x-2 overflow-x-auto whitespace-nowrap scrollbar-hide py-1'); // Mobile collapsed: scroll first 2
 
   return (
-    <div className={`bg-gradient-to-r from-black via-gray-900 to-gray-800 text-gray-300 shadow-lg sticky top-[92px] z-30 transition-all duration-300 ease-in-out border-t border-gray-700`}>
+    <div className={`bg-gradient-to-r from-black via-gray-900 to-gray-800 text-gray-300 shadow-lg sticky top-[calc(theme(spacing.16)_-_1px)] md:top-[calc(theme(spacing.28)_-_1px)] z-30 transition-all duration-300 ease-in-out border-b border-gray-700`}>
       <div className="container mx-auto px-2 sm:px-4">
         {isExpanded && (
           <div className="py-6 text-center border-b border-gray-700">
@@ -66,7 +66,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
           </div>
         )}
         
-        <div className={`flex items-center justify-between py-2.5 sm:py-3`}> 
+        <div className={`flex items-center justify-between py-2.5 sm:py-3 ${isExpanded ? '' : (isDesktop ? 'md:border-t-0' : 'md:border-t-0')}`}> 
           {!isExpanded && isDesktop && (
              <FaRocket className="h-5 w-5 sm:h-6 sm:w-6 text-sky-500 mr-2 sm:mr-3 flex-shrink-0 hidden md:block" />
           )}

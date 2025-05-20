@@ -67,7 +67,7 @@ export default function TeamPage() {
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname(); // Get pathname from the hook
-  const teamSlugOrId = params?.slug as string | undefined; // Allow undefined initially
+  const teamSlugOrId = params.slug as string;
   const { setPageContext } = usePageHeader(); // Added hook usage
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -137,17 +137,12 @@ export default function TeamPage() {
 
   // Fetch team details and user role
   const fetchTeamDetailsAndRole = useCallback(async () => {
-    if (!teamSlugOrId || !currentUser?.id) { // Ensure teamSlugOrId is not undefined/null here
-      if (!teamSlugOrId) setError("Team identifier is missing from URL.");
-      // Optionally, don't proceed if currentUser.id is missing yet, or handle appropriately
-      setLoadingTeamDetails(false);
-      return;
-    }
+    if (!teamSlugOrId || !currentUser?.id) return;
     setLoadingTeamDetails(true);
     setError(null);
     
+    // Fetch Team Details
     let teamQuery = supabase.from('teams').select('*');
-    // Check if teamSlugOrId is a UUID (potential ID) or a slug string
     if (teamSlugOrId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
         teamQuery = teamQuery.eq('id', teamSlugOrId);
     } else {
@@ -158,18 +153,21 @@ export default function TeamPage() {
     if (teamError || !teamData) {
       console.error('Error fetching team details:', teamError);
       setError('Team not found or error loading details.');
+      console.log('[fetchTeamDetailsAndRole] Setting teamDetails to null due to error/no data.');
       setTeamDetails(null);
       setCurrentUserRole(null);
       setLoadingTeamDetails(false);
+      // Set a generic error title in the header
       setPageContext({
         title: "Error",
-        href: pathname || '/', // Provide a fallback for href
+        href: pathname, // Use current pathname from usePathname()
         icon: FaExclamationTriangle
+        // breadcrumbs: [{ text: "Error", href: pathname }] // Removed due to linter error
       });
       return;
     }
     
-    const typedTeamData = teamData as any; // Assuming structure, consider defining a more precise type
+    const typedTeamData = teamData as any;
     let creatorDisplayName: string | null = null;
 
     if (typedTeamData.created_by) {
@@ -192,17 +190,22 @@ export default function TeamPage() {
       name: typedTeamData.name,
       description: typedTeamData.description,
       slug: typedTeamData.slug,
-      created_by: typedTeamData.created_by,
-      creator_display_name: creatorDisplayName, // This was defined earlier in the function
-      color_scheme: typedTeamData.color_scheme, // Keep as is, handle null/undefined in JSX
+      created_by: typedTeamData.created_by, // Store created_by ID
+      creator_display_name: creatorDisplayName, // Store display name
+      color_scheme: typedTeamData.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
       icon_name: typedTeamData.icon_name || 'FaUsers',
     });
 
+    // Update page header context
     const teamIcon = iconMap[typedTeamData.icon_name || 'FaUsers'] || FaUsers;
     setPageContext({
       title: typedTeamData.name,
       href: `/teams/${typedTeamData.slug || typedTeamData.id}`,
       icon: teamIcon
+      // breadcrumbs: [ // Removed due to linter error
+      //   { text: "My Team", href: "/team" }, 
+      //   { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
+      // ]
     });
 
     // Fetch User Role in this Team
@@ -227,11 +230,11 @@ export default function TeamPage() {
   }, [supabase, teamSlugOrId, currentUser?.id, setPageContext, pathname]);
   
   useEffect(() => {
-    if (params && params.slug && currentUser?.id) { // Check params and params.slug here
+    // Now call fetchTeamDetailsAndRole instead of fetchTeamDetails
+    if (currentUser?.id) { // Ensure currentUser is loaded before fetching details that depend on its ID
       fetchTeamDetailsAndRole();
     }
-    // If teamSlugOrId is not available yet (e.g. params not populated), this effect will re-run when it is.
-  }, [params, currentUser?.id, fetchTeamDetailsAndRole]); // Add params to dependency array
+  }, [fetchTeamDetailsAndRole, currentUser?.id]);
 
   const fetchTeamMembers = useCallback(async (teamId: string) => {
     if (!teamId) return;
@@ -699,11 +702,12 @@ export default function TeamPage() {
   if (loadingTeamDetails || !teamDetails) {
     let headerBgColor = 'bg-gray-800 dark:bg-gray-900';
     let headerBorderColor = 'border-gray-700 dark:border-gray-800';
-    let baseBgColor = 'bg-gray-800 dark:bg-gray-900';
-    // Check if teamDetails and teamDetails.color_scheme are available
+    let baseBgColor = 'bg-gray-800 dark:bg-gray-900'; // Fallback if teamDetails or color_scheme is null
+
+    // Determine if teamDetails and its color_scheme exist
     const hasTeamColor = teamDetails && teamDetails.color_scheme;
 
-    if (hasTeamColor) { // No need to check teamDetails.color_scheme again, hasTeamColor covers it
+    if (hasTeamColor && teamDetails && teamDetails.color_scheme) { // Extra check for teamDetails.color_scheme
         headerBgColor = teamDetails.color_scheme.bgColor || 'bg-gray-800 dark:bg-gray-900';
         headerBorderColor = teamDetails.color_scheme.borderColor || 'border-gray-700 dark:border-gray-800';
         baseBgColor = teamDetails.color_scheme.bgColor || 'bg-gray-800 dark:bg-gray-900';
@@ -731,7 +735,7 @@ export default function TeamPage() {
             </div>
             {currentUser && teamDetails && (
                 <div className="flex items-center space-x-2">
-                     {(currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser?.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser?.id)) && teamDetails.id && (
+                     {currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser?.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser?.id) ? (
                         <button 
                             onClick={handleDeleteTeam} 
                             disabled={deletingTeam}
@@ -739,8 +743,7 @@ export default function TeamPage() {
                         >
                             {deletingTeam ? <FaSpinner className="animate-spin mr-1" /> : <FaTrashAlt className="mr-1" />} Delete Team
                         </button>
-                    )}
-                    {!(currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser?.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser?.id)) && teamDetails.id && (
+                    ) : (
                         <button 
                             onClick={handleLeaveTeam} 
                             disabled={leavingTeam}
@@ -756,7 +759,7 @@ export default function TeamPage() {
           {error ? (
             <div className="text-center text-red-400">
               <FaExclamationTriangle className="mx-auto text-3xl mb-2" />
-              <p>{error || 'An error occurred.'}</p>
+              <p>{error}</p>
             </div>
           ) : (
             <div className="text-center">
@@ -768,24 +771,29 @@ export default function TeamPage() {
       </div>
     );
   } else {
+    // Determine colors, ensuring teamDetails and teamDetails.color_scheme are not null
     const currentColorScheme = teamDetails.color_scheme || { bgColor: 'bg-gray-800 dark:bg-gray-900', textColor: 'text-white', borderColor: 'border-gray-700 dark:border-gray-800' };
     const headerBgColor = currentColorScheme.bgColor;
     const headerBorderColor = currentColorScheme.borderColor;
     const baseBgColor = currentColorScheme.bgColor;
-    const buttonBgColor = currentColorScheme.bgColor.replace('bg-', 'hover:bg-');
+    const buttonBgColor = currentColorScheme.bgColor.replace('bg-', 'hover:bg-'); // For hover effect
     const buttonTextColor = currentColorScheme.textColor;
     const buttonBorderColor = currentColorScheme.borderColor;
-    const IconComponent = iconMap[teamDetails.icon_name || 'FaUsers'] || FaUsers;
 
     return (
-      <div className={`flex flex-col h-screen text-white ${baseBgColor} ${!teamDetails.color_scheme ? 'bg-gradient-to-br from-gray-800 to-gray-950' : ''}`}>
-        <header className={`pt-3 pb-4 px-4 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-20 ${headerBgColor} bg-opacity-90 backdrop-blur-md ${headerBorderColor}`}>
+      <div 
+        className={`flex flex-col h-screen text-white ${baseBgColor} ${!teamDetails.color_scheme ? 'bg-gradient-to-br from-gray-800 to-gray-950' : ''}`}
+      >
+        {/* Header with back button, team name, creator, and member actions */}
+        <header 
+          className={`pt-3 pb-4 px-4 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-20 ${headerBgColor} bg-opacity-90 backdrop-blur-md ${headerBorderColor}`}
+        >
           <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-white/10 transition-colors">
             <FaArrowLeft className="h-5 w-5" />
           </button>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl md:text-2xl font-bold truncate" title={teamDetails.name}>
-              <IconComponent className="inline mr-2 h-5 w-5 align-middle" />
+              {teamDetails.icon_name && iconMap[teamDetails.icon_name] ? React.createElement(iconMap[teamDetails.icon_name], { className: "inline mr-2 h-5 w-5 align-middle" }) : <FaUsers className="inline mr-2 h-5 w-5 align-middle" />}
               {teamDetails.name}
             </h1>
             {teamDetails.creator_display_name && (
@@ -794,16 +802,9 @@ export default function TeamPage() {
               </p>
             )}
           </div>
-          <div className="flex items-center space-x-2">
-            <button
-                onClick={() => fetchMessages(teamDetails.id, true)}
-                disabled={refreshingMessages || loadingMessages}
-                title="Refresh Messages"
-                className={`p-2 rounded-md flex items-center transition-colors ${buttonTextColor} hover:bg-white/10 disabled:opacity-50`}
-            >
-                {refreshingMessages ? <FaSpinner className="animate-spin h-5 w-5" /> : <FaSyncAlt className="h-5 w-5" />}
-            </button>
-            {currentUser && (currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser.id)) ? (
+          {currentUser && (
+            <div className="flex items-center space-x-2">
+              {currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser.id) ? (
                 <button 
                   onClick={handleDeleteTeam} 
                   disabled={deletingTeam}
@@ -820,38 +821,48 @@ export default function TeamPage() {
                   {leavingTeam ? <FaSpinner className="animate-spin mr-1.5" /> : <FaSignOutAlt className="mr-1.5" />} Leave
                 </button>
               )}
-          </div>
+            </div>
+          )}
         </header>
 
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-          <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Main content: Chat and Members list */}
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden"> {/* Parent for chat and members */}
+          
+          {/* Chat Section (Messages and Input) */}
+          <div className="flex-1 flex flex-col overflow-hidden"> {/* Takes up remaining space and allows internal scrolling */}
+            
+            {/* Messages Area */}
             <main className="flex-grow p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               {loadingMessages && initialMessagesLoadCompleted.current === false ? (
+              // ... existing loading messages JSX ...
                 <div className="flex-1 flex flex-col justify-center items-center p-4">
                   <FaSpinner className="animate-spin text-3xl text-sky-400 mb-3" />
                   <p className="text-gray-300 dark:text-gray-400">Loading messages...</p>
                 </div>
-              ) : error && !loadingMessages ? (
+              ) : error ? (
                 <div className="flex-1 flex flex-col justify-center items-center p-4 text-red-400">
                   <FaExclamationTriangle className="text-3xl mb-3" />
                   <p>{error}</p>
                 </div>
               ) : messages.length === 0 ? (
+              // ... existing no messages JSX ...
                 <div className="flex-1 flex flex-col justify-center items-center p-4 text-center">
                   <FaCommentDots className="text-4xl text-gray-500 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-300 mb-2">No messages yet.</h3>
                   <p className="text-gray-400 dark:text-gray-500">Be the first to say something!</p>
+                  {/* Real-time updates info box */}
                   <div className="mt-6 p-3 bg-sky-800/30 border border-sky-700 rounded-lg text-xs text-sky-300 max-w-md mx-auto">
                     <FaInfoCircle className="inline mr-1.5 mb-0.5" />
                     Real-time updates are active. 
-                    If you suspect missing messages, you can use the <FaSyncAlt className="inline mx-0.5" /> button to manually refresh.
+                    If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-0.5" /> button to manually refresh.
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {messages.map((msg) => (
+                    // ... existing message item JSX ...
                     <div key={msg.id} className={`flex ${msg.user_id === currentUser?.id ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-xs lg:max-w-md p-3 rounded-xl shadow-md ${msg.user_id === currentUser?.id ? `${currentColorScheme.bgColor.replace('bg-','dark:bg-').replace('gray-800','sky-700')} text-white` : 'bg-gray-700 dark:bg-gray-700 text-gray-200 dark:text-gray-100'}`}>
+                      <div className={`max-w-xs lg:max-w-md p-3 rounded-xl shadow-md ${msg.user_id === currentUser?.id ? `${currentColorScheme.bgColor.replace('bg-', 'dark:bg-').replace('gray-800','sky-700')} text-white` : 'bg-gray-700 dark:bg-gray-700 text-gray-200 dark:text-gray-100'}`}>
                         <div className="flex items-center mb-1">
                           {msg.profiles?.avatar_url && (
                             <img 
@@ -882,10 +893,12 @@ export default function TeamPage() {
                       </div>
                     </div>
                   ))}
-                  <div ref={messagesEndRef} />
+                  <div ref={messagesEndRef} /> {/* For scrolling to bottom */}
                 </div>
               )}
             </main>
+
+            {/* Message Input Form */}
             <footer className={`w-full p-3 md:p-4 sticky bottom-0 ${headerBgColor} border-t ${headerBorderColor} bg-opacity-90 backdrop-blur-md`}>
               <form onSubmit={handlePostMessage} className="flex items-center space-x-2 md:space-x-3">
                 <input
@@ -915,8 +928,9 @@ export default function TeamPage() {
                 </button>
               </form>
             </footer>
-          </div>
-
+          </div> {/* End Chat Section */}
+          
+          {/* Members Sidebar - Now correctly positioned as a sibling to Chat Section */}
           <aside className={`w-full md:w-72 lg:w-80 p-3 md:p-4 ${headerBgColor} border-t md:border-t-0 md:border-l ${headerBorderColor} flex flex-col bg-opacity-90 backdrop-blur-md`}>
             <div className="flex justify-between items-center mb-3 md:mb-4">
               <h2 className="text-lg font-semibold text-white">Members ({teamMembers.length})</h2>
@@ -930,7 +944,8 @@ export default function TeamPage() {
               </button>
             </div>
             
-            <div id="members-list-mobile" className={`md:hidden ${showMembersDropdown ? 'block' : 'hidden'} overflow-y-auto flex-grow mb-2 scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent`}>
+            {/* Mobile Dropdown Content */}
+            <div id="members-list-mobile" className={`md:hidden ${showMembersDropdown ? 'block' : 'hidden'} overflow-y-auto flex-grow mb-2`}>
               {loadingMembers ? (
                 <div className="flex justify-center items-center py-4"><FaSpinner className="animate-spin text-2xl text-gray-400" /></div>
               ) : teamMembers.length > 0 ? (
@@ -953,7 +968,8 @@ export default function TeamPage() {
               )}
             </div>
 
-            <div className="hidden md:block overflow-y-auto flex-grow scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent">
+            {/* Desktop Always Visible List */}
+            <div className="hidden md:block overflow-y-auto flex-grow scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800/50">
               {loadingMembers ? (
                 <div className="flex justify-center items-center pt-5"><FaSpinner className="animate-spin text-2xl text-gray-400" /></div>
               ) : teamMembers.length > 0 ? (
@@ -975,9 +991,10 @@ export default function TeamPage() {
                 <p className="text-gray-400 dark:text-gray-500 text-sm text-center pt-5">No members found.</p>
               )}
             </div>
-          </aside>
-        </div>
-      </div>
+          </aside> {/* End Members Sidebar */}
+
+        </div> {/* End Main content: Chat and Members list */}
+      </div> // End Page Wrapper
     );
   }
 }
@@ -999,4 +1016,5 @@ export default function TeamPage() {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(128, 128, 128, 0.7);
 }
+*/
 */

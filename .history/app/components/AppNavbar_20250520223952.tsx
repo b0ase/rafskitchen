@@ -111,7 +111,7 @@ export default function AppNavbar({
   return (
     <nav className="bg-black text-white shadow-md sticky top-0 z-40">
       {/* Main Navbar Content Bar */}
-      <div className="container mx-auto flex items-center justify-between p-4 h-[92px]"> {/* Changed h-[90px] to h-[92px] */}
+      <div className="container mx-auto flex items-center justify-between p-4 h-[90px]"> {/* Changed h-24 to h-[90px] */}
         <button 
           onClick={toggleFullScreenMenu}
           className="text-gray-400 hover:text-white focus:outline-none md:hidden mr-3"

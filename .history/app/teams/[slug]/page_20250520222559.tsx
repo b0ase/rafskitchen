@@ -67,7 +67,7 @@ export default function TeamPage() {
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname(); // Get pathname from the hook
-  const teamSlugOrId = params?.slug as string | undefined; // Allow undefined initially
+  const teamSlugOrId = params.slug as string;
   const { setPageContext } = usePageHeader(); // Added hook usage
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -137,17 +137,12 @@ export default function TeamPage() {
 
   // Fetch team details and user role
   const fetchTeamDetailsAndRole = useCallback(async () => {
-    if (!teamSlugOrId || !currentUser?.id) { // Ensure teamSlugOrId is not undefined/null here
-      if (!teamSlugOrId) setError("Team identifier is missing from URL.");
-      // Optionally, don't proceed if currentUser.id is missing yet, or handle appropriately
-      setLoadingTeamDetails(false);
-      return;
-    }
+    if (!teamSlugOrId || !currentUser?.id) return;
     setLoadingTeamDetails(true);
     setError(null);
     
+    // Fetch Team Details
     let teamQuery = supabase.from('teams').select('*');
-    // Check if teamSlugOrId is a UUID (potential ID) or a slug string
     if (teamSlugOrId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
         teamQuery = teamQuery.eq('id', teamSlugOrId);
     } else {
@@ -158,18 +153,21 @@ export default function TeamPage() {
     if (teamError || !teamData) {
       console.error('Error fetching team details:', teamError);
       setError('Team not found or error loading details.');
+      console.log('[fetchTeamDetailsAndRole] Setting teamDetails to null due to error/no data.');
       setTeamDetails(null);
       setCurrentUserRole(null);
       setLoadingTeamDetails(false);
+      // Set a generic error title in the header
       setPageContext({
         title: "Error",
-        href: pathname || '/', // Provide a fallback for href
+        href: pathname, // Use current pathname from usePathname()
         icon: FaExclamationTriangle
+        // breadcrumbs: [{ text: "Error", href: pathname }] // Removed due to linter error
       });
       return;
     }
     
-    const typedTeamData = teamData as any; // Assuming structure, consider defining a more precise type
+    const typedTeamData = teamData as any;
     let creatorDisplayName: string | null = null;
 
     if (typedTeamData.created_by) {
@@ -192,17 +190,22 @@ export default function TeamPage() {
       name: typedTeamData.name,
       description: typedTeamData.description,
       slug: typedTeamData.slug,
-      created_by: typedTeamData.created_by,
-      creator_display_name: creatorDisplayName, // This was defined earlier in the function
-      color_scheme: typedTeamData.color_scheme, // Keep as is, handle null/undefined in JSX
+      created_by: typedTeamData.created_by, // Store created_by ID
+      creator_display_name: creatorDisplayName, // Store display name
+      color_scheme: typedTeamData.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
       icon_name: typedTeamData.icon_name || 'FaUsers',
     });
 
+    // Update page header context
     const teamIcon = iconMap[typedTeamData.icon_name || 'FaUsers'] || FaUsers;
     setPageContext({
       title: typedTeamData.name,
       href: `/teams/${typedTeamData.slug || typedTeamData.id}`,
       icon: teamIcon
+      // breadcrumbs: [ // Removed due to linter error
+      //   { text: "My Team", href: "/team" }, 
+      //   { text: typedTeamData.name, href: `/teams/${typedTeamData.slug || typedTeamData.id}` }
+      // ]
     });
 
     // Fetch User Role in this Team
@@ -227,11 +230,11 @@ export default function TeamPage() {
   }, [supabase, teamSlugOrId, currentUser?.id, setPageContext, pathname]);
   
   useEffect(() => {
-    if (params && params.slug && currentUser?.id) { // Check params and params.slug here
+    // Now call fetchTeamDetailsAndRole instead of fetchTeamDetails
+    if (currentUser?.id) { // Ensure currentUser is loaded before fetching details that depend on its ID
       fetchTeamDetailsAndRole();
     }
-    // If teamSlugOrId is not available yet (e.g. params not populated), this effect will re-run when it is.
-  }, [params, currentUser?.id, fetchTeamDetailsAndRole]); // Add params to dependency array
+  }, [fetchTeamDetailsAndRole, currentUser?.id]);
 
   const fetchTeamMembers = useCallback(async (teamId: string) => {
     if (!teamId) return;
@@ -697,289 +700,277 @@ export default function TeamPage() {
   });
 
   if (loadingTeamDetails || !teamDetails) {
-    let headerBgColor = 'bg-gray-800 dark:bg-gray-900';
-    let headerBorderColor = 'border-gray-700 dark:border-gray-800';
-    let baseBgColor = 'bg-gray-800 dark:bg-gray-900';
-    // Check if teamDetails and teamDetails.color_scheme are available
-    const hasTeamColor = teamDetails && teamDetails.color_scheme;
-
-    if (hasTeamColor) { // No need to check teamDetails.color_scheme again, hasTeamColor covers it
-        headerBgColor = teamDetails.color_scheme.bgColor || 'bg-gray-800 dark:bg-gray-900';
-        headerBorderColor = teamDetails.color_scheme.borderColor || 'border-gray-700 dark:border-gray-800';
-        baseBgColor = teamDetails.color_scheme.bgColor || 'bg-gray-800 dark:bg-gray-900';
-    }
-    
     return (
-      <div 
-        className={`flex-1 flex flex-col h-full p-2 md:p-4 text-white ${baseBgColor} ${hasTeamColor ? '' : 'bg-gradient-to-br from-gray-800 to-gray-950'}`}
-      >
-        <header 
-          className={`pt-3 pb-6 px-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 ${headerBgColor} bg-opacity-80 backdrop-blur-md ${headerBorderColor}`}
-        >
-            <button onClick={() => router.back()} className="p-2 rounded-md hover:bg-white/10 transition-colors">
-              <FaArrowLeft className="h-5 w-5" />
-            </button>
-            <div className="flex-1 min-w-0">
-                <h1 className="text-xl md:text-2xl font-bold truncate" title={teamDetails?.name || "Loading team..."}>
-                    {teamDetails?.name || "Loading team..."}
-                </h1>
-                {teamDetails?.creator_display_name && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate" title={`Created by ${teamDetails.creator_display_name}`}>
-                        Created by {teamDetails.creator_display_name}
-                    </p>
-                )}
-            </div>
-            {currentUser && teamDetails && (
-                <div className="flex items-center space-x-2">
-                     {(currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser?.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser?.id)) && teamDetails.id && (
-                        <button 
-                            onClick={handleDeleteTeam} 
-                            disabled={deletingTeam}
-                            className="p-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 flex items-center text-xs"
-                        >
-                            {deletingTeam ? <FaSpinner className="animate-spin mr-1" /> : <FaTrashAlt className="mr-1" />} Delete Team
-                        </button>
-                    )}
-                    {!(currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser?.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser?.id)) && teamDetails.id && (
-                        <button 
-                            onClick={handleLeaveTeam} 
-                            disabled={leavingTeam}
-                            className="p-2 rounded-md bg-yellow-600 hover:bg-yellow-700 text-white transition-colors disabled:opacity-50 flex items-center text-xs"
-                        >
-                            {leavingTeam ? <FaSpinner className="animate-spin mr-1" /> : <FaSignOutAlt className="mr-1" />} Leave Team
-                        </button>
-                    )}
-                </div>
-            )}
-        </header>
-        <div className="flex-1 flex justify-center items-center">
-          {error ? (
-            <div className="text-center text-red-400">
-              <FaExclamationTriangle className="mx-auto text-3xl mb-2" />
-              <p>{error || 'An error occurred.'}</p>
-            </div>
-          ) : (
-            <div className="text-center">
-              <FaSpinner className="animate-spin text-3xl mx-auto mb-2 text-sky-400" />
-              <p className="text-gray-300 dark:text-gray-400">Loading team details...</p>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  } else {
-    const currentColorScheme = teamDetails.color_scheme || { bgColor: 'bg-gray-800 dark:bg-gray-900', textColor: 'text-white', borderColor: 'border-gray-700 dark:border-gray-800' };
-    const headerBgColor = currentColorScheme.bgColor;
-    const headerBorderColor = currentColorScheme.borderColor;
-    const baseBgColor = currentColorScheme.bgColor;
-    const buttonBgColor = currentColorScheme.bgColor.replace('bg-', 'hover:bg-');
-    const buttonTextColor = currentColorScheme.textColor;
-    const buttonBorderColor = currentColorScheme.borderColor;
-    const IconComponent = iconMap[teamDetails.icon_name || 'FaUsers'] || FaUsers;
-
-    return (
-      <div className={`flex flex-col h-screen text-white ${baseBgColor} ${!teamDetails.color_scheme ? 'bg-gradient-to-br from-gray-800 to-gray-950' : ''}`}>
-        <header className={`pt-3 pb-4 px-4 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-20 ${headerBgColor} bg-opacity-90 backdrop-blur-md ${headerBorderColor}`}>
-          <button onClick={() => router.back()} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-            <FaArrowLeft className="h-5 w-5" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl md:text-2xl font-bold truncate" title={teamDetails.name}>
-              <IconComponent className="inline mr-2 h-5 w-5 align-middle" />
-              {teamDetails.name}
-            </h1>
-            {teamDetails.creator_display_name && (
-              <p className="text-xs text-gray-400 dark:text-gray-500 truncate" title={`Created by ${teamDetails.creator_display_name}`}>
-                Created by {teamDetails.creator_display_name}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-                onClick={() => fetchMessages(teamDetails.id, true)}
-                disabled={refreshingMessages || loadingMessages}
-                title="Refresh Messages"
-                className={`p-2 rounded-md flex items-center transition-colors ${buttonTextColor} hover:bg-white/10 disabled:opacity-50`}
-            >
-                {refreshingMessages ? <FaSpinner className="animate-spin h-5 w-5" /> : <FaSyncAlt className="h-5 w-5" />}
-            </button>
-            {currentUser && (currentUserRole === 'owner' || currentUserRole === 'admin' || (currentUser.email === SUPER_ADMIN_EMAIL && teamDetails.created_by === currentUser.id)) ? (
-                <button 
-                  onClick={handleDeleteTeam} 
-                  disabled={deletingTeam}
-                  className="p-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50 flex items-center text-xs font-medium"
-                >
-                  {deletingTeam ? <FaSpinner className="animate-spin mr-1.5" /> : <FaTrashAlt className="mr-1.5" />} Delete
-                </button>
-              ) : (
-                <button 
-                  onClick={handleLeaveTeam} 
-                  disabled={leavingTeam}
-                  className="p-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-black transition-colors disabled:opacity-50 flex items-center text-xs font-medium"
-                >
-                  {leavingTeam ? <FaSpinner className="animate-spin mr-1.5" /> : <FaSignOutAlt className="mr-1.5" />} Leave
-                </button>
-              )}
-          </div>
-        </header>
-
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <main className="flex-grow p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-              {loadingMessages && initialMessagesLoadCompleted.current === false ? (
-                <div className="flex-1 flex flex-col justify-center items-center p-4">
-                  <FaSpinner className="animate-spin text-3xl text-sky-400 mb-3" />
-                  <p className="text-gray-300 dark:text-gray-400">Loading messages...</p>
-                </div>
-              ) : error && !loadingMessages ? (
-                <div className="flex-1 flex flex-col justify-center items-center p-4 text-red-400">
-                  <FaExclamationTriangle className="text-3xl mb-3" />
-                  <p>{error}</p>
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="flex-1 flex flex-col justify-center items-center p-4 text-center">
-                  <FaCommentDots className="text-4xl text-gray-500 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-300 mb-2">No messages yet.</h3>
-                  <p className="text-gray-400 dark:text-gray-500">Be the first to say something!</p>
-                  <div className="mt-6 p-3 bg-sky-800/30 border border-sky-700 rounded-lg text-xs text-sky-300 max-w-md mx-auto">
-                    <FaInfoCircle className="inline mr-1.5 mb-0.5" />
-                    Real-time updates are active. 
-                    If you suspect missing messages, you can use the <FaSyncAlt className="inline mx-0.5" /> button to manually refresh.
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((msg) => (
-                    <div key={msg.id} className={`flex ${msg.user_id === currentUser?.id ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-xs lg:max-w-md p-3 rounded-xl shadow-md ${msg.user_id === currentUser?.id ? `${currentColorScheme.bgColor.replace('bg-','dark:bg-').replace('gray-800','sky-700')} text-white` : 'bg-gray-700 dark:bg-gray-700 text-gray-200 dark:text-gray-100'}`}>
-                        <div className="flex items-center mb-1">
-                          {msg.profiles?.avatar_url && (
-                            <img 
-                              src={msg.profiles.avatar_url} 
-                              alt={msg.profiles.display_name || 'User'} 
-                              className="w-6 h-6 rounded-full mr-2 border border-gray-500"
-                              crossOrigin="anonymous"
-                            />
-                          )}
-                          <span className="text-xs font-semibold opacity-80">
-                            {msg.user_id === currentUser?.id ? 'You' : msg.profiles?.display_name || 'Guest'}
-                          </span>
-                        </div>
-                        <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                        <div className="text-xs opacity-60 mt-1.5 text-right flex items-center justify-end">
-                          {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-                          {msg.user_id === currentUser?.id && (
-                            <button 
-                              onClick={() => handleDeleteMessage(msg.id)} 
-                              disabled={deletingMessageId === msg.id}
-                              className="ml-2 text-red-400 hover:text-red-300 disabled:opacity-50"
-                              title="Delete message"
-                            >
-                              {deletingMessageId === msg.id ? <FaSpinner className="animate-spin h-3 w-3" /> : <FaTrashAlt className="h-3 w-3" />}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-              )}
-            </main>
-            <footer className={`w-full p-3 md:p-4 sticky bottom-0 ${headerBgColor} border-t ${headerBorderColor} bg-opacity-90 backdrop-blur-md`}>
-              <form onSubmit={handlePostMessage} className="flex items-center space-x-2 md:space-x-3">
-                <input
-                  type="text"
-                  value={newMessageContent}
-                  onChange={(e) => setNewMessageContent(e.target.value)}
-                  placeholder="Type your message..."
-                  className={`flex-grow p-3 bg-gray-700 dark:bg-gray-800 border border-gray-600 dark:border-gray-700 rounded-lg text-gray-100 focus:outline-none focus:ring-2 ${currentColorScheme.borderColor.replace('border-','focus:ring-').replace('gray','sky')} ${currentColorScheme.borderColor.replace('border-','focus:border-').replace('gray','sky')} shadow-sm transition-colors placeholder-gray-400 dark:placeholder-gray-500`}
-                  disabled={postingMessage || !currentUser}
-                />
-                <button 
-                  type="submit" 
-                  disabled={postingMessage || !currentUser || !newMessageContent.trim()}
-                  className={`px-4 py-3 rounded-lg font-semibold flex items-center justify-center shadow-md transition-colors 
-                             ${buttonTextColor} 
-                             ${postingMessage ? currentColorScheme.bgColor : buttonBgColor} 
-                             ${currentColorScheme.bgColor} 
-                             border ${buttonBorderColor} 
-                             disabled:opacity-60 disabled:cursor-not-allowed`}
-                >
-                  {postingMessage ? (
-                    <FaSpinner className="animate-spin mr-0 md:mr-2 h-5 w-5" /> 
-                  ) : (
-                    <FaPaperPlane className="mr-0 md:mr-2 h-5 w-5" /> 
-                  )}
-                  <span className="hidden md:inline">{postingMessage ? 'Sending...' : 'Send'}</span>
-                </button>
-              </form>
-            </footer>
-          </div>
-
-          <aside className={`w-full md:w-72 lg:w-80 p-3 md:p-4 ${headerBgColor} border-t md:border-t-0 md:border-l ${headerBorderColor} flex flex-col bg-opacity-90 backdrop-blur-md`}>
-            <div className="flex justify-between items-center mb-3 md:mb-4">
-              <h2 className="text-lg font-semibold text-white">Members ({teamMembers.length})</h2>
-              <button 
-                onClick={() => setShowMembersDropdown(!showMembersDropdown)}
-                className="md:hidden text-gray-300 hover:text-white p-1.5 rounded-md hover:bg-white/10"
-                aria-expanded={showMembersDropdown}
-                aria-controls="members-list-mobile"
-              >
-                {showMembersDropdown ? <FaChevronUp size={18} /> : <FaChevronDown size={18} />}
-              </button>
-            </div>
-            
-            <div id="members-list-mobile" className={`md:hidden ${showMembersDropdown ? 'block' : 'hidden'} overflow-y-auto flex-grow mb-2 scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent`}>
-              {loadingMembers ? (
-                <div className="flex justify-center items-center py-4"><FaSpinner className="animate-spin text-2xl text-gray-400" /></div>
-              ) : teamMembers.length > 0 ? (
-                <ul className="space-y-1.5">
-                  {teamMembers.map((member) => (
-                    <li key={member.id} className={`flex items-center space-x-3 p-2.5 ${currentColorScheme.bgColor.replace('bg-','dark:bg-').replace('gray-800','gray-750')} hover:brightness-110 rounded-lg transition-colors`}>
-                      {member.avatarUrl ? (
-                        <img src={member.avatarUrl} alt={member.displayName} className="w-8 h-8 rounded-full border-2 border-gray-500 dark:border-gray-600" crossOrigin="anonymous" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gray-600 dark:bg-gray-700 flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-500">
-                          {member.displayName?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <span className="text-xs text-gray-100 dark:text-gray-200 truncate font-medium">{member.displayName}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-400 dark:text-gray-500 text-xs text-center py-3">No members found.</p>
-              )}
-            </div>
-
-            <div className="hidden md:block overflow-y-auto flex-grow scrollbar-thin scrollbar-thumb-gray-600/50 scrollbar-track-transparent">
-              {loadingMembers ? (
-                <div className="flex justify-center items-center pt-5"><FaSpinner className="animate-spin text-2xl text-gray-400" /></div>
-              ) : teamMembers.length > 0 ? (
-                <ul className="space-y-1.5">
-                  {teamMembers.map((member) => (
-                    <li key={member.id} className={`flex items-center space-x-3 p-2.5 ${currentColorScheme.bgColor.replace('bg-','dark:bg-').replace('gray-800','gray-750')} hover:brightness-110 rounded-lg transition-colors`}>
-                      {member.avatarUrl ? (
-                        <img src={member.avatarUrl} alt={member.displayName} className="w-9 h-9 rounded-full border-2 border-gray-500 dark:border-gray-600" crossOrigin="anonymous"/>
-                      ) : (
-                        <div className="w-9 h-9 rounded-full bg-gray-600 dark:bg-gray-700 flex items-center justify-center text-white font-semibold text-md border-2 border-gray-500">
-                          {member.displayName?.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <span className="text-sm text-gray-100 dark:text-gray-200 truncate font-medium">{member.displayName}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-400 dark:text-gray-500 text-sm text-center pt-5">No members found.</p>
-              )}
-            </div>
-          </aside>
-        </div>
+      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+        <FaSpinner className="animate-spin text-4xl text-sky-500 mb-4" />
+        <p className="text-xl">Loading team details...</p>
+        {error && <p className="text-red-500 mt-4 bg-red-900/30 p-3 rounded-md">{error}</p>}
       </div>
     );
   }
+
+  const IconComponent = iconMap[teamDetails.icon_name || 'FaUsers'] || FaUsers;
+  // Use teamDetails.color_scheme for button text color, or default
+  const buttonTextColor = teamDetails.color_scheme?.textColor || 'text-gray-100'; 
+  const buttonBorderColor = teamDetails.color_scheme?.borderColor || 'border-gray-700';
+
+  const baseBgColor = teamDetails.color_scheme?.bgColor || 'bg-gray-800';
+  const headerBgColor = teamDetails.color_scheme?.bgColor || 'bg-gray-800'; // Use the same for header base
+  const hasTeamColor = !!teamDetails.color_scheme?.bgColor;
+
+  return (
+    <div className="flex flex-col h-full bg-gray-900 dark:bg-black text-white">
+      {/* Team Header with actions - adjust styling as needed */}
+      <header 
+        className={`pt-3 pb-6 px-3 border-b flex items-center justify-between space-x-3 min-h-[70px] sticky top-0 z-10 ${headerBgColor} bg-opacity-80 backdrop-blur-md`}
+        style={{ 
+          borderColor: teamDetails?.color_scheme?.borderColor || 'border-gray-700'
+        }}
+      >
+        <div className="flex items-center space-x-3 min-w-0">
+          <button onClick={() => router.back()} className={`p-2 rounded-full hover:bg-gray-700 transition-colors ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>
+            <FaArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            {loadingTeamDetails ? (
+              <div className="h-6 bg-gray-600 rounded w-3/4 animate-pulse"></div>
+            ) : teamDetails ? (
+              <div className="flex items-center space-x-2">
+                <h1 className={`text-xl md:text-2xl font-bold truncate ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} title={teamDetails.name}>
+                  {IconComponent && <IconComponent className={`inline-block mr-2 h-6 w-6 align-middle ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`} />} 
+                  {teamDetails.name}
+                </h1>
+                {/* Team Members Avatars */} 
+                <div className="flex items-center pl-2">
+                  {loadingMembers ? (
+                    <FaSpinner className="animate-spin text-sm text-gray-400" />
+                  ) : (
+                    teamMembers.map((member, index) => (
+                      <Link key={member.id} href={`/profile/${member.id}`} passHref>
+                        <div title={member.displayName} className={`w-7 h-7 md:w-8 md:h-8 rounded-full border-2 ${teamDetails?.color_scheme?.borderColor || 'border-gray-600'} overflow-hidden ${index > 0 ? '-ml-2 md:-ml-3' : ''} bg-gray-700 flex items-center justify-center text-xs font-semibold cursor-pointer`}>
+                          {member.avatarUrl ? (
+                            <img src={member.avatarUrl} alt={member.displayName} className="w-full h-full object-cover" crossOrigin="anonymous" />
+                          ) : (
+                            <span className={`${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>{member.displayName?.charAt(0).toUpperCase()}</span>
+                          )}
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : (
+              <h1 className={`text-xl md:text-2xl font-bold ${teamDetails.color_scheme?.textColor || 'text-gray-100'}`}>Team Chat</h1>
+            )}
+            {teamDetails?.creator_display_name && (
+              <p className={`text-xs truncate ${teamDetails.color_scheme?.textColor || 'text-gray-100'} opacity-70`} title={`Created by ${teamDetails.creator_display_name}`}>
+                Created by: {teamDetails.creator_display_name}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => fetchMessages(teamDetails.id, true)}
+            disabled={refreshingMessages || loadingMessages}
+            title="Refresh Messages"
+            className={`p-2 rounded-md flex items-center transition-colors 
+                        ${teamDetails.color_scheme?.textColor || 'text-gray-100'} 
+                        hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {refreshingMessages ? (
+              <FaSpinner className="animate-spin h-5 w-5" />
+            ) : (
+              <FaSyncAlt className="h-5 w-5" />
+            )}
+          </button>
+          {currentUser && teamDetails && (
+            <button
+              onClick={handleLeaveTeam}
+              disabled={leavingTeam || deletingTeam} // Also disable if deleting team
+              className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md flex items-center transition-colors 
+                          ${buttonTextColor} bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed border ${buttonBorderColor}`}
+            >
+              {leavingTeam ? (
+                <FaSpinner className="animate-spin mr-2" />
+              ) : (
+                <FaSignOutAlt className="mr-2" />
+              )}
+              {leavingTeam ? 'Leaving...' : 'Leave Team'}
+            </button>
+          )}
+          {(currentUserRole === 'owner' || currentUser?.email === SUPER_ADMIN_EMAIL) && (
+            <button
+              onClick={handleDeleteTeam}
+              disabled={deletingTeam || leavingTeam}
+              className={`px-2 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-medium rounded-md flex items-center transition-colors 
+                          text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed border border-red-500`}
+            >
+              {deletingTeam ? (
+                <FaSpinner className="animate-spin mr-2" />
+              ) : (
+                <FaTrashAlt className="mr-2" />
+              )}
+              {deletingTeam ? 'Deleting...' : 'Delete Team'}
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* Error Display */}
+      {error && !loadingTeamDetails && !loadingMessages && (
+        <div className="container mx-auto mt-4">
+            <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-md relative shadow-lg" role="alert">
+                <strong className="font-bold">Error:</strong>
+                <span className="block sm:inline ml-2">{error}</span>
+            </div>
+        </div>
+      )}
+
+      {/* Manual Refresh Notice - Placed directly inside main, before scrollable message list */}
+      {!loadingTeamDetails && teamDetails && (
+        <div className="mt-8 mb-4 px-0 sm:px-0">
+          <div className="bg-sky-800/50 border border-sky-700 text-sky-300 px-4 py-2.5 rounded-md text-xs shadow">
+            <FaInfoCircle className="inline mr-2 mb-0.5" />
+            <span className="align-middle">Real-time updates are active.</span>
+            <br />
+            <span className="align-middle">If you suspect missing messages, you can also use the <FaSyncAlt className="inline mx-1 text-sky-300 text-base align-text-bottom" /> button to manually refresh.</span>
+          </div>
+        </div>
+      )}
+
+      {/* Chat and Members Area */}
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden"> {/* Ensure this flex container is suitable */}
+        {/* Messages Area */}
+        <main className="flex-1 flex flex-col p-4 overflow-y-auto"> {/* Main chat content area */}
+          <div 
+            className="flex-grow overflow-y-auto space-y-4 pr-2 pb-20 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+          >
+            {loadingMessages && !refreshingMessages ? (
+              <div className="flex justify-center items-center h-full">
+                <FaSpinner className="animate-spin text-3xl text-sky-400" />
+                <p className="ml-3 text-lg">Loading messages...</p>
+              </div>
+            ) : messages.length === 0 && !error ? (
+              <div className="text-center py-10">
+                <FaCommentDots className="mx-auto text-5xl text-gray-500 mb-4" />
+                <p className="text-gray-400 text-lg">No messages yet. Be the first to say something!</p>
+              </div>
+            ) : (
+              messages.map(message => {
+                // Diagnostic log for messages that would show "Unknown User"
+                if (!message.profiles?.display_name) {
+                  console.log('[Render] Message missing profile display_name:', 
+                    {
+                      messageId: message.id, 
+                      userId: message.user_id, 
+                      profileData: message.profiles, 
+                      createdAt: message.created_at,
+                      content: message.content?.substring(0, 30) // Log first 30 chars of content for context
+                    }
+                  );
+                }
+                return (
+                  <div key={message.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-800/60 shadow">
+                    <Link href={`/profile/${message.user_id}`} passHref>
+                      <img 
+                        src={message.profiles?.avatar_url && message.profiles.avatar_url.startsWith('http') ? message.profiles.avatar_url : 'https://via.placeholder.com/150/000000/FFFFFF/?text=U'} 
+                        alt={message.profiles?.display_name || 'User'} 
+                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-600 cursor-pointer"
+                        crossOrigin="anonymous"
+                      />
+                    </Link>
+                    <div className="flex-1">
+                      <div className="flex items-baseline space-x-2">
+                        <span className="font-semibold text-sky-400 text-sm">
+                          {message.profiles?.display_name || 'Unknown User'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                        </span>
+                        {currentUser && message.user_id === currentUser.id && (
+                          <button 
+                            onClick={() => handleDeleteMessage(message.id)}
+                            disabled={deletingMessageId === message.id}
+                            className="text-gray-500 hover:text-red-500 transition-colors p-1 rounded-full text-xs"
+                            aria-label="Delete message"
+                          >
+                            {deletingMessageId === message.id ? <FaSpinner className="animate-spin" /> : <FaTrashAlt />}
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-gray-300 text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} /> 
+          </div>
+        </main>
+
+        {/* Members Section - THIS IS THE PART TO BE MOVED/CORRECTED */}
+        <aside className="w-full md:w-1/3 lg:w-1/4 p-4 bg-gray-800 dark:bg-gray-900 border-t md:border-t-0 md:border-l border-gray-700 dark:border-gray-800 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-white dark:text-gray-100">Members ({teamMembers.length})</h2>
+            <button
+              onClick={() => setShowMembersDropdown(!showMembersDropdown)}
+              className="md:hidden text-gray-400 hover:text-white"
+              aria-expanded={showMembersDropdown}
+              aria-controls="members-list"
+            >
+              {showMembersDropdown ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+          </div>
+          {loadingMembers && <div className="flex justify-center items-center h-full"><FaSpinner className="animate-spin text-2xl text-gray-400" /></div>}
+
+          {/* Mobile Dropdown Content */}
+          <div id="members-list" className={`md:hidden ${showMembersDropdown ? 'block' : 'hidden'} overflow-y-auto flex-grow`}>
+            {teamMembers.length > 0 ? (
+              <ul className="space-y-2">
+                {teamMembers.map((member) => (
+                  <li key={member.id} className="flex items-center space-x-3 p-2.5 bg-gray-700 hover:bg-gray-650 dark:bg-gray-800 dark:hover:bg-gray-750 rounded-lg transition-colors">
+                    {member.avatarUrl ? (
+                      <img src={member.avatarUrl} alt={member.displayName} className="w-10 h-10 rounded-full border-2 border-gray-600 dark:border-gray-700" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-600 dark:bg-gray-700 flex items-center justify-center text-white font-semibold text-lg border-2 border-gray-500">
+                        {member.displayName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="text-sm text-gray-100 dark:text-gray-200 truncate font-medium">{member.displayName}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              !loadingMembers && <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-4">No members found.</p>
+            )}
+          </div>
+
+          {/* Desktop Always Visible List */}
+          <div className="hidden md:block overflow-y-auto flex-grow">
+            {teamMembers.length > 0 ? (
+              <ul className="space-y-2">
+                {teamMembers.map((member) => (
+                  <li key={member.id} className="flex items-center space-x-3 p-2.5 bg-gray-700 hover:bg-gray-650 dark:bg-gray-800 dark:hover:bg-gray-750 rounded-lg transition-colors">
+                    {member.avatarUrl ? (
+                      <img src={member.avatarUrl} alt={member.displayName} className="w-10 h-10 rounded-full border-2 border-gray-600 dark:border-gray-700" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-600 dark:bg-gray-700 flex items-center justify-center text-white font-semibold text-lg border-2 border-gray-500">
+                        {member.displayName?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="text-sm text-gray-100 dark:text-gray-200 truncate font-medium">{member.displayName}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              !loadingMembers && <p className="text-gray-400 dark:text-gray-500 text-sm text-center py-4">No members found.</p>
+            )}
+          </div>
+        </aside>
+      </div> {/* End Chat and Members Area */}
+    </div> // End Main Content Div
+  );
 }
 
 // Basic custom scrollbar styling (optional, can be moved to global CSS)
