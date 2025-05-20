@@ -106,9 +106,8 @@ export default function AppNavbar({ /* toggleFullScreenMenu, isFullScreenMenuOpe
   }
 
   return (
-    <nav className="bg-black text-white shadow-md sticky top-0 z-40">
-      {/* Main Navbar Content Bar */}
-      <div className="container mx-auto flex items-center justify-between p-4 h-[70px]"> {/* Standard height for the bar */}
+    <nav className="bg-black text-white p-4 shadow-md h-28 flex items-center sticky top-0 z-40">
+      <div className="container mx-auto flex items-center justify-between">
         <button 
           onClick={toggleMobileDropdown}
           className="text-gray-400 hover:text-white focus:outline-none md:hidden mr-3"
@@ -143,36 +142,34 @@ export default function AppNavbar({ /* toggleFullScreenMenu, isFullScreenMenuOpe
           </Link>
         </div>
       </div>
-      {/* Mobile Dropdown Menu - now in flow below the main bar */}
+      {/* Mobile Dropdown Menu */}
       {isMobileDropdownOpen && (
-        <div className="md:hidden bg-black shadow-lg border-t border-gray-700"> {/* Removed absolute, top-full, etc. Added shadow-lg */}
-          <div className="container mx-auto p-4"> {/* Added container and padding */}
-            <ul className="space-y-2">
-              {navLinksPrimaryConst.map((link) => (
-                <li key={link.title}>
-                  <Link href={link.href} legacyBehavior>
-                    <a 
-                      onClick={closeMobileDropdown} // Close dropdown on link click
-                      className="flex items-center p-3 text-base rounded-md transition-all duration-150 ease-in-out group hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-gray-300"
-                    >
-                      {link.icon && <link.icon className="w-5 h-5 mr-3 text-gray-400 group-hover:text-sky-400 transition-colors duration-150" />}
-                      {link.title}
-                    </a>
-                  </Link>
-                </li>
-              ))}
-              {/* Logout Button in Dropdown */}
-              <li>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center p-3 text-base rounded-md font-medium text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 group"
-                >
-                  <FaSignOutAlt className="w-5 h-5 mr-3 text-gray-400 group-hover:text-red-400 transition-colors duration-150" />
-                  Logout
-                </button>
+        <div className="absolute top-full left-0 right-0 bg-black shadow-xl z-30 md:hidden p-4 border-t border-gray-700">
+          <ul className="space-y-2">
+            {navLinksPrimaryConst.map((link) => (
+              <li key={link.title}>
+                <Link href={link.href} legacyBehavior>
+                  <a 
+                    onClick={closeMobileDropdown} // Close dropdown on link click
+                    className="flex items-center p-3 text-base rounded-md transition-all duration-150 ease-in-out group hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 text-gray-300"
+                  >
+                    {link.icon && <link.icon className="w-5 h-5 mr-3 text-gray-400 group-hover:text-sky-400 transition-colors duration-150" />}
+                    {link.title}
+                  </a>
+                </Link>
               </li>
-            </ul>
-          </div>
+            ))}
+            {/* Logout Button in Dropdown */}
+            <li>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center p-3 text-base rounded-md font-medium text-red-400 hover:bg-gray-800 hover:text-red-300 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 group"
+              >
+                <FaSignOutAlt className="w-5 h-5 mr-3 text-gray-400 group-hover:text-red-400 transition-colors duration-150" />
+                Logout
+              </button>
+            </li>
+          </ul>
         </div>
       )}
     </nav>
