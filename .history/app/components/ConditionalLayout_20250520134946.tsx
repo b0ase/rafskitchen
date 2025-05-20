@@ -202,7 +202,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isAppPage = appPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
   useEffect(() => {
-    console.log('[ConditionalLayout AuthCheckEffect] Path:', pathname, 'isLoadingAuth:', isLoadingAuth, 'clientSession:', !!clientSession, 'isAppPage:', isAppPage);
     if (!isLoadingAuth && !clientSession && isAppPage) {
       console.log('[ConditionalLayout] User not authenticated for app page, redirecting to login.');
       router.push('/login');

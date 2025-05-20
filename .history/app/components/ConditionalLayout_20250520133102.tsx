@@ -57,7 +57,6 @@ const minimalLayoutPathPrefixes = [
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname() ?? '';
-  const router = useRouter();
   // const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
   // const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
@@ -90,17 +89,16 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     }
   }
 
-  const { session: clientSession, isLoading: isLoadingAuth } = useAuth();
-  const supabase = getSupabaseBrowserClient();
+  const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
+  const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
+  // Call useProfileData without arguments
   const { 
     profile, 
     loading: profileLoading, 
-    showWelcomeCard, 
+    showWelcomeCard, // Assuming this is the state for welcome card visibility
     handleDismissWelcomeCard 
   } = useProfileData();
-
-  console.log('[ConditionalLayout LOGIN TRACE] Path:', pathname, 'isLoadingAuth:', isLoadingAuth, 'clientSession:', !!clientSession, 'profileLoading:', profileLoading, 'profile:', !!profile);
 
   // --- NEW: Check for minimal layout paths first --- 
   const isMinimalPage = minimalLayoutPathPrefixes.some(prefix => pathname.startsWith(prefix));
@@ -202,7 +200,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isAppPage = appPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
   useEffect(() => {
-    console.log('[ConditionalLayout AuthCheckEffect] Path:', pathname, 'isLoadingAuth:', isLoadingAuth, 'clientSession:', !!clientSession, 'isAppPage:', isAppPage);
     if (!isLoadingAuth && !clientSession && isAppPage) {
       console.log('[ConditionalLayout] User not authenticated for app page, redirecting to login.');
       router.push('/login');
@@ -226,7 +223,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // For non-public and non-auth-flow pages (i.e., app pages or pages needing auth)
   // Now check for authentication loading state
   if (isLoadingAuth || profileLoading) {
-    console.log('[ConditionalLayout LOGIN TRACE] Rendering: Initializing session UI');
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-black">
         <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
@@ -281,10 +277,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       }
     }
 
-    console.log('[ConditionalLayout LOGIN TRACE] Pre-redirect check. Path:', pathname, 'isAppPage:', isAppPage, '!isAuthenticated:', !isAuthenticated, 'isCurrentlyLoggingOut:', isCurrentlyLoggingOut);
+    console.log('[ConditionalLayout] Pre-redirect check. Path:', pathname, 'isAppPage:', isAppPage, '!isAuthenticated:', !isAuthenticated, 'isCurrentlyLoggingOut (from sessionStorage direct check):', isCurrentlyLoggingOut);
 
     if (!isCurrentlyLoggingOut) {
-      console.log('[ConditionalLayout LOGIN TRACE] Rendering: Redirecting to login UI / executing redirect');
+      console.log('[ConditionalLayout] EXECUTING REDIRECT to /login?from=' + pathname);
       if (typeof window !== 'undefined') {
         window.location.href = '/login?from=' + pathname;
       }

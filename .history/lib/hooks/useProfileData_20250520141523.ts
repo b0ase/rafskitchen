@@ -135,6 +135,7 @@ export default function useProfileData() {
   const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>('');
   const [showWelcomeCard, setShowWelcomeCard] = useState<boolean>(true);
 
+  // Moved loadProfileAndSkills to top level
   const loadProfileAndSkills = useCallback(async (currentUserParam: User, currentPathname: string) => {
     if (!currentUserParam?.id) {
       setLoading(false);
@@ -157,6 +158,7 @@ export default function useProfileData() {
         setError('Failed to load profile: ' + profileError.message);
         setProfile(null); 
       } else if (rawProfileData) {
+        // Explicitly cast to Profile type after ensuring it's not null and no error
         fetchedProfileData = rawProfileData as Profile;
         console.log("[useProfileData] Profile data fetched:", fetchedProfileData);
         setProfile(fetchedProfileData);
@@ -177,12 +179,13 @@ export default function useProfileData() {
         setNewDollarHandle(fetchedProfileData.dollar_handle || '');
         setNewTokenName(fetchedProfileData.token_name || '');
         setNewSupply(fetchedProfileData.supply || '1,000,000,000');
-        setShowWelcomeCard(true);
+        setShowWelcomeCard(true); // Always show welcome card as per previous request
       } else {
         console.warn('[useProfileData] No profile data returned for user (and no error):', currentUserParam.id);
-        setProfile(null);
+        setProfile(null); // Ensure profile is null if no data is returned
       }
 
+      // Only proceed to fetch skills and teams if profile was successfully fetched
       if (fetchedProfileData) {
         // Step 2: Fetch User's Skills
         console.log('[useProfileData] Fetching user skills for user:', currentUserParam.id);
@@ -314,47 +317,17 @@ export default function useProfileData() {
       console.error("[useProfileData] Critical error in loadProfileAndSkills:", e.message);
       setError(`An unexpected error occurred: ${e.message}`);
     } finally {
-      console.log('[useProfileData] loadProfileAndSkills finished. States set.');
+      console.log('[useProfileData] loadProfileAndSkills finished. States set: skills loading = false, teams loading = false.');
       setLoadingSkills(false);
       setLoadingUserTeams(false);
-      setLoading(false);
+      setLoading(false); // Ensure main loading state is set to false
     }
-  }, [
-    supabase, 
-    setLoading, 
-    setError, 
-    setProfile, 
-    setNewUsername, 
-    setNewDisplayName, 
-    setNewFullName, 
-    setNewBio, 
-    setNewWebsiteUrl, 
-    setNewTwitterUrl, 
-    setNewLinkedInUrl, 
-    setNewGitHubUrl, 
-    setNewInstagramUrl, 
-    setNewDiscordUrl, 
-    setNewPhoneWhatsapp, 
-    setNewTikTokUrl, 
-    setNewTelegramUrl, 
-    setNewFacebookUrl, 
-    setNewDollarHandle, 
-    setNewTokenName, 
-    setNewSupply, 
-    setShowWelcomeCard, 
-    setSelectedSkills, 
-    setUserSkillIds, 
-    setUserTeams, 
-    setErrorUserTeams, 
-    setAllSkills, 
-    setLoadingSkills, 
-    setLoadingUserTeams
-  ]);
+  }, [supabase]); // Add other dependencies of loadProfileAndSkills here, e.g., supabase
 
-  // Effect 1: Fetch initial user and auth state changes
+  // Effect 1: Fetch initial user and determine if immediate profile load is pending
   useEffect(() => {
     let didMount = true;
-    setLoading(true);
+    setLoading(true); // Assume loading at the start of this effect run.
 
     const performFetchInitialUser = async () => {
       try {
@@ -468,38 +441,38 @@ export default function useProfileData() {
       didMount = false;
       authListener.subscription?.unsubscribe();
     };
-  }, [supabase, pathname, profile]);
+  }, [supabase, pathname, profile]); // Added profile to dependency array. router removed as it wasn't used directly here.
 
-  // Effect 2: Load profile data when user/profile/pathname changes
+  // useEffect for fetching profile and skills when user is available or changes
   useEffect(() => {
-    console.log('[useProfileData] Effect 2 triggered for profile loading.', { userId: user?.id, profileLoaded: !!profile, pathname });
+    console.log('[useProfileData] Second useEffect triggered.', { user: user?.id, profile: !!profile, pathname });
 
-    if (user?.id && pathname === '/profile' && (!profile || profile.id !== user.id)) {
-      console.log(`[useProfileData] User ID ${user.id} present on /profile, profile not loaded or mismatched. Triggering loadProfileAndSkills.`);
+    // Only proceed if user is defined and profile is not yet loaded for this user
+    if (user?.id && pathname === '/profile' && !profile) {
+      console.log(`[useProfileData] User ID ${user.id} present and profile not loaded. Starting to fetch.`);
       setLoadingSkills(true);
       setLoadingUserTeams(true);
-      loadProfileAndSkills(user, pathname); // Now calling the top-level memoized function
+      loadProfileAndSkills(user, pathname); // Call the top-level function
     } else if (!user?.id && pathname === '/profile') {
-      console.log('[useProfileData] No user ID on /profile. Clearing profile states.');
+      console.log('[useProfileData] User ID is null on profile page. Clearing states.');
       setProfile(null);
       setSelectedSkills([]);
-      setUserTeams([]);
+      setUserTeams([]); // Clear teams if no user
       setLoading(false);
       setLoadingSkills(false);
       setLoadingUserTeams(false);
-    } else if (user?.id && profile && profile.id === user.id && pathname === '/profile') {
-      console.log('[useProfileData] Profile already loaded for current user on /profile.');
-      setLoading(false); // Ensure loading is false if profile is already correct
+    } else if (profile && user?.id && pathname === '/profile') {
+        console.log('[useProfileData] Profile already loaded for user.');
+        // Do nothing - profile is already loaded, prevent re-fetch.
+    } else {
+      console.log('[useProfileData] Conditions for loading profile not met.', { user: user?.id, pathname });
+      // Not on profile page, or user object is present but not on profile page.
+      // Ensure loading states are false if not actively fetching.
+      setLoading(false);
       setLoadingSkills(false);
       setLoadingUserTeams(false);
-    } else if (user?.id && pathname !== '/profile') {
-       console.log('[useProfileData] User is present, but not on /profile. Ensuring loading states are false.');
-       setLoading(false);
-       setLoadingSkills(false);
-       setLoadingUserTeams(false);
     }
-  // Add loadProfileAndSkills to the dependency array of this useEffect
-  }, [user, profile, pathname, loadProfileAndSkills]); 
+  }, [user, profile, supabase, pathname]); // Added profile to dependencies
 
   // Function to Handle Skill Toggle
   const handleSkillToggle = async (skillId: string, isCurrentlySelected: boolean) => {

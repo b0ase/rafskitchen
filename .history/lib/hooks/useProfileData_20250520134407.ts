@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, FormEvent, ChangeEvent, useRef, useCallback } from 'react';
+import { useEffect, useState, FormEvent, ChangeEvent, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // Adjust path if needed
 import { User } from '@supabase/supabase-js';
@@ -88,7 +88,7 @@ interface Team {
 export default function useProfileData() {
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
-  const pathname = usePathname() ?? ''; // Ensure pathname is not null
+  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -135,291 +135,48 @@ export default function useProfileData() {
   const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>('');
   const [showWelcomeCard, setShowWelcomeCard] = useState<boolean>(true);
 
-  const loadProfileAndSkills = useCallback(async (currentUserParam: User, currentPathname: string) => {
-    if (!currentUserParam?.id) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    let fetchedProfileData: Profile | null = null;
-
-    try {
-      // Step 1: Fetch Basic Profile Data
-      console.log('[useProfileData] Fetching basic profile data for user:', currentUserParam.id);
-      const { data: rawProfileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUserParam.id)
-        .single();
-
-      if (profileError) {
-        console.error('[useProfileData] Error fetching profile:', profileError);
-        setError('Failed to load profile: ' + profileError.message);
-        setProfile(null); 
-      } else if (rawProfileData) {
-        fetchedProfileData = rawProfileData as Profile;
-        console.log("[useProfileData] Profile data fetched:", fetchedProfileData);
-        setProfile(fetchedProfileData);
-        setNewUsername(fetchedProfileData.username || '');
-        setNewDisplayName(fetchedProfileData.display_name || '');
-        setNewFullName(fetchedProfileData.full_name || '');
-        setNewBio(fetchedProfileData.bio || '');
-        setNewWebsiteUrl(fetchedProfileData.website_url || '');
-        setNewTwitterUrl(fetchedProfileData.twitter_url || '');
-        setNewLinkedInUrl(fetchedProfileData.linkedin_url || '');
-        setNewGitHubUrl(fetchedProfileData.github_url || '');
-        setNewInstagramUrl(fetchedProfileData.instagram_url || '');
-        setNewDiscordUrl(fetchedProfileData.discord_url || '');
-        setNewPhoneWhatsapp(fetchedProfileData.phone_whatsapp || '');
-        setNewTikTokUrl(fetchedProfileData.tiktok_url || '');
-        setNewTelegramUrl(fetchedProfileData.telegram_url || '');
-        setNewFacebookUrl(fetchedProfileData.facebook_url || '');
-        setNewDollarHandle(fetchedProfileData.dollar_handle || '');
-        setNewTokenName(fetchedProfileData.token_name || '');
-        setNewSupply(fetchedProfileData.supply || '1,000,000,000');
-        setShowWelcomeCard(true);
-      } else {
-        console.warn('[useProfileData] No profile data returned for user (and no error):', currentUserParam.id);
-        setProfile(null);
-      }
-
-      if (fetchedProfileData) {
-        // Step 2: Fetch User's Skills
-        console.log('[useProfileData] Fetching user skills for user:', currentUserParam.id);
-        const { data: userSkillsData, error: userSkillsError } = await supabase
-          .from('user_skills')
-          .select(`
-            skill_id,
-            skills (id, name, category, description)
-          `)
-          .eq('user_id', currentUserParam.id);
-
-        if (userSkillsError) {
-          console.error("[useProfileData] Error fetching user skills:", userSkillsError.message);
-          setError(prevError => prevError ? `${prevError} | Failed to load skills: ${userSkillsError.message}` : `Failed to load skills: ${userSkillsError.message}`);
-        } else if (userSkillsData) {
-          const currentSkillsWithDetails = userSkillsData.map(us => {
-            let skillDetail: Skill | null = null;
-            if (Array.isArray(us.skills)) {
-              if (us.skills.length > 0) {
-                skillDetail = us.skills[0] as Skill;
-              } else {
-                console.warn("[useProfileData] User skill entry found with an empty skills array:", us);
-                return null;
-              }
-            } else if (us.skills) {
-              skillDetail = us.skills as Skill;
-            } else {
-              console.warn("[useProfileData] User skill entry found without corresponding skill detail (us.skills is null/undefined):", us);
-              return null;
-            }
-            if (!skillDetail) return null;
-            return {
-              id: skillDetail.id,
-              name: skillDetail.name,
-              category: skillDetail.category || 'Other',
-              description: skillDetail.description || ''
-            };
-          }).filter(Boolean) as Skill[];
-
-          console.log("[useProfileData] User skills processed. Setting selectedSkills and userSkillIds.");
-          setSelectedSkills(currentSkillsWithDetails);
-          setUserSkillIds(new Set(currentSkillsWithDetails.map(s => s.id)));
-        }
-
-        // Step 3: Fetch User's Teams
-        console.log("[useProfileData] Fetching user teams for user:", currentUserParam.id);
-        try {
-          const { data: teamUserEntries, error: teamUserError } = await supabase
-            .from('user_team_memberships')
-            .select('team_id')
-            .eq('user_id', currentUserParam.id);
-
-          if (teamUserError) throw teamUserError;
-
-          if (teamUserEntries && teamUserEntries.length > 0) {
-            const teamIds = teamUserEntries.map(entry => entry.team_id);
-            const { data: teamsData, error: teamsError } = await supabase
-              .from('teams')
-              .select('id, name, slug, icon_name, color_scheme')
-              .in('id', teamIds);
-
-            if (teamsError) throw teamsError;
-
-            const processedTeamsData = teamsData?.map(team => {
-              let parsedColorScheme: ColorScheme | null = null;
-              const rawColorScheme = team.color_scheme as unknown;
-
-              if (typeof rawColorScheme === 'string') {
-                try {
-                  const parsed = JSON.parse(rawColorScheme);
-                  if (parsed && typeof parsed.bgColor === 'string' && typeof parsed.textColor === 'string' && typeof parsed.borderColor === 'string') {
-                    parsedColorScheme = parsed as ColorScheme;
-                  } else {
-                    console.warn(`[useProfileData] Parsed color_scheme for team ${team.id} does not match ColorScheme structure:`, parsed);
-                    parsedColorScheme = null;
-                  }
-                } catch (e) {
-                  console.warn(`[useProfileData] Failed to parse color_scheme string for team ${team.id}:`, rawColorScheme, e);
-                  parsedColorScheme = null;
-                }
-              } else if (typeof rawColorScheme === 'object' && rawColorScheme !== null) {
-                const potentialScheme = rawColorScheme as Partial<ColorScheme>;
-                if (
-                  typeof potentialScheme.bgColor === 'string' &&
-                  typeof potentialScheme.textColor === 'string' &&
-                  typeof potentialScheme.borderColor === 'string'
-                ) {
-                  parsedColorScheme = potentialScheme as ColorScheme;
-                } else {
-                  console.warn(`[useProfileData] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, rawColorScheme);
-                  parsedColorScheme = null;
-                }
-              }
-
-              return {
-                id: team.id,
-                name: team.name,
-                slug: team.slug || null,
-                icon_name: team.icon_name || 'FaQuestionCircle',
-                color_scheme: parsedColorScheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
-              };
-            }) || [];
-            setUserTeams(processedTeamsData);
-          } else {
-            setUserTeams([]);
-          }
-        } catch (e: any) {
-          console.error("[useProfileData] Error fetching user teams:", e.message);
-          setErrorUserTeams(`Failed to load teams: ${e.message}`);
-        }
-      }
-
-      // Step 4: Fetch All Available Skills for dropdown
-      console.log("[useProfileData] Fetching all available skills for dropdown...");
-      const { data: allSkillsData, error: allSkillsError } = await supabase
-        .from('skills')
-          .select('*')
-        .order('name', { ascending: true });
-
-      if (allSkillsError) {
-          console.error("[useProfileData] Error fetching all skills:", allSkillsError.message);
-          setError(prevError => prevError ? `${prevError} | Failed to load skill list: ${allSkillsError.message}` : `Failed to load skill list: ${allSkillsError.message}`);
-      } else if (allSkillsData) {
-          console.log("[useProfileData] All skills for dropdown fetched successfully.");
-          setAllSkills(allSkillsData as Skill[]);
-      }
-
-    } catch (e:any) {
-      console.error("[useProfileData] Critical error in loadProfileAndSkills:", e.message);
-      setError(`An unexpected error occurred: ${e.message}`);
-    } finally {
-      console.log('[useProfileData] loadProfileAndSkills finished. States set.');
-      setLoadingSkills(false);
-      setLoadingUserTeams(false);
-      setLoading(false);
-    }
-  }, [
-    supabase, 
-    setLoading, 
-    setError, 
-    setProfile, 
-    setNewUsername, 
-    setNewDisplayName, 
-    setNewFullName, 
-    setNewBio, 
-    setNewWebsiteUrl, 
-    setNewTwitterUrl, 
-    setNewLinkedInUrl, 
-    setNewGitHubUrl, 
-    setNewInstagramUrl, 
-    setNewDiscordUrl, 
-    setNewPhoneWhatsapp, 
-    setNewTikTokUrl, 
-    setNewTelegramUrl, 
-    setNewFacebookUrl, 
-    setNewDollarHandle, 
-    setNewTokenName, 
-    setNewSupply, 
-    setShowWelcomeCard, 
-    setSelectedSkills, 
-    setUserSkillIds, 
-    setUserTeams, 
-    setErrorUserTeams, 
-    setAllSkills, 
-    setLoadingSkills, 
-    setLoadingUserTeams
-  ]);
-
-  // Effect 1: Fetch initial user and auth state changes
+  // useEffect for initial user fetch and auth state changes
   useEffect(() => {
-    let didMount = true;
     setLoading(true);
-
-    const performFetchInitialUser = async () => {
-      try {
-        const { data: { user: fetchedUser }, error: userError } = await supabase.auth.getUser();
-
-        if (!didMount) return;
-
-        if (userError) {
-          console.error("[useProfileData] Error fetching initial user:", userError.message);
-          setUser(null);
-          setProfile(null);
-          setUserTeams([]);
-          setAllSkills([]);
-          setSelectedSkills([]);
-          setUserSkillIds(new Set());
-          setError("Failed to authenticate. Please try again.");
-          if (didMount) setLoading(false); // Error, stop loading.
-          return;
-        }
-
-        setUser(fetchedUser); // Set user state (might be null)
-
-        if (fetchedUser) {
-          const onAppPageNeedingProfile = (
-            (pathname.startsWith('/profile') || pathname.startsWith('/account') || pathname.startsWith('/skills'))
-          );
-
-          // If a user is fetched, but their profile isn't loaded yet (profile is null or doesn't match user),
-          // AND we are on a page that requires the profile,
-          // then the loading process isn't finished yet. The second useEffect will handle loading the profile.
-          // In this case, DO NOT set loading to false here.
-          if (!(profile && profile.id === fetchedUser.id) && onAppPageNeedingProfile) {
-            // Loading remains true, awaiting the second effect to trigger loadProfileAndSkills
-          } else {
-            // User exists, but either profile is already loaded for this user,
-            // or we're not on a page that requires an immediate profile load by this hook.
-            // Or, no user was fetched (covered by the 'else' below, but good to be explicit).
-            if (didMount) setLoading(false);
-          }
-        } else {
-          // No user fetched. Clear all user-specific data.
-          setProfile(null);
-          setUserTeams([]);
-          setAllSkills([]);
-          setSelectedSkills([]);
-          setUserSkillIds(new Set());
-          setError(null); // No user doesn't mean an error necessarily, just no session.
-          if (didMount) setLoading(false); // No user, stop loading.
-        }
-      } catch (err) {
-        if (didMount) {
-          console.error("[useProfileData] Exception in performFetchInitialUser:", err);
-          setUser(null);
-          setProfile(null);
-          setUserTeams([]);
-          setAllSkills([]);
-          setSelectedSkills([]);
-          setUserSkillIds(new Set());
-          setError("An unexpected error occurred.");
-          setLoading(false); // Error, stop loading.
-        }
+    const fetchInitialUser = async () => {
+      const isLoggingOut = typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true';
+      if (isLoggingOut) {
+        console.log('[useProfileData] Logout in progress, fetchInitialUser deferring auth check redirect.');
+        setUser(null); 
+        setLoading(false);
+        return;
       }
+
+      const { data: { user: fetchedUser }, error: userError } = await supabase.auth.getUser();
+
+      if (userError) {
+        console.error("[useProfileData] Error fetching initial user with getUser():", userError.message);
+        setUser(null);
+        setError("Failed to authenticate.");
+        setLoading(false);
+        if (pathname !== '/') {
+          router.push('/login');
+        }
+        return;
+      }
+
+      if (!fetchedUser) {
+        console.log('[useProfileData] No user found with getUser() on initial load.');
+        setUser(null);
+        setLoading(false);
+        if (pathname !== '/') {
+          console.log('[useProfileData] Not on landing page, redirecting to /login.');
+          router.push('/login');
+        }
+        return;
+      }
+
+      console.log('[useProfileData] Initial user fetched with getUser():', fetchedUser.id);
+      setUser(fetchedUser);
+      // setLoading(false) is typically handled after profile data is fetched, not just user object.
     };
 
-    performFetchInitialUser();
+    fetchInitialUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[useProfileData] Auth state changed. Event: ${event}`);
@@ -465,41 +222,236 @@ export default function useProfileData() {
     });
 
     return () => {
-      didMount = false;
       authListener.subscription?.unsubscribe();
     };
-  }, [supabase, pathname, profile]);
+  }, [router, supabase, pathname]);
 
-  // Effect 2: Load profile data when user/profile/pathname changes
+  // useEffect for fetching profile and skills when user is available or changes
   useEffect(() => {
-    console.log('[useProfileData] Effect 2 triggered for profile loading.', { userId: user?.id, profileLoaded: !!profile, pathname });
+    console.log('[useProfileData] Second useEffect triggered.', { user: user?.id, profile: !!profile, pathname });
 
-    if (user?.id && pathname === '/profile' && (!profile || profile.id !== user.id)) {
-      console.log(`[useProfileData] User ID ${user.id} present on /profile, profile not loaded or mismatched. Triggering loadProfileAndSkills.`);
-      setLoadingSkills(true);
-      setLoadingUserTeams(true);
-      loadProfileAndSkills(user, pathname); // Now calling the top-level memoized function
-    } else if (!user?.id && pathname === '/profile') {
-      console.log('[useProfileData] No user ID on /profile. Clearing profile states.');
+    const loadProfileAndSkills = async () => {
+      if (!user?.id) {
+        setProfile(null);
+        setSelectedSkills([]);
+        setUserTeams([]); // Clear teams if no user
+        setLoading(false);
+        setLoadingSkills(false);
+        setLoadingUserTeams(false);
+        return;
+      }
+
+      console.log(`[useProfileData] User ID ${user.id} present. Starting to fetch profile, skills, and teams.`);
+      setLoading(true); // Set main loading to true when fetching starts
+      setLoadingUserTeams(true); // Keep this specific loading state here
+      setError(null);
+      setErrorUserTeams(null);
       setProfile(null);
       setSelectedSkills([]);
       setUserTeams([]);
+
+      try {
+        // Step 1: Fetch Profile Data
+        console.log("[useProfileData] Fetching basic profile data...");
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*, has_seen_welcome_card')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error("[useProfileData] Error fetching profile:", profileError.message, profileError.details);
+          if (profileError.code === 'PGRST116') {
+            setError("Profile not found. You may need to complete your profile setup.");
+          } else {
+            setError(`Failed to load profile: ${profileError.message}`);
+          }
+          setShowWelcomeCard(true); // Show welcome if profile error
+        } else if (profileData) {
+          console.log("[useProfileData] Profile data fetched:", profileData);
+          setProfile(profileData as Profile);
+          setNewUsername(profileData.username || '');
+          setNewDisplayName(profileData.display_name || '');
+          setNewFullName(profileData.full_name || '');
+          setNewBio(profileData.bio || '');
+          setNewWebsiteUrl(profileData.website_url || '');
+          setNewTwitterUrl(profileData.twitter_url || '');
+          setNewLinkedInUrl(profileData.linkedin_url || '');
+          setNewGitHubUrl(profileData.github_url || '');
+          setNewInstagramUrl(profileData.instagram_url || '');
+          setNewDiscordUrl(profileData.discord_url || '');
+          setNewPhoneWhatsapp(profileData.phone_whatsapp || '');
+          setNewTikTokUrl(profileData.tiktok_url || '');
+          setNewTelegramUrl(profileData.telegram_url || '');
+          setNewFacebookUrl(profileData.facebook_url || '');
+          setNewDollarHandle(profileData.dollar_handle || '');
+          setNewTokenName(profileData.token_name || '');
+          setNewSupply(profileData.supply || '1,000,000,000');
+          setShowWelcomeCard(profileData.has_seen_welcome_card === null || profileData.has_seen_welcome_card === undefined ? true : !profileData.has_seen_welcome_card);
+
+          // Step 2: Fetch User's Skills
+          console.log("[useProfileData] Fetching user skills for user:", user.id);
+          const { data: userSkillsData, error: userSkillsError } = await supabase
+            .from('user_skills')
+            .select(`
+              skill_id,
+              skills (id, name, category, description)
+            `)
+            .eq('user_id', user.id);
+
+          if (userSkillsError) {
+            console.error("[useProfileData] Error fetching user skills:", userSkillsError.message);
+            setError(prevError => prevError ? `${prevError} | Failed to load skills: ${userSkillsError.message}` : `Failed to load skills: ${userSkillsError.message}`);
+          } else if (userSkillsData) {
+            const currentSkillsWithDetails = userSkillsData.map(us => {
+              let skillDetail: Skill | null = null;
+              if (Array.isArray(us.skills)) {
+                if (us.skills.length > 0) {
+                  skillDetail = us.skills[0] as Skill;
+                } else {
+                  console.warn("[useProfileData] User skill entry found with an empty skills array:", us);
+                  return null;
+                }
+              } else if (us.skills) {
+                skillDetail = us.skills as Skill;
+              } else {
+                console.warn("[useProfileData] User skill entry found without corresponding skill detail (us.skills is null/undefined):", us);
+                return null;
+              }
+              if (!skillDetail) return null;
+              return {
+                id: skillDetail.id,
+                name: skillDetail.name,
+                category: skillDetail.category || 'Other',
+                description: skillDetail.description || ''
+              };
+            }).filter(Boolean) as Skill[];
+
+            console.log("[useProfileData] User skills processed. Setting selectedSkills and userSkillIds.");
+            setSelectedSkills(currentSkillsWithDetails);
+            setUserSkillIds(new Set(currentSkillsWithDetails.map(s => s.id)));
+          }
+
+          // Step 3: Fetch User's Teams
+          console.log("[useProfileData] Fetching user teams for user:", user.id);
+          try {
+            const { data: teamUserEntries, error: teamUserError } = await supabase
+              .from('user_team_memberships')
+              .select('team_id')
+              .eq('user_id', user.id);
+
+            if (teamUserError) throw teamUserError;
+
+            if (teamUserEntries && teamUserEntries.length > 0) {
+              const teamIds = teamUserEntries.map(entry => entry.team_id);
+              const { data: teamsData, error: teamsError } = await supabase
+                .from('teams')
+                .select('id, name, slug, icon_name, color_scheme')
+                .in('id', teamIds);
+
+              if (teamsError) throw teamsError;
+
+              const processedTeamsData = teamsData?.map(team => {
+                let parsedColorScheme: ColorScheme | null = null;
+                const rawColorScheme = team.color_scheme as unknown;
+
+                if (typeof rawColorScheme === 'string') {
+                  try {
+                    const parsed = JSON.parse(rawColorScheme);
+                    if (parsed && typeof parsed.bgColor === 'string' && typeof parsed.textColor === 'string' && typeof parsed.borderColor === 'string') {
+                      parsedColorScheme = parsed as ColorScheme;
+                    } else {
+                      console.warn(`[useProfileData] Parsed color_scheme for team ${team.id} does not match ColorScheme structure:`, parsed);
+                      parsedColorScheme = null;
+                    }
+                  } catch (e) {
+                    console.warn(`[useProfileData] Failed to parse color_scheme string for team ${team.id}:`, rawColorScheme, e);
+                    parsedColorScheme = null;
+                  }
+                } else if (typeof rawColorScheme === 'object' && rawColorScheme !== null) {
+                  const potentialScheme = rawColorScheme as Partial<ColorScheme>;
+                  if (
+                    typeof potentialScheme.bgColor === 'string' &&
+                    typeof potentialScheme.textColor === 'string' &&
+                    typeof potentialScheme.borderColor === 'string'
+                  ) {
+                    parsedColorScheme = potentialScheme as ColorScheme;
+                  } else {
+                    console.warn(`[useProfileData] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, rawColorScheme);
+                    parsedColorScheme = null;
+                  }
+                }
+
+                return {
+                  id: team.id,
+                  name: team.name,
+                  slug: team.slug || null,
+                  icon_name: team.icon_name || 'FaQuestionCircle',
+                  color_scheme: parsedColorScheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
+                };
+              }) || [];
+              setUserTeams(processedTeamsData);
+            } else {
+              setUserTeams([]);
+            }
+          } catch (e: any) {
+            console.error("[useProfileData] Error fetching user teams:", e.message);
+            setErrorUserTeams(`Failed to load teams: ${e.message}`);
+          }
+        }
+
+        // Step 4: Fetch All Available Skills for dropdown
+        console.log("[useProfileData] Fetching all available skills for dropdown...");
+        const { data: allSkillsData, error: allSkillsError } = await supabase
+          .from('skills')
+            .select('*')
+          .order('name', { ascending: true });
+
+        if (allSkillsError) {
+            console.error("[useProfileData] Error fetching all skills:", allSkillsError.message);
+            setError(prevError => prevError ? `${prevError} | Failed to load skill list: ${allSkillsError.message}` : `Failed to load skill list: ${allSkillsError.message}`);
+        } else if (allSkillsData) {
+            console.log("[useProfileData] All skills for dropdown fetched successfully.");
+            setAllSkills(allSkillsData as Skill[]);
+        }
+
+      } catch (e:any) {
+        console.error("[useProfileData] Critical error in loadProfileAndSkills:", e.message);
+        setError(`An unexpected error occurred: ${e.message}`);
+      } finally {
+        console.log('[useProfileData] loadProfileAndSkills finished. States set: skills loading = false, teams loading = false.');
+        setLoadingSkills(false);
+        setLoadingUserTeams(false);
+        setLoading(false); // Ensure main loading state is set to false
+      }
+    };
+
+    // Only proceed if user is defined and profile is not yet loaded for this user
+    if (user?.id && pathname === '/profile' && !profile) {
+      console.log(`[useProfileData] User ID ${user.id} present and profile not loaded. Starting to fetch.`);
+      setLoadingSkills(true);
+      setLoadingUserTeams(true);
+      loadProfileAndSkills();
+    } else if (!user?.id && pathname === '/profile') {
+      console.log('[useProfileData] User ID is null on profile page. Clearing states.');
+      setProfile(null);
+      setSelectedSkills([]);
+      setUserTeams([]); // Clear teams if no user
       setLoading(false);
       setLoadingSkills(false);
       setLoadingUserTeams(false);
-    } else if (user?.id && profile && profile.id === user.id && pathname === '/profile') {
-      console.log('[useProfileData] Profile already loaded for current user on /profile.');
-      setLoading(false); // Ensure loading is false if profile is already correct
+    } else if (profile && user?.id && pathname === '/profile') {
+        console.log('[useProfileData] Profile already loaded for user.');
+        // Do nothing - profile is already loaded, prevent re-fetch.
+    } else {
+      console.log('[useProfileData] Conditions for loading profile not met.', { user: user?.id, pathname });
+      // Not on profile page, or user object is present but not on profile page.
+      // Ensure loading states are false if not actively fetching.
+      setLoading(false);
       setLoadingSkills(false);
       setLoadingUserTeams(false);
-    } else if (user?.id && pathname !== '/profile') {
-       console.log('[useProfileData] User is present, but not on /profile. Ensuring loading states are false.');
-       setLoading(false);
-       setLoadingSkills(false);
-       setLoadingUserTeams(false);
     }
-  // Add loadProfileAndSkills to the dependency array of this useEffect
-  }, [user, profile, pathname, loadProfileAndSkills]); 
+  }, [user, profile, supabase, pathname]); // Added profile to dependencies
 
   // Function to Handle Skill Toggle
   const handleSkillToggle = async (skillId: string, isCurrentlySelected: boolean) => {
@@ -879,22 +831,21 @@ export default function useProfileData() {
   const onSupplyChange = (e: ChangeEvent<HTMLInputElement>) => setNewSupply(e.target.value);
 
   const handleDismissWelcomeCard = async () => {
-    // if (!user || !profile) return; // User/profile check might still be relevant if it were to interact with DB
-    // if (profile.has_seen_welcome_card) { // This check is based on DB field, not needed if always showing or local dismiss only
-    //   setShowWelcomeCard(false); return;
-    // }
-    // try {
-      // const { error: updateError } = await supabase
-      //   .from('profiles')
-      //   .update({ has_seen_welcome_card: true, updated_at: new Date().toISOString() })
-      //   .eq('id', user.id);
-      // if (updateError) throw updateError;
-      // setProfile(prev => prev ? { ...prev, has_seen_welcome_card: true } : null);
-      setShowWelcomeCard(false); // Allow local dismiss for the session
-      console.log("[useProfileData] Welcome card dismissed locally for this session.");
-      // setSuccessMessage('Welcome card dismissed.');
-      // setTimeout(() => setSuccessMessage(null), 3000);
-    // } catch (err: any) { setError('Failed to update welcome card status.'); }
+    if (!user || !profile) return;
+    if (profile.has_seen_welcome_card) {
+      setShowWelcomeCard(false); return;
+    }
+    try {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ has_seen_welcome_card: true, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (updateError) throw updateError;
+      setProfile(prev => prev ? { ...prev, has_seen_welcome_card: true } : null);
+      setShowWelcomeCard(false);
+      setSuccessMessage('Welcome card dismissed.');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) { setError('Failed to update welcome card status.'); }
   };
 
   return {
