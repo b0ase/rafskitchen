@@ -12,20 +12,7 @@ interface Profile {
   display_name: string | null;
   avatar_url?: string | null;
   full_name?: string | null;
-  bio?: string | null;
-  website_url?: string | null;
-  twitter_url?: string | null;
-  linkedin_url?: string | null;
-  github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
-  phone_whatsapp?: string | null;
-  tiktok_url?: string | null;
-  telegram_url?: string | null;
-  facebook_url?: string | null;
-  dollar_handle?: string | null;
-  token_name?: string | null;
-  supply?: string | null;
+  // ... (keep other profile fields if minimal setProfile needs them, otherwise can simplify)
   has_seen_welcome_card?: boolean | null;
 }
 
@@ -86,7 +73,7 @@ export default function useProfileData() {
   const [loadingUserTeams, setLoadingUserTeams] = useState<boolean>(true);
   const [errorUserTeams, setErrorUserTeams] = useState<string | null>(null);
 
-  // Uncomment all previously commented out useState hooks
+  // Uncomment other necessary states for the full loadProfileAndSkills
   const [newUsername, setNewUsername] = useState<string>('');
   const [newDisplayName, setNewDisplayName] = useState<string>('');
   const [newFullName, setNewFullName] = useState<string>('');
@@ -104,15 +91,9 @@ export default function useProfileData() {
   const [newDollarHandle, setNewDollarHandle] = useState<string>('');
   const [newTokenName, setNewTokenName] = useState<string>('');
   const [newSupply, setNewSupply] = useState<string>('1,000,000,000');
-  const [showWelcomeCard, setShowWelcomeCard] = useState<boolean>(true);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
-  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
-  const [customSkillInput, setCustomSkillInput] = useState<string>('');
-  const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [saving, setSaving] = useState<boolean>(false);
+  const [showWelcomeCard, setShowWelcomeCard] = useState<boolean>(true); // Assuming default true
 
-  // Full loadProfileAndSkills function
+  // Restore the full loadProfileAndSkills function
   const loadProfileAndSkills = useCallback(async (currentUserParam: User, currentPathname: string) => {
     if (!currentUserParam?.id) {
       console.warn('[useProfileData] loadProfileAndSkills called without a current user ID. Aborting.');
@@ -121,12 +102,12 @@ export default function useProfileData() {
       setLoadingUserTeams(false);
       return;
     }
-    console.log('[useProfileData] Restored Full loadProfileAndSkills called for user:', currentUserParam.id, 'pathname:', currentPathname);
+    console.log('[useProfileData] Full loadProfileAndSkills called for user:', currentUserParam.id, 'pathname:', currentPathname);
     setLoading(true);
     setLoadingSkills(true);
     setLoadingUserTeams(true);
     setError(null);
-    setErrorUserTeams(null); // Clear specific team errors too
+    // setErrorUserTeams(null); // setError usually covers general errors for this block
 
     try {
       // Step 1: Fetch Basic Profile Data
@@ -140,7 +121,8 @@ export default function useProfileData() {
       if (profileError) {
         console.error('[useProfileData] Error fetching profile:', profileError);
         setError('Failed to load profile: ' + profileError.message);
-        setProfile(null);
+        setProfile(null); // Clear profile on error
+        // Don't necessarily stop loading other things like allSkills, let them proceed if independent
       } else if (profileData) {
         console.log("[useProfileData] Profile data fetched:", profileData);
         setProfile(profileData);
@@ -161,14 +143,13 @@ export default function useProfileData() {
         setNewDollarHandle(profileData.dollar_handle || '');
         setNewTokenName(profileData.token_name || '');
         setNewSupply(profileData.supply || '1,000,000,000');
-        // Ensure showWelcomeCard reflects DB, defaulting to true if null/undefined
-        setShowWelcomeCard(profileData.has_seen_welcome_card === null || profileData.has_seen_welcome_card === undefined ? true : !profileData.has_seen_welcome_card);
+        setShowWelcomeCard(profileData.has_seen_welcome_card === null ? true : !profileData.has_seen_welcome_card);
       } else {
         console.warn('[useProfileData] No profile data returned for user (and no error):', currentUserParam.id);
-        setProfile(null);
+        setProfile(null); // Explicitly set to null if no data
       }
 
-      // Step 2: Fetch All Available Skills
+      // Step 2: Fetch All Available Skills (can run in parallel conceptually, but fine sequentially for now)
       console.log('[useProfileData] Fetching all available skills.');
       const { data: allSkillsData, error: allSkillsError } = await supabase
         .from('skills')
@@ -177,7 +158,7 @@ export default function useProfileData() {
       if (allSkillsError) {
         console.error('[useProfileData] Error fetching all skills:', allSkillsError);
         setError(prev => prev ? prev + "; Failed to load all skills." : "Failed to load all skills.");
-        setAllSkills([]);
+        setAllSkills([]); // Clear on error
       } else if (allSkillsData) {
         console.log("[useProfileData] All skills data fetched:", allSkillsData.length);
         setAllSkills(allSkillsData as Skill[]);
@@ -187,14 +168,14 @@ export default function useProfileData() {
       console.log('[useProfileData] Fetching selected skills for user:', currentUserParam.id);
       const { data: userSkillsData, error: userSkillsError } = await supabase
         .from('user_skills')
-        .select('skill_id, skills (id, name, category, description)')
+        .select('skill_id, skills (id, name, category, description)') // Ensure skills table is joined correctly
         .eq('user_id', currentUserParam.id);
 
       if (userSkillsError) {
         console.error('[useProfileData] Error fetching user skills:', userSkillsError);
         setError(prev => prev ? prev + "; Failed to load user skills." : "Failed to load user skills.");
-        setSelectedSkills([]);
-        setUserSkillIds(new Set());
+        setSelectedSkills([]); // Clear on error
+        setUserSkillIds(new Set()); // Clear on error
       } else if (userSkillsData) {
         console.log("[useProfileData] User skills data fetched:", userSkillsData.length);
         const fetchedSelectedSkills = userSkillsData.map(us => us.skills).filter(Boolean) as Skill[];
@@ -206,26 +187,36 @@ export default function useProfileData() {
       console.log('[useProfileData] Fetching teams for user:', currentUserParam.id);
       const { data: userTeamsData, error: teamsError } = await supabase
           .from('team_members')
-          .select('user_id, teams (id, name, slug, icon_name, color_scheme)')
+          .select(`
+              user_id,
+              teams (
+                  id,
+                  name,
+                  slug,
+                  icon_name,
+                  color_scheme
+              )
+          `)
           .eq('user_id', currentUserParam.id);
 
       if (teamsError) {
           console.error('[useProfileData] Error fetching user teams:', teamsError);
           setErrorUserTeams('Failed to load teams: ' + teamsError.message);
-          setUserTeams([]);
+          setUserTeams([]); // Clear on error
       } else if (userTeamsData) {
           console.log("[useProfileData] User teams data fetched:", userTeamsData.length);
-          const teams = userTeamsData.map(tm => tm.teams).filter(Boolean) as Team[]; // Filter out null teams if join is optional
+          const teams = userTeamsData.map(tm => tm.teams).filter(Boolean) as Team[];
           setUserTeams(teams);
-          setErrorUserTeams(null); // Clear previous team errors
+          setErrorUserTeams(null);
       } else {
-          setUserTeams([]); // No teams found
-          setErrorUserTeams(null); // Clear previous team errors
+          setUserTeams([]); // No teams found, ensure it's an empty array
+          setErrorUserTeams(null);
       }
 
     } catch (e: any) {
       console.error("[useProfileData] Critical error in full loadProfileAndSkills:", e.message, e.stack);
       setError("An unexpected critical error occurred while loading profile data.");
+      // Reset states to a known safe value
       setProfile(null);
       setAllSkills([]);
       setSelectedSkills([]);
@@ -235,10 +226,10 @@ export default function useProfileData() {
       setLoading(false);
       setLoadingSkills(false);
       setLoadingUserTeams(false);
-      console.log('[useProfileData] Restored Full loadProfileAndSkills finished for user:', currentUserParam.id);
+      console.log('[useProfileData] Full loadProfileAndSkills finished for user:', currentUserParam.id);
     }
   }, [
-    supabase, 
+    supabase, // Supabase client is a dependency
     setProfile, setLoading, setError, 
     setNewUsername, setNewDisplayName, setNewFullName, setNewBio, setNewWebsiteUrl, 
     setNewTwitterUrl, setNewLinkedInUrl, setNewGitHubUrl, setNewInstagramUrl, 
@@ -247,6 +238,9 @@ export default function useProfileData() {
     setShowWelcomeCard,
     setAllSkills, setSelectedSkills, setUserSkillIds, setLoadingSkills, 
     setUserTeams, setLoadingUserTeams, setErrorUserTeams
+    // Note: `pathname` is not directly used inside this async function but passed as an arg. 
+    // If its change should re-trigger a full profile reload via the useEffect, it should be in the useEffect's dep array.
+    // The `loadProfileAndSkills` function itself does not need `pathname` in its own useCallback dep array.
   ]);
 
   // REINTRODUCE THE FIRST useEffect
@@ -426,7 +420,7 @@ export default function useProfileData() {
   const handleDismissWelcomeCard = async () => { ... };
   */
 
-  console.log('[useProfileData] Hook initialized.');
+  console.log('[useProfileData] Hook initialized (ULTRA-SIMPLIFIED VERSION LOADED)');
 
   return {
     user,
@@ -455,7 +449,7 @@ export default function useProfileData() {
     setLoadingUserTeams,
     setErrorUserTeams,
 
-    // Return all states and setters that were uncommented
+    // Return newly uncommented states and their setters
     newUsername,
     newDisplayName,
     newFullName,
@@ -474,12 +468,6 @@ export default function useProfileData() {
     newTokenName,
     newSupply,
     showWelcomeCard,
-    isUploadingAvatar,
-    avatarUploadError,
-    customSkillInput,
-    skillChoiceInAdder,
-    successMessage,
-    saving,
     setNewUsername,
     setNewDisplayName,
     setNewFullName,
@@ -498,21 +486,15 @@ export default function useProfileData() {
     setNewTokenName,
     setNewSupply,
     setShowWelcomeCard,
-    setIsUploadingAvatar,
-    setAvatarUploadError,
-    setCustomSkillInput,
-    setSkillChoiceInAdder,
-    setSuccessMessage,
-    setSaving,
 
     // To prevent breaking components that might destructure these, provide dummy values or functions
     // Or, you might need to temporarily adjust the consuming components not to expect everything
-    // REMOVE DUPLICATE/DUMMY RETURNS that were here previously
-    // Example:
-    // newUsername: '', // REMOVE THIS LINE if newUsername is already returned above
-    // setNewUsername: () => console.log('setNewUsername (dummy) called'), // REMOVE THIS LINE
-    // newDisplayName: '', // REMOVE THIS LINE
-    // setNewDisplayName: () => console.log('setNewDisplayName (dummy) called'), // REMOVE THIS LINE
-    // ... and so on for any other duplicates
+    newUsername: '',
+    setNewUsername: () => console.log('setNewUsername (dummy) called'),
+    newDisplayName: '',
+    setNewDisplayName: () => console.log('setNewDisplayName (dummy) called'),
+    // ... (add other dummy returns for all previously returned states/handlers if needed for components not to crash)
+    // For a quick test, you might even return only { user, profile, loading, loadProfileAndSkills }
+    // and see if the core error vanishes, then deal with component props.
   };
 } 

@@ -12,20 +12,7 @@ interface Profile {
   display_name: string | null;
   avatar_url?: string | null;
   full_name?: string | null;
-  bio?: string | null;
-  website_url?: string | null;
-  twitter_url?: string | null;
-  linkedin_url?: string | null;
-  github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
-  phone_whatsapp?: string | null;
-  tiktok_url?: string | null;
-  telegram_url?: string | null;
-  facebook_url?: string | null;
-  dollar_handle?: string | null;
-  token_name?: string | null;
-  supply?: string | null;
+  // ... (keep other profile fields if minimal setProfile needs them, otherwise can simplify)
   has_seen_welcome_card?: boolean | null;
 }
 
@@ -426,7 +413,7 @@ export default function useProfileData() {
   const handleDismissWelcomeCard = async () => { ... };
   */
 
-  console.log('[useProfileData] Hook initialized.');
+  console.log('[useProfileData] Hook initialized (ULTRA-SIMPLIFIED VERSION LOADED)');
 
   return {
     user,
@@ -507,12 +494,12 @@ export default function useProfileData() {
 
     // To prevent breaking components that might destructure these, provide dummy values or functions
     // Or, you might need to temporarily adjust the consuming components not to expect everything
-    // REMOVE DUPLICATE/DUMMY RETURNS that were here previously
-    // Example:
-    // newUsername: '', // REMOVE THIS LINE if newUsername is already returned above
-    // setNewUsername: () => console.log('setNewUsername (dummy) called'), // REMOVE THIS LINE
-    // newDisplayName: '', // REMOVE THIS LINE
-    // setNewDisplayName: () => console.log('setNewDisplayName (dummy) called'), // REMOVE THIS LINE
-    // ... and so on for any other duplicates
+    newUsername: '',
+    setNewUsername: () => console.log('setNewUsername (dummy) called'),
+    newDisplayName: '',
+    setNewDisplayName: () => console.log('setNewDisplayName (dummy) called'),
+    // ... (add other dummy returns for all previously returned states/handlers if needed for components not to crash)
+    // For a quick test, you might even return only { user, profile, loading, loadProfileAndSkills }
+    // and see if the core error vanishes, then deal with component props.
   };
 } 

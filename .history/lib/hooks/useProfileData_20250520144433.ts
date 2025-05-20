@@ -426,7 +426,7 @@ export default function useProfileData() {
   const handleDismissWelcomeCard = async () => { ... };
   */
 
-  console.log('[useProfileData] Hook initialized.');
+  console.log('[useProfileData] Hook initialized (ULTRA-SIMPLIFIED VERSION LOADED)');
 
   return {
     user,

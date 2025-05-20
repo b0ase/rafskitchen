@@ -12,58 +12,18 @@ interface Profile {
   display_name: string | null;
   avatar_url?: string | null;
   full_name?: string | null;
-  bio?: string | null;
-  website_url?: string | null;
-  twitter_url?: string | null;
-  linkedin_url?: string | null;
-  github_url?: string | null;
-  instagram_url?: string | null;
-  discord_url?: string | null;
-  phone_whatsapp?: string | null;
-  tiktok_url?: string | null;
-  telegram_url?: string | null;
-  facebook_url?: string | null;
-  dollar_handle?: string | null;
-  token_name?: string | null;
-  supply?: string | null;
+  // ... (keep other profile fields if minimal setProfile needs them, otherwise can simplify)
   has_seen_welcome_card?: boolean | null;
 }
 
-// Uncomment Skill and UserSkill interfaces
+// Comment out other interfaces for now if not used by the minimal hook
 /*
 interface ProfileForUpdate { ... }
+interface Skill { ... }
+interface UserSkill { ... }
+interface ColorScheme { ... }
+interface Team { ... }
 */
-interface Skill {
-  id: string;
-  name: string;
-  category: string | null;
-  description: string | null;
-}
-
-interface UserSkill {
-  id: string;
-  user_id: string;
-  skill_id: string;
-  skills?: Pick<Skill, 'id' | 'name' | 'category'>; // UserSkill might reference Skill
-}
-
-// Uncomment Team and ColorScheme interfaces
-/*
-interface ProfileForUpdate { ... }
-*/
-interface ColorScheme {
-  bgColor: string;
-  textColor: string;
-  borderColor: string;
-}
-
-interface Team {
-  id: string;
-  name: string;
-  slug: string | null;
-  icon_name: string | null;
-  color_scheme: ColorScheme | null;
-}
 
 export default function useProfileData() {
   const supabase = getSupabaseBrowserClient(); // Uncomment Supabase client
@@ -81,173 +41,47 @@ export default function useProfileData() {
   const [loadingSkills, setLoadingSkills] = useState<boolean>(true);
   const [savingSkills, setSavingSkills] = useState<boolean>(false);
 
-  // Uncomment userTeams related states
-  const [userTeams, setUserTeams] = useState<Team[]>([]);
-  const [loadingUserTeams, setLoadingUserTeams] = useState<boolean>(true);
-  const [errorUserTeams, setErrorUserTeams] = useState<string | null>(null);
+  // Comment out all other useState hooks (userTeams, customSkillInput, etc. remain commented for now)
+  // const [userTeams, setUserTeams] = useState<Team[]>([]);
+  // const [loadingUserTeams, setLoadingUserTeams] = useState<boolean>(true);
+  // const [errorUserTeams, setErrorUserTeams] = useState<string | null>(null);
+  // const [customSkillInput, setCustomSkillInput] = useState<string>('');
+  // const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>('');
+  // const [newUsername, setNewUsername] = useState<string>('');
 
-  // Uncomment all previously commented out useState hooks
-  const [newUsername, setNewUsername] = useState<string>('');
-  const [newDisplayName, setNewDisplayName] = useState<string>('');
-  const [newFullName, setNewFullName] = useState<string>('');
-  const [newBio, setNewBio] = useState<string>('');
-  const [newWebsiteUrl, setNewWebsiteUrl] = useState<string>('');
-  const [newTwitterUrl, setNewTwitterUrl] = useState<string>('');
-  const [newLinkedInUrl, setNewLinkedInUrl] = useState<string>('');
-  const [newGitHubUrl, setNewGitHubUrl] = useState<string>('');
-  const [newInstagramUrl, setNewInstagramUrl] = useState<string>('');
-  const [newDiscordUrl, setNewDiscordUrl] = useState<string>('');
-  const [newPhoneWhatsapp, setNewPhoneWhatsapp] = useState<string>('');
-  const [newTikTokUrl, setNewTikTokUrl] = useState<string>('');
-  const [newTelegramUrl, setNewTelegramUrl] = useState<string>('');
-  const [newFacebookUrl, setNewFacebookUrl] = useState<string>('');
-  const [newDollarHandle, setNewDollarHandle] = useState<string>('');
-  const [newTokenName, setNewTokenName] = useState<string>('');
-  const [newSupply, setNewSupply] = useState<string>('1,000,000,000');
-  const [showWelcomeCard, setShowWelcomeCard] = useState<boolean>(true);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
-  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
-  const [customSkillInput, setCustomSkillInput] = useState<string>('');
-  const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [saving, setSaving] = useState<boolean>(false);
-
-  // Full loadProfileAndSkills function
-  const loadProfileAndSkills = useCallback(async (currentUserParam: User, currentPathname: string) => {
-    if (!currentUserParam?.id) {
-      console.warn('[useProfileData] loadProfileAndSkills called without a current user ID. Aborting.');
-      setLoading(false);
-      setLoadingSkills(false);
-      setLoadingUserTeams(false);
-      return;
-    }
-    console.log('[useProfileData] Restored Full loadProfileAndSkills called for user:', currentUserParam.id, 'pathname:', currentPathname);
-    setLoading(true);
-    setLoadingSkills(true);
-    setLoadingUserTeams(true);
-    setError(null);
-    setErrorUserTeams(null); // Clear specific team errors too
+  const loadProfileAndSkills = useCallback(async (currentUserParam: User | null, currentPathname: string) => {
+    console.log('[useProfileData] Ultra-simplified loadProfileAndSkills called with user:', currentUserParam?.id, 'pathname:', currentPathname);
+    setLoading(true); // Keep setLoading
+    setError(null); // Clear error before loading
 
     try {
-      // Step 1: Fetch Basic Profile Data
-      console.log('[useProfileData] Fetching basic profile data for user:', currentUserParam.id);
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUserParam.id)
-        .single<Profile>();
+      // Simulate an async operation
+      await new Promise(resolve => setTimeout(resolve, 50)); // Short delay
 
-      if (profileError) {
-        console.error('[useProfileData] Error fetching profile:', profileError);
-        setError('Failed to load profile: ' + profileError.message);
-        setProfile(null);
-      } else if (profileData) {
-        console.log("[useProfileData] Profile data fetched:", profileData);
-        setProfile(profileData);
-        setNewUsername(profileData.username || '');
-        setNewDisplayName(profileData.display_name || '');
-        setNewFullName(profileData.full_name || '');
-        setNewBio(profileData.bio || '');
-        setNewWebsiteUrl(profileData.website_url || '');
-        setNewTwitterUrl(profileData.twitter_url || '');
-        setNewLinkedInUrl(profileData.linkedin_url || '');
-        setNewGitHubUrl(profileData.github_url || '');
-        setNewInstagramUrl(profileData.instagram_url || '');
-        setNewDiscordUrl(profileData.discord_url || '');
-        setNewPhoneWhatsapp(profileData.phone_whatsapp || '');
-        setNewTikTokUrl(profileData.tiktok_url || '');
-        setNewTelegramUrl(profileData.telegram_url || '');
-        setNewFacebookUrl(profileData.facebook_url || '');
-        setNewDollarHandle(profileData.dollar_handle || '');
-        setNewTokenName(profileData.token_name || '');
-        setNewSupply(profileData.supply || '1,000,000,000');
-        // Ensure showWelcomeCard reflects DB, defaulting to true if null/undefined
-        setShowWelcomeCard(profileData.has_seen_welcome_card === null || profileData.has_seen_welcome_card === undefined ? true : !profileData.has_seen_welcome_card);
+      if (currentUserParam) {
+        console.log('[useProfileData] Simulating profile fetch for user:', currentUserParam.id);
+        setProfile({
+          id: currentUserParam.id,
+          username: 'mockUser',
+          display_name: 'Mock User',
+          has_seen_welcome_card: false, // Keep if Profile interface has it
+        });
       } else {
-        console.warn('[useProfileData] No profile data returned for user (and no error):', currentUserParam.id);
+        console.warn('[useProfileData] No current user provided to ultra-simplified loadProfileAndSkills.');
         setProfile(null);
-      }
-
-      // Step 2: Fetch All Available Skills
-      console.log('[useProfileData] Fetching all available skills.');
-      const { data: allSkillsData, error: allSkillsError } = await supabase
-        .from('skills')
-        .select('id, name, category, description');
-
-      if (allSkillsError) {
-        console.error('[useProfileData] Error fetching all skills:', allSkillsError);
-        setError(prev => prev ? prev + "; Failed to load all skills." : "Failed to load all skills.");
-        setAllSkills([]);
-      } else if (allSkillsData) {
-        console.log("[useProfileData] All skills data fetched:", allSkillsData.length);
-        setAllSkills(allSkillsData as Skill[]);
-      }
-
-      // Step 3: Fetch User's Selected Skills
-      console.log('[useProfileData] Fetching selected skills for user:', currentUserParam.id);
-      const { data: userSkillsData, error: userSkillsError } = await supabase
-        .from('user_skills')
-        .select('skill_id, skills (id, name, category, description)')
-        .eq('user_id', currentUserParam.id);
-
-      if (userSkillsError) {
-        console.error('[useProfileData] Error fetching user skills:', userSkillsError);
-        setError(prev => prev ? prev + "; Failed to load user skills." : "Failed to load user skills.");
-        setSelectedSkills([]);
-        setUserSkillIds(new Set());
-      } else if (userSkillsData) {
-        console.log("[useProfileData] User skills data fetched:", userSkillsData.length);
-        const fetchedSelectedSkills = userSkillsData.map(us => us.skills).filter(Boolean) as Skill[];
-        setSelectedSkills(fetchedSelectedSkills);
-        setUserSkillIds(new Set(fetchedSelectedSkills.map(s => s.id)));
-      }
-      
-      // Step 4: Fetch User's Teams
-      console.log('[useProfileData] Fetching teams for user:', currentUserParam.id);
-      const { data: userTeamsData, error: teamsError } = await supabase
-          .from('team_members')
-          .select('user_id, teams (id, name, slug, icon_name, color_scheme)')
-          .eq('user_id', currentUserParam.id);
-
-      if (teamsError) {
-          console.error('[useProfileData] Error fetching user teams:', teamsError);
-          setErrorUserTeams('Failed to load teams: ' + teamsError.message);
-          setUserTeams([]);
-      } else if (userTeamsData) {
-          console.log("[useProfileData] User teams data fetched:", userTeamsData.length);
-          const teams = userTeamsData.map(tm => tm.teams).filter(Boolean) as Team[]; // Filter out null teams if join is optional
-          setUserTeams(teams);
-          setErrorUserTeams(null); // Clear previous team errors
-      } else {
-          setUserTeams([]); // No teams found
-          setErrorUserTeams(null); // Clear previous team errors
       }
 
     } catch (e: any) {
-      console.error("[useProfileData] Critical error in full loadProfileAndSkills:", e.message, e.stack);
-      setError("An unexpected critical error occurred while loading profile data.");
+      console.error("[useProfileData] Error in ultra-simplified loadProfileAndSkills:", e.message);
+      setError("Failed to load profile data (ultra-simplified test).");
       setProfile(null);
-      setAllSkills([]);
-      setSelectedSkills([]);
-      setUserSkillIds(new Set());
-      setUserTeams([]);
     } finally {
+      // setLoadingSkills(false); // Comment out other loaders
+      // setLoadingUserTeams(false);
       setLoading(false);
-      setLoadingSkills(false);
-      setLoadingUserTeams(false);
-      console.log('[useProfileData] Restored Full loadProfileAndSkills finished for user:', currentUserParam.id);
+      console.log('[useProfileData] Ultra-simplified loadProfileAndSkills finished.');
     }
-  }, [
-    supabase, 
-    setProfile, setLoading, setError, 
-    setNewUsername, setNewDisplayName, setNewFullName, setNewBio, setNewWebsiteUrl, 
-    setNewTwitterUrl, setNewLinkedInUrl, setNewGitHubUrl, setNewInstagramUrl, 
-    setNewDiscordUrl, setNewPhoneWhatsapp, setNewTikTokUrl, setNewTelegramUrl, 
-    setNewFacebookUrl, setNewDollarHandle, setNewTokenName, setNewSupply, 
-    setShowWelcomeCard,
-    setAllSkills, setSelectedSkills, setUserSkillIds, setLoadingSkills, 
-    setUserTeams, setLoadingUserTeams, setErrorUserTeams
-  ]);
+  }, [setProfile, setLoading, setError]); // Add setError to dependencies
 
   // REINTRODUCE THE FIRST useEffect
   useEffect(() => {
@@ -345,9 +179,7 @@ export default function useProfileData() {
         setSelectedSkills([]);
         setUserSkillIds(new Set());
         setLoadingSkills(false);
-        setUserTeams([]);
-        setLoadingUserTeams(false);
-        setErrorUserTeams(null);
+        setError(null);
         // setShowWelcomeCard(true); // Keep commented
         // Conditional redirect might be handled by ConditionalLayout or page itself
         // if (pathname !== '/login') router.push('/login'); // Let ConditionalLayout handle this
@@ -426,7 +258,7 @@ export default function useProfileData() {
   const handleDismissWelcomeCard = async () => { ... };
   */
 
-  console.log('[useProfileData] Hook initialized.');
+  console.log('[useProfileData] Hook initialized (ULTRA-SIMPLIFIED VERSION LOADED)');
 
   return {
     user,
@@ -447,72 +279,14 @@ export default function useProfileData() {
     setLoadingSkills,
     setSavingSkills,
 
-    // Return team states and setters
-    userTeams,
-    loadingUserTeams,
-    errorUserTeams,
-    setUserTeams,
-    setLoadingUserTeams,
-    setErrorUserTeams,
-
-    // Return all states and setters that were uncommented
-    newUsername,
-    newDisplayName,
-    newFullName,
-    newBio,
-    newWebsiteUrl,
-    newTwitterUrl,
-    newLinkedInUrl,
-    newGitHubUrl,
-    newInstagramUrl,
-    newDiscordUrl,
-    newPhoneWhatsapp,
-    newTikTokUrl,
-    newTelegramUrl,
-    newFacebookUrl,
-    newDollarHandle,
-    newTokenName,
-    newSupply,
-    showWelcomeCard,
-    isUploadingAvatar,
-    avatarUploadError,
-    customSkillInput,
-    skillChoiceInAdder,
-    successMessage,
-    saving,
-    setNewUsername,
-    setNewDisplayName,
-    setNewFullName,
-    setNewBio,
-    setNewWebsiteUrl,
-    setNewTwitterUrl,
-    setNewLinkedInUrl,
-    setNewGitHubUrl,
-    setNewInstagramUrl,
-    setNewDiscordUrl,
-    setNewPhoneWhatsapp,
-    setNewTikTokUrl,
-    setNewTelegramUrl,
-    setNewFacebookUrl,
-    setNewDollarHandle,
-    setNewTokenName,
-    setNewSupply,
-    setShowWelcomeCard,
-    setIsUploadingAvatar,
-    setAvatarUploadError,
-    setCustomSkillInput,
-    setSkillChoiceInAdder,
-    setSuccessMessage,
-    setSaving,
-
     // To prevent breaking components that might destructure these, provide dummy values or functions
     // Or, you might need to temporarily adjust the consuming components not to expect everything
-    // REMOVE DUPLICATE/DUMMY RETURNS that were here previously
-    // Example:
-    // newUsername: '', // REMOVE THIS LINE if newUsername is already returned above
-    // setNewUsername: () => console.log('setNewUsername (dummy) called'), // REMOVE THIS LINE
-    // newDisplayName: '', // REMOVE THIS LINE
-    // setNewDisplayName: () => console.log('setNewDisplayName (dummy) called'), // REMOVE THIS LINE
-    // ... and so on for any other duplicates
+    newUsername: '',
+    setNewUsername: () => console.log('setNewUsername (dummy) called'),
+    newDisplayName: '',
+    setNewDisplayName: () => console.log('setNewDisplayName (dummy) called'),
+    // ... (add other dummy returns for all previously returned states/handlers if needed for components not to crash)
+    // For a quick test, you might even return only { user, profile, loading, loadProfileAndSkills }
+    // and see if the core error vanishes, then deal with component props.
   };
 } 
