@@ -87,7 +87,7 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
       {/* Save Profile Button Container - Moved above profile card */}
       {user && profile && (
-        <div className="sticky top-[92px] left-0 right-0 z-30 mt-[1px] mb-6">
+        <div className="sticky top-[92px] left-0 right-0 z-30 mt-[1px] mb-2">
           <div className="w-full bg-sky-600 pointer-events-auto">
             <div className="container mx-auto">
               <button
@@ -111,7 +111,7 @@ export default function ProfilePage() {
       )}
       
       <main className="flex-grow bg-black">
-        <div className="mx-auto bg-black pt-8 max-w-7xl">
+        <div className="mx-auto bg-black pt-14 max-w-7xl">
           <ProfileDetails
             profile={profile}
             isUploadingAvatar={isUploadingAvatar}
