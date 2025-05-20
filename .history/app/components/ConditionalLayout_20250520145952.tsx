@@ -69,7 +69,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   } = useProfileData();
 
   const [isFullScreenMenuOpen, setIsFullScreenMenuOpen] = React.useState(false);
-  const [isClientSideLogoutActive, setIsClientSideLogoutActive] = useState(false); // New state for client-side logout UI
 
   // App-specific pages that require auth and should have the sidebar
   const appPathPrefixes = [
@@ -101,53 +100,33 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     }
   }, [clientSession, isLoadingAuth, isAppPage, router, pathname]);
 
-  // Effect to handle client-side sessionStorage check for logout state
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (sessionStorage.getItem('isLoggingOut') === 'true') {
-        if (pathname === '/') {
-          console.log('[ConditionalLayout useEffect] On landing page (/) with isLoggingOut flag. Clearing flag.');
-          sessionStorage.removeItem('isLoggingOut');
-          setIsClientSideLogoutActive(false); // Ensure it's false if we were on landing
-        } else {
-          console.log(`[ConditionalLayout useEffect] On path ${pathname} (not landing) with isLoggingOut flag. Setting client-side logout active.`);
-          setIsClientSideLogoutActive(true);
-        }
-      } else {
-        setIsClientSideLogoutActive(false); // Ensure it's false if no flag
-      }
-    }
-  }, [pathname]); // Rerun if pathname changes
-
-  // AGGRESSIVE CHECK AT THE VERY TOP - NOW HANDLED BY isClientSideLogoutActive state
-  if (isClientSideLogoutActive) { // Check the state
-    // This UI will now render after initial hydration if conditions met
-    console.log(`[ConditionalLayout Render] Client-side logout is active on path ${pathname}. Rendering minimal logout UI.`);
-    return (
-      <div style={{
-        width: "100vw", 
-        height: "100vh", 
-        display: "flex", 
-        flexDirection: "column",
-        alignItems: "center", 
-        justifyContent: "center", 
-        backgroundColor: "black", 
-        color: "white", 
-        fontSize: "20px"
-      }}>
-        <FaRocket style={{ fontSize: "60px", color: "#0ea5e9", marginBottom: "1rem" }} className="animate-pulse" />
-        <p>Logout in progress... redirecting to landing page.</p>
-      </div>
-    );
-  }
-  
-  // Fallback for the original logic in case isLoggingOut was true AND pathname was '/', it would clear and fall through.
-  // This ensures that if the flag was cleared for '/', we don't show logout UI.
-  if (typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true' && pathname === '/'){
-      console.log('[ConditionalLayout Render] On landing page (/) with isLoggingOut flag. Clearing flag (redundant with useEffect but safe).');
+  // AGGRESSIVE CHECK AT THE VERY TOP
+  if (typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true') {
+    if (pathname === '/') {
+      // On landing page, logout just finished. Clear flag, allow normal render.
+      console.log('[ConditionalLayout] TOP LEVEL: On landing page (/) with isLoggingOut flag. Clearing flag, proceeding to normal render.');
       sessionStorage.removeItem('isLoggingOut');
-      // Do not set setIsClientSideLogoutActive(false) here directly as it causes issues with render flow.
-      // The useEffect will handle setting it to false correctly.
+      // Fall through to normal rendering for the landing page
+    } else {
+      // Not on landing page, but logout is in progress. Show "Logout in progress..." UI.
+      console.log(`[ConditionalLayout] TOP LEVEL: On path ${pathname} (not landing page) with isLoggingOut flag. Rendering minimal logout UI.`);
+      return (
+        <div style={{
+          width: "100vw", 
+          height: "100vh", 
+          display: "flex", 
+          flexDirection: "column", // Align icon and text vertically
+          alignItems: "center", 
+          justifyContent: "center", 
+          backgroundColor: "black", 
+          color: "white", 
+          fontSize: "20px"
+        }}>
+          <FaRocket style={{ fontSize: "60px", color: "#0ea5e9", marginBottom: "1rem" }} className="animate-pulse" />
+          <p>Logout in progress... redirecting to landing page.</p>
+        </div>
+      );
+    }
   }
 
   console.log('[ConditionalLayout LOGIN TRACE] Path:', pathname, 'isLoadingAuth:', isLoadingAuth, 'clientSession:', !!clientSession, 'profileLoading:', profileLoading, 'profile:', !!profile);

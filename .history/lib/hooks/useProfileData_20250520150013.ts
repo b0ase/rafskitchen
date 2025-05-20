@@ -267,7 +267,7 @@ export default function useProfileData() {
     try {
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ has_seen_welcome_card: true } as Partial<Profile>)
+        .update({ has_seen_welcome_card: true })
         .eq('id', user.id);
 
       if (updateError) {
