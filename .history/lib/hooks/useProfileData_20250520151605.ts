@@ -462,6 +462,19 @@ export default function useProfileData() {
       full_name: newFullName,
       bio: newBio,
       website_url: newWebsiteUrl,
+      twitter_url: newTwitterUrl,
+      linkedin_url: newLinkedInUrl,
+      github_url: newGitHubUrl,
+      instagram_url: newInstagramUrl,
+      discord_url: newDiscordUrl,
+      phone_whatsapp: newPhoneWhatsapp,
+      tiktok_url: newTikTokUrl,
+      telegram_url: newTelegramUrl,
+      facebook_url: newFacebookUrl,
+      dollar_handle: newDollarHandle,
+      token_name: newTokenName,
+      supply: newSupply,
+      // has_seen_welcome_card is handled by handleDismissWelcomeCard
     };
 
     try {
@@ -500,6 +513,9 @@ export default function useProfileData() {
   }, [
     supabase, user?.id, pathname, // Added pathname for consistency if loadProfileAndSkills were called
     newUsername, newDisplayName, newFullName, newBio, newWebsiteUrl, 
+    newTwitterUrl, newLinkedInUrl, newGitHubUrl, newInstagramUrl, 
+    newDiscordUrl, newPhoneWhatsapp, newTikTokUrl, newTelegramUrl, 
+    newFacebookUrl, newDollarHandle, newTokenName, newSupply,
     setSaving, setSuccessMessage, setError, setProfile, loadProfileAndSkills // loadProfileAndSkills here if we decide to call it
   ]);
 

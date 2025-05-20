@@ -69,9 +69,9 @@ export default function ProfilePage() {
     setCustomSkillInput,
     setSkillChoiceInAdder,
     handleSaveProfile,
-    // handleSimpleAvatarUpload, // Comment out as it's not yet implemented in useProfileData
-    // handleSkillToggle, // Comment out as it's not yet implemented in useProfileData
-    // handleAddCustomSkill, // Comment out as it's not yet implemented in useProfileData
+    handleSimpleAvatarUpload,
+    handleSkillToggle,
+    handleAddCustomSkill,
   } = useProfileData();
 
   if (loading || !user) {
@@ -106,7 +106,7 @@ export default function ProfilePage() {
             profile={profile}
             isUploadingAvatar={isUploadingAvatar}
             avatarUploadError={avatarUploadError}
-            // onAvatarUpload={handleSimpleAvatarUpload} // Comment out prop usage
+            onAvatarUpload={handleSimpleAvatarUpload}
           />
 
           {/* Main Content Sections */}
@@ -121,8 +121,8 @@ export default function ProfilePage() {
                 savingSkills={savingSkills}
                 customSkillInput={customSkillInput}
                 skillChoiceInAdder={skillChoiceInAdder}
-                // onSkillToggle={handleSkillToggle} // Comment out prop usage
-                // onAddCustomSkill={handleAddCustomSkill} // Comment out prop usage
+                onSkillToggle={handleSkillToggle}
+                onAddCustomSkill={handleAddCustomSkill}
                 onCustomSkillInputChange={(e) => setCustomSkillInput(e.target.value)}
                 onSkillChoiceInAdderChange={(e) => setSkillChoiceInAdder(e.target.value)}
               />
