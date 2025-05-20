@@ -386,7 +386,6 @@ export default function NewProjectPage() {
               />
             </div>
             
-            {/* Updated "Additional Information" - old social/github textareas removed */}
             <div className="space-y-4 pt-4 border-t border-gray-800">
               <h3 className="text-md font-medium text-gray-300">Additional Information</h3>
               <div>
