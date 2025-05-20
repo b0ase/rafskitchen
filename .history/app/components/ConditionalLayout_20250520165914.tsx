@@ -273,6 +273,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <AppSubNavbar 
               initialIsExpanded={!showWelcomeCard} 
               onCollapse={handleDismissWelcomeCard}
+              onSaveProfile={() => {
+                console.log("[AppSubNavbar] Save Profile button clicked - relying on form submission via form='profile-form'");
+              }} 
+              isProfilePage={pathname === '/profile'}
             />
             <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
               {children}

@@ -84,18 +84,19 @@ export default function ProfilePage() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
-      <main className="flex-grow bg-black">
-        <div className="mx-auto bg-black pt-[154px]">
+      <main className="flex-grow bg-black pt-20"> {/* Add padding-top to prevent content being hidden behind sticky button */}
+        <div className="mx-auto bg-black">
+          {/* Render ProfileDetails Component */}
           <ProfileDetails
             profile={profile}
             isUploadingAvatar={isUploadingAvatar}
             avatarUploadError={avatarUploadError}
-            onSaveProfile={handleSaveProfile}
-            saving={saving}
           />
 
+          {/* Main Content Sections */}
           <div className="mt-10">
             <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+              {/* Render UserSkills Component */}
               <UserSkills
                 selectedSkills={selectedSkills}
                 allSkills={allSkills}
@@ -110,6 +111,7 @@ export default function ProfilePage() {
                 onSkillChoiceInAdderChange={(e) => setSkillChoiceInAdder(e.target.value)}
               />
 
+              {/* Render UserTeams Component */}
               <UserTeams
                 userTeams={userTeams}
                 loadingUserTeams={loadingUserTeams}
@@ -117,6 +119,7 @@ export default function ProfilePage() {
               />
             </div>
 
+            {/* Render EditProfileForm Component */}
             <EditProfileForm
               newUsername={newUsername}
               newDisplayName={newDisplayName}
@@ -156,7 +159,7 @@ export default function ProfilePage() {
               onSupplyChange={(e) => setNewSupply(e.target.value)}
               onSubmit={handleSaveProfile}
             />
-          </div>
+           </div>
         </div>
       </main>
     </div>

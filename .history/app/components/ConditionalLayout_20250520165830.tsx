@@ -262,17 +262,22 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       : false;
 
     return (
-      <MyCtxProvider>
+      <MyCtxProvider initialUser={clientSession?.user ?? null} initialProfile={profile ?? null}>
         <div className="flex h-screen bg-black">
           <UserSidebar />
           <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
             <AppNavbar 
               toggleFullScreenMenu={toggleFullScreenMenu} 
               isFullScreenMenuOpen={isFullScreenMenuOpen}
+              onLogout={handleLogout}
+              isAuthenticated={isAuthenticated}
+              userProfile={profile}
             />
             <AppSubNavbar 
-              initialIsExpanded={!showWelcomeCard} 
+              initialIsExpanded={subNavbarInitialExpanded} 
               onCollapse={handleDismissWelcomeCard}
+              onSaveProfile={handleSaveProfile}
+              isProfilePage={pathname === '/profile'}
             />
             <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
               {children}
@@ -281,9 +286,9 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
           <FullScreenMobileMenu 
             isOpen={isFullScreenMenuOpen}
             onClose={toggleFullScreenMenu}
-            handleLogout={handleLogout}
-            userDisplayName={profile?.display_name || clientSession?.user?.user_metadata?.display_name || clientSession?.user?.email}
-            userAvatarUrl={profile?.avatar_url || clientSession?.user?.user_metadata?.avatar_url}
+            onLogout={handleLogout}
+            isAuthenticated={isAuthenticated}
+            userProfile={profile}
           />
         </div>
       </MyCtxProvider>

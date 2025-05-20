@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaPlusSquare, FaUsers, FaProjectDiagram, FaUserPlus, FaBriefcase, FaChevronDown, FaChevronUp, FaRocket, FaCubes, FaUserSecret } from 'react-icons/fa';
+import { FaPlusSquare, FaUsers, FaProjectDiagram, FaUserPlus, FaBriefcase, FaChevronDown, FaChevronUp, FaRocket, FaCubes, FaUserSecret, FaSave } from 'react-icons/fa';
 
 const navLinks = [
   { href: '/projects/new', label: 'Start a New Project', icon: FaPlusSquare },
@@ -21,9 +21,11 @@ const welcomeSubtitle = "Welcome to b0ase.com! This is your hub to bring your di
 interface AppSubNavbarProps {
   initialIsExpanded: boolean;
   onCollapse: () => void;
+  onSaveProfile?: () => void;
+  isProfilePage?: boolean;
 }
 
-export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNavbarProps) {
+export default function AppSubNavbar({ initialIsExpanded, onCollapse, onSaveProfile, isProfilePage }: AppSubNavbarProps) {
   const pathname = usePathname() ?? '';
   const [isExpanded, setIsExpanded] = useState(initialIsExpanded);
 
@@ -73,11 +75,23 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
           </div>
           <button 
             onClick={handleToggle} 
-            className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 flex-shrink-0"
+            className="ml-4 p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 flex-shrink-0"
             aria-label={isExpanded ? "Collapse navbar" : "Expand navbar"}
           >
             {isExpanded ? <FaChevronUp className="h-5 w-5 text-gray-400" /> : <FaChevronDown className="h-5 w-5 text-gray-400" />}
           </button>
+          {isProfilePage && onSaveProfile && (
+            <button
+              type="submit"
+              form="profile-form"
+              onClick={onSaveProfile}
+              className="ml-2 px-3 py-2 rounded-md text-sm font-medium flex items-center bg-sky-600 hover:bg-sky-700 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 flex-shrink-0"
+              aria-label="Save Profile"
+            >
+              <FaSave className="mr-1.5 h-4 w-4" />
+              Save Profile
+            </button>
+          )}
         </div>
       </div>
     </div>
