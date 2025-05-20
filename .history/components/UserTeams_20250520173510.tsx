@@ -204,68 +204,65 @@ export default function UserTeams({
       )}
       {errorUserTeams && <p className="mt-4 text-sm text-red-400">{errorUserTeams}</p>}
 
-      {/* Join and Create Team Section Wrapper */}
+      {/* Join Existing Team Section */}
       <div className="mt-auto pt-6 border-t border-gray-700">
-        {/* Join Existing Team Section */}
-        <div className="mb-4">
-          <label htmlFor="join-team-select" className="block text-sm font-medium text-gray-300 mb-2">Join Existing Team:</label>
-          {loadingAllTeams ? (
-            <div className="flex items-center text-gray-400"><FaSpinner className="animate-spin mr-2" /> Loading available teams...</div>
-          ) : joinableTeams.length === 0 && allTeams.length > 0 ? (
-             <p className="text-gray-400 text-sm">You are a member of all available teams.</p>
-          ) : joinableTeams.length === 0 && allTeams.length === 0 ? (
-            <p className="text-gray-400 text-sm">No other teams available to join currently.</p>
-          ) : (
-            <div className="flex items-center gap-2">
-              <select
-                id="join-team-select"
-                value={selectedTeamToJoin}
-                onChange={(e) => setSelectedTeamToJoin(e.target.value)}
-                className="block w-full px-4 py-2 pr-8 rounded-md bg-black border border-gray-700 text-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 sm:text-sm disabled:opacity-50"
-                disabled={joiningTeam || loadingAllTeams}
-              >
-                <option value="">-- Select a team to join --</option>
-                {joinableTeams.map(team => (
-                  <option key={team.id} value={team.id}>{team.name}</option>
-                ))}
-              </select>
-              <button
-                onClick={handleJoinTeam}
-                disabled={!selectedTeamToJoin || joiningTeam || loadingAllTeams}
-                className="inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
-              >
-                {joiningTeam ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-1.5" />}
-                Join Team
-              </button>
-            </div>
-          )}
-          {joinTeamError && <p className="mt-2 text-sm text-red-400">{joinTeamError}</p>}
-        </div>
-
-        {/* Create Custom Team Section */}
-        <div className="mb-4">
-          <label htmlFor="create-team-input" className="block text-sm font-medium text-gray-300 mb-2">Add Custom Team:</label>
-          <div className="flex items-center gap-2">
-            <input
-              id="create-team-input"
-              type="text"
-              value={customTeamName}
-              onChange={(e) => setCustomTeamName(e.target.value)}
-              placeholder="e.g., The Innovators"
-              className="block w-full px-4 py-2 rounded-md bg-black border border-gray-700 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 sm:text-sm disabled:opacity-50"
-              disabled={creatingTeam}
-            />
-            <button
-              onClick={handleCreateTeam}
-              disabled={!customTeamName.trim() || creatingTeam}
-              className="inline-flex items-center px-4 py-2 border border-gray-700 text-sm font-medium rounded-md shadow-sm text-gray-300 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+        <h3 className="block text-sm font-medium text-gray-300 mb-2">Join Existing Team:</h3>
+        {loadingAllTeams ? (
+          <div className="flex items-center text-gray-400"><FaSpinner className="animate-spin mr-2" /> Loading available teams...</div>
+        ) : joinableTeams.length === 0 && allTeams.length > 0 ? (
+           <p className="text-gray-400 text-sm">You are a member of all available teams.</p>
+        ) : joinableTeams.length === 0 && allTeams.length === 0 ? (
+          <p className="text-gray-400 text-sm">No other teams available to join currently.</p>
+        ) : (
+          <div className="flex items-center gap-3">
+            <select 
+              id="join-team-select"
+              value={selectedTeamToJoin}
+              onChange={(e) => setSelectedTeamToJoin(e.target.value)}
+              className="block w-full bg-gray-800 border border-gray-700 text-gray-300 py-2 px-3 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm disabled:opacity-50"
+              disabled={joiningTeam || loadingAllTeams}
             >
-              {creatingTeam ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-1.5" />}
-              Create Team
+              <option value="">-- Select a team to join --</option>
+              {joinableTeams.map(team => (
+                <option key={team.id} value={team.id}>{team.name}</option>
+              ))}
+            </select>
+            <button 
+              onClick={handleJoinTeam}
+              disabled={!selectedTeamToJoin || joiningTeam || loadingAllTeams}
+              className="px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 flex items-center whitespace-nowrap"
+            >
+              {joiningTeam ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-1.5" />}
+              Join Team
             </button>
           </div>
-          {createTeamError && <p className="mt-2 text-sm text-red-400">{createTeamError}</p>}
+        )}
+        {joinTeamError && <p className="mt-2 text-sm text-red-400">{joinTeamError}</p>}
+      </div>
+
+      {/* Create Custom Team Section */}
+      <div className="mt-6 pt-6 border-t border-gray-700">
+        <h3 className="block text-sm font-medium text-gray-300 mb-2">Add Custom Team:</h3>
+        <div className="flex items-center gap-3">
+          <input
+            id="create-team-input"
+            type="text"
+            value={customTeamName}
+            onChange={(e) => setCustomTeamName(e.target.value)}
+            placeholder="e.g., The Innovators"
+            className="block w-full bg-gray-800 border border-gray-700 text-gray-300 py-2 px-3 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm placeholder-gray-500 disabled:opacity-50"
+            disabled={creatingTeam}
+          />
+          <button
+            onClick={handleCreateTeam}
+            disabled={!customTeamName.trim() || creatingTeam}
+            className="px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black disabled:opacity-50 flex items-center whitespace-nowrap"
+          >
+            {creatingTeam ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-1.5" />}
+            Create Team
+          </button>
         </div>
+        {createTeamError && <p className="mt-2 text-sm text-red-400">{createTeamError}</p>}
       </div>
     </section>
   );

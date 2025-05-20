@@ -41,8 +41,8 @@ export default function ProfileDetails({
   saving,
 }: ProfileDetailsProps) {
   return (
-    <section className="relative mb-12 p-6 md:p-8 bg-gray-900 rounded-xl shadow-2xl text-white border border-gray-700">
-      {/* Save Profile Button - Bottom Right */}
+    <section className="relative mb-12 p-6 md:p-8 bg-gray-900 rounded-xl shadow-2xl text-white border border-gray-700 sticky top-[154px] z-20">
+      {/* Save Profile Button - MOVED to Bottom Right */}
       {onSaveProfile && (
         <button
           type="submit"

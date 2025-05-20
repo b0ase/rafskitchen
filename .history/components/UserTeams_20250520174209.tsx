@@ -208,7 +208,7 @@ export default function UserTeams({
       <div className="mt-auto pt-6 border-t border-gray-700">
         {/* Join Existing Team Section */}
         <div className="mb-4">
-          <label htmlFor="join-team-select" className="block text-sm font-medium text-gray-300 mb-2">Join Existing Team:</label>
+          <h3 className="block text-sm font-medium text-gray-300 mb-2">Join Existing Team:</h3>
           {loadingAllTeams ? (
             <div className="flex items-center text-gray-400"><FaSpinner className="animate-spin mr-2" /> Loading available teams...</div>
           ) : joinableTeams.length === 0 && allTeams.length > 0 ? (
@@ -244,7 +244,7 @@ export default function UserTeams({
 
         {/* Create Custom Team Section */}
         <div className="mb-4">
-          <label htmlFor="create-team-input" className="block text-sm font-medium text-gray-300 mb-2">Add Custom Team:</label>
+          <h3 className="block text-sm font-medium text-gray-300 mb-2">Add Custom Team:</h3>
           <div className="flex items-center gap-2">
             <input
               id="create-team-input"

@@ -114,7 +114,6 @@ export default function ProfilePage() {
                 userTeams={userTeams}
                 loadingUserTeams={loadingUserTeams}
                 errorUserTeams={errorUserTeams}
-                userId={user.id}
               />
             </div>
 

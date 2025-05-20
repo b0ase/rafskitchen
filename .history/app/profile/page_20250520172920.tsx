@@ -85,7 +85,7 @@ export default function ProfilePage() {
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
       <main className="flex-grow bg-black">
-        <div className="mx-auto bg-black pt-8">
+        <div className="mx-auto bg-black pt-1">
           <ProfileDetails
             profile={profile}
             isUploadingAvatar={isUploadingAvatar}
@@ -114,7 +114,6 @@ export default function ProfilePage() {
                 userTeams={userTeams}
                 loadingUserTeams={loadingUserTeams}
                 errorUserTeams={errorUserTeams}
-                userId={user.id}
               />
             </div>
 
