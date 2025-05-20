@@ -295,6 +295,33 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     );
   }
   
+  // For any authenticated user that's not on an app page, still provide the app navigation
+  if (isAuthenticated) {
+    return (
+      <MyCtxProvider>
+        <div className="flex h-screen bg-black">
+          <UserSidebar className="hidden md:flex" />
+          <FullScreenMobileMenu 
+            isOpen={isFullScreenMenuOpen} 
+            onClose={toggleFullScreenMenu} 
+            handleLogout={handleLogout} 
+            userDisplayName={profile?.display_name || profile?.username || 'User'}
+            userAvatarUrl={profile?.avatar_url}
+          />
+          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
+            <AppNavbar 
+              toggleFullScreenMenu={toggleFullScreenMenu} 
+              isFullScreenMenuActuallyOpen={isFullScreenMenuOpen} 
+            />
+            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black">
+              {children}
+            </main>
+          </div>
+        </div>
+      </MyCtxProvider>
+    );
+  }
+
   if (isAppPage && !isAuthenticated) {
     let isCurrentlyLoggingOut = false;
     if (typeof window !== 'undefined') {

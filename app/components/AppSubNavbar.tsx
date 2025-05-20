@@ -47,6 +47,15 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
     }
   };
 
+  // Add function to handle link click
+  const handleLinkClick = () => {
+    // Close the menu if it's expanded
+    if (isExpanded) {
+      setIsExpanded(false);
+      onCollapse();
+    }
+  };
+
   // Common button style for both Build Something Amazing and Collapse Options buttons
   const actionButtonClasses = "w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors";
 
@@ -129,6 +138,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
                   key={link.label}
                   href={link.href}
                   className={`${buttonBaseClasses} ${isActive ? activeClasses : inactiveClasses} ${layoutClasses} ${colSpanClass}`}
+                  onClick={handleLinkClick}
                 >
                   <link.icon className={`h-4 w-4 mr-3 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-200 transition-colors'}`} />
                   <span>{link.label}</span>
