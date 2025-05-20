@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   FaUserAlt, FaBookOpen, FaTasks, FaCalendarAlt, FaSignOutAlt, FaDollarSign, 
   FaProjectDiagram, FaUsers, FaComments, FaSearchDollar, FaBullseye, 
@@ -52,6 +53,32 @@ export default function FullScreenMobileMenu({
   userDisplayName = 'User',
   userAvatarUrl 
 }: FullScreenMobileMenuProps) {
+  const pathname = usePathname();
+  
+  // Find the active nav link based on the current path
+  const getCurrentPageTitle = () => {
+    // Find exact match first
+    const exactMatch = navLinksPrimary.find(link => link.href === pathname);
+    if (exactMatch) return exactMatch.title;
+    
+    // Then look for path that starts with the link href
+    const partialMatch = navLinksPrimary.find(link => 
+      pathname.startsWith(link.href) && link.href !== '/'
+    );
+    if (partialMatch) return partialMatch.title;
+    
+    // Check for matches with activeSubpaths
+    const subpathMatch = navLinksPrimary.find(link => 
+      link.activeSubpaths?.some(subpath => pathname.startsWith(subpath))
+    );
+    if (subpathMatch) return subpathMatch.title;
+    
+    // Default to Profile if no match is found
+    return 'Profile';
+  };
+  
+  const currentPageTitle = getCurrentPageTitle();
+
   if (!isOpen) return null;
 
   return (
@@ -75,7 +102,7 @@ export default function FullScreenMobileMenu({
             ) : (
               <FaUserAlt className="w-6 h-6 text-white mr-3" />
             )}
-            <span className="text-white text-lg">Profile</span>
+            <span className="text-white text-lg">{currentPageTitle}</span>
           </div>
         </div>
         
@@ -100,19 +127,26 @@ export default function FullScreenMobileMenu({
       <div className="overflow-y-auto h-[calc(100vh-92px)]">
         <nav className="pl-[46px] pr-4 py-4"> {/* Padding left aligns with hamburger */}
           <ul className="space-y-2">
-            {navLinksPrimary.map((link) => (
-              <li key={link.title}>
-                <Link href={link.href} legacyBehavior>
-                  <a 
-                    onClick={onClose}
-                    className="flex items-center p-3 text-base rounded transition-colors ease-in-out hover:bg-gray-800 text-gray-300 hover:text-white"
-                  >
-                    <link.icon className="w-5 h-5 mr-4 text-white" />
-                    {link.title}
-                  </a>
-                </Link>
-              </li>
-            ))}
+            {navLinksPrimary.map((link) => {
+              const isActive = 
+                pathname === link.href || 
+                (pathname.startsWith(link.href) && link.href !== '/') ||
+                link.activeSubpaths?.some(subpath => pathname.startsWith(subpath));
+                
+              return (
+                <li key={link.title}>
+                  <Link href={link.href} legacyBehavior>
+                    <a 
+                      onClick={onClose}
+                      className={`flex items-center p-3 text-base rounded transition-colors ease-in-out hover:bg-gray-800 ${isActive ? 'text-white bg-gray-800' : 'text-gray-300'} hover:text-white`}
+                    >
+                      <link.icon className={`w-5 h-5 mr-4 ${isActive ? 'text-sky-400' : 'text-white'}`} />
+                      {link.title}
+                    </a>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </div>
