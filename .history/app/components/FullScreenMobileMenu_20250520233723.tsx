@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   FaUserAlt, FaBookOpen, FaTasks, FaCalendarAlt, FaSignOutAlt, FaDollarSign, 
   FaProjectDiagram, FaUsers, FaComments, FaSearchDollar, FaBullseye, 
-  FaChalkboardTeacher, FaListAlt, FaRoute, FaRobot, FaCubes, FaTimes
+  FaChalkboardTeacher, FaListAlt, FaRoute, FaRobot, FaCubes
 } from 'react-icons/fa';
 
 // Replicated NavLink interface and constants for now
@@ -61,18 +61,9 @@ export default function FullScreenMobileMenu({
       onClick={onClose} // Click on backdrop closes menu
     >
       <div 
-        className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-md mx-auto flex flex-col space-y-6 overflow-y-auto relative"
+        className="bg-gray-900 p-6 rounded-lg shadow-2xl w-full max-w-md mx-auto flex flex-col space-y-6 overflow-y-auto"
         onClick={(e) => e.stopPropagation()} // Prevent clicks inside menu from closing it
       >
-        {/* Close button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-full p-1"
-          aria-label="Close menu"
-        >
-          <FaTimes className="w-6 h-6" />
-        </button>
-
         {/* Optional: User Info Header */}
         {(userDisplayName || userAvatarUrl) && (
           <div className="flex items-center space-x-3 pb-4 border-b border-gray-700">
