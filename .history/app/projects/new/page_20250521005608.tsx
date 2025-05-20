@@ -284,29 +284,21 @@ export default function NewProjectPage() {
         <div className="bg-gray-900 shadow-2xl rounded-lg p-6 sm:p-8 md:p-10 border border-gray-700/50 relative">
           
           {/* Header section with title and sticky button */}
-          <div className="flex flex-col md:flex-row justify-between items-start mb-10 gap-6">
-            <div className="text-left w-full md:w-3/4">
+          <div className="flex justify-between items-start mb-10">
+            <div className="text-left">
               <FaRocket className="text-5xl text-sky-500 mb-4" />
-              <h1 className="text-4xl font-bold text-white mb-4">Start a Project</h1>
-              <div className="space-y-3 text-gray-400">
-                <p className="text-lg">
-                  Kickstart your venture here. Launch a project, form a team with integrated chat, and issue a token.
-                </p>
-                <p className="text-lg">
-                  Team contributions are rewarded with tokens, which can represent direct equity and potentially convert to shares if your project incorporates.
-                </p>
-                <p className="text-lg">
-                  What's your vision? What will you build? Let's begin!
-                </p>
-              </div>
+              <h1 className="text-4xl font-bold text-white">Start a Project</h1>
+              <p className="text-lg text-gray-400 mt-2">
+                Kickstart your venture here. Launch a project, form a team with integrated chat, and issue a token. Team contributions are rewarded with tokens, which can represent direct equity and potentially convert to shares if your project incorporates. What's your vision? What will you build? What's your ideal Website, App, or Platform? Let's begin!
+              </p>
             </div>
             {/* Sticky Create Idea Button Wrapper - ADDED BACK HERE */}
-            <div className="z-20 self-start md:ml-4 flex-shrink-0 md:sticky" style={{ top: '1.5rem' }}> 
+            <div className="z-20 ml-4 flex-shrink-0" style={{ position: 'sticky', top: '1.5rem' }}> 
               <button
                 type="button"
                 onClick={() => (document.getElementById('project-creation-form') as HTMLFormElement)?.requestSubmit()}
                 disabled={saving || loadingUser || !user || !form.name}
-                className="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
+                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
               >
                 {saving ? <FaSpinner className="animate-spin mr-2.5 h-5 w-5" /> : <FaSave className="mr-2.5 h-5 w-5" />}
                 {saving ? 'Creating Idea...' : 'Create Project'}
