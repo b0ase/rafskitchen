@@ -47,10 +47,13 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
     }
   };
 
+  // Common button style for both Build Something Amazing and Collapse Options buttons
+  const actionButtonClasses = "w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors";
+
   // Determine which links to display based on the expanded state and screen size
   const displayedLinks = isExpanded ? navLinks : navLinks; // Always show all links
   const linkContainerClasses = isExpanded 
-    ? 'grid gap-2 p-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7' 
+    ? 'grid gap-2 p-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 max-h-[60vh] overflow-y-auto' 
     : (isDesktop 
       ? 'flex flex-wrap items-center gap-2 p-2 justify-center' // Show all buttons, allow wrapping, centered
       : 'hidden'); // Hide buttons in collapsed mobile view
@@ -71,24 +74,25 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse }: AppSubNa
           <div className="py-3 px-2">
             <button
               onClick={handleToggle}
-              className="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white py-3 px-4 rounded-md text-sm font-medium transition-colors"
+              className={actionButtonClasses}
+              aria-label="Expand actions"
             >
               <FaRocket className="w-4 h-4" />
-              Build Something Amazing
+              <span>Build Something Amazing</span>
             </button>
           </div>
         )}
         
         {/* Toggle expand/collapse button for expanded view */}
         {isExpanded && !isDesktop && (
-          <div className="flex justify-center py-2">
+          <div className="py-3 px-2">
             <button 
               onClick={handleToggle} 
-              className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 flex items-center justify-center w-full max-w-xs"
-              aria-label={isExpanded ? "Collapse actions" : "Expand actions"}
+              className={actionButtonClasses}
+              aria-label="Collapse actions"
             >
-              <FaChevronUp className="h-4 w-4 text-gray-400 mr-2" /> 
-              <span className="text-sm font-medium">Collapse Options</span>
+              <FaChevronUp className="w-4 h-4" /> 
+              <span>Collapse Options</span>
             </button>
           </div>
         )}
