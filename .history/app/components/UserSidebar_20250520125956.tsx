@@ -257,15 +257,14 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
       });
     }
 
-    // Initiate signOut but don't await it here
+    // Initiate signOut but don't await it here to prevent race conditions with redirect
     supabase.auth.signOut().catch(error => {
       console.error('[UserSidebar] Error during background signOut:', error?.message);
     });
 
-    // Set flag and immediately redirect to the landing page.
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('isLoggingOut', 'true');
-    }
+    // Immediately redirect to the landing page.
+    // The onAuthStateChange listener in this component will also attempt this,
+    // but this direct call ensures it happens as part of the explicit logout action.
     console.log('[UserSidebar] Redirecting to / immediately after initiating signOut.');
     window.location.assign('/'); 
   };

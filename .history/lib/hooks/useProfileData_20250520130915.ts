@@ -7,7 +7,6 @@ import { User } from '@supabase/supabase-js';
 
 // Define interfaces needed by the hook
 interface Profile {
-  id?: string; // Added id for profile matching in useEffect
   username: string | null;
   display_name: string | null;
   avatar_url?: string | null;
@@ -20,13 +19,9 @@ interface Profile {
   instagram_url?: string | null;
   discord_url?: string | null;
   phone_whatsapp?: string | null;
-  tiktok_url?: string | null;
-  telegram_url?: string | null;
-  facebook_url?: string | null;
   dollar_handle?: string | null;
   token_name?: string | null;
   supply?: string | null;
-  has_seen_welcome_card?: boolean | null;
 }
 
 interface ProfileForUpdate {
@@ -41,13 +36,9 @@ interface ProfileForUpdate {
   instagram_url?: string | null;
   discord_url?: string | null;
   phone_whatsapp?: string | null;
-  tiktok_url?: string | null;
-  telegram_url?: string | null;
-  facebook_url?: string | null;
   dollar_handle?: string | null;
   token_name?: string | null;
   supply?: string | null;
-  has_seen_welcome_card?: boolean | null;
   updated_at: string;
 }
 
@@ -106,9 +97,6 @@ export default function useProfileData() {
   const [newInstagramUrl, setNewInstagramUrl] = useState<string>('');
   const [newDiscordUrl, setNewDiscordUrl] = useState<string>('');
   const [newPhoneWhatsapp, setNewPhoneWhatsapp] = useState<string>('');
-  const [newTikTokUrl, setNewTikTokUrl] = useState<string>('');
-  const [newTelegramUrl, setNewTelegramUrl] = useState<string>('');
-  const [newFacebookUrl, setNewFacebookUrl] = useState<string>('');
   const [newDollarHandle, setNewDollarHandle] = useState<string>('');
   const [newTokenName, setNewTokenName] = useState<string>('');
   const [newSupply, setNewSupply] = useState<string>('1,000,000,000');
@@ -133,11 +121,10 @@ export default function useProfileData() {
 
   const [customSkillInput, setCustomSkillInput] = useState<string>('');
   const [skillChoiceInAdder, setSkillChoiceInAdder] = useState<string>('');
-  const [showWelcomeCard, setShowWelcomeCard] = useState<boolean>(true);
 
   // useEffect for initial user fetch and auth state changes
   useEffect(() => {
-    setLoading(true);
+      setLoading(true);
     const fetchInitialUser = async () => {
       const isLoggingOut = typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true';
       if (isLoggingOut) {
@@ -152,7 +139,7 @@ export default function useProfileData() {
       if (userError) {
         console.error("[useProfileData] Error fetching initial user with getUser():", userError.message);
         setUser(null);
-        setError("Failed to authenticate.");
+        setError("Failed to authenticate. Please try logging in again.");
         setLoading(false);
         router.push('/login');
         return;
@@ -176,7 +163,11 @@ export default function useProfileData() {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[useProfileData] Auth state changed. Event: ${event}`);
       const currentUser = session?.user ?? null;
-      setUser(currentUser);
+
+      if (user?.id !== currentUser?.id) {
+        setUser(currentUser);
+      }
+
       if (event === 'SIGNED_OUT') {
         console.log('[useProfileData] User signed out. Clearing states.');
         setProfile(null);
@@ -191,20 +182,12 @@ export default function useProfileData() {
         setNewInstagramUrl('');
         setNewDiscordUrl('');
         setNewPhoneWhatsapp('');
-        setNewTikTokUrl('');
-        setNewTelegramUrl('');
-        setNewFacebookUrl('');
         setNewDollarHandle('');
         setNewTokenName('');
         setNewSupply('1,000,000,000');
         setSelectedSkills([]);
-        setUserSkillIds(new Set());
-        setUserTeams([]);
         setSuccessMessage(null);
         setAvatarUploadError(null);
-        setError(null);
-        setShowWelcomeCard(true);
-        if (pathname !== '/login') router.push('/login');
       } else if (event === 'SIGNED_IN' && currentUser) {
         console.log('[useProfileData] User signed in:', currentUser.id);
       } else if (event === 'USER_UPDATED' && currentUser) {
@@ -219,11 +202,11 @@ export default function useProfileData() {
     return () => {
       authListener.subscription?.unsubscribe();
     };
-  }, [router, supabase, pathname]);
+  }, [router, supabase]); // Removed user from dependencies to prevent infinite loop
 
   // useEffect for fetching profile and skills when user is available or changes
   useEffect(() => {
-    console.log('[useProfileData] Second useEffect triggered.', { user: user?.id, profile: !!profile, pathname });
+    console.log('[ProfilePage] Second useEffect triggered.', { user: user?.id, profile: !!profile, pathname });
 
     const loadProfileAndSkills = async () => {
       if (!user?.id) {
@@ -236,7 +219,7 @@ export default function useProfileData() {
         return;
       }
 
-      console.log(`[useProfileData] User ID ${user.id} present. Starting to fetch profile, skills, and teams.`);
+      console.log(`[ProfilePage] User ID ${user.id} present. Starting to fetch profile, skills, and teams.`);
       setLoading(true); // Set main loading to true when fetching starts
       setLoadingUserTeams(true); // Keep this specific loading state here
       setError(null);
@@ -247,45 +230,40 @@ export default function useProfileData() {
 
       try {
         // Step 1: Fetch Profile Data
-        console.log("[useProfileData] Fetching basic profile data...");
+        console.log("[ProfilePage] Fetching basic profile data...");
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('*, has_seen_welcome_card')
+          .select('*')
           .eq('id', user.id)
           .single();
 
         if (profileError) {
-          console.error("[useProfileData] Error fetching profile:", profileError.message, profileError.details);
+          console.error("[ProfilePage] Error fetching profile:", profileError.message, profileError.details);
           if (profileError.code === 'PGRST116') {
             setError("Profile not found. You may need to complete your profile setup.");
           } else {
             setError(`Failed to load profile: ${profileError.message}`);
           }
-          setShowWelcomeCard(true); // Show welcome if profile error
         } else if (profileData) {
-          console.log("[useProfileData] Profile data fetched:", profileData);
-          setProfile(profileData as Profile);
-          setNewUsername(profileData.username || '');
-          setNewDisplayName(profileData.display_name || '');
-          setNewFullName(profileData.full_name || '');
-          setNewBio(profileData.bio || '');
-          setNewWebsiteUrl(profileData.website_url || '');
-          setNewTwitterUrl(profileData.twitter_url || '');
-          setNewLinkedInUrl(profileData.linkedin_url || '');
-          setNewGitHubUrl(profileData.github_url || '');
-          setNewInstagramUrl(profileData.instagram_url || '');
-          setNewDiscordUrl(profileData.discord_url || '');
-          setNewPhoneWhatsapp(profileData.phone_whatsapp || '');
-          setNewTikTokUrl(profileData.tiktok_url || '');
-          setNewTelegramUrl(profileData.telegram_url || '');
-          setNewFacebookUrl(profileData.facebook_url || '');
-          setNewDollarHandle(profileData.dollar_handle || '');
-          setNewTokenName(profileData.token_name || '');
-          setNewSupply(profileData.supply || '1,000,000,000');
-          setShowWelcomeCard(profileData.has_seen_welcome_card === null || profileData.has_seen_welcome_card === undefined ? true : !profileData.has_seen_welcome_card);
+          console.log("[ProfilePage] Profile data fetched:", profileData);
+          setProfile(profileData as unknown as Profile);
+          setNewUsername((profileData as any).username || '');
+          setNewDisplayName((profileData as any).display_name || '');
+          setNewFullName((profileData as any).full_name || '');
+          setNewBio((profileData as any).bio || '');
+          setNewWebsiteUrl((profileData as any).website_url || '');
+          setNewTwitterUrl((profileData as any).twitter_url || '');
+          setNewLinkedInUrl((profileData as any).linkedin_url || '');
+          setNewGitHubUrl((profileData as any).github_url || '');
+          setNewInstagramUrl((profileData as any).instagram_url || '');
+          setNewDiscordUrl((profileData as any).discord_url || '');
+          setNewPhoneWhatsapp((profileData as any).phone_whatsapp || '');
+          setNewDollarHandle((profileData as any).dollar_handle || '');
+          setNewTokenName((profileData as any).token_name || '');
+          setNewSupply((profileData as any).supply || '1,000,000,000');
 
           // Step 2: Fetch User's Skills
-          console.log("[useProfileData] Fetching user skills for user:", user.id);
+          console.log("[ProfilePage] Fetching user skills for user:", user.id);
           const { data: userSkillsData, error: userSkillsError } = await supabase
             .from('user_skills')
             .select(`
@@ -295,7 +273,7 @@ export default function useProfileData() {
             .eq('user_id', user.id);
 
           if (userSkillsError) {
-            console.error("[useProfileData] Error fetching user skills:", userSkillsError.message);
+            console.error("[ProfilePage] Error fetching user skills:", userSkillsError.message);
             setError(prevError => prevError ? `${prevError} | Failed to load skills: ${userSkillsError.message}` : `Failed to load skills: ${userSkillsError.message}`);
           } else if (userSkillsData) {
             const currentSkillsWithDetails = userSkillsData.map(us => {
@@ -303,14 +281,14 @@ export default function useProfileData() {
               if (Array.isArray(us.skills)) {
                 if (us.skills.length > 0) {
                   skillDetail = us.skills[0] as Skill;
-                } else {
-                  console.warn("[useProfileData] User skill entry found with an empty skills array:", us);
+        } else {
+                  console.warn("[ProfilePage] User skill entry found with an empty skills array:", us);
                   return null;
                 }
               } else if (us.skills) {
                 skillDetail = us.skills as Skill;
               } else {
-                console.warn("[useProfileData] User skill entry found without corresponding skill detail (us.skills is null/undefined):", us);
+                console.warn("[ProfilePage] User skill entry found without corresponding skill detail (us.skills is null/undefined):", us);
                 return null;
               }
               if (!skillDetail) return null;
@@ -322,13 +300,13 @@ export default function useProfileData() {
               };
             }).filter(Boolean) as Skill[];
 
-            console.log("[useProfileData] User skills processed. Setting selectedSkills and userSkillIds.");
+            console.log("[ProfilePage] User skills processed. Setting selectedSkills and userSkillIds.");
             setSelectedSkills(currentSkillsWithDetails);
             setUserSkillIds(new Set(currentSkillsWithDetails.map(s => s.id)));
           }
 
           // Step 3: Fetch User's Teams
-          console.log("[useProfileData] Fetching user teams for user:", user.id);
+          console.log("[ProfilePage] Fetching user teams for user:", user.id);
           try {
             const { data: teamUserEntries, error: teamUserError } = await supabase
               .from('user_team_memberships')
@@ -356,11 +334,11 @@ export default function useProfileData() {
                     if (parsed && typeof parsed.bgColor === 'string' && typeof parsed.textColor === 'string' && typeof parsed.borderColor === 'string') {
                       parsedColorScheme = parsed as ColorScheme;
                     } else {
-                      console.warn(`[useProfileData] Parsed color_scheme for team ${team.id} does not match ColorScheme structure:`, parsed);
+                      console.warn(`[ProfilePage] Parsed color_scheme for team ${team.id} does not match ColorScheme structure:`, parsed);
                       parsedColorScheme = null;
                     }
                   } catch (e) {
-                    console.warn(`[useProfileData] Failed to parse color_scheme string for team ${team.id}:`, rawColorScheme, e);
+                    console.warn(`[ProfilePage] Failed to parse color_scheme string for team ${team.id}:`, rawColorScheme, e);
                     parsedColorScheme = null;
                   }
                 } else if (typeof rawColorScheme === 'object' && rawColorScheme !== null) {
@@ -372,7 +350,7 @@ export default function useProfileData() {
                   ) {
                     parsedColorScheme = potentialScheme as ColorScheme;
                   } else {
-                    console.warn(`[useProfileData] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, rawColorScheme);
+                    console.warn(`[ProfilePage] color_scheme for team ${team.id} is an object but not a valid ColorScheme:`, rawColorScheme);
                     parsedColorScheme = null;
                   }
                 }
@@ -390,31 +368,31 @@ export default function useProfileData() {
               setUserTeams([]);
             }
           } catch (e: any) {
-            console.error("[useProfileData] Error fetching user teams:", e.message);
+            console.error("[ProfilePage] Error fetching user teams:", e.message);
             setErrorUserTeams(`Failed to load teams: ${e.message}`);
           }
         }
 
         // Step 4: Fetch All Available Skills for dropdown
-        console.log("[useProfileData] Fetching all available skills for dropdown...");
+        console.log("[ProfilePage] Fetching all available skills for dropdown...");
         const { data: allSkillsData, error: allSkillsError } = await supabase
           .from('skills')
             .select('*')
           .order('name', { ascending: true });
 
         if (allSkillsError) {
-            console.error("[useProfileData] Error fetching all skills:", allSkillsError.message);
+            console.error("[ProfilePage] Error fetching all skills:", allSkillsError.message);
             setError(prevError => prevError ? `${prevError} | Failed to load skill list: ${allSkillsError.message}` : `Failed to load skill list: ${allSkillsError.message}`);
         } else if (allSkillsData) {
-            console.log("[useProfileData] All skills for dropdown fetched successfully.");
+            console.log("[ProfilePage] All skills for dropdown fetched successfully.");
             setAllSkills(allSkillsData as Skill[]);
         }
 
       } catch (e:any) {
-        console.error("[useProfileData] Critical error in loadProfileAndSkills:", e.message);
+        console.error("[ProfilePage] Critical error in loadProfileAndSkills:", e.message);
         setError(`An unexpected error occurred: ${e.message}`);
       } finally {
-        console.log('[useProfileData] loadProfileAndSkills finished. States set: skills loading = false, teams loading = false.');
+        console.log('[ProfilePage] loadProfileAndSkills finished. States set: skills loading = false, teams loading = false.');
         setLoadingSkills(false);
         setLoadingUserTeams(false);
         setLoading(false); // Ensure main loading state is set to false
@@ -423,12 +401,12 @@ export default function useProfileData() {
 
     // Only proceed if user is defined and profile is not yet loaded for this user
     if (user?.id && pathname === '/profile' && !profile) {
-      console.log(`[useProfileData] User ID ${user.id} present and profile not loaded. Starting to fetch.`);
+      console.log(`[ProfilePage] User ID ${user.id} present and profile not loaded. Starting to fetch.`);
       setLoadingSkills(true);
       setLoadingUserTeams(true);
       loadProfileAndSkills();
     } else if (!user?.id && pathname === '/profile') {
-      console.log('[useProfileData] User ID is null on profile page. Clearing states.');
+      console.log('[ProfilePage] User ID is null on profile page. Clearing states.');
       setProfile(null);
       setSelectedSkills([]);
       setUserTeams([]); // Clear teams if no user
@@ -436,10 +414,10 @@ export default function useProfileData() {
       setLoadingSkills(false);
       setLoadingUserTeams(false);
     } else if (profile && user?.id && pathname === '/profile') {
-        console.log('[useProfileData] Profile already loaded for user.');
+        console.log('[ProfilePage] Profile already loaded for user.');
         // Do nothing - profile is already loaded, prevent re-fetch.
     } else {
-      console.log('[useProfileData] Conditions for loading profile not met.', { user: user?.id, pathname });
+      console.log('[ProfilePage] Conditions for loading profile not met.', { user: user?.id, pathname });
       // Not on profile page, or user object is present but not on profile page.
       // Ensure loading states are false if not actively fetching.
       setLoading(false);
@@ -485,7 +463,7 @@ export default function useProfileData() {
       if (insertError) {
           // Check for unique constraint violation for user_id_skill_id_key
           if (insertError.code === '23505' && insertError.message.includes('user_skills_user_id_skill_id_key')) {
-             console.warn("[useProfileData] Attempted to add a skill that's already present (unique constraint violation). Refreshing skills from DB.");
+             console.warn("[ProfilePage] Attempted to add a skill that's already present (unique constraint violation). Refreshing skills from DB.");
              const skillToAdd = allSkills.find(s => s.id === skillId);
              if (skillToAdd && !userSkillIds.has(skillId)) {
                 setSelectedSkills(prev => [...prev, skillToAdd]);
@@ -512,7 +490,7 @@ export default function useProfileData() {
                 setUserSkillIds(prev => new Set(prev).add(skillDetail!.id));
                 setSuccessMessage("Skill added successfully.");
             } else {
-                console.error("[useProfileData] Added skill but couldn't retrieve its details fully:", newSkillMapping);
+                console.error("[ProfilePage] Added skill but couldn't retrieve its details fully:", newSkillMapping);
                 setError("Skill added, but details might not be fully displayed. Please refresh.");
                 const skillFromAll = allSkills.find(s => s.id === skillId);
                 if (skillFromAll) {
@@ -534,7 +512,7 @@ export default function useProfileData() {
       setError(null);
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err: any) {
-      console.error("[useProfileData] Error in handleSkillToggle:", err);
+      console.error("[ProfilePage] Error in handleSkillToggle:", err);
       setError(err.message);
       setSuccessMessage(null);
     } finally {
@@ -614,27 +592,27 @@ export default function useProfileData() {
 
   // Simplified Avatar Upload Function
   const handleSimpleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('[useProfileData] handleSimpleAvatarUpload Function triggered.');
-    console.log('[useProfileData] User object:', user);
+    console.log('[handleSimpleAvatarUpload] Function triggered.');
+    console.log('[handleSimpleAvatarUpload] User object:', user);
 
     if (!user) {
       setAvatarUploadError('User not authenticated.');
-      console.log('[useProfileData] Exiting: User not authenticated.');
+      console.log('[handleSimpleAvatarUpload] Exiting: User not authenticated.');
       return;
     }
     const file = event.target.files?.[0];
-    console.log('[useProfileData] File object:', file);
+    console.log('[handleSimpleAvatarUpload] File object:', file);
 
     if (!file) {
       setAvatarUploadError('No file selected.');
-      console.log('[useProfileData] Exiting: No file selected.');
+      console.log('[handleSimpleAvatarUpload] Exiting: No file selected.');
       return;
     }
 
     setIsUploadingAvatar(true);
     setAvatarUploadError(null);
     setSuccessMessage(null);
-    console.log('[useProfileData] Starting upload process...');
+    console.log('[handleSimpleAvatarUpload] Starting upload process...');
 
     const fileExt = file.name.split('.').pop();
     const filePath = `public/${user.id}/avatar.${fileExt}`;
@@ -652,14 +630,14 @@ export default function useProfileData() {
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      console.log('[useProfileData] publicUrlData from getPublicUrl (original filePath):', publicUrlData);
+      console.log('[handleSimpleAvatarUpload] publicUrlData from getPublicUrl (original filePath):', publicUrlData);
 
       if (!publicUrlData?.publicUrl) throw new Error('Could not get public URL for avatar.');
 
       let finalPublicUrl = publicUrlData.publicUrl;
 
       const newPublicAvatarUrl = `${finalPublicUrl}?t=${new Date().getTime()}`; // Cache busting
-      console.log('[useProfileData] newPublicAvatarUrl to be stored:', newPublicAvatarUrl);
+      console.log('[handleSimpleAvatarUpload] newPublicAvatarUrl to be stored:', newPublicAvatarUrl);
 
       const { error: profileUpdateError } = await supabase
         .from('profiles')
@@ -677,14 +655,14 @@ export default function useProfileData() {
         });
 
         if (updateUserError) {
-          console.error('[useProfileData][handleSimpleAvatarUpload] Error updating user auth metadata with new avatar_url:', updateUserError.message);
+          console.error('[ProfilePage][handleSimpleAvatarUpload] Error updating user auth metadata with new avatar_url:', updateUserError.message);
         } else {
-          console.log('[useProfileData][handleSimpleAvatarUpload] Successfully updated user auth metadata with new avatar_url:', updatedUserData);
+          console.log('[ProfilePage][handleSimpleAvatarUpload] Successfully updated user auth metadata with new avatar_url:', updatedUserData);
         }
       }
 
     } catch (error: any) {
-      console.error('[useProfileData] Error during upload process:', error);
+      console.error('[handleSimpleAvatarUpload] Error during upload process:', error);
       setAvatarUploadError(`Upload failed: ${error.message}`);
       setSuccessMessage(null);
     } finally {
@@ -737,25 +715,11 @@ export default function useProfileData() {
       instagram_url: newInstagramUrl.trim() || null,
       discord_url: newDiscordUrl.trim() || null,
       phone_whatsapp: newPhoneWhatsapp.trim() || null,
-      tiktok_url: newTikTokUrl.trim() || null,
-      telegram_url: newTelegramUrl.trim() || null,
-      facebook_url: newFacebookUrl.trim() || null,
       dollar_handle: newDollarHandle.trim() || null,
       token_name: newTokenName.trim() || null,
       supply: newSupply.trim() || null,
-      has_seen_welcome_card: profile.has_seen_welcome_card,
       updated_at: new Date().toISOString(),
     };
-
-    if (newInstagramUrl !== (profile?.instagram_url || '')) updates.instagram_url = newInstagramUrl;
-    if (newDiscordUrl !== (profile?.discord_url || '')) updates.discord_url = newDiscordUrl;
-    if (newPhoneWhatsapp !== (profile?.phone_whatsapp || '')) updates.phone_whatsapp = newPhoneWhatsapp;
-    if (newTikTokUrl !== (profile?.tiktok_url || '')) updates.tiktok_url = newTikTokUrl;
-    if (newTelegramUrl !== (profile?.telegram_url || '')) updates.telegram_url = newTelegramUrl;
-    if (newFacebookUrl !== (profile?.facebook_url || '')) updates.facebook_url = newFacebookUrl;
-    if (newDollarHandle !== (profile?.dollar_handle || '')) updates.dollar_handle = newDollarHandle;
-    if (newTokenName !== (profile?.token_name || '')) updates.token_name = newTokenName;
-    if (newSupply !== (profile?.supply || '')) updates.supply = newSupply;
 
     const { error: updateError } = await supabase
       .from('profiles')
@@ -781,9 +745,6 @@ export default function useProfileData() {
           instagram_url: updates.instagram_url !== undefined ? updates.instagram_url : prevProfile.instagram_url,
           discord_url: updates.discord_url !== undefined ? updates.discord_url : prevProfile.discord_url,
           phone_whatsapp: updates.phone_whatsapp !== undefined ? updates.phone_whatsapp : prevProfile.phone_whatsapp,
-          tiktok_url: updates.tiktok_url !== undefined ? updates.tiktok_url : prevProfile.tiktok_url,
-          telegram_url: updates.telegram_url !== undefined ? updates.telegram_url : prevProfile.telegram_url,
-          facebook_url: updates.facebook_url !== undefined ? updates.facebook_url : prevProfile.facebook_url,
           dollar_handle: updates.dollar_handle !== undefined ? updates.dollar_handle : prevProfile.dollar_handle,
           token_name: updates.token_name !== undefined ? updates.token_name : prevProfile.token_name,
           supply: updates.supply !== undefined ? updates.supply : prevProfile.supply,
@@ -801,9 +762,6 @@ export default function useProfileData() {
       setNewInstagramUrl(updates.instagram_url || '');
       setNewDiscordUrl(updates.discord_url || '');
       setNewPhoneWhatsapp(updates.phone_whatsapp || '');
-      setNewTikTokUrl(updates.tiktok_url || '');
-      setNewTelegramUrl(updates.telegram_url || '');
-      setNewFacebookUrl(updates.facebook_url || '');
       setNewDollarHandle(updates.dollar_handle || '');
       setNewTokenName(updates.token_name || '');
       setNewSupply(updates.supply || '1,000,000,000');
@@ -818,30 +776,9 @@ export default function useProfileData() {
   const onInstagramUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewInstagramUrl(e.target.value);
   const onDiscordUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewDiscordUrl(e.target.value);
   const onPhoneWhatsappChange = (e: ChangeEvent<HTMLInputElement>) => setNewPhoneWhatsapp(e.target.value);
-  const onTikTokUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewTikTokUrl(e.target.value);
-  const onTelegramUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewTelegramUrl(e.target.value);
-  const onFacebookUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewFacebookUrl(e.target.value);
   const onDollarHandleChange = (e: ChangeEvent<HTMLInputElement>) => setNewDollarHandle(e.target.value);
   const onTokenNameChange = (e: ChangeEvent<HTMLInputElement>) => setNewTokenName(e.target.value);
   const onSupplyChange = (e: ChangeEvent<HTMLInputElement>) => setNewSupply(e.target.value);
-
-  const handleDismissWelcomeCard = async () => {
-    if (!user || !profile) return;
-    if (profile.has_seen_welcome_card) {
-      setShowWelcomeCard(false); return;
-    }
-    try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ has_seen_welcome_card: true, updated_at: new Date().toISOString() })
-        .eq('id', user.id);
-      if (updateError) throw updateError;
-      setProfile(prev => prev ? { ...prev, has_seen_welcome_card: true } : null);
-      setShowWelcomeCard(false);
-      setSuccessMessage('Welcome card dismissed.');
-      setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (err: any) { setError('Failed to update welcome card status.'); }
-  };
 
   return {
     user,
@@ -857,9 +794,6 @@ export default function useProfileData() {
     newInstagramUrl,
     newDiscordUrl,
     newPhoneWhatsapp,
-    newTikTokUrl,
-    newTelegramUrl,
-    newFacebookUrl,
     newDollarHandle,
     newTokenName,
     newSupply,
@@ -879,7 +813,6 @@ export default function useProfileData() {
     errorUserTeams,
     customSkillInput,
     skillChoiceInAdder,
-    showWelcomeCard,
     setNewUsername,
     setNewDisplayName,
     setNewFullName,
@@ -891,9 +824,6 @@ export default function useProfileData() {
     setNewInstagramUrl,
     setNewDiscordUrl,
     setNewPhoneWhatsapp,
-    setNewTikTokUrl,
-    setNewTelegramUrl,
-    setNewFacebookUrl,
     setNewDollarHandle,
     setNewTokenName,
     setNewSupply,
@@ -904,9 +834,6 @@ export default function useProfileData() {
     onInstagramUrlChange,
     onDiscordUrlChange,
     onPhoneWhatsappChange,
-    onTikTokUrlChange,
-    onTelegramUrlChange,
-    onFacebookUrlChange,
     onDollarHandleChange,
     onTokenNameChange,
     onSupplyChange,
@@ -914,6 +841,5 @@ export default function useProfileData() {
     handleSimpleAvatarUpload,
     handleSkillToggle,
     handleAddCustomSkill,
-    handleDismissWelcomeCard,
   };
 } 
