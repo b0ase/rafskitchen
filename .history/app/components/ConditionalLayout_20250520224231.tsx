@@ -281,10 +281,9 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
               onCollapse={handleDismissWelcomeCard}
             />
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black">
-              {showWelcomeCard && (
+              {showWelcomeCard && profile && !profile.has_dismissed_onboarding_message && (
                 <div className="p-4">
-                  {/* The welcome card component itself would go here, or this div is for its content if it's simple */}
-                  {/* For now, assuming children might include it or it's managed by useProfileData more directly */}
+                  {/* Rest of the component content */}
                 </div>
               )}
               {children}

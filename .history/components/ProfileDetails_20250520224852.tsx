@@ -48,6 +48,25 @@ export default function ProfileDetails({
 }: ProfileDetailsProps) {
   return (
     <section className="relative mb-12 p-6 md:p-8 bg-gray-900 rounded-xl shadow-2xl text-white border border-gray-700">
+      {/* Save Profile Button - Bottom Right */}
+      {onSaveProfile && (
+        <button
+          type="submit"
+          form="profile-form"
+          onClick={onSaveProfile}
+          disabled={saving}
+          className="absolute bottom-4 right-4 px-4 py-2 rounded-md text-sm font-medium flex items-center bg-sky-600 hover:bg-sky-700 text-white focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:opacity-50"
+          aria-label="Save Profile"
+        >
+          {saving ? (
+            <FaSpinner className="animate-spin mr-2" />
+          ) : (
+            <FaSave className="mr-1.5 h-4 w-4" />
+          )}
+          {saving ? 'Saving...' : 'Save Profile'}
+        </button>
+      )}
+
       {/* Welcome card/Hero Section */}
       <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
         {/* Avatar */}
