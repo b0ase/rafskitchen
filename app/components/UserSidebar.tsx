@@ -72,13 +72,12 @@ export default function UserSidebar({ /* props removed */ }: UserSidebarProps) {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[UserSidebar] Auth Event: ${event}`, session);
       if (event === 'SIGNED_OUT') {
-        console.log('[UserSidebar] SIGNED_OUT event. Clearing user state and redirecting.');
+        console.log('[UserSidebar] SIGNED_OUT event. Clearing user state.');
         setUser(null);
         setUserDisplayName('');
         setUserInitial('');
         setUserAvatarUrl(null);
         setPageContext(null); // Clear page context ONLY on explicit sign out
-        window.location.assign('/');
       } else if (session?.user) {
         console.log('[UserSidebar] User session active (SIGNED_IN, TOKEN_REFRESHED, USER_UPDATED, or INITIAL_SESSION with user). Setting user state.', session.user.id);
         const currentUser = session.user;
