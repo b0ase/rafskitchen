@@ -57,6 +57,7 @@ const minimalLayoutPathPrefixes = [
 // We will now primarily rely on the client-side session from useAuth for dynamic updates.
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname() ?? '';
+  const router = useRouter();
   // const { session: clientSession, isLoading: isLoadingAuth } = useAuth(); // Correctly destructure user from clientSession provided by useAuth
   // const supabase = getSupabaseBrowserClient(); // Initialize Supabase client for logout
 
@@ -108,7 +109,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   }
   // --- END NEW ---
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!clientSession;
   // Remove local pageContext state and handler as MyCtxProvider will manage this.
   // const [pageContext, setPageContext] = React.useState<PageContextType | null>(null);
   const [isFullScreenMenuOpen, setIsFullScreenMenuOpen] = React.useState(false);
@@ -200,11 +201,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const isAppPage = appPathPrefixes.some(prefix => pathname.startsWith(prefix));
 
   useEffect(() => {
-    if (!authLoading && !user && isAppPage) {
+    if (!isLoadingAuth && !clientSession && isAppPage) {
       console.log('[ConditionalLayout] User not authenticated for app page, redirecting to login.');
       router.push('/login');
     }
-  }, [user, authLoading, isAppPage, router]);
+  }, [clientSession, isLoadingAuth, isAppPage, router]);
 
   if (isAuthFlowPage || isPublicPage) {
     // Render public layout immediately for public pages and auth flow pages
@@ -222,7 +223,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For non-public and non-auth-flow pages (i.e., app pages or pages needing auth)
   // Now check for authentication loading state
-  if (authLoading || profileLoading) {
+  if (isLoadingAuth || profileLoading) {
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-black">
         <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
@@ -261,8 +262,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             isOpen={isFullScreenMenuOpen}
             onClose={toggleFullScreenMenu}
             handleLogout={handleLogout}
-            userDisplayName={user?.user_metadata?.display_name || user?.email}
-            userAvatarUrl={user?.user_metadata?.avatar_url}
+            userDisplayName={clientSession?.user?.user_metadata?.display_name || clientSession?.user?.email}
+            userAvatarUrl={clientSession?.user?.user_metadata?.avatar_url}
           />
         </div>
       </MyCtxProvider>
