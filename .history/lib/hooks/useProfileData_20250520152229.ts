@@ -503,114 +503,16 @@ export default function useProfileData() {
     setSaving, setSuccessMessage, setError, setProfile, loadProfileAndSkills // loadProfileAndSkills here if we decide to call it
   ]);
 
-  const handleSkillToggle = useCallback(async (skillId: string, isCurrentlySelected: boolean) => {
-    if (!user?.id) {
-      setError('User not found. Cannot modify skills.');
-      return;
-    }
-    setSavingSkills(true);
-    setError(null);
-
-    try {
-      if (isCurrentlySelected) {
-        const { error: deleteError } = await supabase
-          .from('user_skills')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('skill_id', skillId);
-
-        if (deleteError) {
-          console.error('[useProfileData] Error removing skill:', deleteError);
-          setError('Failed to remove skill: ' + deleteError.message);
-        } else {
-          console.log('[useProfileData] Skill removed successfully:', skillId);
-          setSelectedSkills(prev => prev.filter(skill => skill.id !== skillId));
-          setUserSkillIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(skillId);
-            return newSet;
-          });
-        }
-      } else {
-        const { data: newSkillLink, error: insertError } = await supabase
-          .from('user_skills')
-          .insert({ user_id: user.id, skill_id: skillId })
-          .select('skills(id, name, category, description)')
-          .single();
-
-        if (insertError) {
-          console.error('[useProfileData] Error adding skill:', insertError);
-          setError('Failed to add skill: ' + insertError.message);
-        } else if (newSkillLink && newSkillLink.skills) {
-          console.log('[useProfileData] Skill added successfully:', newSkillLink.skills);
-          const addedSkill = newSkillLink.skills as Skill;
-          setSelectedSkills(prev => [...prev, addedSkill]);
-          setUserSkillIds(prev => new Set(prev).add(addedSkill.id));
-        } else {
-          setError('Failed to add skill or retrieve skill details.');
-        }
-      }
-    } catch (err: any) {
-      console.error('[useProfileData] Exception in handleSkillToggle:', err);
-      setError('An unexpected error occurred while managing skills.');
-    } finally {
-      setSavingSkills(false);
-    }
-  }, [supabase, user?.id, setSelectedSkills, setUserSkillIds, setSavingSkills, setError]);
-
-  const handleAddCustomSkill = useCallback(async (skillName: string) => {
-    if (!user?.id) {
-      setError('User not found. Cannot add custom skill.');
-      return;
-    }
-    if (!skillName.trim()) {
-      setError('Skill name cannot be empty.');
-      return;
-    }
-    setSavingSkills(true);
-    setError(null);
-
-    try {
-      const { data: newSkill, error: createSkillError } = await supabase
-        .from('skills')
-        .insert({ name: skillName.trim(), category: 'User-Defined' })
-        .select()
-        .single<Skill>();
-
-      if (createSkillError) {
-        console.error('[useProfileData] Error creating new skill:', createSkillError);
-        setError('Failed to create new skill: ' + createSkillError.message);
-        setSavingSkills(false);
-        return;
-      }
-
-      if (!newSkill) {
-        setError('Failed to create new skill (no data returned).');
-        setSavingSkills(false);
-        return;
-      }
-
-      const { error: linkSkillError } = await supabase
-        .from('user_skills')
-        .insert({ user_id: user.id, skill_id: newSkill.id });
-
-      if (linkSkillError) {
-        console.error('[useProfileData] Error linking new skill to user:', linkSkillError);
-        setError('Failed to link new skill: ' + linkSkillError.message);
-      } else {
-        console.log('[useProfileData] Custom skill added and linked successfully:', newSkill);
-        setAllSkills(prev => [...prev, newSkill]);
-        setSelectedSkills(prev => [...prev, newSkill]);
-        setUserSkillIds(prev => new Set(prev).add(newSkill.id));
-        setCustomSkillInput('');
-      }
-    } catch (err: any) {
-      console.error('[useProfileData] Exception in handleAddCustomSkill:', err);
-      setError('An unexpected error occurred while adding custom skill.');
-    } finally {
-      setSavingSkills(false);
-    }
-  }, [supabase, user?.id, setSavingSkills, setError, setAllSkills, setSelectedSkills, setUserSkillIds, setCustomSkillInput]);
+  // ALL OTHER FUNCTIONS (handlers, etc.) REMAIN COMMENTED OUT FOR NOW
+  /*
+  const handleSkillToggle = async (skillId: string, isCurrentlySelected: boolean) => { ... };
+  const handleAddCustomSkill = async (skillName: string) => { ... };
+  const handleSimpleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => { ... };
+  const handleUpdateProfile = async (e: FormEvent) => { ... };
+  const onLinkedInUrlChange = (e: ChangeEvent<HTMLInputElement>) => setNewLinkedInUrl(e.target.value);
+  // ... many other handlers ...
+  const handleDismissWelcomeCard = async () => { ... };
+  */
 
   console.log('[useProfileData] Hook initialized.');
 
@@ -691,9 +593,7 @@ export default function useProfileData() {
     setSuccessMessage,
     setSaving,
     handleDismissWelcomeCard,
-    handleSaveProfile,
-    handleSkillToggle,
-    handleAddCustomSkill,
+    handleSaveProfile, // Add the new handler here
 
     // To prevent breaking components that might destructure these, provide dummy values or functions
     // Or, you might need to temporarily adjust the consuming components not to expect everything

@@ -509,10 +509,11 @@ export default function useProfileData() {
       return;
     }
     setSavingSkills(true);
-    setError(null);
+    setError(null); // Clear general errors, or use a specific skill error state
 
     try {
       if (isCurrentlySelected) {
+        // Remove the skill
         const { error: deleteError } = await supabase
           .from('user_skills')
           .delete()
@@ -532,10 +533,11 @@ export default function useProfileData() {
           });
         }
       } else {
+        // Add the skill
         const { data: newSkillLink, error: insertError } = await supabase
           .from('user_skills')
           .insert({ user_id: user.id, skill_id: skillId })
-          .select('skills(id, name, category, description)')
+          .select('skills(id, name, category, description)') // Fetch the joined skill details
           .single();
 
         if (insertError) {
@@ -571,9 +573,10 @@ export default function useProfileData() {
     setError(null);
 
     try {
+      // Step 1: Create the new skill in the 'skills' table
       const { data: newSkill, error: createSkillError } = await supabase
         .from('skills')
-        .insert({ name: skillName.trim(), category: 'User-Defined' })
+        .insert({ name: skillName.trim(), category: 'User-Defined' }) // Or derive category if needed
         .select()
         .single<Skill>();
 
@@ -590,19 +593,21 @@ export default function useProfileData() {
         return;
       }
 
+      // Step 2: Link the new skill to the user in 'user_skills' table
       const { error: linkSkillError } = await supabase
         .from('user_skills')
         .insert({ user_id: user.id, skill_id: newSkill.id });
 
       if (linkSkillError) {
         console.error('[useProfileData] Error linking new skill to user:', linkSkillError);
+        // Potentially delete the orphaned skill from 'skills' table here if critical
         setError('Failed to link new skill: ' + linkSkillError.message);
       } else {
         console.log('[useProfileData] Custom skill added and linked successfully:', newSkill);
-        setAllSkills(prev => [...prev, newSkill]);
-        setSelectedSkills(prev => [...prev, newSkill]);
-        setUserSkillIds(prev => new Set(prev).add(newSkill.id));
-        setCustomSkillInput('');
+        setAllSkills(prev => [...prev, newSkill]); // Add to all skills list
+        setSelectedSkills(prev => [...prev, newSkill]); // Add to selected skills
+        setUserSkillIds(prev => new Set(prev).add(newSkill.id)); // Add to set of IDs
+        setCustomSkillInput(''); // Clear the input field
       }
     } catch (err: any) {
       console.error('[useProfileData] Exception in handleAddCustomSkill:', err);
@@ -691,9 +696,9 @@ export default function useProfileData() {
     setSuccessMessage,
     setSaving,
     handleDismissWelcomeCard,
-    handleSaveProfile,
-    handleSkillToggle,
-    handleAddCustomSkill,
+    handleSaveProfile, // Add the new handler here
+    handleSkillToggle, // Added skill toggle handler
+    handleAddCustomSkill, // Added custom skill handler
 
     // To prevent breaking components that might destructure these, provide dummy values or functions
     // Or, you might need to temporarily adjust the consuming components not to expect everything
