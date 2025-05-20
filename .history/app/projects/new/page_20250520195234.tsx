@@ -301,7 +301,7 @@ export default function NewProjectPage() {
                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
               >
                 {saving ? <FaSpinner className="animate-spin mr-2.5 h-5 w-5" /> : <FaSave className="mr-2.5 h-5 w-5" />}
-                {saving ? 'Creating Idea...' : 'Create Project'}
+                {saving ? 'Creating Idea...' : 'Create Idea'}
               </button>
             </div>
           </div>

@@ -278,12 +278,23 @@ export default function NewProjectPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 py-12">
-      {/* Create Idea Button - REMOVED from fixed viewport position */}
+      {/* Create Idea Button - Fixed to top-right of viewport */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          type="button"
+          onClick={() => (document.getElementById('project-creation-form') as HTMLFormElement)?.requestSubmit()}
+          disabled={saving || loadingUser || !user || !form.name}
+          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-lg hover:shadow-xl"
+        >
+          {saving ? <FaSpinner className="animate-spin mr-2.5 h-5 w-5" /> : <FaSave className="mr-2.5 h-5 w-5" />}
+          {saving ? 'Creating Idea...' : 'Create Idea'}
+        </button>
+      </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="bg-gray-900 shadow-2xl rounded-lg p-6 sm:p-8 md:p-10 border border-gray-700/50 relative">
           
-          {/* Header section with title and sticky button */}
+          {/* Header section with title */}
           <div className="flex justify-between items-start mb-10">
             <div className="text-left">
               <FaRocket className="text-5xl text-sky-500 mb-4" />
@@ -291,18 +302,6 @@ export default function NewProjectPage() {
               <p className="text-lg text-gray-400 mt-2">
                 Kickstart your venture here. Launch a project, form a team with integrated chat, and issue a token. Team contributions are rewarded with tokens, which can represent direct equity and potentially convert to shares if your project incorporates. What's your vision? What will you build? What's your ideal Website, App, or Platform? Let's begin!
               </p>
-            </div>
-            {/* Sticky Create Idea Button Wrapper - ADDED BACK HERE */}
-            <div className="z-20 ml-4 flex-shrink-0" style={{ position: 'sticky', top: '1.5rem' }}> 
-              <button
-                type="button"
-                onClick={() => (document.getElementById('project-creation-form') as HTMLFormElement)?.requestSubmit()}
-                disabled={saving || loadingUser || !user || !form.name}
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
-              >
-                {saving ? <FaSpinner className="animate-spin mr-2.5 h-5 w-5" /> : <FaSave className="mr-2.5 h-5 w-5" />}
-                {saving ? 'Creating Idea...' : 'Create Project'}
-              </button>
             </div>
           </div>
           

@@ -278,12 +278,23 @@ export default function NewProjectPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 py-12">
-      {/* Create Idea Button - REMOVED from fixed viewport position */}
+      {/* Create Idea Button - Fixed to top-right of viewport */}
+      <div className="fixed top-6 right-6 z-50">
+        <button
+          type="button"
+          onClick={() => (document.getElementById('project-creation-form') as HTMLFormElement)?.requestSubmit()}
+          disabled={saving || loadingUser || !user || !form.name}
+          className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-lg hover:shadow-xl"
+        >
+          {saving ? <FaSpinner className="animate-spin mr-2.5 h-5 w-5" /> : <FaSave className="mr-2.5 h-5 w-5" />}
+          {saving ? 'Creating Idea...' : 'Create Idea'}
+        </button>
+      </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="bg-gray-900 shadow-2xl rounded-lg p-6 sm:p-8 md:p-10 border border-gray-700/50 relative">
           
-          {/* Header section with title and sticky button */}
+          {/* Header section with title */}
           <div className="flex justify-between items-start mb-10">
             <div className="text-left">
               <FaRocket className="text-5xl text-sky-500 mb-4" />
@@ -291,18 +302,6 @@ export default function NewProjectPage() {
               <p className="text-lg text-gray-400 mt-2">
                 Kickstart your venture here. Launch a project, form a team with integrated chat, and issue a token. Team contributions are rewarded with tokens, which can represent direct equity and potentially convert to shares if your project incorporates. What's your vision? What will you build? What's your ideal Website, App, or Platform? Let's begin!
               </p>
-            </div>
-            {/* Sticky Create Idea Button Wrapper - ADDED BACK HERE */}
-            <div className="z-20 ml-4 flex-shrink-0" style={{ position: 'sticky', top: '1.5rem' }}> 
-              <button
-                type="button"
-                onClick={() => (document.getElementById('project-creation-form') as HTMLFormElement)?.requestSubmit()}
-                disabled={saving || loadingUser || !user || !form.name}
-                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-md hover:shadow-lg"
-              >
-                {saving ? <FaSpinner className="animate-spin mr-2.5 h-5 w-5" /> : <FaSave className="mr-2.5 h-5 w-5" />}
-                {saving ? 'Creating Idea...' : 'Create Project'}
-              </button>
             </div>
           </div>
           
@@ -365,7 +364,7 @@ export default function NewProjectPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="project_brief" className="block text-sm font-medium text-gray-300 mb-1.5">Describe your big idea: What is it, and what problem does it solve?</label>
+                  <label htmlFor="project_brief" className="block text-sm font-medium text-gray-300 mb-1.5">What is your big idea? (Briefly describe) What problem are you trying to solve?</label>
                   <textarea
                     name="project_brief" id="project_brief" value={form.project_brief} onChange={handleChange}
                     rows={3} placeholder="e.g., A mobile app that helps users find and book local dog walkers..."
@@ -416,7 +415,7 @@ export default function NewProjectPage() {
                   {form.logo_url && <img src={form.logo_url} alt="Logo Preview" className="mt-3 h-16 w-auto object-contain bg-gray-700 p-1 rounded shadow" />}
                 </div>
                 <div>
-                  <label htmlFor="requested_budget" className="block text-sm font-medium text-gray-300 mb-1.5">What's your estimated budget to bring this idea to life? (Optional - helps gauge project scale)</label>
+                  <label htmlFor="requested_budget" className="block text-sm font-medium text-gray-300 mb-1.5">How much do you want to raise to develop your idea? (Optional)</label>
                   <input
                     type="number" name="requested_budget" id="requested_budget" value={form.requested_budget} onChange={handleChange}
                     placeholder="e.g., 10000 (numeric value, e.g., USD)"
