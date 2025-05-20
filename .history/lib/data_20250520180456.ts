@@ -100,7 +100,7 @@ export interface PortfolioData {
 // Main data object
 export const portfolioData: PortfolioData = {
   about: {
-    name: '$BOASE',
+    name: 'b0ase.com',
     tagline: 'A dynamic digital agency, transforming concepts into digital experiences.',
     bio: "We deliver client solutions in web development, blockchain, content, video, and social media, while also incubating our own projects. Explore our services, view our work, and contact us to build your next venture.",
     socials: {

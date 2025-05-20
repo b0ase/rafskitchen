@@ -204,7 +204,7 @@ function SortableProjectCard({
       style={style} 
       {...attributes} 
       {...listeners} 
-      className={getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3 ?? null))}
+      className={getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3))}
     >
       {updatingItemId === project.id && (
         <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-[101]"> {/* Ensure spinner is above dragged item overlay slightly */}
@@ -460,8 +460,8 @@ export default function MyProjectsPage() {
     }
     
     const sortedProjects = Array.from(projectsMap.values()).sort((a, b) => {
-      const priorityA = getPriorityOrderValue(a.badge3 ?? null);
-      const priorityB = getPriorityOrderValue(b.badge3 ?? null);
+      const priorityA = getPriorityOrderValue(a.badge3);
+      const priorityB = getPriorityOrderValue(b.badge3);
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }

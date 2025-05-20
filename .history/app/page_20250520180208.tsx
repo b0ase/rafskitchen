@@ -118,7 +118,7 @@ export default function PortfolioPage() {
             <h1 className="relative text-3xl md:text-4xl text-black dark:text-white mb-4 font-mono min-h-[2.5rem]">
                 <span className="invisible">{portfolioData.about.name}</span>
                 <span className="absolute inset-0">
-                  <CharacterCycle text={portfolioData.about.name} cycleDuration={150} />
+                  <CharacterCycle text={portfolioData.about.name} cycleDuration={40} />
                 </span>
             </h1>
             <p className="relative text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-4">
