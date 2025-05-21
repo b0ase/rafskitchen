@@ -54,19 +54,6 @@ interface Team {
   slug: string | null; // Added
   icon_name: string | null;
   color_scheme: ColorScheme | null;
-  // Added fields for related data
-  project?: {
-    id: string;
-    name: string;
-    slug: string | null; // Added slug for project
-    project_category: string | null;
-  } | null;
-  team_leader?: {
-    display_name: string;
-  } | null;
-  token?: {
-    ticker_symbol: string;
-  } | null;
 }
 // --- END NEW Team Interface ---
 
@@ -78,42 +65,17 @@ enum ProjectRole {
   Viewer = 'viewer',
 }
 
-// --- UPDATED Team/Project Interface ---
-// This interface now primarily represents a Project for display on the /team page,
-// structured to fit the existing component logic that expects a list of 'Teams'.
-interface DisplayProject {
-  id: string; // Corresponds to client.id
-  name: string; // Corresponds to client.name
-  slug: string | null; // Corresponds to client.slug
-  icon_name: string | null; // We can potentially add this to clients table or derive
-  color_scheme: ColorScheme | null; // We can potentially add this to clients table or derive
-  // Related data fetched
-  team_leader?: {
-    display_name: string | null; // From profiles.display_name or username
-  } | null;
-  token?: {
-    ticker_symbol: string | null;
-  } | null;
-  client_name?: string | null; // Using client.name for this
-  project_type?: string | null; // Using client.project_category for this
-  team_members?: { display_name: string | null }[]; // Added field for team members
-  // We keep a reference to the original project data for convenience
-  project_data: ManagedProject; // The original client object
-}
-
-// --- END UPDATED Team/Project Interface ---
-
 export default function TeamPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // --- UPDATED State for Display Projects (formerly User's Teams) ---
-  const [displayProjects, setDisplayProjects] = useState<DisplayProject[]>([]);
-  const [isLoadingDisplayProjects, setIsLoadingDisplayProjects] = useState(false);
-  const [errorFetchingDisplayProjects, setErrorFetchingDisplayProjects] = useState<string | null>(null);
-  // --- END UPDATED State ---
+  // --- NEW State for User's Teams ---
+  const [userTeams, setUserTeams] = useState<Team[]>([]);
+  const [isLoadingUserTeams, setIsLoadingUserTeams] = useState(false);
+  const [errorFetchingUserTeams, setErrorFetchingUserTeams] = useState<string | null>(null);
+  // --- END NEW State for User's Teams ---
 
   const [managedProjects, setManagedProjects] = useState<ManagedProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -151,142 +113,55 @@ export default function TeamPage() {
     getUser();
   }, [supabase, router]);
 
-  // --- NEW Function to Fetch Projects and related data for display ---
-  const fetchDisplayProjects = useCallback(async (userId: string) => {
+  // --- NEW Function to Fetch User's Teams ---
+  const fetchUserTeams = useCallback(async (userId: string) => {
     if (!userId) return;
-    setIsLoadingDisplayProjects(true);
-    setErrorFetchingDisplayProjects(null);
+    setIsLoadingUserTeams(true);
+    setErrorFetchingUserTeams(null);
     try {
-      // Step 1: Get project_ids from project_users where the user is a member
-      const { data: userProjectMemberships, error: userProjectError } = await supabase
-        .from('project_users')
-        .select('project_id, role')
+      // Step 1: Get team_ids from user_team_memberships join table
+      const { data: teamUserEntries, error: teamUserError } = await supabase
+        .from('user_team_memberships') // Corrected table name
+        .select('team_id')
         .eq('user_id', userId);
 
-      if (userProjectError) {
-        throw userProjectError;
+      if (teamUserError) {
+        throw teamUserError;
       }
 
-      if (!userProjectMemberships || userProjectMemberships.length === 0) {
-        setDisplayProjects([]);
-        setIsLoadingDisplayProjects(false);
+      if (!teamUserEntries || teamUserEntries.length === 0) {
+        setUserTeams([]);
+        setIsLoadingUserTeams(false);
         return;
       }
 
-      const projectIds = userProjectMemberships.map(entry => entry.project_id);
+      const teamIds = teamUserEntries.map(entry => entry.team_id);
 
-      // Step 2: Fetch details for these projects from the 'clients' table
-      const { data: projectsData, error: projectsError } = await supabase
-        .from('clients')
-        .select('id, name, slug, project_category, user_id') // Include user_id to potentially link to creator/main contact
-        .in('id', projectIds);
+      // Step 2: Fetch details for these teams from the 'teams' table
+      const { data: teamsData, error: teamsError } = await supabase
+        .from('teams') // Assuming this is your main teams table
+        .select('id, name, slug, icon_name, color_scheme') // Added slug
+        .in('id', teamIds);
 
-      if (projectsError) {
-        throw projectsError;
+      if (teamsError) {
+        throw teamsError;
       }
-
-      // Step 3: For each project, fetch additional details like team leader and token
-      const displayProjectsWithDetails = await Promise.all(projectsData?.map(async (project) => {
-        let teamLeader: { display_name: string | null } | null = null;
-        let projectToken: { ticker_symbol: string | null } | null = null;
-        let projectMembers: { display_name: string | null }[] = []; // Initialize array for members
-
-        // Fetch project manager(s) for this project
-        const { data: projectManagers, error: pmError } = await supabase
-          .from('project_users')
-          .select('user_id')
-          .eq('project_id', project.id)
-          .eq('role', ProjectRole.ProjectManager)
-          .limit(1);
-
-        if (pmError) {
-          console.error('Error fetching project managers for project', project.name, ':', pmError);
-        }
-
-        let pmUserId: string | null = null;
-        if (projectManagers && projectManagers.length > 0) {
-          pmUserId = projectManagers[0].user_id;
-          // Fetch display name for the first project manager found
-          const { data: pmProfile, error: pmProfileError } = await supabase
-            .from('profiles')
-            .select('display_name, username')
-            .eq('id', pmUserId)
-            .single();
-
-          if (pmProfileError && pmProfileError.code !== 'PGRST116') {
-            console.error('Error fetching project manager profile for user', pmUserId, ':', pmProfileError);
-          }
-
-          if (pmProfile) {
-            teamLeader = { display_name: pmProfile.display_name || pmProfile.username || 'Unnamed User' };
-          }
-        }
-
-        // Fetch token for this project
-        const { data: tokenData, error: tokenError } = await supabase
-          .from('tokens')
-          .select('ticker_symbol')
-          .eq('token_category', 'project')
-          // Assuming token is linked by project ID or slug or potentially the project manager's user ID.
-          // Using a combined filter.
-          .or(`name.eq.${project.slug || (project.name?.toLowerCase().replace(/\s+/g, '-') || '')},ticker_symbol.eq.${project.slug || (project.name?.toLowerCase().replace(/\s+/g, '-') || '')}${pmUserId ? `,user_id.eq.${pmUserId}` : ''}`)
-          .limit(1);
-
-        if (tokenError && tokenError.code !== 'PGRST116') {
-          console.error('Error fetching token for project', project.name, ':', tokenError);
-        }
-
-        if (tokenData && tokenData.length > 0) {
-          projectToken = tokenData[0];
-        }
-
-        // Fetch team members for this project
-        const { data: membersData, error: membersError } = await supabase
-          .from('project_users')
-          .select('user_id')
-          .eq('project_id', project.id);
-
-        if (membersError) {
-          console.error('Error fetching members for project', project.name, ':', membersError);
-        } else if (membersData && membersData.length > 0) {
-          // Fetch display names for all members
-          const memberUserIds = membersData.map(member => member.user_id);
-          const { data: memberProfiles, error: mpError } = await supabase
-            .from('profiles')
-            .select('id, display_name, username')
-            .in('id', memberUserIds);
-
-          if (mpError) {
-            console.error('Error fetching member profiles for project', project.name, ':', mpError);
-          } else if (memberProfiles) {
-            projectMembers = memberProfiles.map(profile => ({ display_name: profile.display_name || profile.username || 'Unnamed User' }));
-          }
-        }
-
-        // Construct the DisplayProject object
-        return {
-          id: project.id,
-          name: project.name || 'Unnamed Project',
-          slug: project.slug,
-          icon_name: 'FaProjectDiagram',
-          color_scheme: { bgColor: 'bg-black', textColor: 'text-gray-400', borderColor: 'border-gray-800' },
-          team_leader: teamLeader,
-          token: projectToken,
-          client_name: project.name || 'Unnamed Client',
-          project_type: project.project_category,
-          team_members: projectMembers, // Include fetched members
-          project_data: project,
-        };
+      
+      // Process teamsData to add default color_scheme and icon_name if null
+      const processedTeamsData = teamsData?.map(team => ({
+        ...team,
+        color_scheme: team.color_scheme || { bgColor: 'bg-gray-700', textColor: 'text-gray-100', borderColor: 'border-gray-500' },
+        icon_name: team.icon_name || 'FaQuestionCircle' // Default icon if none specified
       })) || [];
 
-      setDisplayProjects(displayProjectsWithDetails);
+      setUserTeams(processedTeamsData as Team[]);
 
     } catch (e: any) {
-      console.error('Error fetching display projects:', e);
-      setErrorFetchingDisplayProjects(`Failed to load projects: ${e.message}`);
-      setDisplayProjects([]);
+      console.error('Error fetching user teams:', e);
+      setErrorFetchingUserTeams(`Failed to load your teams: ${e.message}`);
+      setUserTeams([]);
     } finally {
-      setIsLoadingDisplayProjects(false);
+      setIsLoadingUserTeams(false);
     }
   }, [supabase]);
   // --- END NEW Function ---
@@ -418,9 +293,9 @@ export default function TeamPage() {
     if (user?.id) {
       fetchManagedProjects(user.id);
       fetchPlatformUsers(); // Fetch all users once the main user is loaded
-      fetchDisplayProjects(user.id); // --- UPDATED: Fetch display projects instead of user teams ---
+      fetchUserTeams(user.id); // --- NEW: Fetch user's teams ---
     }
-  }, [user, fetchManagedProjects, fetchPlatformUsers, fetchDisplayProjects]); // --- UPDATED dependencies ---
+  }, [user, fetchManagedProjects, fetchPlatformUsers, fetchUserTeams]); // --- UPDATED dependencies ---
 
   useEffect(() => {
     if (selectedProjectId) {
@@ -549,11 +424,36 @@ export default function TeamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="flex flex-col sm:flex-row justify-end items-center mb-10">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {user?.email === 'richardwboase@gmail.com' && (
+              <Link href="/teammanagement" passHref legacyBehavior>
+                <a className="inline-flex items-center bg-purple-600 hover:bg-purple-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                  <FaUserShield className="mr-2 h-5 w-5" />
+                  Admin: Manage All Teams
+                </a>
+              </Link>
+            )}
+            {/* <Link href="/teams/new" passHref legacyBehavior>
+              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                <FaUserPlus className="mr-2 h-5 w-5" />
+                Start a New Team
+              </a>
+            </Link>
+            <Link href="/teams/join" passHref legacyBehavior>
+              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                <FaUsers className="mr-2 h-5 w-5" />
+                Join a Team
+              </a>
+            </Link> */}
+          </div>
+        </div>
+
         {error && (
           <div className="text-red-500 bg-red-900/30 p-3 rounded-md">{error}</div>
         )}
 
-        {/* User Teams Section - UPDATED to Display Projects */}
+        {/* User Teams Section - Only show if user is loaded and present */}
         {loadingUser && (
           <div className="flex items-center justify-center h-screen">
             <FaSpinner className="animate-spin text-4xl text-sky-500" />
@@ -562,57 +462,41 @@ export default function TeamPage() {
 
         {!loadingUser && user && (
           <div className="mb-12">
-            {/* Removed "My Teams" heading for minimalistic aesthetic */}
-            {isLoadingDisplayProjects && (
+            <h2 className="text-3xl font-semibold text-sky-400 mb-6">My Teams</h2>
+            {isLoadingUserTeams && (
               <div className="flex justify-center items-center col-span-1 md:col-span-2 lg:col-span-3 py-10">
                 <FaSpinner className="animate-spin text-3xl text-sky-400" />
-                <p className="ml-3 text-lg text-gray-300">Loading your projects...</p>
+                <p className="ml-3 text-lg text-gray-300">Loading your teams...</p>
               </div>
             )}
-            {errorFetchingDisplayProjects && (
+            {errorFetchingUserTeams && (
               <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-md">
-                <p><strong>Error:</strong> {errorFetchingDisplayProjects}</p>
+                <p><strong>Error:</strong> {errorFetchingUserTeams}</p>
               </div>
             )}
-            {!isLoadingDisplayProjects && !errorFetchingDisplayProjects && displayProjects.length === 0 && !managedProjects.length && (
+            {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length === 0 && !managedProjects.length && (
               <div className="col-span-1 md:col-span-2 lg:col-span-3 py-10 text-center">
-                <FaProjectDiagram className="mx-auto text-5xl text-gray-500 mb-4" />
-                <p className="text-gray-400 text-lg">You are not associated with any projects yet.</p>
+                <FaUsers className="mx-auto text-5xl text-gray-500 mb-4" />
+                <p className="text-gray-400 text-lg">You are not part of any teams yet.</p>
               </div>
             )}
-            {!isLoadingDisplayProjects && !errorFetchingDisplayProjects && displayProjects.length > 0 && (
+            {!isLoadingUserTeams && !errorFetchingUserTeams && userTeams.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayProjects.map((project) => {
-                  const IconComponent = iconMap[project.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
-                  const cardBgColor = project.color_scheme?.bgColor || 'bg-black';
-                  const cardBorderColor = project.color_scheme?.borderColor || 'border-gray-800';
-                  const cardTextColor = project.color_scheme?.textColor || 'text-gray-400';
+                {userTeams.map((team) => {
+                  const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
+                  const cardBgColor = 'bg-black';
+                  const cardBorderColor = 'border-gray-800';
+                  const cardTextColor = 'text-gray-400';
 
                   return (
-                    <Link key={project.id} href={`/projects/${project.slug || project.id}`} passHref legacyBehavior>
+                    <Link key={team.id} href={`/teams/${team.slug || team.id}`} passHref legacyBehavior>
                       <a className={`block rounded-md shadow-none p-3 flex flex-col justify-between border transition-all duration-200 ease-in-out hover:border-gray-600 ${cardBgColor} ${cardBorderColor} ${cardTextColor} cursor-pointer`}>
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center">
-                            <IconComponent className={`text-lg mr-2 text-white opacity-90`} />
-                            <h3 className={`text-sm font-normal text-white truncate`}>{project.name}</h3>
-                          </div>
-                          {project.token && <span className="text-white text-xs font-semibold">{project.token.ticker_symbol}</span>}
+                        <div className="flex items-center mb-4">
+                          <IconComponent className={`text-lg mr-2 text-white opacity-90`} />
+                          <h3 className={`text-sm font-normal text-white truncate`}>{team.name}</h3>
                         </div>
-                        <div className="text-gray-400 text-xs space-y-0.5 mb-2">
-                          {project.team_leader && <p>Team Leader: {project.team_leader.display_name}</p>}
-                          {project.client_name && <p>Client: {project.client_name}</p>}
-                          {project.project_type && <p>Project Type: {project.project_type}</p>}
-                        </div>
-                        {project.team_members && project.team_members.length > 0 && (
-                          <div className="border-t border-gray-700 mt-2 pt-2">
-                            <p className="text-gray-600">{project.team_members.map(member => member.display_name).join(', ')}</p>
-                          </div>
-                        )}
-                        {!project.team_leader && !project.client_name && !project.token && !project.project_type && (!project.team_members || project.team_members.length === 0) && project.name !== 'Unnamed Project' && (
-                          <p className="text-gray-400 text-xs space-y-0.5 mb-2">Additional details pending...</p>
-                        )}
                         <div className="mt-auto pt-3 text-right">
-                          <span className={`text-xs text-gray-400 opacity-60 hover:opacity-100`}>View Project <FaAngleRight className="inline ml-1" /></span>
+                          <span className={`text-xs text-gray-400 opacity-60 hover:opacity-100`}>Open Chat <FaAngleRight className="inline ml-1" /></span>
                         </div>
                       </a>
                     </Link>
@@ -623,11 +507,12 @@ export default function TeamPage() {
           </div>
         )}
 
-        {/* Managed Projects Section - Kept as is for now */}
-        <div className="mt-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-300">Managed Projects</h2>
-          </div>
+        {/* Managed Projects Section - Only show if user is loaded and present */}
+        {!loadingUser && user && (
+          <div className="mt-12">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold text-gray-300">Managed Projects</h2>
+            </div>
           {isLoadingProjects && <FaSpinner className="animate-spin text-sky-500 text-2xl my-4" />}
           {!isLoadingProjects && managedProjects.length === 0 && (
             <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md">
@@ -671,7 +556,7 @@ export default function TeamPage() {
                           {teamMembers.map(member => (
                             <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
                               <div>
-                                <span className="font-normal text-gray-500 text-xs">{member.display_name || member.user_id}</span>
+                                <span className="font-normal text-gray-500">{member.display_name || member.user_id}</span>
                                 <span className="ml-3 text-xs text-sky-300 uppercase bg-sky-700/50 px-2 py-1 rounded-full">{(member.role || 'N/A').replace('_', ' ')}</span>
                               </div>
                               {/* TODO: Add actions like change role, remove member */}
@@ -737,7 +622,8 @@ export default function TeamPage() {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        )}
       </main>
       {/* --- NEW Remove Member Confirmation Modal --- */}
       {showRemoveConfirmModal && memberToRemove && (

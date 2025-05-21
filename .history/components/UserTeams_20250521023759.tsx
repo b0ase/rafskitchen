@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { FaUsers, FaQuestionCircle, FaSpinner, FaDatabase, FaPalette, FaBolt, FaCloud, FaLightbulb, FaBrain, FaHandshake, FaPlus } from 'react-icons/fa';
+import { FaUsers, FaQuestionCircle, FaSpinner, FaDatabase, FaPalette, FaBolt, FaCloud, FaLightbulb, FaBrain, FaHandshake, FaPlus, FaArrowRight } from 'react-icons/fa';
 import getSupabaseBrowserClient from '@/lib/supabase/client';
 
 // Import or define necessary interfaces and iconMap
@@ -177,18 +177,25 @@ export default function UserTeams({
       ) : userTeams.length === 0 ? (
         <p className="text-gray-400">Not a member of any teams yet.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-2 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {userTeams.map(team => {
             const IconComponent = iconMap[team.icon_name || 'FaQuestionCircle'] || FaQuestionCircle;
             return (
               <Link 
                 key={team.id} 
                 href={`/teams/${team.slug || team.id}`}
-                className="group p-2 bg-black border border-gray-800 rounded hover:border-gray-700 transition-all duration-200"
+                className="group flex flex-col justify-between p-6 bg-black border border-gray-800 rounded-lg hover:border-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                <div className="flex items-center">
-                  <IconComponent className="mr-1.5 text-sky-500 text-xs" />
-                  <h3 className="font-normal text-white text-sm truncate">{team.name}</h3>
+                <div>
+                  <div className="flex items-center mb-3">
+                    <IconComponent className="mr-2 text-xl text-sky-500" />
+                    <h3 className="font-semibold text-white text-lg">{team.name}</h3>
+                  </div>
+                </div>
+                <div className="flex justify-end mt-4">
+                  <span className="text-gray-500 text-sm flex items-center group-hover:text-sky-500 transition-colors">
+                    Open Team <FaArrowRight className="ml-1.5" />
+                  </span>
                 </div>
               </Link>
             );
@@ -205,16 +212,16 @@ export default function UserTeams({
           {loadingAllTeams ? (
             <div className="flex items-center text-gray-400"><FaSpinner className="animate-spin mr-2" /> Loading available teams...</div>
           ) : joinableTeams.length === 0 && allTeams.length > 0 ? (
-             <p className="text-gray-400 text-xs">You are a member of all available teams.</p>
+             <p className="text-gray-400 text-sm">You are a member of all available teams.</p>
           ) : joinableTeams.length === 0 && allTeams.length === 0 ? (
-            <p className="text-gray-400 text-xs">No other teams available to join currently.</p>
+            <p className="text-gray-400 text-sm">No other teams available to join currently.</p>
           ) : (
             <div className="flex items-center gap-2">
               <select
                 id="join-team-select"
                 value={selectedTeamToJoin}
                 onChange={(e) => setSelectedTeamToJoin(e.target.value)}
-                className="block w-full px-3 py-1.5 pr-8 rounded bg-black border border-gray-800 text-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs disabled:opacity-50"
+                className="block w-full px-4 py-2 pr-8 rounded-md bg-black border border-gray-800 text-gray-300 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 sm:text-sm disabled:opacity-50"
                 disabled={joiningTeam || loadingAllTeams}
               >
                 <option value="">-- Select a team to join --</option>
@@ -225,14 +232,14 @@ export default function UserTeams({
               <button
                 onClick={handleJoinTeam}
                 disabled={!selectedTeamToJoin || joiningTeam || loadingAllTeams}
-                className="inline-flex items-center px-3 py-1.5 border border-sky-500 text-xs font-medium rounded text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-black focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                className="inline-flex items-center px-4 py-2 border border-sky-500 text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
               >
-                {joiningTeam ? <FaSpinner className="animate-spin mr-1.5" /> : <FaPlus className="mr-1.5" />}
+                {joiningTeam ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-1.5" />}
                 Join Team
               </button>
             </div>
           )}
-          {joinTeamError && <p className="mt-2 text-xs text-red-400">{joinTeamError}</p>}
+          {joinTeamError && <p className="mt-2 text-sm text-red-400">{joinTeamError}</p>}
         </div>
 
         {/* Create Custom Team Section */}
@@ -245,19 +252,19 @@ export default function UserTeams({
               value={customTeamName}
               onChange={(e) => setCustomTeamName(e.target.value)}
               placeholder="e.g., The Innovators"
-              className="block w-full px-3 py-1.5 rounded bg-black border border-gray-800 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-xs disabled:opacity-50"
+              className="block w-full px-4 py-2 rounded-md bg-black border border-gray-800 shadow-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500 sm:text-sm disabled:opacity-50"
               disabled={creatingTeam}
             />
             <button
               onClick={handleCreateTeam}
               disabled={!customTeamName.trim() || creatingTeam}
-              className="inline-flex items-center px-3 py-1.5 border border-gray-800 text-xs font-medium rounded text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-black focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+              className="inline-flex items-center px-4 py-2 border border-gray-800 text-sm font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
             >
-              {creatingTeam ? <FaSpinner className="animate-spin mr-1.5" /> : <FaPlus className="mr-1.5" />}
+              {creatingTeam ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-1.5" />}
               Create Team
             </button>
           </div>
-          {createTeamError && <p className="mt-2 text-xs text-red-400">{createTeamError}</p>}
+          {createTeamError && <p className="mt-2 text-sm text-red-400">{createTeamError}</p>}
         </div>
       </div>
     </section>

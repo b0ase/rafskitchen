@@ -13,6 +13,7 @@ const navLinks = [
   { href: '/careers', label: 'Careers', icon: FaBriefcase },
   { href: '/myagents', label: 'Create Agent', icon: FaUserSecret },
   { href: '/mytoken', label: 'Launch Token', icon: FaCubes },
+  { href: '/teammanagement', label: 'Admin: Manage All Teams', icon: FaUserShield, adminOnly: true },
 ];
 
 const welcomeTitle = "Ready to build something amazing?";
@@ -146,10 +147,10 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
                 </Link>
               );
             })}
-            {/* Render Admin button if user is admin and not in collapsed mobile view and is on the team page */}
-            {!isExpanded && isDesktop && user?.email === 'richardwboase@gmail.com' && pathname === '/team' && (
+            {/* Render Admin button if user is admin and not in collapsed mobile view */}
+            {!isExpanded && isDesktop && user?.email === 'richardwboase@gmail.com' && (
                 <Link href="/teammanagement" passHref legacyBehavior>
-                  <a className="inline-flex items-center bg-gray-800 hover:bg-gray-700 hover:text-white text-gray-300 font-semibold py-2.5 px-5 rounded-md transition-colors duration-150 ease-in-out">
+                  <a className="inline-flex items-center bg-purple-600 hover:bg-purple-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
                     <FaUserShield className="mr-2 h-5 w-5" />
                     Admin: Manage All Teams
                   </a>

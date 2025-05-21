@@ -279,7 +279,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <AppSubNavbar 
               initialIsExpanded={!showWelcomeCard} 
               onCollapse={handleDismissWelcomeCard}
-              user={clientSession?.user}
             />
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black">
               {showWelcomeCard && (

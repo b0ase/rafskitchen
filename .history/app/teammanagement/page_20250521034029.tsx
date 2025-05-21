@@ -368,33 +368,19 @@ export default function TeamManagementPage() {
             <FaUserCog className="text-4xl text-sky-500" />
             <h1 className="text-4xl font-bold text-white">Team Management (Super Admin)</h1>
         </div>
-        <p className="text-gray-400 mb-8">Manage all teams in the system. Use these powers responsibly.</p>
-
-        {isSuperAdmin && (
-          <div className="flex gap-4 mb-8"> {/* Container for admin action buttons */}
-            <button
-              onClick={handleAssignOrphanedTeams}
-              disabled={processingOrphanedTeams || loadingTeams}
-              className="inline-flex items-center bg-orange-600 hover:bg-orange-500 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {processingOrphanedTeams ? <FaSpinner className="animate-spin mr-2" /> : <FaUserCog className="mr-2 h-5 w-5" />}
-              Assign Ownership of Orphaned Teams
-            </button>
-            <button
-              onClick={handleHostileTakeover}
-              disabled={processingHostileTakeover || loadingTeams || processingOrphanedTeams}
-              className="inline-flex items-center bg-red-600 hover:bg-red-500 text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {processingHostileTakeover ? (
-                <FaSpinner className="animate-spin mr-2" />
-              ) : (
-                <FaExclamationTriangle className="mr-2 h-5 w-5" /> // Changed icon to FaExclamationTriangle
-              )}
-              {processingHostileTakeover ? 'Taking Over...' : 'Hostile Takeover of All Teams'}
-            </button>
-          </div>
-        )}
-
+        <p className="text-gray-400">Manage all teams in the system. Use these powers responsibly.</p>
+        <button
+          onClick={handleHostileTakeover}
+          disabled={processingHostileTakeover || loadingTeams || processingOrphanedTeams}
+          className="mt-4 ml-4 px-4 py-2 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm"
+        >
+          {processingHostileTakeover ? (
+            <FaSpinner className="animate-spin mr-2" />
+          ) : (
+            <FaUserCog className="mr-2" />
+          )}
+          {processingHostileTakeover ? 'Taking Over...' : 'Hostile Takeover of All Teams'}
+        </button>
       </header>
 
       {error && (

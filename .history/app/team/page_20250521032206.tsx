@@ -96,7 +96,6 @@ interface DisplayProject {
   } | null;
   client_name?: string | null; // Using client.name for this
   project_type?: string | null; // Using client.project_category for this
-  team_members?: { display_name: string | null }[]; // Added field for team members
   // We keep a reference to the original project data for convenience
   project_data: ManagedProject; // The original client object
 }
@@ -189,24 +188,22 @@ export default function TeamPage() {
       const displayProjectsWithDetails = await Promise.all(projectsData?.map(async (project) => {
         let teamLeader: { display_name: string | null } | null = null;
         let projectToken: { ticker_symbol: string | null } | null = null;
-        let projectMembers: { display_name: string | null }[] = []; // Initialize array for members
 
         // Fetch project manager(s) for this project
         const { data: projectManagers, error: pmError } = await supabase
           .from('project_users')
           .select('user_id')
           .eq('project_id', project.id)
-          .eq('role', ProjectRole.ProjectManager)
-          .limit(1);
+          .eq('role', ProjectRole.ProjectManager) // Look for Project Managers
+          .limit(1); // Assuming one main project manager for display
 
         if (pmError) {
           console.error('Error fetching project managers for project', project.name, ':', pmError);
         }
 
-        let pmUserId: string | null = null;
         if (projectManagers && projectManagers.length > 0) {
-          pmUserId = projectManagers[0].user_id;
           // Fetch display name for the first project manager found
+          const pmUserId = projectManagers[0].user_id;
           const { data: pmProfile, error: pmProfileError } = await supabase
             .from('profiles')
             .select('display_name, username')
@@ -227,9 +224,11 @@ export default function TeamPage() {
           .from('tokens')
           .select('ticker_symbol')
           .eq('token_category', 'project')
-          // Assuming token is linked by project ID or slug or potentially the project manager's user ID.
-          // Using a combined filter.
-          .or(`name.eq.${project.slug || (project.name?.toLowerCase().replace(/\s+/g, '-') || '')},ticker_symbol.eq.${project.slug || (project.name?.toLowerCase().replace(/\s+/g, '-') || '')}${pmUserId ? `,user_id.eq.${pmUserId}` : ''}`)
+          // Assuming token is linked by project ID or slug. Neither is a direct FK on tokens.
+          // Let's try matching project slug from clients to token name or ticker_symbol as a heuristic if no direct link exists.
+          // A better approach would be a direct project_id on the tokens table.
+          // For now, let's assume token 'name' or 'ticker_symbol' might match project.slug or project.name (lowercase, hyphenated)
+          .or(`name.eq.${project.slug || project.name?.toLowerCase().replace(/\s+/g, '-')},ticker_symbol.eq.${project.slug || project.name?.toLowerCase().replace(/\s+/g, '-')},user_id.eq.${projectManagers?.[0]?.user_id || ''}`)
           .limit(1);
 
         if (tokenError && tokenError.code !== 'PGRST116') {
@@ -237,45 +236,21 @@ export default function TeamPage() {
         }
 
         if (tokenData && tokenData.length > 0) {
-          projectToken = tokenData[0];
-        }
-
-        // Fetch team members for this project
-        const { data: membersData, error: membersError } = await supabase
-          .from('project_users')
-          .select('user_id')
-          .eq('project_id', project.id);
-
-        if (membersError) {
-          console.error('Error fetching members for project', project.name, ':', membersError);
-        } else if (membersData && membersData.length > 0) {
-          // Fetch display names for all members
-          const memberUserIds = membersData.map(member => member.user_id);
-          const { data: memberProfiles, error: mpError } = await supabase
-            .from('profiles')
-            .select('id, display_name, username')
-            .in('id', memberUserIds);
-
-          if (mpError) {
-            console.error('Error fetching member profiles for project', project.name, ':', mpError);
-          } else if (memberProfiles) {
-            projectMembers = memberProfiles.map(profile => ({ display_name: profile.display_name || profile.username || 'Unnamed User' }));
-          }
+          projectToken = tokenData[0]; // Assuming one token per project for display
         }
 
         // Construct the DisplayProject object
         return {
           id: project.id,
-          name: project.name || 'Unnamed Project',
+          name: project.name || 'Unnamed Project', // Use project name as the main title
           slug: project.slug,
-          icon_name: 'FaProjectDiagram',
-          color_scheme: { bgColor: 'bg-black', textColor: 'text-gray-400', borderColor: 'border-gray-800' },
+          icon_name: 'FaProjectDiagram', // Use a generic project icon for now
+          color_scheme: { bgColor: 'bg-black', textColor: 'text-gray-400', borderColor: 'border-gray-800' }, // Apply desired minimalistic scheme
           team_leader: teamLeader,
           token: projectToken,
-          client_name: project.name || 'Unnamed Client',
+          client_name: project.name || 'Unnamed Client', // Using project name as client name as per schema structure
           project_type: project.project_category,
-          team_members: projectMembers, // Include fetched members
-          project_data: project,
+          project_data: project, // Keep original project data
         };
       })) || [];
 
@@ -549,6 +524,31 @@ export default function TeamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="flex flex-col sm:flex-row justify-end items-center mb-10">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {user?.email === 'richardwboase@gmail.com' && (
+              <Link href="/teammanagement" passHref legacyBehavior>
+                <a className="inline-flex items-center bg-purple-600 hover:bg-purple-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                  <FaUserShield className="mr-2 h-5 w-5" />
+                  Admin: Manage All Teams
+                </a>
+              </Link>
+            )}
+            {/* <Link href="/teams/new" passHref legacyBehavior>
+              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                <FaUserPlus className="mr-2 h-5 w-5" />
+                Start a New Team
+              </a>
+            </Link>
+            <Link href="/teams/join" passHref legacyBehavior>
+              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                <FaUsers className="mr-2 h-5 w-5" />
+                Join a Team
+              </a>
+            </Link> */}
+          </div>
+        </div>
+
         {error && (
           <div className="text-red-500 bg-red-900/30 p-3 rounded-md">{error}</div>
         )}
@@ -562,7 +562,7 @@ export default function TeamPage() {
 
         {!loadingUser && user && (
           <div className="mb-12">
-            {/* Removed "My Teams" heading for minimalistic aesthetic */}
+            <h2 className="text-3xl font-semibold text-sky-400 mb-6">My Projects</h2>
             {isLoadingDisplayProjects && (
               <div className="flex justify-center items-center col-span-1 md:col-span-2 lg:col-span-3 py-10">
                 <FaSpinner className="animate-spin text-3xl text-sky-400" />
@@ -591,26 +591,19 @@ export default function TeamPage() {
                   return (
                     <Link key={project.id} href={`/projects/${project.slug || project.id}`} passHref legacyBehavior>
                       <a className={`block rounded-md shadow-none p-3 flex flex-col justify-between border transition-all duration-200 ease-in-out hover:border-gray-600 ${cardBgColor} ${cardBorderColor} ${cardTextColor} cursor-pointer`}>
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center">
-                            <IconComponent className={`text-lg mr-2 text-white opacity-90`} />
-                            <h3 className={`text-sm font-normal text-white truncate`}>{project.name}</h3>
-                          </div>
-                          {project.token && <span className="text-white text-xs font-semibold">{project.token.ticker_symbol}</span>}
+                        <div className="flex items-center mb-4">
+                          <IconComponent className={`text-lg mr-2 text-white opacity-90`} />
+                          <h3 className={`text-sm font-normal text-white truncate`}>{project.name}</h3>
                         </div>
                         <div className="text-gray-400 text-xs space-y-0.5 mb-2">
                           {project.team_leader && <p>Team Leader: {project.team_leader.display_name}</p>}
                           {project.client_name && <p>Client: {project.client_name}</p>}
+                          {project.token && <p>$ Token: {project.token.ticker_symbol}</p>}
                           {project.project_type && <p>Project Type: {project.project_type}</p>}
+                          {!project.team_leader && !project.client_name && !project.token && !project.project_type && project.name !== 'Unnamed Project' && (
+                            <p>Additional details pending...</p>
+                          )}
                         </div>
-                        {project.team_members && project.team_members.length > 0 && (
-                          <div className="border-t border-gray-700 mt-2 pt-2">
-                            <p className="text-gray-600">{project.team_members.map(member => member.display_name).join(', ')}</p>
-                          </div>
-                        )}
-                        {!project.team_leader && !project.client_name && !project.token && !project.project_type && (!project.team_members || project.team_members.length === 0) && project.name !== 'Unnamed Project' && (
-                          <p className="text-gray-400 text-xs space-y-0.5 mb-2">Additional details pending...</p>
-                        )}
                         <div className="mt-auto pt-3 text-right">
                           <span className={`text-xs text-gray-400 opacity-60 hover:opacity-100`}>View Project <FaAngleRight className="inline ml-1" /></span>
                         </div>

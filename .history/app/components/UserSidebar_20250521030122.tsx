@@ -337,14 +337,14 @@ export default function UserSidebar({ className }: UserSidebarProps) { // Destru
       </div>
 
       {/* Primary Nav Links */}
-      <nav className="flex-grow px-3 py-4 space-y-0.5 overflow-y-auto">
+      <nav className="flex-grow px-3 py-4 space-y-1 overflow-y-auto">
         {navLinksPrimaryConst.map((link) => {
           const isCurrent = pathname === link.href || (link.href !== '/profile' && (pathname?.startsWith(link.href) ?? false));
           return (
             <Link
               key={link.title}
               href={link.href}
-              className={`flex items-center px-2.5 py-2 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out 
+              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out 
                           ${isCurrent 
                             ? 'bg-gray-800 text-white' 
                             : 'text-gray-400 hover:bg-gray-800 hover:text-white'}
@@ -363,7 +363,7 @@ export default function UserSidebar({ className }: UserSidebarProps) { // Destru
       </nav>
 
       {/* Secondary Nav Links (like Settings) and Logout */}
-      <ul className="mt-auto space-y-1 px-2 py-4 border-t border-gray-700">
+      <ul className="mt-auto space-y-2 px-2 py-4 border-t border-gray-700">
         {navLinksSecondaryConst.map((link) => (
           <li key={link.title}>
             <Link href={link.href} legacyBehavior>

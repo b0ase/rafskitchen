@@ -271,7 +271,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             userDisplayName={profile?.display_name || profile?.username || 'User'}
             userAvatarUrl={profile?.avatar_url}
           />
-          <div className={`flex-1 flex flex-col overflow-hidden`}>
+          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
             <AppNavbar 
               toggleFullScreenMenu={toggleFullScreenMenu} 
               isFullScreenMenuActuallyOpen={isFullScreenMenuOpen} 
@@ -279,7 +279,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <AppSubNavbar 
               initialIsExpanded={!showWelcomeCard} 
               onCollapse={handleDismissWelcomeCard}
-              user={clientSession?.user}
             />
             <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black">
               {showWelcomeCard && (
@@ -309,7 +308,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             userDisplayName={profile?.display_name || profile?.username || 'User'}
             userAvatarUrl={profile?.avatar_url}
           />
-          <div className={`flex-1 flex flex-col overflow-hidden`}>
+          <div className={`flex-1 flex flex-col overflow-hidden md:ml-64`}>
             <AppNavbar 
               toggleFullScreenMenu={toggleFullScreenMenu} 
               isFullScreenMenuActuallyOpen={isFullScreenMenuOpen} 

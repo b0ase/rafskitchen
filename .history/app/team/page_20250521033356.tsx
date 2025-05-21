@@ -549,6 +549,27 @@ export default function TeamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
+        <div className="flex flex-col sm:flex-row justify-start items-center mb-10">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {/* Removed Admin button from here */}
+            {/* Removed "Start a New Team" and "Join a Team" buttons as they are now in AppSubNavbar */}
+            {/*
+            <Link href="/teams/new" passHref legacyBehavior>
+              <a className="inline-flex items-center bg-green-600 hover:bg-green-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                <FaUserPlus className="mr-2 h-5 w-5" />
+                Start a New Team
+              </a>
+            </Link>
+            <Link href="/teams/join" passHref legacyBehavior>
+              <a className="inline-flex items-center bg-sky-600 hover:bg-sky-500 !text-white font-semibold py-2.5 px-5 rounded-lg transition-colors shadow-md hover:shadow-lg text-base transform hover:scale-105 no-underline">
+                <FaUsers className="mr-2 h-5 w-5" />
+                Join a Team
+              </a>
+            </Link>
+            */}
+          </div>
+        </div>
+
         {error && (
           <div className="text-red-500 bg-red-900/30 p-3 rounded-md">{error}</div>
         )}
