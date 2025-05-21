@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import ProjectCardImage from './components/ProjectCardImage';
 import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
 import { portfolioData, Project } from '@/lib/data';
-import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools, FaTwitter, FaTelegramPlane, FaDiscord } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools, FaXTwitter, FaTelegramPlane, FaDiscord } from 'react-icons/fa';
 import { BsCurrencyBitcoin } from "react-icons/bs";
 import CharacterCycle from './components/CharacterCycle';
 
@@ -147,7 +147,7 @@ export default function PortfolioPage() {
               )}
               {portfolioData.about.socials.x && (
                 <a href={portfolioData.about.socials.x} target="_blank" rel="noopener noreferrer" className="text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">
-                  <XIcon />
+                  <FaXTwitter size={24} />{/* Using FaXTwitter for the X icon */}
                 </a>
               )}
                {portfolioData.about.socials.telegram && portfolioData.about.socials.telegram !== '#telegram' && (

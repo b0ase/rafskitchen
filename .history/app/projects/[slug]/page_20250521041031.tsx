@@ -124,7 +124,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [projectMembers, setProjectMembers] = useState<{ display_name: string | null }[]>([]);
 
   const phases = [
     { key: 'now', label: 'LIVE' },
@@ -150,28 +149,12 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     setLoading(true);
     setError(null);
     try {
-      // Check if the slug parameter looks like a UUID
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-
-      let coreDataResult: { data: ProjectData | null; error: any | null };
-
-      if (isUUID) {
-        console.log(`Attempting to fetch client with ID inside fetchData: ${slug}`);
-        coreDataResult = await supabase
-          .from('clients')
-          .select('*, user_id')
-          .eq('id', slug)
-          .maybeSingle();
-      } else {
-        console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
-        coreDataResult = await supabase
-          .from('clients')
-          .select('*, user_id')
-          .eq('slug', slug)
-          .maybeSingle();
-      }
-
-      const { data: coreData, error: coreError } = coreDataResult;
+      console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
+      const { data: coreData, error: coreError } = await supabase
+        .from('clients')
+        .select('*, user_id')
+        .eq('slug', slug)
+        .maybeSingle();
 
       console.log('Supabase core fetch result:', { coreData, coreError });
 
@@ -217,8 +200,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         }
       }
        
-      setProjectMembers(projectMembers);
-      console.log('Fetched project members and updated state:', projectMembers);
+      console.log('Fetched project members:', projectMembers);
 
       const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
         supabase.from('project_treatments').select('*').eq('project_slug', slug).order('sort_order', { ascending: true }),

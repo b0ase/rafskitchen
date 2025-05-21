@@ -13,6 +13,25 @@ export default function SignupPage() {
             <p className="text-md text-gray-400 mb-8">Our approach combines strategic thinking with cutting-edge technology to deliver results that matter. Whether you're a startup with a groundbreaking concept, an established brand seeking digital transformation, or an innovator exploring new technological frontiers—we're here to bring your vision to life.</p>
             
             <p className="text-md text-gray-400">Every project begins with understanding your unique goals and challenges. We believe in creating lasting partnerships, and our team is committed to guiding you through each step of the journey—from initial concept to successful launch and beyond.</p>
+
+            {/* Social Links - Added */}
+            <div className="mt-8 flex justify-center space-x-6">
+              {/* Add social icons and links here, mapping over data from lib/data.ts */}
+              {/* Example for GitHub, you'll need to add others */} 
+              <a href="https://github.com/b0ase" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <FaGithub className="h-6 w-6" />
+              </a>
+               <a href="https://www.linkedin.com/in/richardboase/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <FaLinkedin className="h-6 w-6" />
+              </a>
+               <a href="https://x.com/b0ase" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <FaTwitter className="h-6 w-6" />
+              </a>
+               <a href="https://www.youtube.com/@richardboase" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                <FaYoutube className="h-6 w-6" />
+              </a>
+               {/* You may want to add others from lib/data.ts as needed */}
+            </div>
           </div>
         </div>
 

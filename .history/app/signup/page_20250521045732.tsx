@@ -1,5 +1,4 @@
 import ClientSignupForm from "../components/ClientSignupForm";
-import { FaGithub, FaLinkedin, FaTwitter, FaYoutube } from "react-icons/fa";
 
 export default function SignupPage() {
   return (

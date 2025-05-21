@@ -45,11 +45,7 @@ export default function Header() {
     { Icon: FaGithub, href: portfolioData.about.socials.github },
     { Icon: FaLinkedin, href: portfolioData.about.socials.linkedin },
     { Icon: XIcon, href: portfolioData.about.socials.x },
-  
-    { Icon: FaTelegramPlane, href: portfolioData.about.socials.telegram },
-
-
-    { Icon: FaDiscord, href: portfolioData.about.socials.discord },
+    { Icon: FaTelegramPlane, href: portfolioData.about.socials.telegram },    { Icon: FaDiscord, href: portfolioData.about.socials.discord },
     { Icon: FaEnvelope, href: 'mailto:richard@b0ase.com' },
   ];
 

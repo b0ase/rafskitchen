@@ -124,7 +124,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [projectMembers, setProjectMembers] = useState<{ display_name: string | null }[]>([]);
 
   const phases = [
     { key: 'now', label: 'LIVE' },
@@ -150,28 +149,12 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     setLoading(true);
     setError(null);
     try {
-      // Check if the slug parameter looks like a UUID
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-
-      let coreDataResult: { data: ProjectData | null; error: any | null };
-
-      if (isUUID) {
-        console.log(`Attempting to fetch client with ID inside fetchData: ${slug}`);
-        coreDataResult = await supabase
-          .from('clients')
-          .select('*, user_id')
-          .eq('id', slug)
-          .maybeSingle();
-      } else {
-        console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
-        coreDataResult = await supabase
-          .from('clients')
-          .select('*, user_id')
-          .eq('slug', slug)
-          .maybeSingle();
-      }
-
-      const { data: coreData, error: coreError } = coreDataResult;
+      console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
+      const { data: coreData, error: coreError } = await supabase
+        .from('clients')
+        .select('*, user_id')
+        .eq('slug', slug)
+        .maybeSingle();
 
       console.log('Supabase core fetch result:', { coreData, coreError });
 
@@ -217,8 +200,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         }
       }
        
-      setProjectMembers(projectMembers);
-      console.log('Fetched project members and updated state:', projectMembers);
+      console.log('Fetched project members:', projectMembers);
 
       const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
         supabase.from('project_treatments').select('*').eq('project_slug', slug).order('sort_order', { ascending: true }),
@@ -482,7 +464,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-950 text-gray-300">
       <main className="container mx-auto px-4 py-12 md:py-16">
         {/* Project Header */}
         <header className="mb-12">
@@ -511,23 +493,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
             )}
           </div>
         </header>
-
-        {/* Placeholder for Chat Component */}
-        {projectData && projectMembers.length > 0 ? (
-          <div className="mb-8">
-            {/* Replace with your actual Chat Component, passing project ID and members */}
-            {/* <ChatComponent projectId={projectData.id} members={projectMembers} /> */}
-            <div className="bg-gray-800 shadow rounded-lg p-6 text-center text-gray-400">
-              Placeholder for Chat Component for Project: {projectData.name}
-              <br/>
-              Members fetched: {projectMembers.map(m => m.display_name).join(', ')}
-            </div>
-          </div>
-        ) : projectData && !loading && (
-           <div className="bg-gray-800 shadow rounded-lg p-6 text-center text-gray-500 mb-8">
-             No members found for this project yet.
-           </div>
-        )}
 
         {isOwner && !isEditing && (
           <div className="mb-6">

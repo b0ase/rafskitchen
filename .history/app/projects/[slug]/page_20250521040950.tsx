@@ -73,24 +73,26 @@ interface PlatformUser {
 
 interface ProjectData {
   id: string;
-  name: string; // Client name
-  email: string; // Client email
-  project_name: string; // Project name
-  project_description: string | null; // Project description, allow null
-  project_type: string[] | null; // Project types, allow null
-  budget_tier: string | null;
-  timeline_preference: string | null;
-  required_integrations: string[] | null;
-  design_style_preference: string | null;
-  key_features: string | null;
-  anything_else: string | null;
-  slug: string; // Project slug
-  github_repo_url: string | null; // Allow null
-  preview_url: string | null; // Allow null
-  website: string | null; // Project website, allow null
-  preview_deployment_url: string | null; // Allow null
-  user_id: string | null; // Creator user ID, allow null
-  created_at: string; // Assuming created_at is included
+  name: string; // Corrected to match 'clients' table
+  slug: string; // Corrected to match 'clients' table
+  project_category: string | null; // Corrected to match 'clients' table
+  user_id?: string; // Corrected to match 'clients' table
+  // Fields expected by the component, fetched from 'clients' table
+  project_description: string | null; // Added back as it's used
+  website: string | null; // Ensure nullable type for compatibility
+  client_name: string; // Added back
+  client_email: string; // Added back
+  project_name: string; // Added back
+  project_type: string[] | null; // Added back, allow null
+  budget_tier: string | null; // Added back
+  timeline_preference: string | null; // Added back
+  required_integrations: string[] | null; // Added back
+  design_style_preference: string | null; // Added back
+  key_features: string | null; // Added back
+  anything_else: string | null; // Added back
+  github_repo_url?: string | null;
+  preview_url?: string | null;
+  preview_deployment_url?: string | null;
 }
 
 interface ClientFormData {
@@ -124,7 +126,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [projectMembers, setProjectMembers] = useState<{ display_name: string | null }[]>([]);
 
   const phases = [
     { key: 'now', label: 'LIVE' },
@@ -150,28 +151,12 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
     setLoading(true);
     setError(null);
     try {
-      // Check if the slug parameter looks like a UUID
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-
-      let coreDataResult: { data: ProjectData | null; error: any | null };
-
-      if (isUUID) {
-        console.log(`Attempting to fetch client with ID inside fetchData: ${slug}`);
-        coreDataResult = await supabase
-          .from('clients')
-          .select('*, user_id')
-          .eq('id', slug)
-          .maybeSingle();
-      } else {
-        console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
-        coreDataResult = await supabase
-          .from('clients')
-          .select('*, user_id')
-          .eq('slug', slug)
-          .maybeSingle();
-      }
-
-      const { data: coreData, error: coreError } = coreDataResult;
+      console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
+      const { data: coreData, error: coreError } = await supabase
+        .from('clients')
+        .select('*, user_id')
+        .eq('slug', slug)
+        .maybeSingle();
 
       console.log('Supabase core fetch result:', { coreData, coreError });
 
@@ -217,8 +202,7 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
         }
       }
        
-      setProjectMembers(projectMembers);
-      console.log('Fetched project members and updated state:', projectMembers);
+      console.log('Fetched project members:', projectMembers);
 
       const [treatmentsRes, timelineRes, featuresRes, feedbackRes] = await Promise.all([
         supabase.from('project_treatments').select('*').eq('project_slug', slug).order('sort_order', { ascending: true }),
@@ -482,11 +466,11 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-200 p-4 md:p-8">
+    <div className="min-h-screen bg-gray-950 text-gray-300">
       <main className="container mx-auto px-4 py-12 md:py-16">
         {/* Project Header */}
         <header className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-purple-400 mb-3">{projectData.project_name}</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-purple-400 mb-3">{projectData.name}</h1>
           <p className="text-lg text-gray-400 mb-4">{projectData.project_description}</p>
           <div className="flex space-x-4">
             {projectData.github_repo_url && (
@@ -512,23 +496,6 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
           </div>
         </header>
 
-        {/* Placeholder for Chat Component */}
-        {projectData && projectMembers.length > 0 ? (
-          <div className="mb-8">
-            {/* Replace with your actual Chat Component, passing project ID and members */}
-            {/* <ChatComponent projectId={projectData.id} members={projectMembers} /> */}
-            <div className="bg-gray-800 shadow rounded-lg p-6 text-center text-gray-400">
-              Placeholder for Chat Component for Project: {projectData.name}
-              <br/>
-              Members fetched: {projectMembers.map(m => m.display_name).join(', ')}
-            </div>
-          </div>
-        ) : projectData && !loading && (
-           <div className="bg-gray-800 shadow rounded-lg p-6 text-center text-gray-500 mb-8">
-             No members found for this project yet.
-           </div>
-        )}
-
         {isOwner && !isEditing && (
           <div className="mb-6">
             <button
@@ -545,15 +512,15 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
             <h2 className="text-2xl font-semibold text-purple-400 mb-4">Edit Project Details</h2>
             <ClientSignupForm
               initialData={{
-                 name: projectData.name,
-                 email: projectData.email,
-                 project_brief: projectData.project_description ?? '',
-                 project_types: projectData.project_type ?? [],
-                 website: projectData.website ?? '',
+                 name: projectData.client_name,
+                 email: projectData.client_email,
+                 project_brief: projectData.project_description || '',
+                 project_types: projectData.project_type || [],
+                 website: projectData.website || '',
                  phone: '',
                  logo_url: '',
-                 requested_budget: projectData.budget_tier ?? '',
-                 github_links: projectData.github_repo_url ?? '',
+                 requested_budget: projectData.budget_tier || '',
+                 github_links: projectData.github_repo_url || '',
                  id: projectData.id,
                  slug: projectData.slug,
               }}

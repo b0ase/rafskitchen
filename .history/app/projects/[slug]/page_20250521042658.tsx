@@ -153,25 +153,24 @@ export default function ProjectPage({ params, searchParams }: { params: { slug: 
       // Check if the slug parameter looks like a UUID
       const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
 
-      let coreDataResult: { data: ProjectData | null; error: any | null };
+      let coreData = null;
+      let coreError = null;
 
       if (isUUID) {
         console.log(`Attempting to fetch client with ID inside fetchData: ${slug}`);
-        coreDataResult = await supabase
+        ({ data: coreData, error: coreError } = await supabase
           .from('clients')
           .select('*, user_id')
           .eq('id', slug)
-          .maybeSingle();
+          .maybeSingle());
       } else {
         console.log(`Attempting to fetch client with slug inside fetchData: ${slug}`);
-        coreDataResult = await supabase
+        ({ data: coreData, error: coreError } = await supabase
           .from('clients')
           .select('*, user_id')
           .eq('slug', slug)
-          .maybeSingle();
+          .maybeSingle());
       }
-
-      const { data: coreData, error: coreError } = coreDataResult;
 
       console.log('Supabase core fetch result:', { coreData, coreError });
 

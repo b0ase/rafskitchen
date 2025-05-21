@@ -243,24 +243,24 @@ export default function LoginPage() {
           {isSignUpMode ? 'Join us to access your profile and tools.' : 'Access your profile and application tools.'}
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          <button onClick={handleGoogleSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-2 px-4 border border-gray-700 bg-black hover:bg-gray-900 text-white text-sm font-semibold rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
-            <FaGoogle className="mr-2 text-base" /> Sign in with Google
+        <div className="space-y-3 mb-6">
+          <button onClick={handleGoogleSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            <FaGoogle className="mr-3 text-lg" /> Sign in with Google
           </button>
-          <button onClick={handleGitHubSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-2 px-4 border border-gray-700 bg-black hover:bg-gray-900 text-white text-sm font-semibold rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
-            <FaGithub className="mr-2 text-base" /> Sign in with GitHub
+          <button onClick={handleGitHubSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            <FaGithub className="mr-3 text-lg" /> Sign in with GitHub
           </button>
-          <button onClick={handleXSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-2 px-4 border border-gray-700 bg-black hover:bg-gray-900 text-white text-sm font-semibold rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
-            <FaTwitter className="mr-2 text-base" /> Sign in with X.com
+          <button onClick={handleXSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            <FaTwitter className="mr-3 text-lg" /> Sign in with X.com
           </button>
-          <button onClick={handlePhantomSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-2 px-4 border border-gray-700 bg-black hover:bg-gray-900 text-white text-sm font-semibold rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
-            <SiSolana className="mr-2 text-base" /> Sign in with Phantom
+          <button onClick={handlePhantomSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            <SiSolana className="mr-3 text-lg" /> Sign in with Phantom
           </button>
-          <button onClick={handleHandCashSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-2 px-4 border border-gray-700 bg-black hover:bg-gray-900 text-white text-sm font-semibold rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
-            <FaCreditCard className="mr-2 text-base" /> Sign in with HandCash
+          <button onClick={handleHandCashSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            <FaCreditCard className="mr-3 text-lg" /> Sign in with HandCash
           </button>
-          <button onClick={handleMetaMaskSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-2 px-4 border border-gray-700 bg-black hover:bg-gray-900 text-white text-sm font-semibold rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
-            <FaEthereum className="mr-2 text-base" /> Sign in with MetaMask
+          <button onClick={handleMetaMaskSignIn} disabled={isLoading} className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50">
+            <FaEthereum className="mr-3 text-lg" /> Sign in with MetaMask
           </button>
         </div>
 
@@ -269,7 +269,7 @@ export default function LoginPage() {
             <div className="w-full border-t border-gray-700" />
           </div>
           <div className="relative flex justify-center">
-            <span className="px-2 bg-black text-sm text-gray-500">Or sign in with email</span>
+            <span className="px-2 bg-gray-900 text-sm text-gray-500">Or sign in with email</span>
           </div>
         </div>
 
@@ -289,7 +289,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-gray-700 bg-gray-900 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+                  className="w-full pl-10 pr-3 py-2.5 border border-gray-600 bg-gray-800 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 placeholder-gray-500"
                   placeholder="you@example.com"
                   disabled={isAuthProcessing}
                 />
@@ -312,7 +312,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 border border-gray-700 bg-gray-900 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+                  className="w-full pl-10 pr-10 py-2.5 border border-gray-600 bg-gray-800 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 placeholder-gray-500"
                   placeholder="Password"
                   disabled={isAuthProcessing}
                 />
@@ -343,7 +343,7 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 border border-gray-700 bg-gray-900 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+                    className="w-full pl-10 pr-10 py-2.5 border border-gray-600 bg-gray-800 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 placeholder-gray-500"
                     placeholder="Password"
                     disabled={isAuthProcessing}
                   />
@@ -370,7 +370,7 @@ export default function LoginPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 border border-gray-700 bg-gray-900 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+                    className="w-full pl-10 pr-10 py-2.5 border border-gray-600 bg-gray-800 text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 placeholder-gray-500"
                     placeholder="Confirm Password"
                     disabled={isAuthProcessing}
                   />
@@ -391,7 +391,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isAuthProcessing || !email || (!isSignUpMode && !showRecoveryInput && !password) || (isSignUpMode && !confirmPassword)}
-                className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-sky-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
               >
                 {isAuthProcessing ? (isSignUpMode ? 'Creating Account...' : (showRecoveryInput ? 'Sending Email...' : 'Signing in...')) : (isSignUpMode ? 'Sign Up' : (showRecoveryInput ? 'Send Recovery Email' : 'Sign in with Email'))}
               </button>
@@ -400,7 +400,7 @@ export default function LoginPage() {
 
           {!isSignUpMode && !showRecoveryInput && (
             <div className="text-center">
-              <Link href="#" onClick={() => setShowRecoveryInput(true)} className="font-medium text-gray-400 hover:text-gray-300">
+              <Link href="#" onClick={() => setShowRecoveryInput(true)} className="font-medium text-blue-400 hover:text-blue-300">
                 Forgot password?
               </Link>
             </div>
@@ -423,7 +423,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-sm text-center">
           {!isSignUpMode && !showRecoveryInput && (
-            <Link href="#" onClick={() => setShowRecoveryInput(true)} className="font-medium text-gray-400 hover:text-gray-300">
+            <Link href="#" onClick={() => setShowRecoveryInput(true)} className="font-medium text-blue-400 hover:text-blue-300">
               Forgot password?
             </Link>
           )}
@@ -436,7 +436,7 @@ export default function LoginPage() {
               setError(null);
               setSignUpMessage(null);
               setShowRecoveryInput(false);
-            }} className="font-medium text-gray-400 hover:text-gray-300">
+            }} className="font-medium text-blue-400 hover:text-blue-300">
               {isSignUpMode ? 'Back to Login' : "Don't have an account? Sign Up"}
             </Link>
           )}
@@ -445,7 +445,7 @@ export default function LoginPage() {
               setShowRecoveryInput(false);
               setError(null);
               setRecoveryEmailSent(false);
-            }} className="font-medium text-gray-400 hover:text-gray-300">
+            }} className="font-medium text-blue-400 hover:text-blue-300">
               Back to Login
             </Link>
           )}
