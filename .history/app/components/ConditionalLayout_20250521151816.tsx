@@ -14,8 +14,9 @@ import { FaRocket } from 'react-icons/fa'; // For loading indicator
 import { MyCtxProvider } from './MyCtx'; // Corrected to MyCtxProvider
 import FullScreenMobileMenu from './FullScreenMobileMenu'; // Ensure this is uncommented
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // For logout
-import useProfileData, { Profile } from '@/lib/hooks/useProfileData'; // REMOVED User from here
-import { User } from '@supabase/supabase-js'; // User is imported ONLY from supabase
+import useProfileData, { Profile, User } from '@/lib/hooks/useProfileData'; // Corrected import for default export, and import Profile/User types
+// User type might not be needed here if useProfileData handles user context internally
+import { User } from '@supabase/supabase-js'; // User is imported from supabase
 
 interface ConditionalLayoutProps {
   // session prop from server can be kept for initial hint or removed if useAuth is robust enough
@@ -314,7 +315,7 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
             isOpen={isParentFullScreenMenuOpen} 
             onClose={toggleFullScreenMenu} 
             handleLogout={handleLogout} 
-            userDisplayName={profile?.display_name || profile?.username || undefined}
+            userDisplayName={profile?.display_name || profile?.username}
             userAvatarUrl={profile?.avatar_url ?? undefined}
           />
         )}

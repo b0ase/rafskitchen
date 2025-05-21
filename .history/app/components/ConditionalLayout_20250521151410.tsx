@@ -14,8 +14,9 @@ import { FaRocket } from 'react-icons/fa'; // For loading indicator
 import { MyCtxProvider } from './MyCtx'; // Corrected to MyCtxProvider
 import FullScreenMobileMenu from './FullScreenMobileMenu'; // Ensure this is uncommented
 import getSupabaseBrowserClient from '@/lib/supabase/client'; // For logout
-import useProfileData, { Profile } from '@/lib/hooks/useProfileData'; // REMOVED User from here
-import { User } from '@supabase/supabase-js'; // User is imported ONLY from supabase
+import useProfileData from '@/lib/hooks/useProfileData'; // Corrected import for default export
+// User type might not be needed here if useProfileData handles user context internally
+// import { User } from '@supabase/supabase-js'; 
 
 interface ConditionalLayoutProps {
   // session prop from server can be kept for initial hint or removed if useAuth is robust enough
@@ -182,7 +183,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     };
     return (
       <div className="flex flex-col min-h-screen">
-        <Header /> {/* Removed clientSession and onLogout props */}
+        <Header clientSession={clientSession} onLogout={handlePublicLogout} /> {/* Pass session and logout */}
         <SubNavigation />
         <main className="flex-grow">{children}</main>
         <Footer />
@@ -222,11 +223,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // If authenticated and on an app page (or a page that passed the public/auth checks and isn't loading auth, and has a session)
   // Now we can safely call useProfileData for the authenticated app layout.
   console.log(`[ConditionalLayout Render] Rendering AuthenticatedAppLayout for: ${pathname}`);
-  return <AuthenticatedAppLayout isParentFullScreenMenuOpen={isFullScreenMenuOpen} setIsParentFullScreenMenuOpen={setIsFullScreenMenuOpen}>{children}</AuthenticatedAppLayout>;
+  return <AuthenticatedAppLayout>{children}</AuthenticatedAppLayout>;
 }
 
 // New component to encapsulate the authenticated app layout and useProfileData
-const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsParentFullScreenMenuOpen }: { children: React.ReactNode, isParentFullScreenMenuOpen: boolean, setIsParentFullScreenMenuOpen: (isOpen: boolean) => void }) => {
+const AuthenticatedAppLayout = ({ children }: { children: React.ReactNode }) => {
   const { 
     profile, 
     loading: profileLoading, 
@@ -239,7 +240,7 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
 
   const pathname = usePathname() ?? ''; 
   const [isFullScreenMenuOpen, setIsFullScreenMenuOpen] = React.useState(false);
-  const toggleFullScreenMenu = () => { setIsParentFullScreenMenuOpen(!isParentFullScreenMenuOpen); };
+  const toggleFullScreenMenu = () => { setIsFullScreenMenuOpen(!isFullScreenMenuOpen); };
   const supabase = getSupabaseBrowserClient(); 
 
   const handleLogout = async () => { 
@@ -279,18 +280,19 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
   const showUserSidebar = appPathPrefixesForSidebar.some(prefix => pathname.startsWith(prefix));
 
   return (
-    <MyCtxProvider> 
-      <div className={`flex h-screen bg-black ${isParentFullScreenMenuOpen ? 'overflow-hidden' : ''}`}>
+    <MyCtxProvider profile={profile} user={user}> 
+      <div className={`flex h-screen bg-black ${isFullScreenMenuOpen ? 'overflow-hidden' : ''}`}>
         {showUserSidebar && <UserSidebar />}
         <div className="flex-1 flex flex-col overflow-hidden">
           <AppNavbar 
-            toggleFullScreenMenu={toggleFullScreenMenu} 
-            isFullScreenMenuActuallyOpen={isParentFullScreenMenuOpen}
+            onToggleFullScreenMenu={toggleFullScreenMenu} 
+            onLogout={handleLogout} 
+            profile={profile} 
+            user={user} // Pass user to AppNavbar
           />
           <AppSubNavbar 
-            initialIsExpanded={profile ? !profile.has_seen_welcome_card && showWelcomeCard : true}
-            onCollapse={handleDismissWelcomeCard}
-            user={user}
+            profile={profile} 
+            saving={profileSaving} // Pass profileSaving for UI feedback
           />
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black p-4 md:p-6">
             {/* Welcome Card Logic */}
@@ -309,13 +311,11 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
             {children}
           </main>
         </div>
-        {isParentFullScreenMenuOpen && (
+        {isFullScreenMenuOpen && (
           <FullScreenMobileMenu 
-            isOpen={isParentFullScreenMenuOpen} 
+            isOpen={isFullScreenMenuOpen} 
             onClose={toggleFullScreenMenu} 
-            handleLogout={handleLogout} 
-            userDisplayName={profile?.display_name || profile?.username || undefined}
-            userAvatarUrl={profile?.avatar_url ?? undefined}
+            onLogout={handleLogout} 
           />
         )}
       </div>

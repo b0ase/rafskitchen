@@ -87,9 +87,9 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white px-4 md:px-6 lg:px-8 pb-4 md:pb-6 lg:pb-8 overflow-x-hidden">
       {/* Save Profile Button Container - Moved above profile card */}
       {user && profile && (
-        <div className="sticky top-[92px] left-0 right-0 z-30 mb-0 max-w-7xl mx-auto">
+        <div className="sticky top-[92px] left-0 right-0 z-30 mb-0">
           <div className="w-full bg-sky-600 pointer-events-auto">
-            <div className="w-full">
+            <div className="container mx-auto max-w-7xl">
               <button
                 type="submit"
                 form="profile-form"
