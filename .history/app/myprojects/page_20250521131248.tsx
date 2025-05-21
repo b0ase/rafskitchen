@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent, useCallback } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUserPlus, FaComments, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUserPlus, FaComments } from 'react-icons/fa'; // Added FaEdit, FaTrash, FaUserPlus, FaComments
 import {
   DndContext,
   closestCenter,
@@ -174,20 +174,37 @@ function SortableProjectCard({
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
         <div className="flex items-center gap-x-3 flex-wrap">
-          {/* Project Name now always links to internal project page */}
-          <Link href={`/myprojects/${project.project_slug}`} legacyBehavior>
-            <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 hover:underline">
+          {/* Project Name becomes a direct button to live_url if it exists */}
+          {liveUrl ? (
+            <a 
+              href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={(e) => e.stopPropagation()} 
+              className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-lg font-semibold rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
+              title={`Visit live site: ${project.name}`}
+            >
               {project.name}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 ml-1.5">
+                <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm0 3a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zm0 3a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm8-3a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75z" clipRule="evenodd" />
+                <path d="M14.75 3.5a.75.75 0 00-1.06 1.06l1.72 1.72H10a.75.75 0 000 1.5h5.41l-1.72 1.72a.75.75 0 101.06 1.06l3-3a.75.75 0 000-1.06l-3-3z" />
+              </svg>
             </a>
-          </Link>
+          ) : (
+            <Link href={`/myprojects/${project.project_slug}`} legacyBehavior>
+              <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 hover:underline">
+                {project.name}
+              </a>
+            </Link>
+          )}
           <Link href={`/myprojects/${project.project_slug}/edit`} passHref legacyBehavior>
             <a className="text-gray-400 hover:text-sky-400 transition-colors" title="Edit Project">
-              <FaEdit className="w-4 h-4" />
+              <FaEdit className="w-4 h-4" /> {/* Adjusted icon size */}
             </a>
           </Link>
           {project.currentUserRole && (
-            <span className={`text-xs px-2 py-0.5 font-medium whitespace-nowrap
-              ${project.currentUserRole === ProjectRole.ProjectManager || project.currentUserRole === "Owner" ? "bg-sky-700 text-sky-200" : "bg-gray-700 text-gray-200"}
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap
+              ${project.currentUserRole === ProjectRole.ProjectManager || project.currentUserRole === "Owner" ? "bg-sky-700 text-sky-200" : "bg-gray-600 text-gray-200"}
             `}>
               {typeof project.currentUserRole === 'string' ? project.currentUserRole.replace(/_/g, ' ') : 'Member'}
             </span>
@@ -195,8 +212,8 @@ function SortableProjectCard({
         </div>
       </div>
 
-      {/* Primary Action Buttons - Grouped separately for clarity */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mb-4">
+      {/* Primary Action Button - Grouped separately for clarity */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-4">
         <Link href={`/myprojects/${projectSlug}`} legacyBehavior>
           <a 
             onClick={(e) => e.stopPropagation()}
@@ -205,19 +222,6 @@ function SortableProjectCard({
             <FaProjectDiagram className="mr-1.5 h-4 w-4" /> Open Project Page
           </a>
         </Link>
-        {/* View Live Site Button - Conditionally rendered */}
-        {liveUrl && (
-          <a 
-            href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            onClick={(e) => e.stopPropagation()} 
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-700 text-sm font-medium shadow-sm text-gray-300 bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
-            title={`Visit live site: ${project.name}`}
-          >
-            <FaExternalLinkAlt className="mr-1.5 h-4 w-4" /> View live site
-          </a>
-        )}
         {/* Invite Members Button */}
         <button 
             onClick={(e) => {
@@ -241,6 +245,19 @@ function SortableProjectCard({
         >
             <FaComments className="mr-1.5 h-4 w-4" /> Open Team Chat
         </button>
+        {/* Conditional Delete Button */}
+        {(project.currentUserRole === ProjectRole.ProjectManager || project.user_id === userId) && (
+          <button 
+              onClick={(e) => {
+                  e.stopPropagation();
+                  openDeleteModal(project.id, project.name);
+              }}
+              className="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-sm font-medium shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-slate-900"
+              title="Delete Project"
+          >
+              <FaTrash className="mr-1.5 h-4 w-4" /> Delete
+          </button>
+        )}
       </div>
 
       {/* Badges/Controls Section */}
@@ -323,22 +340,6 @@ function SortableProjectCard({
         </p>
       ) : (
         <p className="text-sm text-gray-500 italic">No project brief available.</p>
-      )}
-
-      {/* Conditional Delete Button - Will be styled and moved separately */}
-      {(project.currentUserRole === ProjectRole.ProjectManager || project.user_id === userId) && (
-        <div className="absolute bottom-6 right-6"> 
-          <button 
-              onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click/drag
-                  openDeleteModal(project.id, project.name);
-              }}
-              className="inline-flex items-center justify-center px-2 py-1 border border-gray-700 text-xs font-medium shadow-sm text-gray-400 bg-black hover:text-red-500 hover:border-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900"
-              title="Delete Project"
-          >
-              <FaTrash className="mr-1 h-3 w-3" /> Delete
-          </button>
-        </div>
       )}
     </div>
   );

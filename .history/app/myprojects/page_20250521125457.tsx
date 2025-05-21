@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent, useCallback } from 'react';
 import Link from 'next/link';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash, FaUserPlus, FaComments, FaExternalLinkAlt } from 'react-icons/fa'; // Added FaExternalLinkAlt
+import { FaProjectDiagram, FaPlusCircle, FaTimes, FaSpinner, FaEdit, FaTrash } from 'react-icons/fa'; // Added FaEdit, FaTrash
 import {
   DndContext,
   closestCenter,
@@ -56,23 +56,65 @@ const badge3Options = ['High Priority', 'Medium Priority', 'Low Priority', 'Need
 
 // Helper function to get badge color based on value
 const getBadgeStyle = (badgeValue: string | null): string => {
-  let baseStyle = "text-xs font-semibold p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border"; // Removed rounded-md
-  // Neutral badge style with black background and square edges
-  return `${baseStyle} bg-black text-gray-300 border-gray-700 hover:bg-gray-800`;
+  let baseStyle = "text-xs font-semibold rounded-md p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border";
+  switch (badgeValue?.toLowerCase()) {
+    case 'pending_setup':
+      return `${baseStyle} bg-yellow-700 text-yellow-200 border-yellow-600`;
+    case 'planning':
+      return `${baseStyle} bg-indigo-700 text-indigo-200 border-indigo-600`;
+    case 'in development':
+      return `${baseStyle} bg-sky-700 text-sky-200 border-sky-600`;
+    case 'live':
+      return `${baseStyle} bg-green-700 text-green-200 border-green-600`;
+    case 'maintenance':
+      return `${baseStyle} bg-gray-600 text-gray-200 border-gray-500`;
+    case 'on hold':
+      return `${baseStyle} bg-orange-600 text-orange-100 border-orange-500`;
+    case 'archived':
+      return `${baseStyle} bg-slate-700 text-slate-300 border-slate-600`;
+    case 'completed':
+      return `${baseStyle} bg-teal-600 text-teal-100 border-teal-500`;
+    default: // Includes "Needs Review", "Requires Update", "Badge 1..." placeholder, or null/undefined
+      return `${baseStyle} bg-gray-800 text-gray-300 border-gray-700`;
+  }
 };
 
 // Helper function to get badge color for Badge 2
 const getBadge2Style = (badgeValue: string | null): string => {
-  let baseStyle = "text-xs font-semibold p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border"; // Removed rounded-md
-  // Neutral badge style with black background and square edges
-  return `${baseStyle} bg-black text-gray-300 border-gray-700 hover:bg-gray-800`;
+  let baseStyle = "text-xs font-semibold rounded-md p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border";
+  switch (badgeValue?.toLowerCase()) {
+    case 'saas':
+      return `${baseStyle} bg-purple-700 text-purple-200 border-purple-600`;
+    case 'mobile app':
+      return `${baseStyle} bg-pink-700 text-pink-200 border-pink-600`;
+    case 'website':
+      return `${baseStyle} bg-cyan-600 text-cyan-100 border-cyan-500`;
+    case 'e-commerce':
+      return `${baseStyle} bg-lime-600 text-lime-100 border-lime-500`;
+    case 'ai/ml':
+      return `${baseStyle} bg-rose-600 text-rose-100 border-rose-500`;
+    // Add more cases for other badge2Options as needed
+    default: // Placeholder "Badge 2..." or null/undefined
+      return `${baseStyle} bg-gray-800 text-gray-300 border-gray-700`;
+  }
 };
 
 // Helper function to get badge color for Badge 3
 const getBadge3Style = (badgeValue: string | null): string => {
-  let baseStyle = "text-xs font-semibold p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border"; // Removed rounded-md
-  // Neutral badge style with black background and square edges
-  return `${baseStyle} bg-black text-gray-300 border-gray-700 hover:bg-gray-800`;
+  let baseStyle = "text-xs font-semibold rounded-md p-1.5 appearance-none min-w-[100px] focus:ring-sky-500 focus:border-sky-500 border";
+  switch (badgeValue?.toLowerCase()) {
+    case 'high priority':
+      return `${baseStyle} bg-red-700 text-red-200 border-red-600`;
+    case 'medium priority':
+      return `${baseStyle} bg-amber-600 text-amber-100 border-amber-500`;
+    case 'low priority':
+      return `${baseStyle} bg-emerald-700 text-emerald-200 border-emerald-600`;
+    case 'needs feedback':
+      return `${baseStyle} bg-fuchsia-600 text-fuchsia-100 border-fuchsia-500`;
+    // Add more cases for other badge3Options as needed
+    default: // Placeholder "Badge 3..." or null/undefined
+      return `${baseStyle} bg-gray-800 text-gray-300 border-gray-700`;
+  }
 };
 
 // Helper function to assign a numeric priority based on badge3 value
@@ -110,7 +152,6 @@ interface SortableProjectCardProps {
   handleBadgeChange: (projectId: string, badgeKey: 'badge1' | 'badge2' | 'badge3' | 'badge4' | 'badge5', newValue: string | null) => void;
   handleIsFeaturedToggle: (projectId: string, currentIsFeatured: boolean) => void;
   openDeleteModal: (projectId: string, projectName: string) => void;
-  userId?: string | null; // Added userId prop
   // Styling and options props
   getCardDynamicBorderStyle: (priorityValue: number) => string;
   getPriorityOrderValue: (badgeValue: string | null) => number;
@@ -128,7 +169,6 @@ function SortableProjectCard({
   handleBadgeChange, 
   handleIsFeaturedToggle,
   openDeleteModal,
-  userId,
   getCardDynamicBorderStyle,
   getPriorityOrderValue,
   badge1Options,
@@ -166,85 +206,65 @@ function SortableProjectCard({
       className={getCardDynamicBorderStyle(getPriorityOrderValue(project.badge3 ?? null))}
     >
       {updatingItemId === project.id && (
-        <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-[101]">
+        <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-[101]"> {/* Ensure spinner is above dragged item overlay slightly */}
           <FaSpinner className="animate-spin text-sky-500 text-3xl" />
         </div>
       )}
-
-      {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
-        <div className="flex items-center gap-x-3 flex-wrap">
-          {/* Project Name now always links to internal project page */}
-          <Link href={`/myprojects/${project.project_slug}`} legacyBehavior>
-            <a className="text-xl font-semibold text-sky-400 hover:text-sky-300 hover:underline">
+        <div className="flex items-center gap-x-3">
+          {/* Project Name becomes a direct button to live_url if it exists */}
+          {liveUrl ? (
+            <a 
+              href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              onClick={(e) => e.stopPropagation()} 
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xl font-semibold rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
+              title={`Visit live site: ${project.name}`}
+            >
               {project.name}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 ml-2">
+                <path fillRule="evenodd" d="M4.25 5.5a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm0 3a.75.75 0 000 1.5h3.5a.75.75 0 000-1.5h-3.5zm0 3a.75.75 0 000 1.5h5.5a.75.75 0 000-1.5h-5.5zm8-3a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75z" clipRule="evenodd" />
+                <path d="M14.75 3.5a.75.75 0 00-1.06 1.06l1.72 1.72H10a.75.75 0 000 1.5h5.41l-1.72 1.72a.75.75 0 101.06 1.06l3-3a.75.75 0 000-1.06l-3-3z" />
+              </svg>
             </a>
-          </Link>
+          ) : (
+            <Link href={`/myprojects/${project.project_slug}`} legacyBehavior>
+              {/* Fallback: If no live_url, link to internal project page (not styled as a button) */}
+              <a className="text-2xl font-semibold text-sky-400 hover:text-sky-300 hover:underline">
+                {project.name}
+              </a>
+            </Link>
+          )}
           <Link href={`/myprojects/${project.project_slug}/edit`} passHref legacyBehavior>
             <a className="text-gray-400 hover:text-sky-400 transition-colors" title="Edit Project">
-              <FaEdit className="w-4 h-4" />
+              <FaEdit />
             </a>
           </Link>
+          {/* --- BEGIN DISPLAY CURRENT USER ROLE --- */}
           {project.currentUserRole && (
-            <span className={`text-xs px-2 py-0.5 font-medium whitespace-nowrap
-              ${project.currentUserRole === ProjectRole.ProjectManager || project.currentUserRole === "Owner" ? "bg-sky-700 text-sky-200" : "bg-gray-700 text-gray-200"}
+            <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-medium
+              ${project.currentUserRole === ProjectRole.ProjectManager || project.currentUserRole === "Owner" ? "bg-sky-700 text-sky-200" : "bg-gray-600 text-gray-200"}
             `}>
               {typeof project.currentUserRole === 'string' ? project.currentUserRole.replace(/_/g, ' ') : 'Member'}
             </span>
           )}
+          {/* --- END DISPLAY CURRENT USER ROLE --- */}
         </div>
       </div>
-
-      {/* Primary Action Buttons - Grouped separately for clarity */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mb-4">
+      {/* --- NEW BUTTONS SECTION --- */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-1 mb-4">
         <Link href={`/myprojects/${projectSlug}`} legacyBehavior>
           <a 
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-700 text-sm font-medium shadow-sm text-gray-300 bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 focus:ring-offset-slate-900"
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 focus:ring-offset-slate-900"
           >
             <FaProjectDiagram className="mr-1.5 h-4 w-4" /> Open Project Page
           </a>
         </Link>
-        {/* View Live Site Button - Conditionally rendered */}
-        {liveUrl && (
-          <a 
-            href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            onClick={(e) => e.stopPropagation()} 
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-700 text-sm font-medium shadow-sm text-gray-300 bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
-            title={`Visit live site: ${project.name}`}
-          >
-            <FaExternalLinkAlt className="mr-1.5 h-4 w-4" /> View live site
-          </a>
-        )}
-        {/* Invite Members Button */}
-        <button 
-            onClick={(e) => {
-                e.stopPropagation();
-                // Placeholder: Implement invite functionality
-                alert(`Invite members to ${project.name}`);
-            }}
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-700 text-sm font-medium shadow-sm text-gray-300 bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-slate-900"
-        >
-            <FaUserPlus className="mr-1.5 h-4 w-4" /> Invite Members
-        </button>
-        {/* Open Team Chat Button */}
-        <button 
-            onClick={(e) => {
-                e.stopPropagation();
-                // Placeholder: Implement team chat functionality
-                // Potentially link to a chat page: router.push(`/team-chat/${project.id}`);
-                alert(`Open team chat for ${project.name}`);
-            }}
-            className="inline-flex items-center justify-center px-3 py-1.5 border border-gray-700 text-sm font-medium shadow-sm text-gray-300 bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 focus:ring-offset-slate-900"
-        >
-            <FaComments className="mr-1.5 h-4 w-4" /> Open Team Chat
-        </button>
       </div>
-
-      {/* Badges/Controls Section */}
-      <div className="mb-4 space-y-2 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+      {/* --- END NEW BUTTONS SECTION --- */}
+      <div className="mt-2 mb-4 space-y-3 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
         <div className="flex-shrink-0">
           <label htmlFor={`badge1-${project.id}`} className="sr-only">Badge 1 / Status</label>
           <select 
@@ -252,8 +272,8 @@ function SortableProjectCard({
             value={project.badge1 || 'Pending_setup'} 
             onChange={(e) => handleBadgeChange(project.id, 'badge1', e.target.value)}
             disabled={updatingItemId === project.id}
-            className={`${getBadgeStyle(project.badge1 || 'Pending_setup')} text-xs p-1 min-w-[90px]`}
-            onClick={(e) => e.stopPropagation()} 
+            className={getBadgeStyle(project.badge1 || 'Pending_setup')}
+            onClick={(e) => e.stopPropagation()} // Prevent drag start on select click
           >
             {badge1Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
           </select>
@@ -265,8 +285,8 @@ function SortableProjectCard({
             value={project.badge2 || ''} 
             onChange={(e) => handleBadgeChange(project.id, 'badge2', e.target.value)}
             disabled={updatingItemId === project.id}
-            className={`${getBadge2Style(project.badge2 || '')} text-xs p-1 min-w-[90px]`}
-            onClick={(e) => e.stopPropagation()} 
+            className={getBadge2Style(project.badge2 || '')}
+            onClick={(e) => e.stopPropagation()} // Prevent drag start on select click
           >
             <option value="">Badge 2...</option>
             {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
@@ -279,8 +299,8 @@ function SortableProjectCard({
             value={project.badge3 || ''} 
             onChange={(e) => handleBadgeChange(project.id, 'badge3', e.target.value)}
             disabled={updatingItemId === project.id}
-            className={`${getBadge3Style(project.badge3 || '')} text-xs p-1 min-w-[90px]`}
-            onClick={(e) => e.stopPropagation()} 
+            className={getBadge3Style(project.badge3 || '')}
+            onClick={(e) => e.stopPropagation()} // Prevent drag start on select click
           >
             <option value="">Badge 3...</option>
             {badge3Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
@@ -293,8 +313,8 @@ function SortableProjectCard({
             value={project.badge4 || ''} 
             onChange={(e) => handleBadgeChange(project.id, 'badge4', e.target.value)}
             disabled={updatingItemId === project.id}
-            className={`${getBadge2Style(project.badge4 || '')} text-xs p-1 min-w-[90px]`}
-            onClick={(e) => e.stopPropagation()} 
+            className={getBadge2Style(project.badge4 || '')} 
+            onClick={(e) => e.stopPropagation()} // Prevent drag start on select click
           >
             <option value="">Badge 4...</option>
             {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
@@ -307,38 +327,20 @@ function SortableProjectCard({
             value={project.badge5 || ''} 
             onChange={(e) => handleBadgeChange(project.id, 'badge5', e.target.value)}
             disabled={updatingItemId === project.id}
-            className={`${getBadge2Style(project.badge5 || '')} text-xs p-1 min-w-[90px]`}
-            onClick={(e) => e.stopPropagation()} 
+            className={getBadge2Style(project.badge5 || '')} 
+            onClick={(e) => e.stopPropagation()} // Prevent drag start on select click
           >
             <option value="">Badge 5...</option>
             {badge2Options.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
           </select>
         </div>
       </div>
-
-      {/* Footer/Description Section */}
       {project.project_brief ? (
-        <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-2">
+        <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-3">
           {project.project_brief}
         </p>
       ) : (
-        <p className="text-sm text-gray-500 italic">No project brief available.</p>
-      )}
-
-      {/* Conditional Delete Button - Will be styled and moved separately */}
-      {(project.currentUserRole === ProjectRole.ProjectManager || project.user_id === userId) && (
-        <div className="absolute bottom-6 right-6"> 
-          <button 
-              onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click/drag
-                  openDeleteModal(project.id, project.name);
-              }}
-              className="inline-flex items-center justify-center px-2 py-1 border border-gray-700 text-xs font-medium shadow-sm text-gray-400 bg-black hover:text-red-500 hover:border-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 focus:ring-offset-gray-900"
-              title="Delete Project"
-          >
-              <FaTrash className="mr-1 h-3 w-3" /> Delete
-          </button>
-        </div>
+        <p className="text-sm text-gray-500 italic">No project brief available. Click to add details.</p>
       )}
     </div>
   );
@@ -640,7 +642,6 @@ export default function MyProjectsPage() {
                     handleBadgeChange={handleBadgeChange}
                     handleIsFeaturedToggle={handleIsFeaturedToggle}
                     openDeleteModal={openDeleteModal}
-                    userId={user?.id}
                     getCardDynamicBorderStyle={getCardDynamicBorderStyle}
                     getPriorityOrderValue={getPriorityOrderValue}
                     badge1Options={badge1Options}
