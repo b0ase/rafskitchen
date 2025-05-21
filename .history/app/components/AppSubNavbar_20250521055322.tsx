@@ -70,7 +70,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
       : 'hidden');
 
   return (
-    <div className={`bg-black text-gray-300 sticky top-[92px] z-40 transition-all duration-300 ease-in-out border-t border-gray-700`}>
+    <div className={`bg-black text-gray-300 sticky top-[92px] z-30 transition-all duration-300 ease-in-out border-t border-gray-700`}>
       <div className="container mx-auto px-2 sm:px-4">
         {/* Welcome section RESTORED */}
         {isExpanded && (

@@ -70,7 +70,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
       : 'hidden');
 
   return (
-    <div className={`bg-black text-gray-300 sticky top-[92px] z-40 transition-all duration-300 ease-in-out border-t border-gray-700`}>
+    <div className={`bg-black text-gray-300 sticky top-[92px] z-30 transition-all duration-300 ease-in-out border-t border-gray-700`}>
       <div className="container mx-auto px-2 sm:px-4">
         {/* Welcome section RESTORED */}
         {isExpanded && (
@@ -139,7 +139,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
                       <FaChevronDown className={`h-3 w-3 ml-2 transition-transform ${isRoleDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isRoleDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-max bg-black border border-gray-700 rounded-md shadow-lg z-40 py-1">
+                      <div className="absolute top-full left-0 mt-1 w-max bg-black border border-gray-700 rounded-md shadow-lg z-10 py-1">
                         <a /* For Client - no href for now */ className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white whitespace-nowrap">Client</a>
                         <a /* For Freelancer - no href for now */ className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white whitespace-nowrap">Freelancer</a>
                         <Link href="/careers" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white whitespace-nowrap" onClick={() => setIsRoleDropdownOpen(false)}>Staff</Link>

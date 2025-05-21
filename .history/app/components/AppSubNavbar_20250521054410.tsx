@@ -64,15 +64,14 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
   // Determine which links to display based on the expanded state and screen size
   const displayedLinks = isExpanded ? navLinks : navLinks; // Always show all links
   const linkContainerClasses = isExpanded 
-    ? 'flex flex-wrap items-center gap-2 p-2 justify-start' // Changed to match collapsed desktop view
+    ? 'grid gap-2 p-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 max-h-[60vh] overflow-y-auto' 
     : (isDesktop 
-      ? 'flex flex-wrap items-center gap-2 p-2 justify-start' 
-      : 'hidden');
+      ? 'flex flex-wrap items-center gap-2 p-2 justify-start' // Changed justify-center to justify-start
+      : 'hidden'); // Hide buttons in collapsed mobile view
 
   return (
-    <div className={`bg-black text-gray-300 sticky top-[92px] z-40 transition-all duration-300 ease-in-out border-t border-gray-700`}>
+    <div className={`bg-black text-gray-300 sticky top-[92px] z-30 transition-all duration-300 ease-in-out border-t border-gray-700`}>
       <div className="container mx-auto px-2 sm:px-4">
-        {/* Welcome section RESTORED */}
         {isExpanded && (
           <div className="py-6 text-center border-b border-gray-700">
             <FaRocket className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-sky-400 opacity-90" />
@@ -139,7 +138,7 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
                       <FaChevronDown className={`h-3 w-3 ml-2 transition-transform ${isRoleDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isRoleDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-max bg-black border border-gray-700 rounded-md shadow-lg z-40 py-1">
+                      <div className="absolute top-full left-0 mt-1 w-max bg-black border border-gray-700 rounded-md shadow-lg z-10 py-1">
                         <a /* For Client - no href for now */ className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white whitespace-nowrap">Client</a>
                         <a /* For Freelancer - no href for now */ className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white whitespace-nowrap">Freelancer</a>
                         <Link href="/careers" className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 hover:text-white whitespace-nowrap" onClick={() => setIsRoleDropdownOpen(false)}>Staff</Link>
@@ -157,9 +156,9 @@ export default function AppSubNavbar({ initialIsExpanded, onCollapse, user }: Ap
               
               let layoutClasses = '';
               if (isExpanded) {
-                layoutClasses = 'flex-shrink-0 flex items-center justify-center'; // Changed to match collapsed desktop view
+                layoutClasses = 'flex items-center justify-start w-full text-left min-h-[48px]';
               } else if (isDesktop) {
-                layoutClasses = 'flex-shrink-0 flex items-center justify-center'; 
+                layoutClasses = 'flex-shrink-0 flex items-center justify-center'; // Desktop collapsed buttons
               } else {
                 layoutClasses = 'flex-shrink-0 flex items-center justify-center'; // Mobile collapsed buttons
               }
