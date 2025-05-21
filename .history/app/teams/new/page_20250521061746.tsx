@@ -4,8 +4,7 @@ import React, { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaPlusSquare, FaSpinner, FaExclamationCircle, FaUsers, FaDatabase, FaPalette, FaBolt, FaCloud, FaLightbulb, FaBrain, FaQuestionCircle, FaNetworkWired, FaServer, FaCodeBranch, FaMicrochip, FaSitemap } from 'react-icons/fa';
-import { FaGears, FaCubes, FaDiagramProject, FaWaveSquare, FaRobot, FaSatelliteDish, FaRoute, FaCircleNodes } from 'react-icons/fa6';
-import { FiActivity, FiBriefcase, FiCloudLightning, FiCpu, FiHardDrive, FiLayers, FiShield, FiTerminal, FiZap, FiDatabase as FiDb, FiBox, FiCodesandbox, FiCommand, FiHash, FiLink } from 'react-icons/fi';
+import { FiActivity, FiBriefcase, FiCloudLightning, FiCpu, FiHardDrive, FiLayers, FiShield, FiTerminal, FiZap, FiDatabase as FiDb } from 'react-icons/fi';
 
 // Interface for ColorScheme
 interface ColorScheme {
@@ -40,31 +39,11 @@ const iconMap: { [key: string]: React.ElementType } = {
   FiShield,
   FiTerminal,
   FiZap,
-  FaGears,
-  FaCubes,
-  FaDiagramProject,
-  FaWaveSquare,
-  FaRobot,
-  FaSatelliteDish,
-  FaRoute,
-  FaCircleNodes,
-  FiBox,
-  FiCodesandbox,
-  FiCommand,
-  FiHash,
-  FiLink,
 };
 const iconNames = Object.keys(iconMap);
 
-// Updated predefined color schemes with subtle gradients - Expanded List to ~48 and Reordered
+// Updated predefined color schemes with subtle gradients - Expanded and Reordered List
 const predefinedColorSchemes: ColorScheme[] = [
-  // Black/Dark with Light Borders (Grouped)
-  { name: 'Onyx Glow', bgColor: 'bg-black', textColor: 'text-white', borderColor: 'border-gray-400' },
-  { name: 'Deep Space', bgColor: 'bg-neutral-900', textColor: 'text-neutral-200', borderColor: 'border-neutral-500' },
-  { name: 'Matte Black', bgColor: 'bg-gradient-to-br from-black to-neutral-900', textColor: 'text-gray-300', borderColor: 'border-gray-600' },
-  { name: 'Obsidian Edge', bgColor: 'bg-gradient-to-br from-gray-900 to-black', textColor: 'text-gray-200', borderColor: 'border-gray-500' },
-  { name: 'Charcoal White', bgColor: 'bg-neutral-800', textColor: 'text-neutral-100', borderColor: 'border-neutral-300' }, 
-
   // Grays & Neutrals
   { name: 'Stone Gray', bgColor: 'bg-gradient-to-br from-stone-700 to-stone-800', textColor: 'text-stone-300', borderColor: 'border-stone-600' }, 
   { name: 'Charcoal Flow', bgColor: 'bg-gradient-to-br from-neutral-700 to-neutral-800', textColor: 'text-neutral-300', borderColor: 'border-neutral-600' },
@@ -84,20 +63,17 @@ const predefinedColorSchemes: ColorScheme[] = [
   { name: 'Azure Sky', bgColor: 'bg-gradient-to-r from-sky-700 to-blue-800', textColor: 'text-sky-300', borderColor: 'border-sky-600' },
   { name: 'Deep Ocean', bgColor: 'bg-gradient-to-br from-blue-800 to-sky-900', textColor: 'text-blue-200', borderColor: 'border-blue-700' },
   { name: 'Deep Cyan', bgColor: 'bg-gradient-to-r from-sky-800 to-cyan-900', textColor: 'text-sky-300', borderColor: 'border-sky-700' },
-  { name: 'Sapphire Stream', bgColor: 'bg-gradient-to-br from-blue-700 to-indigo-800', textColor: 'text-blue-200', borderColor: 'border-blue-600' },
 
   // Teals & Aquas
   { name: 'Twilight Teal', bgColor: 'bg-gradient-to-br from-teal-700 to-cyan-800', textColor: 'text-teal-200', borderColor: 'border-teal-600' },
   { name: 'Emerald Sea', bgColor: 'bg-gradient-to-tl from-emerald-700 to-teal-800', textColor: 'text-emerald-200', borderColor: 'border-emerald-600' },
   { name: 'Aqua Marine', bgColor: 'bg-gradient-to-r from-cyan-800 to-teal-900', textColor: 'text-cyan-300', borderColor: 'border-cyan-700' },
   { name: 'Dark Teal', bgColor: 'bg-gradient-to-tl from-teal-800 to-cyan-900', textColor: 'text-teal-200', borderColor: 'border-teal-700' },
-  { name: 'Seafoam Mist', bgColor: 'bg-gradient-to-br from-green-600 to-teal-700', textColor: 'text-green-100', borderColor: 'border-green-500' },
   
   // Greens & Limes
   { name: 'Forest Whisper', bgColor: 'bg-gradient-to-br from-emerald-800 to-green-900', textColor: 'text-emerald-200', borderColor: 'border-emerald-700' },
   { name: 'Olive Drab', bgColor: 'bg-gradient-to-bl from-lime-800 to-green-900', textColor: 'text-lime-200', borderColor: 'border-lime-700' },
   { name: 'Mossy Green', bgColor: 'bg-gradient-to-r from-green-800 to-lime-900', textColor: 'text-green-300', borderColor: 'border-green-700' },
-  { name: 'Jade Bloom', bgColor: 'bg-gradient-to-br from-green-700 to-emerald-800', textColor: 'text-green-200', borderColor: 'border-green-600' },
 
   // Yellows & Ambers & Oranges
   { name: 'Amber Haze', bgColor: 'bg-gradient-to-br from-amber-700 to-yellow-800', textColor: 'text-amber-200', borderColor: 'border-amber-600' },
@@ -105,14 +81,12 @@ const predefinedColorSchemes: ColorScheme[] = [
   { name: 'Bright Amber', bgColor: 'bg-gradient-to-r from-amber-600 to-yellow-700', textColor: 'text-amber-300', borderColor: 'border-amber-500' },
   { name: 'Burnt Orange', bgColor: 'bg-gradient-to-r from-red-700 to-orange-800', textColor: 'text-red-300', borderColor: 'border-red-600' },
   { name: 'Copper Rust', bgColor: 'bg-gradient-to-bl from-orange-700 to-red-800', textColor: 'text-orange-200', borderColor: 'border-orange-600' },
-  { name: 'Sunset Glow', bgColor: 'bg-gradient-to-br from-orange-600 to-yellow-700', textColor: 'text-orange-100', borderColor: 'border-orange-500' },
 
   // Reds & Roses & Pinks
   { name: 'Muted Rose', bgColor: 'bg-gradient-to-br from-rose-800 to-pink-900', textColor: 'text-rose-200', borderColor: 'border-rose-700' },
   { name: 'Crimson Fall', bgColor: 'bg-gradient-to-tl from-red-800 to-rose-900', textColor: 'text-red-200', borderColor: 'border-red-700' },
   { name: 'Ruby Glow', bgColor: 'bg-gradient-to-r from-rose-700 to-red-800', textColor: 'text-rose-300', borderColor: 'border-rose-600' },
   { name: 'Rich Magenta', bgColor: 'bg-gradient-to-r from-pink-800 to-fuchsia-900', textColor: 'text-pink-300', borderColor: 'border-pink-700' },
-  { name: 'Coral Reef', bgColor: 'bg-gradient-to-br from-red-600 to-pink-700', textColor: 'text-red-100', borderColor: 'border-red-500' },
 
   // Purples & Violets & Indigos
   { name: 'Plum Velvet', bgColor: 'bg-gradient-to-bl from-fuchsia-800 to-purple-900', textColor: 'text-fuchsia-200', borderColor: 'border-fuchsia-700' },
@@ -121,8 +95,7 @@ const predefinedColorSchemes: ColorScheme[] = [
   { name: 'Midnight Bloom', bgColor: 'bg-gradient-to-br from-indigo-800 to-purple-900', textColor: 'text-indigo-200', borderColor: 'border-indigo-700' },
   { name: 'Dark Violet', bgColor: 'bg-gradient-to-r from-violet-800 to-indigo-900', textColor: 'text-violet-300', borderColor: 'border-violet-700' },
   { name: 'Deep Indigo', bgColor: 'bg-gradient-to-r from-indigo-900 to-purple-900', textColor: 'text-indigo-300', borderColor: 'border-indigo-800' },
-  { name: 'Lavender Dream', bgColor: 'bg-gradient-to-br from-purple-600 to-violet-700', textColor: 'text-purple-100', borderColor: 'border-purple-500' },
-]; // Total of 47 colors
+];
 
 // Helper function to generate a slug
 const generateSlug = (name: string): string => {
@@ -324,14 +297,14 @@ export default function NewTeamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-start mb-12">
-          <FaPlusSquare className="text-5xl text-sky-500 mr-6" />
+        <div className="flex justify-between items-center mb-12">
           <div>
             <h1 className="text-4xl font-bold text-white">Start a New Team</h1>
-            <p className="mt-2 text-lg text-gray-400">
+            <p className="mt-3 text-lg text-gray-400">
               Create a collaborative space for your projects and initiatives.
             </p>
           </div>
+          <FaPlusSquare className="text-5xl text-sky-500" />
         </div>
 
         <div className="bg-black shadow-xl rounded-lg p-8 border border-gray-700">
@@ -377,7 +350,7 @@ export default function NewTeamPage() {
               <label htmlFor="teamIcon" className="block text-sm font-medium text-gray-300 mb-1.5">
                 Team Icon
               </label>
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-[repeat(9,minmax(0,1fr))] lg:grid-cols-12 gap-2 mt-2">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2 mt-2">
                 {iconNames.map((iconKey) => {
                   const IconComponent = iconMap[iconKey];
                   return (
@@ -401,8 +374,7 @@ export default function NewTeamPage() {
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Team Color Scheme
               </label>
-              {/* Updated grid for ~48 color swatches */}
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-[repeat(8,minmax(0,1fr))] lg:grid-cols-12 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {predefinedColorSchemes.map((scheme) => {
                   const displayName = scheme.name || "Color Scheme";
                   return (

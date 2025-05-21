@@ -324,11 +324,11 @@ export default function NewTeamPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-gray-300 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-start mb-12">
-          <FaPlusSquare className="text-5xl text-sky-500 mr-6" />
+        <div className="flex items-center mb-12">
+          <FaPlusSquare className="text-5xl text-sky-500 mr-4" />
           <div>
             <h1 className="text-4xl font-bold text-white">Start a New Team</h1>
-            <p className="mt-2 text-lg text-gray-400">
+            <p className="mt-3 text-lg text-gray-400">
               Create a collaborative space for your projects and initiatives.
             </p>
           </div>
