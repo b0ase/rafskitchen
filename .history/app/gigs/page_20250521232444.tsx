@@ -181,33 +181,16 @@ export default function GigsPage() {
         setError(fetchError.message);
         setGigs(transformedStaticGigs);
       } else if (supabaseGigsData) {
-        const processedSupabaseGigs = (supabaseGigsData as any[]).map(item => {
-          // Explicitly construct the Gig object, providing defaults
-          const gig: Gig = {
-            id: String(item?.id || `fallback-${Math.random()}`),
-            user_id: item?.user_id || null,
-            title: item?.title || 'Untitled Gig',
-            description: item?.description || 'No description available.',
-            category: item?.category || null,
-            sub_category: item?.sub_category || null,
-            skills_required: Array.isArray(item?.skills_required) ? item.skills_required : [],
-            budget_type: item?.budget_type || 'negotiable',
-            budget_amount_min: typeof item?.budget_amount_min === 'number' ? item.budget_amount_min : null,
-            budget_amount_max: typeof item?.budget_amount_max === 'number' ? item.budget_amount_max : null,
-            currency: item?.currency || 'USD',
-            status: item?.status || 'draft',
-            is_published: typeof item?.is_published === 'boolean' ? item.is_published : false,
-            location_preference: item?.location_preference || 'remote',
-            tags: Array.isArray(item?.tags) ? item.tags : [],
-            deadline: item?.deadline || null,
-            created_at: item?.created_at || new Date().toISOString(),
-            updated_at: item?.updated_at || new Date().toISOString(),
-            thumbnailUrl: item?.thumbnailUrl || null,
-            profiles: (item?.profiles && typeof item.profiles === 'object') ? item.profiles : null,
-          };
-          return gig;
-        });
-        setGigs([...transformedStaticGigs, ...processedSupabaseGigs]);
+        // Filter out any potential null/undefined entries and ensure structure matches Gig before assertion
+        const validSupabaseGigs = supabaseGigsData.filter(gig => gig && gig.id).map(gig => ({
+          ...gig,
+          // Ensure profiles is structured as expected or null
+          profiles: gig.profiles && gig.profiles.display_name !== undefined ? gig.profiles : null,
+          // Ensure skills_required and tags are arrays or null
+          skills_required: Array.isArray(gig.skills_required) ? gig.skills_required : (typeof gig.skills_required === 'string' ? gig.skills_required.split(',').map(s=>s.trim()) : null),
+          tags: Array.isArray(gig.tags) ? gig.tags : (typeof gig.tags === 'string' ? gig.tags.split(',').map(t=>t.trim()) : null),
+        })) as Gig[];
+        setGigs([...transformedStaticGigs, ...validSupabaseGigs]);
       } else {
         setGigs(transformedStaticGigs);
       }

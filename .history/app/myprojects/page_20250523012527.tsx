@@ -385,21 +385,22 @@ export default function MyProjectsPage() {
     setError(null);
 
     try {
-      // 1. Fetch ALL projects from the projects table (removed owner_user_id filter)
-      const { data: allProjectsData, error: projectsError } = await supabase
+      // 1. Fetch projects where the current user is the owner_user_id
+      const { data: ownedProjectsData, error: ownedError } = await supabase
         .from('projects')
-        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public'); // Removed client_id and clients join as we are getting all projects
+        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public, client_id, clients ( user_id, name, email )')
+        .eq('owner_user_id', user.id);
 
-      if (projectsError) {
-        console.error('ALL PROJECTS FETCH ERROR:', projectsError);
-        setError('Failed to fetch all projects.');
+      if (ownedError) {
+        console.error('OWNED PROJECTS FETCH ERROR:', ownedError);
+        setError('Failed to fetch owned projects.');
       }
 
       const combinedProjects: ClientProject[] = [];
       const projectMap = new Map<string, ClientProject>();
 
-      // Process all fetched projects
-      (allProjectsData || []).forEach(p => {
+      // Process owned projects
+      (ownedProjectsData || []).forEach(p => {
         const project: ClientProject = {
           id: p.id,
           name: p.name,
@@ -431,7 +432,7 @@ export default function MyProjectsPage() {
       setLoading(false);
     }
   }, [user, supabase]);
-
+  
   useEffect(() => {
     if (!authLoading && user) { // Check if auth is done loading AND user exists
       fetchProjectsAndRoles();

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaArrowLeft, FaSave, FaTimesCircle, FaSpinner, FaEdit, FaProjectDiagram, FaTrash, FaPlus, FaCheckSquare, FaRegSquare, FaUsers, FaUserPlus } from 'react-icons/fa';
-import { useAuth } from '@/app/components/Providers';
 
 // Interface matching the one in MyProjectsPage (ideally share this)
 interface ClientProject {
@@ -57,15 +56,6 @@ interface ProjectMemberDetail {
 }
 // --- END ProjectMemberDetail Interface ---
 
-// ADD THE FOLLOWING INTERFACE
-interface ProjectWebsiteInfo {
-  id: string;
-  url: string | null;
-  git_repository_url: string | null;
-  hosting_details: { production_url?: string; vercel_project_id?: string; [key: string]: any } | null;
-  // Add other fields from project_websites if needed
-}
-
 // Badge options (ideally share these)
 const badge1Options = ['Pending_setup', 'Planning', 'In Development', 'Live', 'Maintenance', 'On Hold', 'Archived', 'Needs Review', 'Completed', 'Requires Update'];
 const badge2Options = ['SaaS', 'Mobile App', 'Website', 'E-commerce', 'AI/ML', 'Consulting', 'Internal Tool', 'Web3/Blockchain', 'Creative Services', 'Platform', 'Service'];
@@ -106,21 +96,15 @@ const getBadge3Style = (badgeValue: string | null): string => {
 
 
 export default function ProjectDetailPage() {
-  const supabaseClient = createClientComponentClient(); // Keep this if needed for specific calls outside of auth context
-  const { session, isLoading: authLoading, supabase } = useAuth(); // Correctly destructure from useAuth
-  const user = session?.user ?? null; // Derive user from session
+  const supabase = createClientComponentClient();
   const params = useParams();
   const router = useRouter();
-  const slug = params?.slug ? (Array.isArray(params.slug) ? params.slug[0] : params.slug) : undefined;
+  const slug = params.slug as string;
 
+  const [user, setUser] = useState<User | null>(null);
   const [project, setProject] = useState<ClientProject | null>(null);
-  const [projectWebsiteInfo, setProjectWebsiteInfo] = useState<ProjectWebsiteInfo | null>(null);
   const [editableName, setEditableName] = useState('');
   const [editableBrief, setEditableBrief] = useState('');
-  const [editableStatus, setEditableStatus] = useState('');
-  const [editableTimeline, setEditableTimeline] = useState('');
-  const [originalMembers, setOriginalMembers] = useState<ProjectMemberDetail[]>([]);
-  const [currentMembers, setCurrentMembers] = useState<ProjectMemberDetail[]>([]);
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingBrief, setIsEditingBrief] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -150,132 +134,106 @@ export default function ProjectDetailPage() {
   // --- END State for Project Members ---
 
   const fetchProjectDetails = useCallback(async () => {
-    console.log('fetchProjectDetails called');
-    console.log('fetchProjectDetails - user:', user);
-    console.log('fetchProjectDetails - params:', params);
-    console.log('fetchProjectDetails - params.slug:', params?.slug);
+    if (!slug) return;
+    setLoading(true);
+    setError(null);
 
-    if (!user || !params || !params.slug) {
-      setLoading(false); // Ensure loading is false if pre-conditions aren't met
-      setError('Authentication required or project slug missing.');
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) {
+      setError('You must be logged in to view this page.');
+      setLoading(false);
+      // Optionally redirect to login: router.push('/login');
+      return;
+    }
+    setUser(authUser);
+
+    // Step 1: Fetch project by slug first to get its ID and owner_id
+    const { data: projectData, error: projectFetchError } = await supabase
+      .from('clients')
+      .select('*') // Fetch all columns
+      .eq('project_slug', slug)
+      .single();
+
+    if (projectFetchError || !projectData) {
+      console.error('Error fetching project by slug:', projectFetchError);
+      setError('Could not load project details or project not found.');
+      setProject(null);
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    const slugFromParams = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+    // Step 2: Check authorization
+    const isOwner = projectData.user_id === authUser.id;
+    let isCollaborator = false;
 
-    try {
-      // *** MODIFIED LOGIC: Prioritize fetching from 'projects' table by slug and owner_user_id ***
-      const { data: projectOwnerData, error: projectOwnerError } = await supabase
-        .from('projects')
-        .select('*, client_id') // Fetch all project fields
-        .eq('slug', slugFromParams)
-        .eq('owner_user_id', user.id)
-        .single();
+    if (!isOwner) {
+      const { data: projectUserEntry, error: projectUserError } = await supabase
+        .from('project_users')
+        .select('user_id')
+        .eq('project_id', projectData.id)
+        .eq('user_id', authUser.id)
+        .maybeSingle(); // Use maybeSingle as there should be at most one entry
 
-      console.log('Fetch from projects table (owner check):', { projectOwnerData, projectOwnerError });
-
-      if (projectOwnerData) {
-        // Found project as owner, use this data
-        // Adapt projectOwnerData structure to match ClientProject interface if necessary
-        // Assuming projectOwnerData structure from 'projects' is compatible or can be mapped
-        const projectData: ClientProject = { // Map fields as needed
-          id: projectOwnerData.id,
-          name: projectOwnerData.name,
-          project_slug: projectOwnerData.slug,
-          status: projectOwnerData.status, // Use project status
-          project_brief: projectOwnerData.project_brief,
-          badge1: projectOwnerData.badge1,
-          badge2: projectOwnerData.badge2,
-          badge3: projectOwnerData.badge3,
-          badge4: projectOwnerData.badge4,
-          badge5: projectOwnerData.badge5,
-          is_featured: projectOwnerData.is_featured,
-          url: projectOwnerData.url, // Assuming url is on projects table or fetched later
-          user_id: projectOwnerData.owner_user_id, // Set to owner_user_id
-          created_at: projectOwnerData.created_at,
-          is_public: projectOwnerData.is_public,
-          // Add other fields if available in projects table and needed
-        };
-        setProject(projectData);
-        setEditableName(projectData.name || projectData.project_slug || '');
-        setEditableBrief(projectData.project_brief || '');
-        // Note: Status/Timeline from projects table might need separate handling if they exist
-
-        // NOW, FETCH ASSOCIATED DATA like website info, members etc. using projectData.id
-        // Fetch Website Info (using the project ID we just got)
-        const { data: websiteData, error: websiteError } = await supabase
-          .from('project_websites')
-          .select('id, url, git_repository_url, hosting_details')
-          .eq('project_id', projectData.id) // Use the ID from the projects table
-          .maybeSingle();
-
-        if (websiteError) {
-          console.warn('Error fetching project website details:', websiteError.message);
-        }
-        setProjectWebsiteInfo(websiteData as ProjectWebsiteInfo | null);
-
-        // TODO: Fetch project members similarly using projectData.id
-
-      } else if (projectOwnerError?.code === 'PGRST116') { // No row found in projects table for owner
-        // If not found as owner, try fetching from the 'clients' table
-        const { data: clientData, error: clientError } = await supabase
-          .from('clients')
-          .select('*')
-          .eq('project_slug', slugFromParams)
-          .eq('user_id', user.id) // Check if current user is the client associated
-          .single();
-
-        console.log('Fetch from clients table (fallback):', { clientData, clientError });
-
-        if (clientData) {
-          // Found project via client association, use this data
-          setProject(clientData as ClientProject); // Assuming clientData is compatible with ClientProject
-          setEditableName(clientData.name || clientData.project_slug || '');
-          setEditableBrief(clientData.project_brief || '');
-          // Set other editable states based on clientData fields
-
-          // NOW, FETCH ASSOCIATED DATA like website info, members etc. using clientData.project_id or clientData.id
-          // This part might need adjustment depending on which ID to use for related tables
-          // If clientData has project_id, use that. Otherwise, the logic is complex.
-          // Assuming for now project_id on client matches the project ID in the projects table.
-          const mainProjectIdForClient = (clientData as any).project_id || clientData.id; // Adjust as needed
-
-          const { data: websiteData, error: websiteError } = await supabase
-            .from('project_websites')
-            .select('id, url, git_repository_url, hosting_details')
-            .eq('project_id', mainProjectIdForClient) // Use the appropriate project ID
-            .maybeSingle();
-
-          if (websiteError) {
-            console.warn('Error fetching project website details (client fallback):', websiteError.message);
-          }
-          setProjectWebsiteInfo(websiteData as ProjectWebsiteInfo | null);
-
-          // TODO: Fetch project members similarly using mainProjectIdForClient or clientData.id
-
-        } else if (clientError?.code === 'PGRST116') { // Not found as client either
-          setError('Project not found or you do not have access.');
-        } else if (clientError) {
-          console.error('Error fetching project from clients table:', clientError);
-          setError('Failed to load project details via client association.');
-        }
-
-      } else if (projectOwnerError) { // Other error fetching from projects table as owner
-        console.error('Error fetching project from projects table (owner check):', projectOwnerError);
-        setError('Failed to load project details via ownership check.');
-      } else { // Should not happen if single() is used, but as a safeguard
-           setError('Project not found or unexpected data.');
+      if (projectUserError) {
+        console.error('Error checking project_users:', projectUserError);
+        // Potentially allow if owner, but log error. For now, we can be strict.
+        setError('Could not verify project access. Please try again.');
+        setProject(null);
+        setLoading(false);
+        return;
       }
-
-    } catch (e: any) {
-      console.error('General error fetching project details:', e.message);
-      setError('An unexpected error occurred while loading project details.');
-    } finally {
-      setLoading(false);
+      if (projectUserEntry) {
+        isCollaborator = true;
+      }
     }
-  }, [user, params, supabase]); // Dependencies
+
+    if (isOwner || isCollaborator) {
+      setProject(projectData as ClientProject);
+      setEditableName(projectData.name || '');
+      setEditableBrief(projectData.project_brief || '');
+
+      // --- NEW: Fetch project members after project details are loaded and access is confirmed ---
+      const { data: memberEntries, error: memberError } = await supabase
+        .from('project_users')
+        .select('user_id')
+        .eq('project_id', projectData.id);
+
+      if (memberError) {
+        console.error("Error fetching project member IDs:", memberError);
+      } else if (memberEntries) {
+        const memberIds = memberEntries.map(m => m.user_id);
+        if (memberIds.length > 0) {
+          setLoadingMembers(true);
+          const { data: profilesData, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, display_name, avatar_url, username')
+            .in('id', memberIds);
+          
+          if (profilesError) {
+            console.error("Error fetching member profiles:", profilesError);
+            setProjectMembers([]);
+          } else {
+            setProjectMembers(profilesData?.map(p => ({
+              user_id: p.id,
+              display_name: p.display_name,
+              avatar_url: p.avatar_url,
+              username: p.username,
+            })) || []);
+          }
+          setLoadingMembers(false);
+        } else {
+          setProjectMembers([]); // No members found in project_users
+        }
+      }
+      // --- END NEW: Fetch project members ---
+
+    } else {
+      setError('Access Denied: You do not have permission to view this project.');
+      setProject(null);
+    }
+
+    setLoading(false);
+  }, [slug, supabase, router]);
 
   // --- TODO Functions ---
   const fetchProjectTodos = useCallback(async (currentProjectId: string) => {
@@ -808,67 +766,6 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
                 </div>
-                
-                {/* NEW DEPLOYMENT INFORMATION CARD START */}
-                {projectWebsiteInfo && (
-                  <div className="bg-slate-850/30 p-4 rounded-md border border-slate-700 mb-8">
-                    <h2 className="text-xl font-semibold text-sky-300 mb-3">Deployment Information</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      {projectWebsiteInfo.url && (
-                        <div>
-                          <span className="text-gray-500">Production URL: </span>
-                          <a 
-                            href={projectWebsiteInfo.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sky-400 hover:text-sky-300 underline break-all"
-                          >
-                            {projectWebsiteInfo.url}
-                          </a>
-                        </div>
-                      )}
-                      {projectWebsiteInfo.git_repository_url && (
-                        <div>
-                          <span className="text-gray-500">Git Repository: </span>
-                          <a 
-                            href={projectWebsiteInfo.git_repository_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sky-400 hover:text-sky-300 underline break-all"
-                          >
-                            {projectWebsiteInfo.git_repository_url}
-                          </a>
-                        </div>
-                      )}
-                      {projectWebsiteInfo.hosting_details?.vercel_project_id && (
-                        <div>
-                          <span className="text-gray-500">Vercel Project ID: </span>
-                          <span className="text-gray-300 break-all">
-                            {projectWebsiteInfo.hosting_details.vercel_project_id}
-                          </span>
-                        </div>
-                      )}
-                       {projectWebsiteInfo.hosting_details?.production_url && !projectWebsiteInfo.url && (
-                        // Fallback if top-level URL is not set but hosting_details has one
-                        <div>
-                          <span className="text-gray-500">Production URL (from Hosting): </span>
-                          <a 
-                            href={projectWebsiteInfo.hosting_details.production_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-sky-400 hover:text-sky-300 underline break-all"
-                          >
-                            {projectWebsiteInfo.hosting_details.production_url}
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                    {!projectWebsiteInfo.url && !projectWebsiteInfo.git_repository_url && !projectWebsiteInfo.hosting_details?.vercel_project_id && (
-                        <p className="text-xs text-gray-500 italic">(No deployment details available)</p>
-                    )}
-                  </div>
-                )}
-                {/* NEW DEPLOYMENT INFORMATION CARD END */}
                 
                 {error && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-6 text-sm shadow">Error: {error}</p>}
 

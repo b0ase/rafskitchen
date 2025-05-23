@@ -3,7 +3,7 @@
 import React, { useEffect, useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { FaRocket, FaSave, FaSpinner, FaGithub, FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaTelegramPlane, FaFacebook, FaLinkedin, FaUsers, FaCoins, FaUserSecret, FaGlobe } from 'react-icons/fa';
+import { FaRocket, FaSave, FaSpinner, FaGithub, FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaTelegramPlane, FaFacebook, FaLinkedin, FaUsers, FaCoins, FaUserSecret } from 'react-icons/fa';
 
 // Interface for the form data
 interface NewProjectData {
@@ -21,7 +21,6 @@ interface NewProjectData {
   addProjectTeam: boolean; // New
   addProjectToken: boolean; // New
   addProjectAgent: boolean; // New: For creating an agent
-  addProjectWebsite: boolean; // New: For creating a website
 }
 
 // Interface for data from localStorage
@@ -68,7 +67,6 @@ export default function NewProjectPage() {
     addProjectTeam: true, // Changed to true
     addProjectToken: true, // Changed to true
     addProjectAgent: true, // New: Default to true
-    addProjectWebsite: true, // New: Default to true
   });
   const [visibleSocialInputs, setVisibleSocialInputs] = useState<{ [key: string]: boolean }>({});
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
@@ -196,39 +194,79 @@ export default function NewProjectPage() {
     setError(null);
     setSuccessMessage(null);
 
-    try {
-      const response = await fetch('/api/projects/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form), // Send the whole form state
-      });
+    const projectSlug = generateSlug(form.name);
 
-      const result = await response.json();
+    const projectDataToSave = {
+      user_id: user.id,
+      name: form.name.trim(),
+      project_slug: projectSlug,
+      project_brief: form.project_brief.trim() || null,
+      what_to_build: form.what_to_build.trim() || null,
+      desired_domain_name: form.desired_domain_name.trim() || null,
+      website_url: form.website_url.trim() || null,
+      logo_url: form.logo_url.trim() || null,
+      requested_budget: form.requested_budget ? Number(form.requested_budget) : null,
+      project_type: form.project_type.trim() || null,
+      status: 'pending_setup',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      inspiration_links: form.inspiration_links.trim() ? { links: form.inspiration_links.split('\n') } : null,
+      how_heard: form.how_heard.trim() || null,
+    };
 
-      if (!response.ok) {
-        throw new Error(result.error || result.details || 'Failed to create project. Please try again.');
-      }
+    const { data: newProject, error: insertError } = await supabase
+      .from('clients')
+      .insert(projectDataToSave)
+      .select()
+      .single();
 
-      setSuccessMessage(result.message || 'Project created successfully!');
-      // Clear the form or specific fields if needed
-      // localStorage.removeItem('pendingProjectData'); // Optional: clear local storage on success
-      
-      // Redirect to the new project page or a success page
-      if (result.project && result.project.slug) {
-        router.push(`/projects/${result.project.slug}`);
-      } else {
-        // Fallback if slug isn't returned, though it should be
-        router.push('/projects'); 
-      }
-
-    } catch (submissionError: any) {
-      console.error('Submission error:', submissionError);
-      setError(submissionError.message || 'An unexpected error occurred during submission.');
-    } finally {
+    if (insertError) {
+      console.error('Error creating project:', insertError);
+      setError(`Failed to create project: ${insertError.message}. Ensure project name/slug isn't already taken for your account.`);
       setSaving(false);
+      return;
     }
+    
+    if (newProject) {
+      console.log('Project created with ID:', newProject.id);
+      
+      // Handle social links (conceptual save)
+      const socialLinksToSave = Object.entries(form.socialLinks)
+        .filter(([_, value]) => value && value.trim() !== '')
+        .map(([platform, url_or_handle]) => ({
+          project_id: newProject.id,
+          platform: platform,
+          url_or_handle: url_or_handle.trim(),
+        }));
+      if (socialLinksToSave.length > 0) {
+        console.log('Attempting to save these social links:', socialLinksToSave);
+        // Placeholder for: await supabase.from('project_social_links').insert(socialLinksToSave);
+      }
+
+      // Handle conditional Team creation
+      if (form.addProjectTeam) {
+        console.log(`TEAM CREATION: Create team named "${form.name}" for project ID ${newProject.id}`);
+        // Placeholder for: await supabase.from('teams').insert({ project_id: newProject.id, name: form.name });
+      }
+
+      // Handle conditional Token creation
+      if (form.addProjectToken) {
+        const ticker = generateTicker(form.name);
+        console.log(`TOKEN CREATION: Create token named "${form.name}" with ticker "${ticker}" for project ID ${newProject.id}`);
+        // Placeholder for: await supabase.from('tokens').insert({ project_id: newProject.id, name: form.name, ticker_symbol: ticker });
+      }
+
+      // Handle conditional Agent creation
+      if (form.addProjectAgent) {
+        console.log(`AGENT CREATION: Create an agent for project ID ${newProject.id}`);
+        // Placeholder for actual agent creation logic
+      }
+
+      setSuccessMessage('Project idea submitted successfully! Redirecting...');
+      localStorage.removeItem('pendingProjectData');
+      router.push(`/myprojects/${newProject.project_slug}`);
+    }
+    setSaving(false);
   };
 
   if (loadingUser) {
@@ -345,25 +383,8 @@ export default function NewProjectPage() {
                       </div>
                       <div className="ml-3 text-sm">
                         <label htmlFor="addProjectAgent" className="font-medium text-gray-300 flex items-center">
+                          {/* Using FaUserSecret as a placeholder icon for Agent */}
                           <FaUserSecret className="w-5 h-5 mr-2 text-indigo-400" /> Create an Agent for this Project
-                        </label>
-                      </div>
-                    </div>
-                    {/* Website Checkbox - NEW */}
-                    <div className="relative flex items-start">
-                      <div className="flex items-center h-5">
-                        <input
-                          id="addProjectWebsite"
-                          name="addProjectWebsite"
-                          type="checkbox"
-                          checked={form.addProjectWebsite}
-                          onChange={handleChange}
-                          className="focus:ring-sky-500 h-4 w-4 text-sky-600 border-gray-600 bg-gray-800 rounded"
-                        />
-                      </div>
-                      <div className="ml-3 text-sm">
-                        <label htmlFor="addProjectWebsite" className="font-medium text-gray-300 flex items-center">
-                          <FaGlobe className="w-5 h-5 mr-2 text-green-400" /> Create a Website for this Project
                         </label>
                       </div>
                     </div>

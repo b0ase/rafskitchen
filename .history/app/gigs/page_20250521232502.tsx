@@ -181,32 +181,24 @@ export default function GigsPage() {
         setError(fetchError.message);
         setGigs(transformedStaticGigs);
       } else if (supabaseGigsData) {
-        const processedSupabaseGigs = (supabaseGigsData as any[]).map(item => {
-          // Explicitly construct the Gig object, providing defaults
-          const gig: Gig = {
-            id: String(item?.id || `fallback-${Math.random()}`),
-            user_id: item?.user_id || null,
-            title: item?.title || 'Untitled Gig',
-            description: item?.description || 'No description available.',
-            category: item?.category || null,
-            sub_category: item?.sub_category || null,
-            skills_required: Array.isArray(item?.skills_required) ? item.skills_required : [],
-            budget_type: item?.budget_type || 'negotiable',
-            budget_amount_min: typeof item?.budget_amount_min === 'number' ? item.budget_amount_min : null,
-            budget_amount_max: typeof item?.budget_amount_max === 'number' ? item.budget_amount_max : null,
-            currency: item?.currency || 'USD',
-            status: item?.status || 'draft',
-            is_published: typeof item?.is_published === 'boolean' ? item.is_published : false,
-            location_preference: item?.location_preference || 'remote',
-            tags: Array.isArray(item?.tags) ? item.tags : [],
-            deadline: item?.deadline || null,
-            created_at: item?.created_at || new Date().toISOString(),
-            updated_at: item?.updated_at || new Date().toISOString(),
-            thumbnailUrl: item?.thumbnailUrl || null,
-            profiles: (item?.profiles && typeof item.profiles === 'object') ? item.profiles : null,
-          };
-          return gig;
-        });
+        // Ensure that the fetched data is properly cast to Gig[]
+        // Supabase might return data that doesn't perfectly match the Gig interface 
+        // (e.g. if thumbnailUrl is missing, it will just be undefined on the objects)
+        const processedSupabaseGigs = supabaseGigsData.map(item => ({
+          ...item,
+          id: String(item.id), // Ensure id is a string
+          title: item.title || 'Untitled Gig',
+          description: item.description || 'No description provided.',
+          // Ensure profiles is an object or null
+          profiles: item.profiles && typeof item.profiles === 'object' ? item.profiles : null,
+          // Ensure skills_required and tags are string arrays or null
+          skills_required: Array.isArray(item.skills_required) ? item.skills_required : [],
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          // budget_amount_min/max are already handled by parseFloat in transformStaticGig, ensure they are numbers or null
+          budget_amount_min: typeof item.budget_amount_min === 'number' ? item.budget_amount_min : null,
+          budget_amount_max: typeof item.budget_amount_max === 'number' ? item.budget_amount_max : null,
+          thumbnailUrl: item.thumbnailUrl || null, // Explicitly set to null if undefined
+        })) as Gig[];
         setGigs([...transformedStaticGigs, ...processedSupabaseGigs]);
       } else {
         setGigs(transformedStaticGigs);

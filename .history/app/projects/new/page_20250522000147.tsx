@@ -196,6 +196,8 @@ export default function NewProjectPage() {
     setError(null);
     setSuccessMessage(null);
 
+    // const projectSlug = generateSlug(form.name); // Slug generation is now handled by the API
+
     try {
       const response = await fetch('/api/projects/start', {
         method: 'POST',

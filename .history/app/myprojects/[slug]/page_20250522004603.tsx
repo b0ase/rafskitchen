@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
 import { FaArrowLeft, FaSave, FaTimesCircle, FaSpinner, FaEdit, FaProjectDiagram, FaTrash, FaPlus, FaCheckSquare, FaRegSquare, FaUsers, FaUserPlus } from 'react-icons/fa';
-import { useAuth } from '@/app/components/Providers';
 
 // Interface matching the one in MyProjectsPage (ideally share this)
 interface ClientProject {
@@ -106,13 +105,12 @@ const getBadge3Style = (badgeValue: string | null): string => {
 
 
 export default function ProjectDetailPage() {
-  const supabaseClient = createClientComponentClient(); // Keep this if needed for specific calls outside of auth context
-  const { session, isLoading: authLoading, supabase } = useAuth(); // Correctly destructure from useAuth
-  const user = session?.user ?? null; // Derive user from session
+  const supabase = createClientComponentClient();
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug ? (Array.isArray(params.slug) ? params.slug[0] : params.slug) : undefined;
 
+  const [user, setUser] = useState<User | null>(null);
   const [project, setProject] = useState<ClientProject | null>(null);
   const [projectWebsiteInfo, setProjectWebsiteInfo] = useState<ProjectWebsiteInfo | null>(null);
   const [editableName, setEditableName] = useState('');
@@ -150,132 +148,104 @@ export default function ProjectDetailPage() {
   // --- END State for Project Members ---
 
   const fetchProjectDetails = useCallback(async () => {
-    console.log('fetchProjectDetails called');
-    console.log('fetchProjectDetails - user:', user);
-    console.log('fetchProjectDetails - params:', params);
-    console.log('fetchProjectDetails - params.slug:', params?.slug);
-
-    if (!user || !params || !params.slug) {
-      setLoading(false); // Ensure loading is false if pre-conditions aren't met
-      setError('Authentication required or project slug missing.');
-      return;
-    }
+    if (!user || !params || !params.slug) return;
 
     setLoading(true);
     setError(null);
     const slugFromParams = Array.isArray(params.slug) ? params.slug[0] : params.slug;
 
     try {
-      // *** MODIFIED LOGIC: Prioritize fetching from 'projects' table by slug and owner_user_id ***
-      const { data: projectOwnerData, error: projectOwnerError } = await supabase
-        .from('projects')
-        .select('*, client_id') // Fetch all project fields
-        .eq('slug', slugFromParams)
-        .eq('owner_user_id', user.id)
+      // Fetch the project from the 'clients' table by 'project_slug'
+      // This seems to be how project ownership/association is currently structured for this page
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('project_slug', slugFromParams)
+        .eq('user_id', user.id) // Ensure current user is the client associated
         .single();
 
-      console.log('Fetch from projects table (owner check):', { projectOwnerData, projectOwnerError });
-
-      if (projectOwnerData) {
-        // Found project as owner, use this data
-        // Adapt projectOwnerData structure to match ClientProject interface if necessary
-        // Assuming projectOwnerData structure from 'projects' is compatible or can be mapped
-        const projectData: ClientProject = { // Map fields as needed
-          id: projectOwnerData.id,
-          name: projectOwnerData.name,
-          project_slug: projectOwnerData.slug,
-          status: projectOwnerData.status, // Use project status
-          project_brief: projectOwnerData.project_brief,
-          badge1: projectOwnerData.badge1,
-          badge2: projectOwnerData.badge2,
-          badge3: projectOwnerData.badge3,
-          badge4: projectOwnerData.badge4,
-          badge5: projectOwnerData.badge5,
-          is_featured: projectOwnerData.is_featured,
-          url: projectOwnerData.url, // Assuming url is on projects table or fetched later
-          user_id: projectOwnerData.owner_user_id, // Set to owner_user_id
-          created_at: projectOwnerData.created_at,
-          is_public: projectOwnerData.is_public,
-          // Add other fields if available in projects table and needed
-        };
-        setProject(projectData);
-        setEditableName(projectData.name || projectData.project_slug || '');
-        setEditableBrief(projectData.project_brief || '');
-        // Note: Status/Timeline from projects table might need separate handling if they exist
-
-        // NOW, FETCH ASSOCIATED DATA like website info, members etc. using projectData.id
-        // Fetch Website Info (using the project ID we just got)
-        const { data: websiteData, error: websiteError } = await supabase
-          .from('project_websites')
-          .select('id, url, git_repository_url, hosting_details')
-          .eq('project_id', projectData.id) // Use the ID from the projects table
-          .maybeSingle();
-
-        if (websiteError) {
-          console.warn('Error fetching project website details:', websiteError.message);
-        }
-        setProjectWebsiteInfo(websiteData as ProjectWebsiteInfo | null);
-
-        // TODO: Fetch project members similarly using projectData.id
-
-      } else if (projectOwnerError?.code === 'PGRST116') { // No row found in projects table for owner
-        // If not found as owner, try fetching from the 'clients' table
-        const { data: clientData, error: clientError } = await supabase
-          .from('clients')
-          .select('*')
-          .eq('project_slug', slugFromParams)
-          .eq('user_id', user.id) // Check if current user is the client associated
+      if (clientError && !clientData) {
+        // Fallback or additional check: if user is a collaborator via user_team_memberships
+        // This part assumes a structure for collaboration, which might need adjustment
+        // For now, let's assume if the above fails, they might not have direct access via 'clients' table
+        // Or, we can attempt to fetch the project directly from 'projects' if 'owner_user_id' matches
+        
+        // Let's try fetching from 'projects' table by slug and owner_user_id
+        const { data: projectOwnerData, error: projectOwnerError } = await supabase
+          .from('projects')
+          .select('*, client_id') // Fetch client_id to potentially get client details later if needed
+          .eq('slug', slugFromParams)
+          .eq('owner_user_id', user.id)
           .single();
 
-        console.log('Fetch from clients table (fallback):', { clientData, clientError });
+        if (projectOwnerError || !projectOwnerData) {
+          setError('Project not found or you do not have access.');
+          setLoading(false);
+          return;
+        }
+        // If fetched successfully as owner, we might need to adapt the structure
+        // For now, this path is less developed in the original code, let's focus on the 'clients' table path
+        // This would be a good place to expand for platform owner visibility
 
-        if (clientData) {
-          // Found project via client association, use this data
-          setProject(clientData as ClientProject); // Assuming clientData is compatible with ClientProject
-          setEditableName(clientData.name || clientData.project_slug || '');
-          setEditableBrief(clientData.project_brief || '');
-          // Set other editable states based on clientData fields
+        // For now, if we get here, it means user is not the direct client via `clients` table check
+        // We need to adjust how `projectData` is formed if this path is taken.
+        // Let's stick to the original logic for now and enhance later.
+        // The original code primarily relies on the `clients` table for this page.
+        setError('Access via direct project ownership view is not fully implemented here yet.');
+        setLoading(false);
+        return;
+      }
+      
+      const projectData = clientData; // Using data from 'clients' table as primary source
 
-          // NOW, FETCH ASSOCIATED DATA like website info, members etc. using clientData.project_id or clientData.id
-          // This part might need adjustment depending on which ID to use for related tables
-          // If clientData has project_id, use that. Otherwise, the logic is complex.
-          // Assuming for now project_id on client matches the project ID in the projects table.
-          const mainProjectIdForClient = (clientData as any).project_id || clientData.id; // Adjust as needed
+      if (projectData) {
+        setProject(projectData as ClientProject);
+        setEditableName(projectData.name || projectData.project_slug || ''); // Use project_slug as fallback
+        setEditableBrief(projectData.project_brief || '');
+        setEditableStatus(projectData.current_status || '');
+        setEditableTimeline(projectData.project_timeline || '');
+        setOriginalMembers(projectData.team_members || []);
+        setCurrentMembers(projectData.team_members || []);
 
+        // NOW, FETCH THE MAIN PROJECT ID FROM 'projects' TABLE USING THE SLUG
+        const { data: mainProjectData, error: mainProjectError } = await supabase
+          .from('projects')
+          .select('id')
+          .eq('slug', slugFromParams)
+          .single();
+
+        if (mainProjectError || !mainProjectData) {
+          console.warn('Could not find matching project in projects table for slug:', slugFromParams);
+          // setError('Associated project data not found.'); // Optional: inform user
+        } else {
+          const mainProjectId = mainProjectData.id;
+          // THEN, FETCH WEBSITE DETAILS USING THE mainProjectId
           const { data: websiteData, error: websiteError } = await supabase
             .from('project_websites')
             .select('id, url, git_repository_url, hosting_details')
-            .eq('project_id', mainProjectIdForClient) // Use the appropriate project ID
-            .maybeSingle();
+            .eq('project_id', mainProjectId)
+            .maybeSingle(); // Use maybeSingle as a project might not have a website entry
 
           if (websiteError) {
-            console.warn('Error fetching project website details (client fallback):', websiteError.message);
+            console.warn('Error fetching project website details:', websiteError.message);
           }
-          setProjectWebsiteInfo(websiteData as ProjectWebsiteInfo | null);
-
-          // TODO: Fetch project members similarly using mainProjectIdForClient or clientData.id
-
-        } else if (clientError?.code === 'PGRST116') { // Not found as client either
-          setError('Project not found or you do not have access.');
-        } else if (clientError) {
-          console.error('Error fetching project from clients table:', clientError);
-          setError('Failed to load project details via client association.');
+          if (websiteData) {
+            setProjectWebsiteInfo(websiteData as ProjectWebsiteInfo);
+          } else {
+            setProjectWebsiteInfo(null); // Ensure it's reset if no data found
+          }
         }
 
-      } else if (projectOwnerError) { // Other error fetching from projects table as owner
-        console.error('Error fetching project from projects table (owner check):', projectOwnerError);
-        setError('Failed to load project details via ownership check.');
-      } else { // Should not happen if single() is used, but as a safeguard
-           setError('Project not found or unexpected data.');
+      } else {
+        setError('Project not found.');
       }
-
     } catch (e: any) {
-      console.error('General error fetching project details:', e.message);
-      setError('An unexpected error occurred while loading project details.');
+      console.error('Error fetching project details:', e.message);
+      setError('Failed to load project details. Please try again later.');
     } finally {
       setLoading(false);
     }
-  }, [user, params, supabase]); // Dependencies
+  }, [user, params, supabase]);
 
   // --- TODO Functions ---
   const fetchProjectTodos = useCallback(async (currentProjectId: string) => {
@@ -869,7 +839,7 @@ export default function ProjectDetailPage() {
                   </div>
                 )}
                 {/* NEW DEPLOYMENT INFORMATION CARD END */}
-                
+
                 {error && <p className="text-red-400 bg-red-900/30 p-3 rounded-md mb-6 text-sm shadow">Error: {error}</p>}
 
                 <div className="mt-10 text-center text-gray-500 text-sm">

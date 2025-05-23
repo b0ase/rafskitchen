@@ -385,21 +385,34 @@ export default function MyProjectsPage() {
     setError(null);
 
     try {
-      // 1. Fetch ALL projects from the projects table (removed owner_user_id filter)
-      const { data: allProjectsData, error: projectsError } = await supabase
+      // 1. Fetch projects where the current user is the owner_user_id
+      const { data: ownedProjectsData, error: ownedError } = await supabase
         .from('projects')
-        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public'); // Removed client_id and clients join as we are getting all projects
+        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public, client_id, clients ( user_id, name, email )')
+        .eq('owner_user_id', user.id);
 
-      if (projectsError) {
-        console.error('ALL PROJECTS FETCH ERROR:', projectsError);
-        setError('Failed to fetch all projects.');
+      if (ownedError) {
+        console.error('OWNED PROJECTS FETCH ERROR:', ownedError);
+        setError('Failed to fetch owned projects.');
+      }
+
+      // 2. Fetch projects where the current user is the client
+      // This involves joining projects with clients table
+      const { data: clientProjectsData, error: clientError } = await supabase
+        .from('projects')
+        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public, client_id, clients!inner ( user_id, name, email )')
+        .eq('clients.user_id', user.id);
+      
+      if (clientError) {
+        console.error('CLIENT PROJECTS FETCH ERROR:', clientError);
+        setError(prevError => prevError ? `${prevError} & Failed to fetch client projects.` : 'Failed to fetch client projects.');
       }
 
       const combinedProjects: ClientProject[] = [];
       const projectMap = new Map<string, ClientProject>();
 
-      // Process all fetched projects
-      (allProjectsData || []).forEach(p => {
+      // Process owned projects
+      (ownedProjectsData || []).forEach(p => {
         const project: ClientProject = {
           id: p.id,
           name: p.name,
@@ -421,6 +434,38 @@ export default function MyProjectsPage() {
         projectMap.set(p.id, project);
       });
 
+      // Process client projects, update role if already in map (user is owner AND client)
+      (clientProjectsData || []).forEach(p => {
+        if (projectMap.has(p.id)) {
+          // User is both owner and client, ensure Owner role takes precedence or handle as combined
+          const existing = projectMap.get(p.id)!;
+          existing.currentUserRole = ProjectRole.Owner + ' & Client Contact';
+        } else {
+          const project: ClientProject = {
+            id: p.id,
+            name: p.name,
+            project_slug: p.slug,
+            status: p.status, // Consider if client-specific status from 'clients' table should override
+            project_brief: p.project_brief,
+            badge1: p.badge1, // Consider client-specific overrides
+            badge2: p.badge2,
+            badge3: p.badge3,
+            badge4: p.badge4,
+            badge5: p.badge5,
+            is_featured: p.is_featured,
+            url: p.url,
+            // Correctly access user_id from the first element of the clients array
+            user_id: p.clients && Array.isArray(p.clients) && p.clients.length > 0 ? p.clients[0]?.user_id || '' : '', 
+            created_at: p.created_at,
+            currentUserRole: ProjectRole.ClientContact,
+            is_public: p.is_public,
+          };
+          projectMap.set(p.id, project);
+        }
+      });
+      
+      // TODO: Add fetching for collaborator projects and merge them similarly
+
       setProjects(Array.from(projectMap.values()));
 
     } catch (e: any) {
@@ -430,8 +475,11 @@ export default function MyProjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
-
+  // Removed user from dependencies as it's from useAuth() and should be stable or handled by useAuth's updates
+  // If user object itself changes frequently and is not just id, might need to reconsider
+  // supabase from useAuth() is now used, ensure it's the one passed if different from supabaseClient
+  }, [user, supabase]); // Use supabase from useAuth context
+  
   useEffect(() => {
     if (!authLoading && user) { // Check if auth is done loading AND user exists
       fetchProjectsAndRoles();

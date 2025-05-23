@@ -27,7 +27,6 @@ interface Gig {
   deadline?: string | null; // TIMESTAMPTZ will be string
   created_at?: string | null;
   updated_at?: string | null;
-  thumbnailUrl?: string | null; // Added for gig images
   profiles?: {
     display_name?: string | null;
     avatar_url?: string | null;
@@ -36,9 +35,8 @@ interface Gig {
 
 // Helper to transform static gig data to Gig interface
 const transformStaticGig = (staticGig: any, index: number): Gig => {
-  const gigId = `static-${index}`;
   return {
-    id: gigId,
+    id: `static-${index}`,
     user_id: '@BOASE', // Assign a placeholder or specific ID for @BOASE
     title: staticGig.title,
     description: staticGig.description,
@@ -56,7 +54,6 @@ const transformStaticGig = (staticGig: any, index: number): Gig => {
     deadline: staticGig.deadline || null,
     created_at: new Date().toISOString(), // Set a created_at for sorting/display
     updated_at: new Date().toISOString(),
-    thumbnailUrl: `https://picsum.photos/seed/${gigId}/600/400`, // Generate Picsum URL
     profiles: {
       display_name: '@BOASE',
       // You can use a default @BOASE avatar or leave it to the GigCard default
@@ -84,20 +81,13 @@ const GigCard: React.FC<{ gig: Gig }> = ({ gig }) => {
 
   const userDisplayName = gig.profiles?.display_name || (gig.user_id === '@BOASE' ? '@BOASE' : 'Unknown User');
   const userAvatarUrl = gig.profiles?.avatar_url || 'https://klaputzxeqgypphzdxpr.supabase.co/storage/v1/object/public/avatars/public/user_icon.png';
-  const gigImageSrc = gig.thumbnailUrl || `https://picsum.photos/seed/${gig.id}/600/400`;
 
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-sky-500/30 hover:border-sky-600">
       <Link href={gig.id.startsWith('static-') ? '#' : `/gigs/${gig.id}`} passHref> 
         <div className="block cursor-pointer">
-          <div className="w-full h-48 bg-gray-700 relative">
-            <Image 
-              src={gigImageSrc} 
-              alt={gig.title} 
-              layout="fill" 
-              objectFit="cover" 
-              className="w-full h-full"
-            /> 
+          <div className="w-full h-48 bg-gray-700 flex items-center justify-center text-gray-500">
+            <FaBriefcase size={48} /> 
           </div>
           <div className="p-4">
             <h3 className="text-lg font-semibold text-white mb-2 truncate" title={gig.title}>
@@ -160,7 +150,6 @@ export default function GigsPage() {
         .from('gigs')
         .select(`
           *,
-          thumbnailUrl, 
           profiles (
             display_name,
             avatar_url
@@ -174,41 +163,19 @@ export default function GigsPage() {
         query = query.eq('is_published', true);
       }
       
-      const { data: supabaseGigsData, error: fetchError } = await query;
+      const { data: supabaseGigs, error: fetchError } = await query;
 
       if (fetchError) {
         console.error("Error fetching gigs:", fetchError);
         setError(fetchError.message);
+        // Even if Supabase fetch fails, show static gigs
         setGigs(transformedStaticGigs);
-      } else if (supabaseGigsData) {
-        const processedSupabaseGigs = (supabaseGigsData as any[]).map(item => {
-          // Explicitly construct the Gig object, providing defaults
-          const gig: Gig = {
-            id: String(item?.id || `fallback-${Math.random()}`),
-            user_id: item?.user_id || null,
-            title: item?.title || 'Untitled Gig',
-            description: item?.description || 'No description available.',
-            category: item?.category || null,
-            sub_category: item?.sub_category || null,
-            skills_required: Array.isArray(item?.skills_required) ? item.skills_required : [],
-            budget_type: item?.budget_type || 'negotiable',
-            budget_amount_min: typeof item?.budget_amount_min === 'number' ? item.budget_amount_min : null,
-            budget_amount_max: typeof item?.budget_amount_max === 'number' ? item.budget_amount_max : null,
-            currency: item?.currency || 'USD',
-            status: item?.status || 'draft',
-            is_published: typeof item?.is_published === 'boolean' ? item.is_published : false,
-            location_preference: item?.location_preference || 'remote',
-            tags: Array.isArray(item?.tags) ? item.tags : [],
-            deadline: item?.deadline || null,
-            created_at: item?.created_at || new Date().toISOString(),
-            updated_at: item?.updated_at || new Date().toISOString(),
-            thumbnailUrl: item?.thumbnailUrl || null,
-            profiles: (item?.profiles && typeof item.profiles === 'object') ? item.profiles : null,
-          };
-          return gig;
-        });
-        setGigs([...transformedStaticGigs, ...processedSupabaseGigs]);
+      } else if (supabaseGigs) {
+        // Combine Supabase gigs with static gigs
+        // Ensure no ID collision and that static gigs are distinguishable if needed
+        setGigs([...transformedStaticGigs, ...supabaseGigs as Gig[]]);
       } else {
+        // If no Supabase gigs and no error, still show static gigs
         setGigs(transformedStaticGigs);
       }
       setLoading(false);

@@ -45,7 +45,7 @@ interface ClientProject {
   is_featured?: boolean; // From projects table (or clients if overridden)
   badge4?: string | null; // From projects table (or clients if overridden)
   badge5?: string | null; // From projects table (or clients if overridden)
-  url?: string | null; // From projects table or project_websites
+  live_url?: string | null; // From projects table or project_websites
   user_id: string; // Keep for now, but its meaning might shift. Primarily owner_user_id or client's user_id
   created_at: string; // For sorting, from projects table
   currentUserRole?: ProjectRole | string; // Role of the currently logged-in user for this project
@@ -154,7 +154,7 @@ function SortableProjectCard({
   } = useSortable({ id: project.id });
 
   const projectSlug = project.project_slug;
-  const projectUrl = project.url;
+  const liveUrl = project.live_url;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -212,9 +212,9 @@ function SortableProjectCard({
           </a>
         </Link>
         {/* View Live Site Button - Conditionally rendered */}
-        {projectUrl && (
+        {liveUrl && (
           <a 
-            href={projectUrl.startsWith('http') ? projectUrl : `https://${projectUrl}`} 
+            href={liveUrl.startsWith('http') ? liveUrl : `https://${liveUrl}`} 
             target="_blank" 
             rel="noopener noreferrer" 
             onClick={(e) => e.stopPropagation()} 
@@ -363,18 +363,6 @@ export default function MyProjectsPage() {
   const [projectToDeleteName, setProjectToDeleteName] = useState<string | null>(null);
   const [activeSort, setActiveSort] = useState('priority');
 
-  // Re-declare sensors for DndContext
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
   const fetchProjectsAndRoles = useCallback(async () => {
     if (!user) {
       setProjects([]);
@@ -385,21 +373,34 @@ export default function MyProjectsPage() {
     setError(null);
 
     try {
-      // 1. Fetch ALL projects from the projects table (removed owner_user_id filter)
-      const { data: allProjectsData, error: projectsError } = await supabase
+      // 1. Fetch projects where the current user is the owner_user_id
+      const { data: ownedProjectsData, error: ownedError } = await supabase
         .from('projects')
-        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public'); // Removed client_id and clients join as we are getting all projects
+        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, live_url, owner_user_id, created_at, is_public, client_id, clients ( user_id, name, email )')
+        .eq('owner_user_id', user.id);
 
-      if (projectsError) {
-        console.error('ALL PROJECTS FETCH ERROR:', projectsError);
-        setError('Failed to fetch all projects.');
+      if (ownedError) {
+        console.error('Error fetching owned projects:', ownedError);
+        setError(prev => \`\${prev || ''} Failed to fetch owned projects. \`);
+      }
+
+      // 2. Fetch projects where the current user is the client
+      // This involves joining projects with clients table
+      const { data: clientProjectsData, error: clientError } = await supabase
+        .from('projects')
+        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, live_url, owner_user_id, created_at, is_public, client_id, clients!inner ( user_id, name, email )')
+        .eq('clients.user_id', user.id);
+      
+      if (clientError) {
+        console.error('Error fetching client projects:', clientError);
+        setError(prev => \`\${prev || ''} Failed to fetch client projects. \`);
       }
 
       const combinedProjects: ClientProject[] = [];
       const projectMap = new Map<string, ClientProject>();
 
-      // Process all fetched projects
-      (allProjectsData || []).forEach(p => {
+      // Process owned projects
+      (ownedProjectsData || []).forEach(p => {
         const project: ClientProject = {
           id: p.id,
           name: p.name,
@@ -412,7 +413,7 @@ export default function MyProjectsPage() {
           badge4: p.badge4,
           badge5: p.badge5,
           is_featured: p.is_featured,
-          url: p.url,
+          live_url: p.live_url,
           user_id: p.owner_user_id, // This is the platform owner
           created_at: p.created_at,
           currentUserRole: ProjectRole.Owner,
@@ -420,6 +421,37 @@ export default function MyProjectsPage() {
         };
         projectMap.set(p.id, project);
       });
+
+      // Process client projects, update role if already in map (user is owner AND client)
+      (clientProjectsData || []).forEach(p => {
+        if (projectMap.has(p.id)) {
+          // User is both owner and client, ensure Owner role takes precedence or handle as combined
+          const existing = projectMap.get(p.id)!;
+          existing.currentUserRole = \`\${ProjectRole.Owner} & Client Contact\`; // Or some other combined role
+        } else {
+          const project: ClientProject = {
+            id: p.id,
+            name: p.name,
+            project_slug: p.slug,
+            status: p.status, // Consider if client-specific status from 'clients' table should override
+            project_brief: p.project_brief,
+            badge1: p.badge1, // Consider client-specific overrides
+            badge2: p.badge2,
+            badge3: p.badge3,
+            badge4: p.badge4,
+            badge5: p.badge5,
+            is_featured: p.is_featured,
+            live_url: p.live_url,
+            user_id: p.clients?.user_id || '', // This is the client's user_id
+            created_at: p.created_at,
+            currentUserRole: ProjectRole.ClientContact,
+            is_public: p.is_public,
+          };
+          projectMap.set(p.id, project);
+        }
+      });
+      
+      // TODO: Add fetching for collaborator projects and merge them similarly
 
       setProjects(Array.from(projectMap.values()));
 
@@ -430,8 +462,11 @@ export default function MyProjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
-
+  // Removed user from dependencies as it's from useAuth() and should be stable or handled by useAuth's updates
+  // If user object itself changes frequently and is not just id, might need to reconsider
+  // supabase from useAuth() is now used, ensure it's the one passed if different from supabaseClient
+  }, [user, supabase]); // Use supabase from useAuth context
+  
   useEffect(() => {
     if (!authLoading && user) { // Check if auth is done loading AND user exists
       fetchProjectsAndRoles();
@@ -454,13 +489,15 @@ export default function MyProjectsPage() {
     payload[badgeKey] = newValue === '' ? null : newValue; 
 
     const { error: updateError } = await supabase
-      .from('projects')
+      .from('clients')
       .update(payload)
-      .eq('id', projectId);
+      .eq('id', projectId)
+      .eq('user_id', user.id);
 
     if (updateError) {
-      console.error('Error updating badge for project ' + projectId + ':', updateError);
-      setError('Failed to update badge.');
+      console.error(`Error updating ${badgeKey} for project ${projectId}:`, updateError);
+      // Optionally set an error state specific to this item or a general one
+      setError(`Failed to update ${badgeKey}.`);
     } else {
       // Update local state to reflect the change immediately for better UX
       setProjects(prevProjects => 
@@ -478,12 +515,13 @@ export default function MyProjectsPage() {
     const newFeaturedState = !currentIsFeatured;
 
     const { error: updateError } = await supabase
-      .from('projects')
+      .from('clients')
       .update({ is_featured: newFeaturedState })
-      .eq('id', projectId);
+      .eq('id', projectId)
+      .eq('user_id', user.id);
 
     if (updateError) {
-      console.error('Error updating is_featured for project ' + projectId + ':', updateError);
+      console.error(`Error updating is_featured for project ${projectId}:`, updateError);
       setError('Failed to update featured status.');
     } else {
       setProjects(prevProjects =>
@@ -524,7 +562,7 @@ export default function MyProjectsPage() {
 
     if (deleteError) {
       console.error('Error deleting project:', deleteError);
-      setError('Failed to delete project: ' + deleteError.message);
+      setError(`Failed to delete project: ${deleteError.message}`);
     } else {
       setProjects(prevProjects => prevProjects.filter(p => p.id !== projectToDeleteId));
       // Optionally, show a success message

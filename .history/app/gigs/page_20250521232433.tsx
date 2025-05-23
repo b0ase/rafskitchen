@@ -174,41 +174,19 @@ export default function GigsPage() {
         query = query.eq('is_published', true);
       }
       
-      const { data: supabaseGigsData, error: fetchError } = await query;
+      const { data: supabaseGigs, error: fetchError } = await query;
 
       if (fetchError) {
         console.error("Error fetching gigs:", fetchError);
         setError(fetchError.message);
+        // Even if Supabase fetch fails, show static gigs
         setGigs(transformedStaticGigs);
-      } else if (supabaseGigsData) {
-        const processedSupabaseGigs = (supabaseGigsData as any[]).map(item => {
-          // Explicitly construct the Gig object, providing defaults
-          const gig: Gig = {
-            id: String(item?.id || `fallback-${Math.random()}`),
-            user_id: item?.user_id || null,
-            title: item?.title || 'Untitled Gig',
-            description: item?.description || 'No description available.',
-            category: item?.category || null,
-            sub_category: item?.sub_category || null,
-            skills_required: Array.isArray(item?.skills_required) ? item.skills_required : [],
-            budget_type: item?.budget_type || 'negotiable',
-            budget_amount_min: typeof item?.budget_amount_min === 'number' ? item.budget_amount_min : null,
-            budget_amount_max: typeof item?.budget_amount_max === 'number' ? item.budget_amount_max : null,
-            currency: item?.currency || 'USD',
-            status: item?.status || 'draft',
-            is_published: typeof item?.is_published === 'boolean' ? item.is_published : false,
-            location_preference: item?.location_preference || 'remote',
-            tags: Array.isArray(item?.tags) ? item.tags : [],
-            deadline: item?.deadline || null,
-            created_at: item?.created_at || new Date().toISOString(),
-            updated_at: item?.updated_at || new Date().toISOString(),
-            thumbnailUrl: item?.thumbnailUrl || null,
-            profiles: (item?.profiles && typeof item.profiles === 'object') ? item.profiles : null,
-          };
-          return gig;
-        });
-        setGigs([...transformedStaticGigs, ...processedSupabaseGigs]);
+      } else if (supabaseGigs) {
+        // Combine Supabase gigs with static gigs
+        // Ensure no ID collision and that static gigs are distinguishable if needed
+        setGigs([...transformedStaticGigs, ...supabaseGigs as Gig[]]);
       } else {
+        // If no Supabase gigs and no error, still show static gigs
         setGigs(transformedStaticGigs);
       }
       setLoading(false);
