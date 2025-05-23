@@ -238,21 +238,19 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
 
   const pathname = usePathname() ?? ''; 
   const toggleFullScreenMenu = () => { setIsParentFullScreenMenuOpen(!isParentFullScreenMenuOpen); };
-  // const supabase = getSupabaseBrowserClient(); // Instance will be fetched in handleLogout
+  const supabase = getSupabaseBrowserClient(); 
 
   const handleLogout = async () => { 
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('isLoggingOut', 'true');
     }
-    const supabaseInstance = getSupabaseBrowserClient();
-    await supabaseInstance.auth.signOut();
+    await supabase.auth.signOut();
     window.location.assign('/'); 
   };
 
   const shouldAppSubNavbarBeExpanded = pathname === '/profile';
 
-  // Refined loading state: wait for profile and user info if profileLoading is true
-  if (profileLoading && (!profile || !user)) { 
+  if (profileLoading && !profile && !user) { // Refined loading: wait if profile and user are both absent during profileLoading
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-black">
         <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
@@ -276,12 +274,11 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
           <AppNavbar 
             toggleFullScreenMenu={toggleFullScreenMenu} 
             isFullScreenMenuActuallyOpen={isParentFullScreenMenuOpen}
-            // NO other props like user, profile, onLogout, etc.
           />
           <AppSubNavbar 
             initialIsExpanded={shouldAppSubNavbarBeExpanded} 
-            onCollapse={() => { /* Intentional no-op or custom logic for collapse */ }}
-            user={user as User | null} // User prop IS present here
+            onCollapse={() => { /* console.log('AppSubNavbar collapsed by user'); */ }}
+            user={user as User | null}
           />
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black p-4 sm:p-6 md:p-8">
             {/* Welcome Card Logic - ensure profile and user exist before trying to access their properties */}

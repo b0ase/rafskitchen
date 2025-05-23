@@ -212,16 +212,14 @@ export default function TeamPage() {
       let dbRole = '';
       if (newMemberRole === ProjectRole.CLIENT) dbRole = 'Client';
       else if (newMemberRole === ProjectRole.Freelancer) dbRole = 'Freelancer';
-      else if (newMemberRole === ProjectRole.Viewer) dbRole = 'Viewer';
+      else if (newMemberRole === ProjectRole.Viewer) dbRole = 'Client';
       else if (newMemberRole === ProjectRole.ProjectManager) dbRole = 'Admin';
       else {
         const roleValue = newMemberRole.toString();
-        if (roleValue === 'Client' || roleValue === 'Freelancer' || roleValue === 'Admin' || roleValue === 'Viewer') {
-          dbRole = roleValue;
-        } else {
-          dbRole = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
-          console.warn(`Unmatched role in handleAddNewMember: '${roleValue}', attempting to save as '${dbRole}'. Check ProjectRole enum and DB user_role_enum.`);
-        }
+        if (roleValue.toLowerCase() === 'client') dbRole = 'Client';
+        else if (roleValue.toLowerCase() === 'freelancer') dbRole = 'Freelancer';
+        else if (roleValue.toLowerCase() === 'admin') dbRole = 'Admin';
+        else dbRole = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
       }
 
       const { data: existing, error: e } = await supabase.from('project_members').select('role').eq('project_id', selectedProjectId).eq('user_id', selectedPlatformUserId).single();
@@ -303,7 +301,29 @@ export default function TeamPage() {
                   </button>
                   {selectedProjectId === mp.id && (
                     <div className="p-4 md:p-6 bg-gray-900/70 border-t border-gray-700">
-                      <div className="mb-6 pb-6 border-b border-gray-700">
+                      {isLoadingTeamMembers && <div className="flex justify-center py-3"><FaSpinner className="animate-spin text-sky-400" /> <span className="ml-2">Loading members...</span></div>}
+                      {error && <div className="p-3 bg-red-800/40 text-red-300 rounded-md">Error: {error}</div>}
+                      {!isLoadingTeamMembers && teamMembers.length === 0 && (<p className="text-gray-500 italic">No team members assigned.</p>)}
+                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
+                        <ul className="space-y-3 mb-6">
+                          {teamMembers.map(member => (
+                            <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
+                              <div>
+                                <span className="font-normal text-gray-400 text-xs">{member.display_name || member.user_id}</span>
+                                <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
+                                  {member.role.replace(/_/g, ' ').toUpperCase()}
+                                </span>
+                              </div>
+                              {user?.id !== member.user_id && (
+                                <button onClick={() => openRemoveConfirmModal(member, mp.id, mp.name || 'Unnamed Project')}
+                                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/50 hover:border-red-400"
+                                        disabled={isAddingMember || isLoadingTeamMembers || isRemovingMember}>Remove</button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="mt-6 pt-6 border-t border-gray-700">
                         <h4 className="text-lg font-semibold text-white mb-4">Add/Update Member for "{mp.name}"</h4>
                         <form onSubmit={handleAddNewMember} className="space-y-4">
                           <div>
@@ -329,30 +349,6 @@ export default function TeamPage() {
                           </button>
                         </form>
                       </div>
-
-                      <h4 className="text-lg font-semibold text-white mb-4">Current Team Members</h4>
-                      {isLoadingTeamMembers && <div className="flex justify-center py-3"><FaSpinner className="animate-spin text-sky-400" /> <span className="ml-2">Loading members...</span></div>}
-                      {error && <div className="p-3 bg-red-800/40 text-red-300 rounded-md mb-3">Error: {error}</div>}
-                      {!isLoadingTeamMembers && teamMembers.length === 0 && (<p className="text-gray-500 italic">No team members assigned.</p>)}
-                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
-                        <ul className="space-y-3">
-                          {teamMembers.map(member => (
-                            <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
-                              <div className="flex flex-col items-start">
-                                <span className="font-normal text-gray-400 text-xs mb-1">{member.display_name || member.user_id}</span>
-                                <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
-                                  {member.role.replace(/_/g, ' ').toUpperCase()}
-                                </span>
-                              </div>
-                              {user?.id !== member.user_id && (
-                                <button onClick={() => openRemoveConfirmModal(member, mp.id, mp.name || 'Unnamed Project')}
-                                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/50 hover:border-red-400"
-                                        disabled={isAddingMember || isLoadingTeamMembers || isRemovingMember}>Remove</button>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
                     </div>
                   )}
                 </div>

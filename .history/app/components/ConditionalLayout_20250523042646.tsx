@@ -231,28 +231,39 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
     profile, 
     loading: profileLoading, 
     user, 
-    saving: profileSaving, 
+    saving: profileSaving, // Added profileSaving
     showWelcomeCard,
     handleDismissWelcomeCard,
+    // Add any other functions/state from useProfileData needed by AppNavbar/AppSubNavbar etc.
   } = useProfileData();
 
   const pathname = usePathname() ?? ''; 
+  const [isFullScreenMenuOpen, setIsFullScreenMenuOpen] = React.useState(false);
   const toggleFullScreenMenu = () => { setIsParentFullScreenMenuOpen(!isParentFullScreenMenuOpen); };
-  // const supabase = getSupabaseBrowserClient(); // Instance will be fetched in handleLogout
+  const supabase = getSupabaseBrowserClient(); 
 
   const handleLogout = async () => { 
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('isLoggingOut', 'true');
     }
-    const supabaseInstance = getSupabaseBrowserClient();
-    await supabaseInstance.auth.signOut();
-    window.location.assign('/'); 
+    // await supabase.auth.signOut(); // Let's ensure this doesn't cause issues with the logout flag + redirect
+    // window.location.assign('/'); 
+    // Use a slightly more robust logout that ensures signOut completes before redirect attempt
+    try {
+        await supabase.auth.signOut();
+    } catch (error) {
+        console.error("Error during sign out:", error);
+    } finally {
+        if (typeof window !== 'undefined') {
+            window.location.assign('/');
+        }
+    }
   };
 
+  // Determine if the AppSubNavbar should be expanded based on the current path
   const shouldAppSubNavbarBeExpanded = pathname === '/profile';
 
-  // Refined loading state: wait for profile and user info if profileLoading is true
-  if (profileLoading && (!profile || !user)) { 
+  if (profileLoading && !profile) { // Added a more specific loading state for profile before rendering app shell
     return (
       <div className="flex flex-col min-h-screen items-center justify-center bg-black">
         <FaRocket className="text-6xl text-sky-500 mb-4 animate-pulse" />
@@ -276,16 +287,14 @@ const AuthenticatedAppLayout = ({ children, isParentFullScreenMenuOpen, setIsPar
           <AppNavbar 
             toggleFullScreenMenu={toggleFullScreenMenu} 
             isFullScreenMenuActuallyOpen={isParentFullScreenMenuOpen}
-            // NO other props like user, profile, onLogout, etc.
           />
           <AppSubNavbar 
             initialIsExpanded={shouldAppSubNavbarBeExpanded} 
-            onCollapse={() => { /* Intentional no-op or custom logic for collapse */ }}
-            user={user as User | null} // User prop IS present here
+            onCollapse={() => { /* console.log('AppSubNavbar collapsed'); */ }}
           />
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black p-4 sm:p-6 md:p-8">
-            {/* Welcome Card Logic - ensure profile and user exist before trying to access their properties */}
-            {profile && user && !profile.has_seen_welcome_card && showWelcomeCard && (
+            {/* Welcome Card Logic */}
+            {profile && !profile.has_seen_welcome_card && showWelcomeCard && user && ( // ensure user exists too for display_name
               <div className="bg-slate-800 p-4 rounded-md shadow-lg mb-6 text-white border border-slate-700">
                 <h3 className="text-lg font-semibold">Welcome to b0a FUSION, {profile.display_name || profile.username || user.email}!</h3>
                 <p className="text-sm text-slate-300">Explore your dashboard and manage your projects.</p>

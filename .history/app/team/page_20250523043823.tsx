@@ -338,8 +338,8 @@ export default function TeamPage() {
                         <ul className="space-y-3">
                           {teamMembers.map(member => (
                             <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
-                              <div className="flex flex-col items-start">
-                                <span className="font-normal text-gray-400 text-xs mb-1">{member.display_name || member.user_id}</span>
+                              <div>
+                                <span className="font-normal text-gray-400 text-xs">{member.display_name || member.user_id}</span>
                                 <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
                                   {member.role.replace(/_/g, ' ').toUpperCase()}
                                 </span>

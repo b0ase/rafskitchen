@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   FaUsers, FaSpinner, FaProjectDiagram, FaUserPlus, FaAngleDown, FaAngleRight,
-  FaEdit, FaExternalLinkAlt, FaComments, FaTrash, FaFolderOpen, FaChevronUp, FaChevronDown
+  FaEdit, FaExternalLinkAlt, FaComments, FaTrash
 } from 'react-icons/fa';
 
 // --- BEGIN HELPERS AND ENUMS ---
@@ -66,14 +66,37 @@ interface PlatformUser { // For user selection dropdown
   display_name: string;
 }
 
+interface DisplayProject { // For Vercel-style cards at the top
+  id: string;
+  name: string;
+  slug: string | null;
+  url?: string | null;
+  project_brief?: string | null;
+  status?: string | null;
+  badge1?: string | null;
+  badge2?: string | null;
+  badge3?: string | null;
+  badge4?: string | null;
+  badge5?: string | null;
+  owner_user_id?: string;
+  currentUserRole?: string | null;
+  is_public?: boolean;
+  project_category?: string | null;
+}
+
 export default function TeamPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  const [displayProjects, setDisplayProjects] = useState<DisplayProject[]>([]);
+  const [isLoadingDisplayProjects, setIsLoadingDisplayProjects] = useState(false);
+  const [errorFetchingDisplayProjects, setErrorFetchingDisplayProjects] = useState<string | null>(null);
+  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
+
   const [managedProjects, setManagedProjects] = useState<ManagedProject[]>([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoadingTeamMembers, setIsLoadingTeamMembers] = useState(false);
@@ -101,62 +124,49 @@ export default function TeamPage() {
     getUser();
   }, [supabase, router]);
 
+  const fetchDisplayProjects = useCallback(async (userId: string) => {
+    if (!userId) return;
+    setIsLoadingDisplayProjects(true);
+    setErrorFetchingDisplayProjects(null);
+    try {
+      const { data: accessibleProjectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select('id, name, slug, project_category, owner_user_id, url, project_brief, status, badge1, badge2, badge3, badge4, badge5, is_public');
+      if (projectsError) throw projectsError;
+      if (!accessibleProjectsData) { setDisplayProjects([]); setIsLoadingDisplayProjects(false); return; }
+
+      const projectsToDisplayPromises = accessibleProjectsData.map(async (proj) => {
+        let userRoleForThisProject: string | null = null;
+        if (proj.owner_user_id === userId) {
+          userRoleForThisProject = ProjectRole.Owner;
+        } else {
+          const { data: memberRoleData, error: memberRoleError } = await supabase
+            .from('project_members').select('role').eq('project_id', proj.id).eq('user_id', userId).single();
+          if (memberRoleError && memberRoleError.code !== 'PGRST116') console.warn(`Error fetching member role for ${proj.id}:`, memberRoleError.message);
+          else if (memberRoleData) userRoleForThisProject = memberRoleData.role;
+        }
+        if (proj.owner_user_id === userId || userRoleForThisProject) {
+          return { ...proj, currentUserRole: userRoleForThisProject } as DisplayProject;
+        }
+        return null;
+      });
+      const resolvedProjects = (await Promise.all(projectsToDisplayPromises)).filter(p => p !== null) as DisplayProject[];
+      setDisplayProjects(resolvedProjects);
+    } catch (e: any) { setErrorFetchingDisplayProjects(`Failed to load projects: ${e.message}`); setDisplayProjects([]); }
+    finally { setIsLoadingDisplayProjects(false); }
+  }, [supabase]);
+
   const fetchManagedProjects = useCallback(async (userId: string) => {
     if (!userId) return;
     setIsLoadingProjects(true); setError(null);
     try {
-      const { data: profile, error: profileError } = await supabase.from('profiles').select('role').eq('id', userId).single();
-      if (profileError && profileError.code !== 'PGRST116') throw profileError; // Allow no profile (though unlikely for logged-in user)
-
-      let finalProjects: ManagedProject[] = [];
-
-      if (profile?.role === 'Admin') {
-        const { data, error: e } = await supabase.from('projects').select('id, name');
-        if (e) throw e;
-        finalProjects = data || [];
-      } else {
-        // 1. Projects owned by the user
-        const { data: ownedProjects, error: ownedError } = await supabase
-          .from('projects')
-          .select('id, name')
-          .eq('owner_user_id', userId);
-        if (ownedError) throw ownedError;
-        
-        const ownedProjectList = ownedProjects || [];
-
-        // 2. Projects where the user is a 'Client'
-        const { data: clientProjectMemberships, error: clientMembershipError } = await supabase
-          .from('project_members')
-          .select('project_id')
-          .eq('user_id', userId)
-          .eq('role', 'Client'); // Ensure this matches the DB enum value
-
-        if (clientMembershipError) throw clientMembershipError;
-
-        let clientRoleProjects: ManagedProject[] = [];
-        if (clientProjectMemberships && clientProjectMemberships.length > 0) {
-          const clientProjectIds = clientProjectMemberships.map(pm => pm.project_id);
-          const { data: projectsForClientRole, error: projectsForClientError } = await supabase
-            .from('projects')
-            .select('id, name')
-            .in('id', clientProjectIds);
-          if (projectsForClientError) throw projectsForClientError;
-          clientRoleProjects = projectsForClientRole || [];
-        }
-        
-        // Combine and deduplicate
-        const allManagedProjects = [...ownedProjectList, ...clientRoleProjects];
-        const uniqueProjectIds = new Set<string>();
-        finalProjects = allManagedProjects.filter(project => {
-          if (!uniqueProjectIds.has(project.id)) {
-            uniqueProjectIds.add(project.id);
-            return true;
-          }
-          return false;
-        });
-      }
-      setManagedProjects(finalProjects);
-    } catch (e: any) { setError('Failed to load managed projects: ' + e.message); setManagedProjects([]); }
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single();
+      let query = supabase.from('projects').select('id, name');
+      if (profile?.role !== 'Admin') query = query.eq('owner_user_id', userId);
+      const { data, error: e } = await query;
+      if (e) throw e;
+      setManagedProjects(data || []);
+    } catch (e: any) { setError('Failed to load managed projects: ' + e.message); }
     finally { setIsLoadingProjects(false); }
   }, [supabase]);
 
@@ -190,10 +200,11 @@ export default function TeamPage() {
 
   useEffect(() => {
     if (user?.id) {
+      fetchDisplayProjects(user.id);
       fetchManagedProjects(user.id);
       fetchPlatformUsers();
     }
-  }, [user, fetchManagedProjects, fetchPlatformUsers]);
+  }, [user, fetchDisplayProjects, fetchManagedProjects, fetchPlatformUsers]);
 
   useEffect(() => {
     if (selectedProjectId) {
@@ -202,6 +213,16 @@ export default function TeamPage() {
       setSuccessMessage(null); setError(null);
     }
   }, [selectedProjectId, fetchTeamMembers]);
+
+  const handleDisplayProjectBadgeChange = async (projectId: string, key: 'badge1'|'badge2'|'badge3'|'badge4'|'badge5', value: string|null) => {
+    if (!user) return;
+    setUpdatingItemId(projectId);
+    const p = { [key]: value === '' ? null : value };
+    const { error: e } = await supabase.from('projects').update(p).eq('id', projectId);
+    if (e) setError(`Failed to update ${key}.`);
+    else setDisplayProjects(prev => prev.map(proj => proj.id === projectId ? { ...proj, [key]: value === '' ? null : value } : proj));
+    setUpdatingItemId(null);
+  };
 
   const handleAddNewMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -214,15 +235,7 @@ export default function TeamPage() {
       else if (newMemberRole === ProjectRole.Freelancer) dbRole = 'Freelancer';
       else if (newMemberRole === ProjectRole.Viewer) dbRole = 'Viewer';
       else if (newMemberRole === ProjectRole.ProjectManager) dbRole = 'Admin';
-      else {
-        const roleValue = newMemberRole.toString();
-        if (roleValue === 'Client' || roleValue === 'Freelancer' || roleValue === 'Admin' || roleValue === 'Viewer') {
-          dbRole = roleValue;
-        } else {
-          dbRole = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
-          console.warn(`Unmatched role in handleAddNewMember: '${roleValue}', attempting to save as '${dbRole}'. Check ProjectRole enum and DB user_role_enum.`);
-        }
-      }
+      else dbRole = newMemberRole.charAt(0).toUpperCase() + newMemberRole.slice(1);
 
       const { data: existing, error: e } = await supabase.from('project_members').select('role').eq('project_id', selectedProjectId).eq('user_id', selectedPlatformUserId).single();
       if (e && e.code !== 'PGRST116') throw e;
@@ -259,7 +272,7 @@ export default function TeamPage() {
     finally { setIsRemovingMember(false); setShowRemoveConfirmModal(false); setMemberToRemove(null); }
   };
 
-  if (loadingUser || (user && isLoadingProjects)) {
+  if (loadingUser || (user && isLoadingDisplayProjects && isLoadingProjects)) { // Combined initial load
     return <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex items-center justify-center"><FaSpinner className="animate-spin text-4xl text-sky-500" /><p className="ml-3">Loading data...</p></div>;
   }
   if (!user && !loadingUser) {
@@ -268,42 +281,112 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
+      <main className="flex-grow container mx-auto px-4 pb-12 md:pb-16">
         {error && <div className="my-3 p-3 bg-red-900/30 text-red-400 rounded-md">{error}</div>}
         {successMessage && <div className="my-3 p-3 bg-green-900/30 text-green-400 rounded-md">{successMessage}</div>}
 
+        {/* Vercel-style cards for projects user is part of */}
+        <div className="mt-0"> {/* No top margin for this section */}
+          {isLoadingDisplayProjects && <div className="flex justify-center py-10"><FaSpinner className="animate-spin text-3xl" /> <p className="ml-3">Loading projects...</p></div>}
+          {errorFetchingDisplayProjects && <div className="p-3 bg-red-900/30 text-red-300 rounded">Error: {errorFetchingDisplayProjects}</div>}
+          {!isLoadingDisplayProjects && !errorFetchingDisplayProjects && displayProjects.length === 0 && (
+            <div className="py-10 text-center"><FaProjectDiagram className="mx-auto text-5xl text-gray-500 mb-4" /><p>You are not currently associated with any projects.</p></div>
+          )}
+          {!isLoadingDisplayProjects && !errorFetchingDisplayProjects && displayProjects.length > 0 && (
+            <div className="space-y-6 mt-6">
+              {displayProjects.map((project) => (
+                <div key={project.id} className="p-6 shadow-lg rounded-lg relative border bg-black border-gray-700 hover:border-gray-600">
+                  {updatingItemId === project.id && <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-lg z-10"><FaSpinner className="animate-spin text-sky-500 text-3xl" /></div>}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                    <div className="flex items-center gap-x-3 flex-wrap">
+                      <Link href={`/myprojects/${project.slug || project.id}`} legacyBehavior><a className="text-xl font-semibold text-sky-400 hover:underline">{project.name}</a></Link>
+                      <Link href={`/myprojects/${project.slug || project.id}/edit`} passHref legacyBehavior><a className="text-gray-400 hover:text-sky-400" title="Edit"><FaEdit /></a></Link>
+                      {project.currentUserRole && <span className={getProjectRoleStyle(project.currentUserRole as ProjectRole | string)}>{project.currentUserRole.replace(/_/g, ' ').toUpperCase()}</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-2 mb-4">
+                    <Link href={`/myprojects/${project.slug || project.id}`} legacyBehavior><a className="inline-flex items-center btn-secondary"><FaProjectDiagram className="mr-1.5" /> Open Project</a></Link>
+                    {project.url && <a href={project.url.startsWith('http')?project.url:`https://${project.url}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center btn-secondary"><FaExternalLinkAlt className="mr-1.5" /> View Site</a>}
+                    <button onClick={() => alert(`Invite: ${project.name}`)} className="inline-flex items-center btn-secondary"><FaUserPlus className="mr-1.5" /> Invite</button>
+                    <button onClick={() => alert(`Chat: ${project.name}`)} className="inline-flex items-center btn-secondary"><FaComments className="mr-1.5" /> Chat</button>
+                  </div>
+                  <div className="mb-4 space-y-2 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-2">
+                    {[
+                      { k: 'badge1', opts: badge1Options, val: project.badge1, lbl: 'Status...' }, { k: 'badge2', opts: badge2Options, val: project.badge2, lbl: 'Type...' },
+                      { k: 'badge3', opts: badge3Options, val: project.badge3, lbl: 'Priority...' }, { k: 'badge4', opts: badge2Options, val: project.badge4, lbl: 'Badge 4...' },
+                      { k: 'badge5', opts: badge2Options, val: project.badge5, lbl: 'Badge 5...' }
+                    ].map(b => (
+                      <div key={b.k} className="flex-shrink-0">
+                        <label htmlFor={`${b.k}-${project.id}`} className="sr-only">{b.lbl}</label>
+                        <select id={`${b.k}-${project.id}`} value={b.val || ''}
+                                onChange={(e) => handleDisplayProjectBadgeChange(project.id, b.k as any, e.target.value)}
+                                disabled={updatingItemId === project.id}
+                                className={`${getBadgeStyle(b.val ?? null)} text-xs p-1 min-w-[90px]`}>
+                          <option value="">{b.lbl}</option>
+                          {b.opts.map(opt => <option key={opt} value={opt} className="bg-gray-800 text-gray-300">{opt}</option>)}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                  {project.project_brief ? <p className="text-sm text-gray-400 prose prose-sm prose-invert max-w-none line-clamp-2">{project.project_brief}</p>
+                                          : <p className="text-sm text-gray-500 italic">No brief.</p>}
+                  {project.owner_user_id === user?.id && (
+                    <div className="absolute bottom-6 right-6">
+                      <button onClick={(e)=>{e.stopPropagation();alert(`Delete ${project.name}`)}} className="btn-delete-xs"><FaTrash className="mr-1"/>Delete</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Collapsible Managed Projects Section */}
-        <div className="mt-0">
+        <div className="mt-12"> {/* This provides spacing between the two sections */}
           {isLoadingProjects && <div className="flex justify-center py-4"><FaSpinner className="animate-spin text-sky-500 text-2xl" /></div>}
           {!isLoadingProjects && managedProjects.length === 0 && user && (
-            <div className="text-center py-10">
-              <FaUsers className="mx-auto text-5xl text-gray-500 mb-4" />
-              <p className="text-gray-400">You are not managing any projects.</p>
-              {/* Optionally, add a link/button here to create or claim projects if applicable */}
+            <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md">
+              <p className="text-gray-500 italic">You are not managing any projects currently.</p>
             </div>
           )}
           {!isLoadingProjects && managedProjects.length > 0 && (
-            <div className="space-y-3"> {/* Reduced space-y slightly for a tighter look if many projects */} 
-              {managedProjects.map(mp => (
-                <div key={mp.id} className="rounded-lg overflow-hidden shadow-md border border-gray-700 hover:border-gray-600 transition-colors duration-150">
+            <div className="space-y-4">
+              {managedProjects.map(mp => ( // mp for ManagedProject to avoid conflict with project from displayProjects
+                <div key={mp.id} className="bg-gray-900 border border-gray-800 shadow-lg rounded-md">
                   <button
                     onClick={() => setSelectedProjectId(prev => prev === mp.id ? null : mp.id)}
-                    className="w-full flex items-center justify-between p-4 bg-black hover:bg-gray-800 focus:outline-none transition-colors duration-150"
+                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-800/50 transition-colors duration-150 cursor-pointer"
                   >
-                    <div className="flex items-center">
-                      <FaFolderOpen className="mr-3 text-sky-500 text-lg" /> {/* Icon for project */} 
-                      <span className="font-medium text-lg text-gray-100">{mp.name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className={`mr-3 text-xs font-semibold px-2 py-0.5 rounded-full ${mp.id === selectedProjectId ? 'bg-sky-600 text-white' : 'bg-gray-700 text-gray-300'}`}>
-                        {mp.id === selectedProjectId ? 'MANAGING' : 'VIEW MEMBERS'}
-                      </span>
-                      {mp.id === selectedProjectId ? <FaChevronUp className="text-gray-400" /> : <FaChevronDown className="text-gray-400" />}
-                    </div>
+                    <span className="text-base font-medium text-gray-400 flex items-center">
+                      <FaProjectDiagram className="mr-3 text-sky-500" />{mp.name || 'Unnamed Project'}
+                    </span>
+                    {selectedProjectId === mp.id ? <FaAngleDown className="text-gray-400" /> : <FaAngleRight className="text-gray-400" />}
                   </button>
                   {selectedProjectId === mp.id && (
-                    <div className="p-4 md:p-6 bg-gray-900/70 border-t border-gray-700">
-                      <div className="mb-6 pb-6 border-b border-gray-700">
+                    <div className="border-t border-gray-700 p-6">
+                      <h3 className="text-xl font-semibold text-white mb-4">Team Members</h3>
+                      {isLoadingTeamMembers && <div className="flex justify-center py-2"><FaSpinner className="animate-spin text-sky-500 text-xl" /></div>}
+                      {!isLoadingTeamMembers && teamMembers.length === 0 && (<p className="text-gray-500 italic">No team members assigned.</p>)}
+                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
+                        <ul className="space-y-3 mb-6">
+                          {teamMembers.map(member => (
+                            <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
+                              <div>
+                                <span className="font-normal text-gray-400 text-xs">{member.display_name || member.user_id}</span>
+                                <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
+                                  {member.role.replace(/_/g, ' ').toUpperCase()}
+                                </span>
+                              </div>
+                              {user?.id !== member.user_id && (
+                                <button onClick={() => openRemoveConfirmModal(member, mp.id, mp.name || 'Unnamed Project')}
+                                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/50 hover:border-red-400"
+                                        disabled={isAddingMember || isLoadingTeamMembers || isRemovingMember}>Remove</button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="mt-6 pt-6 border-t border-gray-700">
                         <h4 className="text-lg font-semibold text-white mb-4">Add/Update Member for "{mp.name}"</h4>
                         <form onSubmit={handleAddNewMember} className="space-y-4">
                           <div>
@@ -329,30 +412,6 @@ export default function TeamPage() {
                           </button>
                         </form>
                       </div>
-
-                      <h4 className="text-lg font-semibold text-white mb-4">Current Team Members</h4>
-                      {isLoadingTeamMembers && <div className="flex justify-center py-3"><FaSpinner className="animate-spin text-sky-400" /> <span className="ml-2">Loading members...</span></div>}
-                      {error && <div className="p-3 bg-red-800/40 text-red-300 rounded-md mb-3">Error: {error}</div>}
-                      {!isLoadingTeamMembers && teamMembers.length === 0 && (<p className="text-gray-500 italic">No team members assigned.</p>)}
-                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
-                        <ul className="space-y-3">
-                          {teamMembers.map(member => (
-                            <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
-                              <div className="flex flex-col items-start">
-                                <span className="font-normal text-gray-400 text-xs mb-1">{member.display_name || member.user_id}</span>
-                                <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
-                                  {member.role.replace(/_/g, ' ').toUpperCase()}
-                                </span>
-                              </div>
-                              {user?.id !== member.user_id && (
-                                <button onClick={() => openRemoveConfirmModal(member, mp.id, mp.name || 'Unnamed Project')}
-                                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/50 hover:border-red-400"
-                                        disabled={isAddingMember || isLoadingTeamMembers || isRemovingMember}>Remove</button>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
                     </div>
                   )}
                 </div>

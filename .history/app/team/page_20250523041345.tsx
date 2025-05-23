@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   FaUsers, FaSpinner, FaProjectDiagram, FaUserPlus, FaAngleDown, FaAngleRight,
-  FaEdit, FaExternalLinkAlt, FaComments, FaTrash, FaFolderOpen, FaChevronUp, FaChevronDown
+  FaEdit, FaExternalLinkAlt, FaComments, FaTrash
 } from 'react-icons/fa';
 
 // --- BEGIN HELPERS AND ENUMS ---
@@ -105,58 +105,13 @@ export default function TeamPage() {
     if (!userId) return;
     setIsLoadingProjects(true); setError(null);
     try {
-      const { data: profile, error: profileError } = await supabase.from('profiles').select('role').eq('id', userId).single();
-      if (profileError && profileError.code !== 'PGRST116') throw profileError; // Allow no profile (though unlikely for logged-in user)
-
-      let finalProjects: ManagedProject[] = [];
-
-      if (profile?.role === 'Admin') {
-        const { data, error: e } = await supabase.from('projects').select('id, name');
-        if (e) throw e;
-        finalProjects = data || [];
-      } else {
-        // 1. Projects owned by the user
-        const { data: ownedProjects, error: ownedError } = await supabase
-          .from('projects')
-          .select('id, name')
-          .eq('owner_user_id', userId);
-        if (ownedError) throw ownedError;
-        
-        const ownedProjectList = ownedProjects || [];
-
-        // 2. Projects where the user is a 'Client'
-        const { data: clientProjectMemberships, error: clientMembershipError } = await supabase
-          .from('project_members')
-          .select('project_id')
-          .eq('user_id', userId)
-          .eq('role', 'Client'); // Ensure this matches the DB enum value
-
-        if (clientMembershipError) throw clientMembershipError;
-
-        let clientRoleProjects: ManagedProject[] = [];
-        if (clientProjectMemberships && clientProjectMemberships.length > 0) {
-          const clientProjectIds = clientProjectMemberships.map(pm => pm.project_id);
-          const { data: projectsForClientRole, error: projectsForClientError } = await supabase
-            .from('projects')
-            .select('id, name')
-            .in('id', clientProjectIds);
-          if (projectsForClientError) throw projectsForClientError;
-          clientRoleProjects = projectsForClientRole || [];
-        }
-        
-        // Combine and deduplicate
-        const allManagedProjects = [...ownedProjectList, ...clientRoleProjects];
-        const uniqueProjectIds = new Set<string>();
-        finalProjects = allManagedProjects.filter(project => {
-          if (!uniqueProjectIds.has(project.id)) {
-            uniqueProjectIds.add(project.id);
-            return true;
-          }
-          return false;
-        });
-      }
-      setManagedProjects(finalProjects);
-    } catch (e: any) { setError('Failed to load managed projects: ' + e.message); setManagedProjects([]); }
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single();
+      let query = supabase.from('projects').select('id, name');
+      if (profile?.role !== 'Admin') query = query.eq('owner_user_id', userId);
+      const { data, error: e } = await query;
+      if (e) throw e;
+      setManagedProjects(data || []);
+    } catch (e: any) { setError('Failed to load managed projects: ' + e.message); }
     finally { setIsLoadingProjects(false); }
   }, [supabase]);
 
@@ -214,15 +169,7 @@ export default function TeamPage() {
       else if (newMemberRole === ProjectRole.Freelancer) dbRole = 'Freelancer';
       else if (newMemberRole === ProjectRole.Viewer) dbRole = 'Viewer';
       else if (newMemberRole === ProjectRole.ProjectManager) dbRole = 'Admin';
-      else {
-        const roleValue = newMemberRole.toString();
-        if (roleValue === 'Client' || roleValue === 'Freelancer' || roleValue === 'Admin' || roleValue === 'Viewer') {
-          dbRole = roleValue;
-        } else {
-          dbRole = roleValue.charAt(0).toUpperCase() + roleValue.slice(1);
-          console.warn(`Unmatched role in handleAddNewMember: '${roleValue}', attempting to save as '${dbRole}'. Check ProjectRole enum and DB user_role_enum.`);
-        }
-      }
+      else dbRole = newMemberRole.charAt(0).toUpperCase() + newMemberRole.slice(1);
 
       const { data: existing, error: e } = await supabase.from('project_members').select('role').eq('project_id', selectedProjectId).eq('user_id', selectedPlatformUserId).single();
       if (e && e.code !== 'PGRST116') throw e;
@@ -276,34 +223,48 @@ export default function TeamPage() {
         <div className="mt-0">
           {isLoadingProjects && <div className="flex justify-center py-4"><FaSpinner className="animate-spin text-sky-500 text-2xl" /></div>}
           {!isLoadingProjects && managedProjects.length === 0 && user && (
-            <div className="text-center py-10">
-              <FaUsers className="mx-auto text-5xl text-gray-500 mb-4" />
-              <p className="text-gray-400">You are not managing any projects.</p>
-              {/* Optionally, add a link/button here to create or claim projects if applicable */}
+            <div className="bg-gray-900 p-6 border border-gray-800 shadow-lg rounded-md">
+              <p className="text-gray-500 italic">You are not managing any projects currently.</p>
             </div>
           )}
           {!isLoadingProjects && managedProjects.length > 0 && (
-            <div className="space-y-3"> {/* Reduced space-y slightly for a tighter look if many projects */} 
+            <div className="space-y-4">
               {managedProjects.map(mp => (
-                <div key={mp.id} className="rounded-lg overflow-hidden shadow-md border border-gray-700 hover:border-gray-600 transition-colors duration-150">
+                <div key={mp.id} className="bg-gray-900 border border-gray-800 shadow-lg rounded-md">
                   <button
                     onClick={() => setSelectedProjectId(prev => prev === mp.id ? null : mp.id)}
-                    className="w-full flex items-center justify-between p-4 bg-black hover:bg-gray-800 focus:outline-none transition-colors duration-150"
+                    className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-800/50 transition-colors duration-150 cursor-pointer"
                   >
-                    <div className="flex items-center">
-                      <FaFolderOpen className="mr-3 text-sky-500 text-lg" /> {/* Icon for project */} 
-                      <span className="font-medium text-lg text-gray-100">{mp.name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className={`mr-3 text-xs font-semibold px-2 py-0.5 rounded-full ${mp.id === selectedProjectId ? 'bg-sky-600 text-white' : 'bg-gray-700 text-gray-300'}`}>
-                        {mp.id === selectedProjectId ? 'MANAGING' : 'VIEW MEMBERS'}
-                      </span>
-                      {mp.id === selectedProjectId ? <FaChevronUp className="text-gray-400" /> : <FaChevronDown className="text-gray-400" />}
-                    </div>
+                    <span className="text-base font-medium text-gray-400 flex items-center">
+                      <FaProjectDiagram className="mr-3 text-sky-500" />{mp.name || 'Unnamed Project'}
+                    </span>
+                    {selectedProjectId === mp.id ? <FaAngleDown className="text-gray-400" /> : <FaAngleRight className="text-gray-400" />}
                   </button>
                   {selectedProjectId === mp.id && (
-                    <div className="p-4 md:p-6 bg-gray-900/70 border-t border-gray-700">
-                      <div className="mb-6 pb-6 border-b border-gray-700">
+                    <div className="border-t border-gray-700 p-6">
+                      <h3 className="text-xl font-semibold text-white mb-4">Team Members</h3>
+                      {isLoadingTeamMembers && <div className="flex justify-center py-2"><FaSpinner className="animate-spin text-sky-500 text-xl" /></div>}
+                      {!isLoadingTeamMembers && teamMembers.length === 0 && (<p className="text-gray-500 italic">No team members assigned.</p>)}
+                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
+                        <ul className="space-y-3 mb-6">
+                          {teamMembers.map(member => (
+                            <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
+                              <div>
+                                <span className="font-normal text-gray-400 text-xs">{member.display_name || member.user_id}</span>
+                                <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
+                                  {member.role.replace(/_/g, ' ').toUpperCase()}
+                                </span>
+                              </div>
+                              {user?.id !== member.user_id && (
+                                <button onClick={() => openRemoveConfirmModal(member, mp.id, mp.name || 'Unnamed Project')}
+                                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/50 hover:border-red-400"
+                                        disabled={isAddingMember || isLoadingTeamMembers || isRemovingMember}>Remove</button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <div className="mt-6 pt-6 border-t border-gray-700">
                         <h4 className="text-lg font-semibold text-white mb-4">Add/Update Member for "{mp.name}"</h4>
                         <form onSubmit={handleAddNewMember} className="space-y-4">
                           <div>
@@ -329,30 +290,6 @@ export default function TeamPage() {
                           </button>
                         </form>
                       </div>
-
-                      <h4 className="text-lg font-semibold text-white mb-4">Current Team Members</h4>
-                      {isLoadingTeamMembers && <div className="flex justify-center py-3"><FaSpinner className="animate-spin text-sky-400" /> <span className="ml-2">Loading members...</span></div>}
-                      {error && <div className="p-3 bg-red-800/40 text-red-300 rounded-md mb-3">Error: {error}</div>}
-                      {!isLoadingTeamMembers && teamMembers.length === 0 && (<p className="text-gray-500 italic">No team members assigned.</p>)}
-                      {!isLoadingTeamMembers && teamMembers.length > 0 && (
-                        <ul className="space-y-3">
-                          {teamMembers.map(member => (
-                            <li key={member.user_id} className="flex justify-between items-center p-2.5 bg-gray-800 rounded-md shadow">
-                              <div className="flex flex-col items-start">
-                                <span className="font-normal text-gray-400 text-xs mb-1">{member.display_name || member.user_id}</span>
-                                <span className={getProjectRoleStyle(member.role as ProjectRole | string)}>
-                                  {member.role.replace(/_/g, ' ').toUpperCase()}
-                                </span>
-                              </div>
-                              {user?.id !== member.user_id && (
-                                <button onClick={() => openRemoveConfirmModal(member, mp.id, mp.name || 'Unnamed Project')}
-                                        className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded border border-red-500/50 hover:border-red-400"
-                                        disabled={isAddingMember || isLoadingTeamMembers || isRemovingMember}>Remove</button>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
                     </div>
                   )}
                 </div>
