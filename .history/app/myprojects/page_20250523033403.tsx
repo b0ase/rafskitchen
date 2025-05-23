@@ -109,26 +109,6 @@ const getCardDynamicBorderStyle = (priorityValue: number): string => {
   // }
 };
 
-// Helper function to get project role display style
-const getProjectRoleStyle = (role: string | ProjectRole | undefined): string => {
-  if (!role) return "bg-gray-700 text-gray-200"; // Default for no role
-  const roleLower = typeof role === 'string' ? role.toLowerCase() : '';
-
-  // Match against ProjectRole enum values directly
-  if (role === ProjectRole.Owner) {
-    return "bg-blue-700 text-blue-200"; // Platform Owner
-  } else if (role === ProjectRole.Freelancer || roleLower === 'freelancer') {
-    return "bg-green-700 text-green-200"; // FREELANCER - Green badge
-  } else if (role === ProjectRole.CLIENT || roleLower === 'client') {
-    return "bg-purple-700 text-purple-200"; // CLIENT 
-  } else if (role === ProjectRole.ProjectManager || roleLower === 'project_manager') {
-    return "bg-sky-700 text-sky-200"; // Project Manager
-  } else if (role === ProjectRole.Viewer || roleLower === 'viewer') {
-    return "bg-gray-600 text-gray-100"; // Viewer
-  }
-  return "bg-gray-700 text-gray-200"; // Fallback for any other string roles
-};
-
 // New SortableProjectCard component
 interface SortableProjectCardProps {
   project: ClientProject;
@@ -212,10 +192,10 @@ function SortableProjectCard({
             </a>
           </Link>
           {project.currentUserRole && (
-            <span className={`text-xs px-2 py-0.5 font-medium whitespace-nowrap ${getProjectRoleStyle(project.currentUserRole)}`}>
-              {typeof project.currentUserRole === 'string' ? 
-                (project.currentUserRole === ProjectRole.Owner ? 'Platform Owner' : project.currentUserRole.replace(/_/g, ' ').toUpperCase()) :
-                 project.currentUserRole === ProjectRole.Owner ? 'Platform Owner' : Object.keys(ProjectRole).find(key => (ProjectRole as any)[key] === project.currentUserRole) || 'Member'}
+            <span className={`text-xs px-2 py-0.5 font-medium whitespace-nowrap
+              ${project.currentUserRole === ProjectRole.ProjectManager || project.currentUserRole === "Owner" ? "bg-sky-700 text-sky-200" : "bg-gray-700 text-gray-200"}
+            `}>
+              {typeof project.currentUserRole === 'string' ? project.currentUserRole.replace(/_/g, ' ') : 'Member'}
             </span>
           )}
         </div>

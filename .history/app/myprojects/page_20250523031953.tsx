@@ -109,26 +109,6 @@ const getCardDynamicBorderStyle = (priorityValue: number): string => {
   // }
 };
 
-// Helper function to get project role display style
-const getProjectRoleStyle = (role: string | ProjectRole | undefined): string => {
-  if (!role) return "bg-gray-700 text-gray-200"; // Default for no role
-  const roleLower = typeof role === 'string' ? role.toLowerCase() : '';
-
-  // Match against ProjectRole enum values directly
-  if (role === ProjectRole.Owner) {
-    return "bg-blue-700 text-blue-200"; // Platform Owner
-  } else if (role === ProjectRole.Freelancer || roleLower === 'freelancer') {
-    return "bg-green-700 text-green-200"; // FREELANCER - Green badge
-  } else if (role === ProjectRole.CLIENT || roleLower === 'client') {
-    return "bg-purple-700 text-purple-200"; // CLIENT 
-  } else if (role === ProjectRole.ProjectManager || roleLower === 'project_manager') {
-    return "bg-sky-700 text-sky-200"; // Project Manager
-  } else if (role === ProjectRole.Viewer || roleLower === 'viewer') {
-    return "bg-gray-600 text-gray-100"; // Viewer
-  }
-  return "bg-gray-700 text-gray-200"; // Fallback for any other string roles
-};
-
 // New SortableProjectCard component
 interface SortableProjectCardProps {
   project: ClientProject;
@@ -212,10 +192,10 @@ function SortableProjectCard({
             </a>
           </Link>
           {project.currentUserRole && (
-            <span className={`text-xs px-2 py-0.5 font-medium whitespace-nowrap ${getProjectRoleStyle(project.currentUserRole)}`}>
-              {typeof project.currentUserRole === 'string' ? 
-                (project.currentUserRole === ProjectRole.Owner ? 'Platform Owner' : project.currentUserRole.replace(/_/g, ' ').toUpperCase()) :
-                 project.currentUserRole === ProjectRole.Owner ? 'Platform Owner' : Object.keys(ProjectRole).find(key => (ProjectRole as any)[key] === project.currentUserRole) || 'Member'}
+            <span className={`text-xs px-2 py-0.5 font-medium whitespace-nowrap
+              ${project.currentUserRole === ProjectRole.ProjectManager || project.currentUserRole === "Owner" ? "bg-sky-700 text-sky-200" : "bg-gray-700 text-gray-200"}
+            `}>
+              {typeof project.currentUserRole === 'string' ? project.currentUserRole.replace(/_/g, ' ') : 'Member'}
             </span>
           )}
         </div>
@@ -405,82 +385,46 @@ export default function MyProjectsPage() {
     setError(null);
 
     try {
-      // RLS will filter these projects based on the user's permissions (owner, member, public)
+      // 1. Fetch ALL projects from the projects table (removed owner_user_id filter)
       const { data: allProjectsData, error: projectsError } = await supabase
         .from('projects')
-        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public');
+        .select('id, name, slug, status, project_brief, badge1, badge2, badge3, badge4, badge5, is_featured, url, owner_user_id, created_at, is_public'); // Removed client_id and clients join as we are getting all projects
 
       if (projectsError) {
-        console.error('PROJECTS FETCH ERROR:', projectsError);
-        setError('Failed to fetch projects.');
-        setProjects([]); // Clear projects on error
-        setLoading(false);
-        return;
+        console.error('ALL PROJECTS FETCH ERROR:', projectsError);
+        setError('Failed to fetch all projects.');
       }
 
-      if (!allProjectsData) {
-        setProjects([]);
-        setLoading(false);
-        return;
-      }
+      const combinedProjects: ClientProject[] = [];
+      const projectMap = new Map<string, ClientProject>();
 
-      // For each project, determine the current user's role
-      const projectsWithRoles = await Promise.all(
-        allProjectsData.map(async (p) => {
-          let userRoleForProject: ProjectRole | string = ''; // Default to empty or a generic role
+      // Process all fetched projects
+      (allProjectsData || []).forEach(p => {
+        const project: ClientProject = {
+          id: p.id,
+          name: p.name,
+          project_slug: p.slug,
+          status: p.status,
+          project_brief: p.project_brief,
+          badge1: p.badge1,
+          badge2: p.badge2,
+          badge3: p.badge3,
+          badge4: p.badge4,
+          badge5: p.badge5,
+          is_featured: p.is_featured,
+          url: p.url,
+          user_id: p.owner_user_id, // This is the platform owner
+          created_at: p.created_at,
+          currentUserRole: ProjectRole.Owner,
+          is_public: p.is_public,
+        };
+        projectMap.set(p.id, project);
+      });
 
-          if (p.owner_user_id === user.id) {
-            userRoleForProject = ProjectRole.Owner;
-          } else {
-            // Check project_members table for a specific role
-            const { data: memberRoleData, error: memberRoleError } = await supabase
-              .from('project_members')
-              .select('role')
-              .eq('project_id', p.id)
-              .eq('user_id', user.id)
-              .single();
-
-            if (memberRoleError && memberRoleError.code !== 'PGRST116') { // PGRST116 means no row found
-              console.warn(`Error fetching member role for project ${p.id}:`, memberRoleError.message);
-            }
-            if (memberRoleData && memberRoleData.role) {
-              // Map the role from project_members (which should be like 'client', 'freelancer')
-              // to the ProjectRole enum key if necessary, or ensure direct compatibility.
-              // Assuming direct compatibility for now, e.g., project_members.role = 'freelancer'
-              const roleKey = Object.keys(ProjectRole).find(key => (ProjectRole as any)[key] === memberRoleData.role.toLowerCase());
-              userRoleForProject = roleKey ? (ProjectRole as any)[roleKey] : memberRoleData.role; 
-            } else if (p.is_public) {
-                // If no specific role and project is public, maybe a 'Viewer' or no role displayed
-                // For now, let's leave it blank or assign a generic viewer if ProjectRole.Viewer exists
-                // userRoleForProject = ProjectRole.Viewer; 
-            }
-          }
-
-          return {
-            id: p.id,
-            name: p.name,
-            project_slug: p.slug,
-            status: p.status,
-            project_brief: p.project_brief,
-            badge1: p.badge1,
-            badge2: p.badge2,
-            badge3: p.badge3,
-            badge4: p.badge4,
-            badge5: p.badge5,
-            is_featured: p.is_featured,
-            url: p.url,
-            user_id: p.owner_user_id, // This remains the project owner
-            created_at: p.created_at,
-            currentUserRole: userRoleForProject,
-            is_public: p.is_public,
-          } as ClientProject;
-        })
-      );
-
-      setProjects(projectsWithRoles);
+      setProjects(Array.from(projectMap.values()));
 
     } catch (e: any) {
-      console.error('General error fetching projects and roles:', e);
+      console.error('General error fetching projects:', e);
       setError('An unexpected error occurred while loading projects.');
       setProjects([]);
     } finally {

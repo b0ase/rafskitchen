@@ -126,9 +126,13 @@ export default function TeamPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+
+  // --- UPDATED State for Display Projects (formerly User's Teams) ---
   const [displayProjects, setDisplayProjects] = useState<DisplayProject[]>([]);
   const [isLoadingDisplayProjects, setIsLoadingDisplayProjects] = useState(false);
   const [errorFetchingDisplayProjects, setErrorFetchingDisplayProjects] = useState<string | null>(null);
+  // --- END UPDATED State ---
+
   const [managedProjects, setManagedProjects] = useState<ManagedProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -136,14 +140,19 @@ export default function TeamPage() {
   const [isLoadingTeamMembers, setIsLoadingTeamMembers] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // State for adding a new member
   const [platformUsers, setPlatformUsers] = useState<PlatformUser[]>([]);
   const [isLoadingPlatformUsers, setIsLoadingPlatformUsers] = useState(false);
-  const [selectedPlatformUserId, setSelectedPlatformUserId] = useState<string>('');
+  const [selectedPlatformUserId, setSelectedPlatformUserId] = useState<string>(''); // For the dropdown
   const [newMemberRole, setNewMemberRole] = useState<ProjectRole>(ProjectRole.Freelancer);
   const [isAddingMember, setIsAddingMember] = useState(false);
+
+  // --- NEW State for Remove Confirmation Modal ---
   const [showRemoveConfirmModal, setShowRemoveConfirmModal] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{ userId: string; displayName: string; projectId: string; projectName: string; } | null>(null);
   const [isRemovingMember, setIsRemovingMember] = useState(false);
+  // --- END NEW State ---
 
   useEffect(() => {
     const getUser = async () => {
@@ -160,49 +169,95 @@ export default function TeamPage() {
     getUser();
   }, [supabase, router]);
 
+  // --- NEW Function to Fetch Projects and related data for display ---
   const fetchDisplayProjects = useCallback(async (userId: string) => {
     if (!userId) return;
     setIsLoadingDisplayProjects(true);
     setErrorFetchingDisplayProjects(null);
     try {
+      // Step 1: Get project_ids and roles from project_members where the user is a member
       const { data: userProjectMemberships, error: userProjectError } = await supabase
-        .from('project_members')
+        .from('project_members') //MODIFIED: from 'project_users'
         .select('project_id, role')
         .eq('user_id', userId);
-      if (userProjectError) throw userProjectError;
+
+      if (userProjectError) {
+        throw userProjectError;
+      }
+
       if (!userProjectMemberships || userProjectMemberships.length === 0) {
         setDisplayProjects([]);
         setIsLoadingDisplayProjects(false);
         return;
       }
+
       const projectIds = userProjectMemberships.map(entry => entry.project_id);
+
+      // Step 2: Fetch details for these projects from the 'projects' table
       const { data: projectsData, error: projectsError } = await supabase
-        .from('projects')
-        .select('id, name, slug, project_category, owner_user_id')
+        .from('projects') // MODIFIED: from 'clients'
+        .select('id, name, slug, project_category, owner_user_id') // MODIFIED: selected fields relevant to 'projects' table
         .in('id', projectIds);
-      if (projectsError) throw projectsError;
+
+      if (projectsError) {
+        throw projectsError;
+      }
+
+      // Step 3: For each project, fetch additional details like team leader (owner) and members
       const displayProjectsWithDetails = await Promise.all(projectsData?.map(async (proj) => {
         let teamLeaderObj: { display_name: string | null } | null = null;
+        // Fetch project owner's profile as the team leader
         if (proj.owner_user_id) {
           const { data: ownerProfile, error: ownerProfileError } = await supabase
-            .from('profiles').select('display_name, username').eq('id', proj.owner_user_id).single();
-          if (ownerProfileError && ownerProfileError.code !== 'PGRST116') console.error('Error fetching owner profile for project', proj.name, ':', ownerProfileError);
-          if (ownerProfile) teamLeaderObj = { display_name: ownerProfile.display_name || ownerProfile.username || 'Unnamed Owner' };
+            .from('profiles')
+            .select('display_name, username')
+            .eq('id', proj.owner_user_id)
+            .single();
+          if (ownerProfileError && ownerProfileError.code !== 'PGRST116') {
+            console.error('Error fetching owner profile for project', proj.name, ':', ownerProfileError);
+          }
+          if (ownerProfile) {
+            teamLeaderObj = { display_name: ownerProfile.display_name || ownerProfile.username || 'Unnamed Owner' };
+          }
         }
+
+        // Fetch team members for this project from project_members
         const { data: membersData, error: membersError } = await supabase
-          .from('project_members').select('user_id, role, profiles (display_name, username)').eq('project_id', proj.id);
-        if (membersError) console.error('Error fetching members for project', proj.name, ':', membersError);
+          .from('project_members')
+          .select('user_id, role, profiles (display_name, username)')
+          .eq('project_id', proj.id);
+
+        if (membersError) {
+          console.error('Error fetching members for project', proj.name, ':', membersError);
+        }
+        
         const fetchedTeamMembers = membersData?.map(m => ({
-          user_id: m.user_id, role: m.role, display_name: (m.profiles as any)?.display_name || (m.profiles as any)?.username || 'Unnamed Member', project_id: proj.id
+          user_id: m.user_id,
+          role: m.role,
+          // @ts-ignore supabase types can be tricky with nested selects
+          display_name: m.profiles?.display_name || m.profiles?.username || 'Unnamed Member',
+          project_id: proj.id
         })) || [];
+
+
+        // Construct the DisplayProject object
         return {
-          id: proj.id, name: proj.name, slug: proj.slug, icon_name: null, color_scheme: null,
-          team_leader: teamLeaderObj, token: null, client_name: proj.name, project_type: proj.project_category,
+          id: proj.id,
+          name: proj.name,
+          slug: proj.slug,
+          icon_name: null,
+          color_scheme: null,
+          team_leader: teamLeaderObj,
+          token: null,
+          client_name: proj.name,
+          project_type: proj.project_category,
           team_members: fetchedTeamMembers.map(m => ({ display_name: m.display_name})),
           project_data: { id: proj.id, name: proj.name },
         } as DisplayProject;
       }) || []);
-      setDisplayProjects(displayProjectsWithDetails.filter(p => p !== null) as DisplayProject[]);
+
+      setDisplayProjects(displayProjectsWithDetails.filter(p => p !== null) as DisplayProject[]); // Filter out nulls if any promise failed partially
+
     } catch (e: any) {
       console.error('Error in fetchDisplayProjects:', e);
       setErrorFetchingDisplayProjects(`Failed to load team projects: ${e.message}`);
@@ -217,39 +272,65 @@ export default function TeamPage() {
     setIsLoadingProjects(true);
     setError(null);
     try {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles').select('role').eq('id', userId).single();
-      if (profileError && profileError.code !== 'PGRST116') {
-        console.error('Error fetching user profile for managed projects:', profileError);
+      // Step 1: Get project_ids where the user is a project_manager
+      const { data: projectUserEntries, error: projectUserError } = await supabase
+        .from('project_users')
+        .select('project_id')
+        .eq('user_id', userId)
+        .eq('role', ProjectRole.ProjectManager);
+
+      if (projectUserError) {
+        throw projectUserError;
       }
-      const userRole = profile?.role;
-      let query = supabase.from('projects').select('id, name');
-      if (userRole !== 'Admin') {
-        query = query.eq('owner_user_id', userId);
+
+      if (!projectUserEntries || projectUserEntries.length === 0) {
+        setManagedProjects([]);
+        setIsLoadingProjects(false);
+        return;
       }
-      const { data, error: projectsError } = await query;
-      if (projectsError) throw projectsError;
-      setManagedProjects(data || []);
+
+      const projectIds = projectUserEntries.map(entry => entry.project_id);
+
+      // Step 2: Fetch details for these projects from 'clients' table
+      // Assuming 'clients' table has 'id' and 'name'
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('clients') // Your projects table
+        .select('id, name') // Changed project_name to name
+        .in('id', projectIds);
+
+      if (projectsError) {
+        throw projectsError;
+      }
+      setManagedProjects(projectsData || []);
+
     } catch (e: any) {
       console.error('Error fetching managed projects:', e);
-      setError('Failed to load managed projects. ' + e.message);
+      setError(`Failed to load projects: ${e.message}`);
+      setManagedProjects([]);
     } finally {
       setIsLoadingProjects(false);
     }
   }, [supabase]);
 
+  // Fetch current team members when a project is selected
   const fetchTeamMembers = useCallback(async (projectId: string | null) => {
     if (!projectId || !user) return;
     setIsLoadingTeamMembers(true);
     setError(null);
     try {
       const { data, error } = await supabase
-        .from('project_members').select('user_id, role, profiles(display_name, username)').eq('project_id', projectId);
+        .from('project_members') // MODIFIED: from 'project_users'
+        .select('user_id, role, profiles(display_name, username)') // MODIFIED: fetch profile directly and role
+        .eq('project_id', projectId);
+
       if (error) throw error;
+
       const members = data?.map(m => ({
-        user_id: m.user_id, role: m.role as string,
-        display_name: (m.profiles as any)?.display_name || (m.profiles as any)?.username || 'Unnamed Member',
-        project_id: projectId
+        user_id: m.user_id,
+        role: m.role as string, // Ensure role is string
+        // @ts-ignore
+        display_name: m.profiles?.display_name || m.profiles?.username || 'Unnamed Member',
+        project_id: projectId // Add project_id for context
       })) || [];
       setTeamMembers(members);
     } catch (err: any) {
@@ -263,70 +344,74 @@ export default function TeamPage() {
 
   const fetchPlatformUsers = useCallback(async () => {
     setIsLoadingPlatformUsers(true);
+    setError(null);
     try {
       const { data, error } = await supabase
-        .from('profiles').select('id, display_name, username'); // Fetch from profiles
+        .from('profiles')
+        .select('id, display_name, username') // Fetch fields needed for display and ID
+        .order('display_name', { ascending: true }); // Optional: order them
+
       if (error) throw error;
-      setPlatformUsers(data?.map(p => ({ id: p.id, display_name: p.display_name || p.username || p.id })) || []);
+      setPlatformUsers(data?.map(p => ({ id: p.id, display_name: p.display_name || p.username || p.id.substring(0,8) })) || []);
     } catch (e: any) {
       console.error('Error fetching platform users:', e);
-      setError('Failed to load users for selection. ' + e.message);
+      setError(`Failed to load users for dropdown: ${e.message}`);
+      setPlatformUsers([]);
     } finally {
       setIsLoadingPlatformUsers(false);
     }
   }, [supabase]);
 
   useEffect(() => {
-    if (user && user.id) {
+    if (user?.id) {
       fetchManagedProjects(user.id);
-      fetchDisplayProjects(user.id);
-      fetchPlatformUsers();
+      fetchPlatformUsers(); // Fetch all users once the main user is loaded
+      fetchDisplayProjects(user.id); // --- UPDATED: Fetch display projects instead of user teams ---
     }
-  }, [user, fetchManagedProjects, fetchDisplayProjects, fetchPlatformUsers]);
+  }, [user, fetchManagedProjects, fetchPlatformUsers, fetchDisplayProjects]); // --- UPDATED dependencies ---
 
   useEffect(() => {
     if (selectedProjectId) {
       fetchTeamMembers(selectedProjectId);
-      setSelectedPlatformUserId('');
+      setSelectedPlatformUserId(''); // Reset selected user in dropdown
       setNewMemberRole(ProjectRole.Freelancer);
       setSuccessMessage(null);
       setError(null);
+    } else {
+      setTeamMembers([]); // Clear team members if no project is selected
     }
   }, [selectedProjectId, fetchTeamMembers]);
 
-  const handleProjectSelect = (projectId: string) => {
-    setSelectedProjectId(projectId);
-  };
-
   const handleAddNewMember = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedProjectId || !selectedPlatformUserId || !newMemberRole) {
-      setError('Please select a project, user, and role.');
-      return;
-    }
-    if (!user) {
-      setError('You must be logged in to add members.');
+    if (!selectedProjectId || !selectedPlatformUserId) {
+      setError('Please select a project and a user to add.');
       return;
     }
     setIsAddingMember(true);
     setError(null);
     setSuccessMessage(null);
+
     try {
-      const { data: existingMember, error: checkError } = await supabase
-        .from('project_members').select('user_id').eq('project_id', selectedProjectId).eq('user_id', selectedPlatformUserId).single();
-      if (checkError && checkError.code !== 'PGRST116') throw checkError;
-      if (existingMember) {
-        setError('This user is already a member of this project.');
-        setIsAddingMember(false);
-        return;
-      }
       const { error: insertError } = await supabase
-        .from('project_members').insert({ project_id: selectedProjectId, user_id: selectedPlatformUserId, role: newMemberRole });
-      if (insertError) throw insertError;
-      setSuccessMessage('Member added successfully!');
-      fetchTeamMembers(selectedProjectId);
-      setSelectedPlatformUserId('');
-      setNewMemberRole(ProjectRole.Freelancer);
+        .from('project_users')
+        .insert({
+          project_id: selectedProjectId,
+          user_id: selectedPlatformUserId,
+          role: newMemberRole,
+        });
+
+      if (insertError) {
+        if (insertError.code === '23505') { 
+          throw new Error(`This user is already a member of this project.`);
+        } else {
+          throw insertError;
+        }
+      }
+      const addedUser = platformUsers.find(u => u.id === selectedPlatformUserId);
+      setSuccessMessage(`Successfully added ${addedUser?.display_name || 'user'} to the project as ${newMemberRole.replace('_',' ')}.`);
+      setSelectedPlatformUserId(''); 
+      fetchTeamMembers(selectedProjectId); 
     } catch (e: any) {
       console.error('Error adding new member:', e);
       setError(`Failed to add member: ${e.message}`);
@@ -335,40 +420,55 @@ export default function TeamPage() {
     }
   };
 
+  // --- NEW Function to Open Remove Confirmation Modal ---
   const openRemoveConfirmModal = (member: TeamMember, projectId: string, projectName: string) => {
-    if (!member || !member.user_id || !member.display_name) {
-      console.error('Cannot remove member: member data is incomplete', member);
-      setError('Cannot remove member due to incomplete data.');
+    if (member.user_id === user?.id) {
+      setError("You cannot remove yourself from a project you manage. If you wish to leave, please transfer ownership or contact an administrator.");
       return;
     }
-    setMemberToRemove({ userId: member.user_id, displayName: member.display_name, projectId: projectId, projectName: projectName });
+    setMemberToRemove({ 
+      userId: member.user_id, 
+      displayName: member.display_name || 'this user', 
+      projectId: projectId,
+      projectName: projectName
+    });
     setShowRemoveConfirmModal(true);
+    setError(null); // Clear previous errors
+    setSuccessMessage(null); // Clear previous success messages
   };
+  // --- END NEW Function ---
 
+  // --- NEW Function to Handle Member Removal ---
   const handleRemoveMember = async () => {
-    if (!memberToRemove || !memberToRemove.userId || !memberToRemove.projectId) {
-      setError('Error: Member information or project context is missing for removal.');
-      setShowRemoveConfirmModal(false);
-      return;
-    }
+    if (!memberToRemove) return;
+
     setIsRemovingMember(true);
     setError(null);
     setSuccessMessage(null);
+
     try {
       const { error: deleteError } = await supabase
-        .from('project_members').delete().eq('project_id', memberToRemove.projectId).eq('user_id', memberToRemove.userId);
-      if (deleteError) throw deleteError;
-      setSuccessMessage(`Successfully removed ${memberToRemove.displayName} from ${memberToRemove.projectName}.`);
-      fetchTeamMembers(memberToRemove.projectId);
+        .from('project_users')
+        .delete()
+        .eq('user_id', memberToRemove.userId)
+        .eq('project_id', memberToRemove.projectId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
+      setSuccessMessage(`Successfully removed ${memberToRemove.displayName} from project "${memberToRemove.projectName}".`);
+      fetchTeamMembers(memberToRemove.projectId); // Refresh list
+      setShowRemoveConfirmModal(false);
+      setMemberToRemove(null);
     } catch (e: any) {
       console.error('Error removing member:', e);
       setError(`Failed to remove member: ${e.message}`);
     } finally {
       setIsRemovingMember(false);
-      setShowRemoveConfirmModal(false);
-      setMemberToRemove(null);
     }
   };
+  // --- END NEW Function ---
 
   if (loadingUser || (user && isLoadingProjects)) {
     return (
@@ -390,6 +490,10 @@ export default function TeamPage() {
     );
   }
   
+  const handleProjectSelect = (projectId: string) => {
+    setSelectedProjectId(prevId => prevId === projectId ? null : projectId);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-gray-300 flex flex-col">
       <main className="flex-grow container mx-auto px-4 py-12 md:py-16">
