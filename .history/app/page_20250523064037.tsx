@@ -227,6 +227,8 @@ export default function PortfolioPage() {
                   className="relative group bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-110 bg-no-repeat"
                   style={primaryImageUrl ? { 
                     backgroundImage: `url(${primaryImageUrl})`,
+                    backgroundSize: '70%',
+                    backgroundPosition: 'center 2rem',
                   } : {}}
                   onMouseEnter={() => setHoveredProjectId(project.id)}
                   onMouseLeave={() => setHoveredProjectId(null)}

@@ -163,7 +163,7 @@ export const portfolioData: PortfolioData = {
     { ...createProjectStub(14, 'dns-dex.com', 'Decentralized domain name exchange platform revolutionizing how web addresses are traded.', 'Platform', [], '$DNSD', 100, []), type: 'domain' as const },
     { ...createProjectStub(15, 'tribeswallet.com', 'Secure multi-chain cryptocurrency wallet designed for community-driven token ecosystems.', 'App', [], '$TWALL', 100, []), type: 'domain' as const },
     { ...createProjectStub(16, 'pennypics.store', 'Micro-payment based image marketplace where photographers earn per view.', 'E-commerce', [], '$PICS', 100, []), type: 'domain' as const },
-    { ...createProjectStub(17, 'missvoid.store', 'Avant-garde fashion boutique featuring cyberpunk and dystopian-inspired clothing.', 'E-commerce', [], '$VOID', 100, ['/images/clientprojects/missvoid.store/slug/missvoid_logo.png']), type: 'domain' as const },
+    { ...createProjectStub(17, 'missvoid.store', 'Avant-garde fashion boutique featuring cyberpunk and dystopian-inspired clothing.', 'E-commerce', [], '$VOID', 100, []), type: 'domain' as const },
     { ...createProjectStub(18, 'interiordesigns.website', 'Virtual interior design consultation platform with AI-powered room visualization.', 'Service', [], '$NTR', 100, []), type: 'domain' as const },
     {
       // Using createProjectStub for consistency, then overriding/adding specific fields

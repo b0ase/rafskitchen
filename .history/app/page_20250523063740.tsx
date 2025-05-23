@@ -224,31 +224,26 @@ export default function PortfolioPage() {
               return (
                 <div 
                   key={project.id} 
-                  className="relative group bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-110 bg-no-repeat"
+                  className="relative group bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-110 bg-no-repeat bg-center bg-contain opacity-bg-echo"
                   style={primaryImageUrl ? { 
                     backgroundImage: `url(${primaryImageUrl})`,
                   } : {}}
                   onMouseEnter={() => setHoveredProjectId(project.id)}
                   onMouseLeave={() => setHoveredProjectId(null)}
                 >
-                  {/* Overlay 1: To make the background image an echo (overall faintness) */}
-                  <div className="absolute inset-0 bg-white/90 dark:bg-black/90 z-0"></div>
+                  {/* Semi-transparent overlay to ensure content legibility over background echo */}
+                  <div className="absolute inset-0 bg-white/80 dark:bg-black/80 z-0"></div>
 
-                  {/* Overlay 2: To fade the bottom of the background image (optional, can be tricky) */}
-                  {/* This gradient should go from transparent at the top to card bg color at the bottom */}
-                  {/* The effectiveness of this depends on the background image and overall card bg */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white dark:from-black to-transparent z-[1]"></div>
-
-                  {/* Content wrapper - sits on top of all overlays */}
-                  <div className="relative z-10 flex flex-col flex-grow p-6 overflow-auto"> 
-                    {/* Persistent Social Links Bar (z-20 relative to this z-10 container) */}
-                    <div className="absolute top-2 right-2 z-20 flex items-center gap-2 p-1 bg-gradient-to-l from-black/30 dark:from-black/50 to-transparent rounded-bl-sm">
+                  {/* Content wrapper to sit above the overlay and background echo */}
+                  <div className="relative z-10 flex flex-col flex-grow p-6">
+                    {/* Persistent Social Links Bar */}
+                    <div className="absolute top-2 right-2 z-20 flex items-center gap-2 p-2 bg-gradient-to-l from-black/50 dark:from-black/70 to-transparent rounded-bl-md">
                       {project.tokenName && (
                         <a
                           href={project.tokenMarketUrl || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`text-xs text-gray-200 dark:text-gray-300 hover:text-white dark:hover:text-gray-100 transition-colors ${!project.tokenMarketUrl && 'opacity-50 cursor-not-allowed'} font-mono font-bold px-1`}
+                          className={`text-gray-400 hover:text-gray-300 transition-colors ${!project.tokenMarketUrl && 'opacity-50 cursor-not-allowed'} font-mono font-bold`}
                           title={`View ${project.tokenName} Token`}
                         >
                           $
@@ -259,10 +254,10 @@ export default function PortfolioPage() {
                           href={project.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-200 dark:text-gray-300 hover:text-white dark:hover:text-gray-100 transition-colors"
+                          className="text-gray-400 hover:text-gray-300 transition-colors"
                           title="View on GitHub"
                         >
-                          <FaGithub size={14} />
+                          <FaGithub size={16} />
                         </a>
                       )}
                       {project.xUrl && project.xUrl !== '#' && (
@@ -270,7 +265,7 @@ export default function PortfolioPage() {
                           href={project.xUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-200 dark:text-gray-300 hover:text-white dark:hover:text-gray-100 transition-colors"
+                          className="text-gray-400 hover:text-gray-300 transition-colors"
                           title="View on X"
                         >
                           <XIcon />
@@ -281,7 +276,7 @@ export default function PortfolioPage() {
                           href={project.notionUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-200 dark:text-gray-300 hover:text-white dark:hover:text-gray-100 transition-colors"
+                          className="text-gray-400 hover:text-gray-300 transition-colors"
                           title="View Documentation"
                         >
                           <NotionIcon />
@@ -289,37 +284,23 @@ export default function PortfolioPage() {
                       )}
                       <a
                         href={`mailto:${portfolioData.contact.email}?subject=Inquiry about ${project.title}`}
-                        className="text-gray-200 dark:text-gray-300 hover:text-white dark:hover:text-gray-100 transition-colors"
+                        className="text-gray-400 hover:text-gray-300 transition-colors"
                         title="Contact About Project"
                       >
-                        <FaInfoCircle size={14} />
+                        <FaInfoCircle size={16} />
                       </a>
                     </div>
 
-                    {/* Main image/avatar area - this is the small circular logo */}
-                    <div className="relative w-full h-20 flex items-center justify-start mb-4">
-                      {primaryImageUrl && (
-                        <ProjectCardImage 
-                          imageUrls={project.cardImageUrls!}
-                          alt={`${project.title} logo`}
-                        />
-                      )}
+                    <div className="relative w-full h-40 bg-gradient-to-b from-black to-gray-900 dark:from-black dark:to-gray-900 flex items-center justify-start p-4">
+                      <ProjectCardImage 
+                        imageUrls={project.cardImageUrls || []} 
+                        alt={`${project.title} logo`}
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-black to-transparent"></div>
                     </div>
-
-                    {/* Text content area */}
-                    <div className="flex flex-col flex-grow"> 
-                      <h3 className="text-lg font-semibold text-black dark:text-white mb-1">
-                        <a 
-                          href={project.liveUrl || '#'} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 rounded"
-                        >
-                          {project.title}
-                        </a>
-                      </h3>
+                    <div className="relative p-5 flex flex-col flex-grow transition-opacity duration-300 group-hover:opacity-0 group-hover:pointer-events-none">
+                      <h3 className="text-lg font-semibold text-black dark:text-white mb-1">{project.title}</h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex-grow">{project.description}</p>
-                      
                       <div className="mb-3 flex flex-wrap gap-1">
                         {project.status && (
                           <span className={`text-xs font-medium mr-1 px-2 py-0.5 inline-block w-max border 
@@ -338,13 +319,11 @@ export default function PortfolioPage() {
                           </span>
                         )}
                       </div>
-
                       {typeof project.tokenProgressPercent === 'number' && (
                         <div className="w-full bg-gray-200 dark:bg-gray-700 h-1 mb-3">
                           <div className="bg-blue-500 dark:bg-blue-600 h-1" style={{ width: `${project.tokenProgressPercent}%` }}></div>
                         </div>
                       )}
-                      
                       <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end">
                         <Link href={`/projects/${project.slug}`} className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium inline-flex items-center">
                           Details <FaArrowRight className="ml-1" size={10}/>

@@ -145,25 +145,13 @@ export const portfolioData: PortfolioData = {
     { ...createProjectStub(8, 'hyper-flix.com', 'Innovative memecoin marketing platform specializing in viral TikTok campaigns and social engagement.', 'B2C', ['TikTok', 'Social Media', 'Crypto'], '$HFLIX', 100, ['/images/clientprojects/hyper-flix/slug/HYPERFLIXLOGO%20(1).png']), type: 'domain' as const },
     { ...createProjectStub(9, 'tribify.ai', 'AI-powered community platform that connects like-minded individuals through shared interests.', 'SaaS', [], '$TRIBE', 100, ['/images/clientprojects/tribify/slug/TribifyAILogo.JPG']), type: 'domain' as const },
     { ...createProjectStub(10, 'aitribes.online', 'Dynamic social network where AI agents and humans collaborate to create unique digital experiences.', 'Platform', [], '$AITR', 100, []), type: 'domain' as const },
-    { 
-      ...createProjectStub(
-        11, 
-        'lilithtattoo.com', 
-        'Elegant portfolio showcase for a renowned tattoo artist specializing in dark art and mystical designs.', 
-        'Service', 
-        [], 
-        '$LILITH', 
-        100, 
-        ['/images/clientprojects/lilithtattoo-com/slug/lilith-ai-logo.png'] // Updated image path for lilithtattoo.com
-      ), 
-      type: 'domain' as const 
-    },
+    { ...createProjectStub(11, 'lilithtattoo.com', 'Elegant portfolio showcase for a renowned tattoo artist specializing in dark art and mystical designs.', 'Service', [], '$LILITH', 100, []), type: 'domain' as const },
     { ...createProjectStub(12, 'metagraph.app', 'Innovative data visualization tool that transforms complex relationships into interactive 3D networks.', 'App', [], '$META', 100, []), type: 'domain' as const },
     { ...createProjectStub(13, 'floop.online', 'Real-time collaborative workspace for creative professionals with integrated project management.', 'Platform', [], '$FLOOP', 100, []), type: 'domain' as const },
     { ...createProjectStub(14, 'dns-dex.com', 'Decentralized domain name exchange platform revolutionizing how web addresses are traded.', 'Platform', [], '$DNSD', 100, []), type: 'domain' as const },
     { ...createProjectStub(15, 'tribeswallet.com', 'Secure multi-chain cryptocurrency wallet designed for community-driven token ecosystems.', 'App', [], '$TWALL', 100, []), type: 'domain' as const },
     { ...createProjectStub(16, 'pennypics.store', 'Micro-payment based image marketplace where photographers earn per view.', 'E-commerce', [], '$PICS', 100, []), type: 'domain' as const },
-    { ...createProjectStub(17, 'missvoid.store', 'Avant-garde fashion boutique featuring cyberpunk and dystopian-inspired clothing.', 'E-commerce', [], '$VOID', 100, ['/images/clientprojects/missvoid.store/slug/missvoid_logo.png']), type: 'domain' as const },
+    { ...createProjectStub(17, 'missvoid.store', 'Avant-garde fashion boutique featuring cyberpunk and dystopian-inspired clothing.', 'E-commerce', [], '$VOID', 100, []), type: 'domain' as const },
     { ...createProjectStub(18, 'interiordesigns.website', 'Virtual interior design consultation platform with AI-powered room visualization.', 'Service', [], '$NTR', 100, []), type: 'domain' as const },
     {
       // Using createProjectStub for consistency, then overriding/adding specific fields
@@ -175,7 +163,7 @@ export const portfolioData: PortfolioData = {
         ['Next.js', 'TypeScript', 'Three.js', 'WebGL'], // Example Tech Stack (customize as needed)
         undefined, // tokenName (undefined if not applicable)
         0, // tokenProgressPercent (0 if not applicable)
-        ['/images/clientprojects/marina3d-xyz/slug/mar3D_logo.png'] // Updated image path
+        ['/images/clientprojects/marina3d-xyz/slug/placeholder-marina3d.png'] // Placeholder image path
       ),
       type: 'domain' as const, // Ensure it's treated as a domain project
       liveUrl: 'https://marina3d.xyz', // Specific live URL

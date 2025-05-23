@@ -224,24 +224,19 @@ export default function PortfolioPage() {
               return (
                 <div 
                   key={project.id} 
-                  className="relative group bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-110 bg-no-repeat"
+                  className="relative group bg-white dark:bg-black border border-gray-200 dark:border-gray-800 shadow-md dark:shadow-xl flex flex-col overflow-hidden transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:brightness-105 dark:hover:brightness-110 bg-no-repeat bg-center bg-contain"
                   style={primaryImageUrl ? { 
                     backgroundImage: `url(${primaryImageUrl})`,
                   } : {}}
                   onMouseEnter={() => setHoveredProjectId(project.id)}
                   onMouseLeave={() => setHoveredProjectId(null)}
                 >
-                  {/* Overlay 1: To make the background image an echo (overall faintness) */}
+                  {/* Overlay to allow background image to echo through and provide main card bg color */}
                   <div className="absolute inset-0 bg-white/90 dark:bg-black/90 z-0"></div>
 
-                  {/* Overlay 2: To fade the bottom of the background image (optional, can be tricky) */}
-                  {/* This gradient should go from transparent at the top to card bg color at the bottom */}
-                  {/* The effectiveness of this depends on the background image and overall card bg */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white dark:from-black to-transparent z-[1]"></div>
-
-                  {/* Content wrapper - sits on top of all overlays */}
+                  {/* Content wrapper - sits on top of the overlay */}
                   <div className="relative z-10 flex flex-col flex-grow p-6 overflow-auto"> 
-                    {/* Persistent Social Links Bar (z-20 relative to this z-10 container) */}
+                    {/* Persistent Social Links Bar */}
                     <div className="absolute top-2 right-2 z-20 flex items-center gap-2 p-1 bg-gradient-to-l from-black/30 dark:from-black/50 to-transparent rounded-bl-sm">
                       {project.tokenName && (
                         <a
