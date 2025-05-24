@@ -59,12 +59,12 @@ const services = [
 
 export default function ServicesPage() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 lg:p-12">
+    <div className="min-h-screen bg-gray-950 text-black p-4 md:p-8 lg:p-12">
       <header className="text-center mb-12 md:mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-cyan-400 mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-cyan-600 mb-4">
           Crafting Digital Excellence: Our Services
         </h1>
-        <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+        <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
           At b0ase, we don't just build websites; we architect digital experiences. We're a collective of dreamers, designers, and developers passionate about transforming your vision into reality. Our services are meticulously crafted to elevate your brand, engage your audience, and drive tangible results in the digital landscape.
         </p>
       </header>
@@ -72,19 +72,19 @@ export default function ServicesPage() {
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {services.map((service) => (
-            <div key={service.id} className="bg-black p-6 border border-gray-800 shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 ease-in-out flex flex-col transform hover:-translate-y-1">
+            <div key={service.id} className="bg-white p-6 border border-gray-200 shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 ease-in-out flex flex-col transform hover:-translate-y-1">
               {/* 
               // Placeholder for icon if you wish to add one later
-              <div className="text-cyan-400 mb-4 text-4xl mx-auto">
+              <div className="text-cyan-600 mb-4 text-4xl mx-auto">
                 {service.icon || <FaLaptopCode />} 
               </div>
               */}
-              <h2 className="text-2xl font-semibold text-white mb-3">{service.title}</h2>
-              <p className="text-gray-400 text-base leading-relaxed mb-6 flex-grow">{service.description}</p>
+              <h2 className="text-2xl font-semibold text-black mb-3">{service.title}</h2>
+              <p className="text-gray-600 text-base leading-relaxed mb-6 flex-grow">{service.description}</p>
               <div className="mt-auto pt-4 border-t border-gray-700">
                 <Link 
                   href={`/services/${service.id}`}
-                  className="block w-full text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2.5 px-4 rounded transition duration-200 text-sm"
+                  className="block w-full text-center bg-cyan-600 hover:bg-cyan-700 text-black font-semibold py-2.5 px-4 rounded transition duration-200 text-sm"
                 >
                   Learn More
                 </Link>
@@ -94,10 +94,10 @@ export default function ServicesPage() {
         </div>
       </main>
 
-      <footer className="text-center mt-16 md:mt-20 py-8 border-t border-gray-800">
+      <footer className="text-center mt-16 md:mt-20 py-8 border-t border-gray-200">
         <p className="text-gray-500 text-lg">
           Ready to transform your digital presence?{' '}
-          <Link href="/contact" className="text-cyan-400 hover:underline font-semibold">
+          <Link href="/contact" className="text-cyan-600 hover:underline font-semibold">
             Get in touch
           </Link>
           {' '}and let's build something amazing together.

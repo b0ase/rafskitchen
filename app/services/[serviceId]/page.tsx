@@ -70,10 +70,10 @@ export default function ServiceDetailPage() {
 
   if (!service) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white p-8 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-gray-950 text-black p-8 flex flex-col items-center justify-center">
         <h1 className="text-4xl font-bold text-red-500 mb-4">Service Not Found</h1>
-        <p className="text-xl text-gray-300 mb-8">The service you're looking for doesn't exist or has been moved.</p>
-        <Link href="/services" className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-6 rounded transition duration-200">
+        <p className="text-xl text-gray-700 mb-8">The service you're looking for doesn't exist or has been moved.</p>
+        <Link href="/services" className="bg-cyan-600 hover:bg-cyan-700 text-black font-semibold py-3 px-6 rounded transition duration-200">
           Back to All Services
         </Link>
       </div>
@@ -81,25 +81,25 @@ export default function ServiceDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 md:p-8 lg:p-12">
-      <header className="mb-10 md:mb-12 border-b border-gray-800 pb-8">
+    <div className="min-h-screen bg-gray-950 text-black p-4 md:p-8 lg:p-12">
+      <header className="mb-10 md:mb-12 border-b border-gray-200 pb-8">
         <nav className="mb-6">
-          <Link href="/services" className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm">
+          <Link href="/services" className="text-cyan-600 hover:text-cyan-300 transition-colors text-sm">
             &larr; Back to All Services
           </Link>
         </nav>
-        <h1 className="text-4xl md:text-5xl font-bold text-cyan-400 mb-3">{service.title}</h1>
-        <p className="text-lg md:text-xl text-gray-400 italic">{service.description}</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-cyan-600 mb-3">{service.title}</h1>
+        <p className="text-lg md:text-xl text-gray-600 italic">{service.description}</p>
       </header>
 
       <main className="max-w-3xl mx-auto">
-        <article className="prose prose-invert prose-lg lg:prose-xl text-gray-300 leading-relaxed">
+        <article className="prose prose-invert prose-lg lg:prose-xl text-gray-700 leading-relaxed">
           {/* Using a simple paragraph for longDescription. For more complex HTML, you might use dangerouslySetInnerHTML or a markdown parser if the content was in Markdown format */}
           <p>{service.longDescription || "More details coming soon for this service."}</p>
         </article>
 
         <div className="mt-12 md:mt-16 pt-8 border-t border-gray-700 text-center">
-          <h2 className="text-2xl md:text-3xl font-semibold text-white mb-6">Interested in {service.title}?</h2>
+          <h2 className="text-2xl md:text-3xl font-semibold text-black mb-6">Interested in {service.title}?</h2>
           <Link 
             href={`/contact?service=${service.id}`}
             className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200 text-lg shadow-lg hover:shadow-green-500/30 transform hover:scale-105"
@@ -109,10 +109,10 @@ export default function ServiceDetailPage() {
         </div>
       </main>
 
-      <footer className="text-center mt-16 md:mt-20 py-8 border-t border-gray-800">
+      <footer className="text-center mt-16 md:mt-20 py-8 border-t border-gray-200">
         <p className="text-gray-500">
           Explore other ways b0ase can help elevate your digital presence.{' '}
-          <Link href="/services" className="text-cyan-400 hover:underline font-semibold">
+          <Link href="/services" className="text-cyan-600 hover:underline font-semibold">
             View All Services
           </Link>.
         </p>
