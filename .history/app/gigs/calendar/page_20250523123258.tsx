@@ -49,7 +49,7 @@ export default function CalendarPage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [showDayModal, setShowDayModal] = useState(false);
   
-  // State for event form in DayModal - moved from inside DayModal to fix React hooks rules
+  // State for event form in DayModal
   const [showEventForm, setShowEventForm] = useState(false);
   const [currentEditingEvent, setCurrentEditingEvent] = useState<any>(null);
   
@@ -176,8 +176,6 @@ export default function CalendarPage() {
   const closeDayModal = () => {
     setShowDayModal(false);
     setSelectedDay(null);
-    setShowEventForm(false);
-    setCurrentEditingEvent(null);
   };
   
   // Generate calendar grid

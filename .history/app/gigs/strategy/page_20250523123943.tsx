@@ -72,7 +72,7 @@ export default function StrategyPage() {
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-300">
             <li>**Optimized Gig Creation:** Follow research findings on successful gig structures:
                 <ul className="list-disc list-inside ml-6 text-xs text-gray-400">
-                    <li>Use clear, keyword-rich titles (incorporating terms like &quot;Shopify&quot;, &quot;React&quot;, &quot;Next.js&quot;, &quot;Node.js API&quot;, &quot;Figma UI UX&quot;, &quot;AWS Deployment&quot;, &quot;OpenAI Chatbot&quot;).</li>
+                    <li>Use clear, keyword-rich titles (incorporating terms like "Shopify", "React", "Next.js", "Node.js API", "Figma UI UX", "AWS Deployment", "OpenAI Chatbot").</li>
                     <li>Write detailed descriptions clearly outlining scope, deliverables, process, and highlighting B0ASE USPs.</li>
                     <li>Create high-quality visuals (images/videos) showcasing portfolio examples, technical diagrams, or UI mockups relevant to the gig.</li>
                 </ul>

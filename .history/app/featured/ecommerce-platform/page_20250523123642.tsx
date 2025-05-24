@@ -98,9 +98,9 @@ export default function EcommercePlatformPage() {
       <section className="px-4 md:px-8 mb-16">
         <div className="max-w-2xl mx-auto">
           <div className="bg-black p-6 border border-gray-800 shadow-xl relative">
-            <div className="text-4xl text-cyan-500 opacity-30 absolute top-4 left-4">&quot;</div>
+            <div className="text-4xl text-cyan-500 opacity-30 absolute top-4 left-4">"</div>
             <div className="relative z-10">
-              <p className="text-gray-300 mb-4 italic">&quot;The e-commerce platform B0ASE built for us has been a game-changer. Sales are up, customer feedback is positive, and managing inventory is now effortless.&quot;</p>
+              <p className="text-gray-300 mb-4 italic">"The e-commerce platform B0ASE built for us has been a game-changer. Sales are up, customer feedback is positive, and managing inventory is now effortless."</p>
               <div>
                 <p className="font-semibold text-white">Michael Roberts</p>
                 <p className="text-gray-400 text-sm">Founder, Urban Outfitters Online</p>

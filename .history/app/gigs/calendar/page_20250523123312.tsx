@@ -176,8 +176,6 @@ export default function CalendarPage() {
   const closeDayModal = () => {
     setShowDayModal(false);
     setSelectedDay(null);
-    setShowEventForm(false);
-    setCurrentEditingEvent(null);
   };
   
   // Generate calendar grid

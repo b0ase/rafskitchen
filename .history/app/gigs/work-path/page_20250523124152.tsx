@@ -21,7 +21,7 @@ export default function WorkPathPage() {
         { time: '13:00-15:30', activity: 'Project Focus 2: [Specify key task/project, e.g., b0ase Auth Integration]', priority: 'high' },
         { time: '15:30-16:30', activity: 'Learning/Skill Task: [Specify from Learning Path or project need]', priority: 'medium' },
         { time: '16:30-17:00', activity: 'Project Admin: [Fiverr, client comms, project updates]', priority: 'medium' },
-        { time: '17:00-17:30', activity: 'Day Wrap-up (Document progress, plan tomorrow&apos;s real tasks)', priority: 'medium' },
+        { time: '17:00-17:30', activity: 'Day Wrap-up (Document progress, plan tomorrow\'s real tasks)', priority: 'medium' },
         { time: '17:30-18:30', activity: 'Evening Dog Walk & Personal Time', priority: 'medium' },
         { time: '18:30-19:30', activity: 'Dinner & Financial Review (15 min spending check)', priority: 'high' },
         { time: '19:30-21:00', activity: 'Evening Task Block (Optional: [Specify project task or planned learning])', priority: 'medium' },
@@ -58,7 +58,7 @@ export default function WorkPathPage() {
         { time: '13:30-15:00', activity: 'Project Focus 2: [Specify task, e.g., ninjapunkgirls.com Content]', priority: 'high' },
         { time: '15:00-16:30', activity: 'Project Focus 3 or Learning: [Specify task or skill development]', priority: 'high' },
         { time: '16:30-17:00', activity: 'Project Admin: [Fiverr, client comms, project updates]', priority: 'medium' },
-        { time: '17:00-17:30', activity: 'Day Wrap-up (Document progress, plan tomorrow&apos;s real tasks)', priority: 'medium' },
+        { time: '17:00-17:30', activity: 'Day Wrap-up (Document progress, plan tomorrow\'s real tasks)', priority: 'medium' },
         { time: '17:30-18:30', activity: 'Evening Dog Walk & Personal Time', priority: 'medium' },
         { time: '18:30-19:30', activity: 'Dinner & Financial Review (15 min spending check)', priority: 'high' },
         { time: '19:30-21:00', activity: 'Evening Task Block (Optional: [Specify project task or planned learning])', priority: 'medium' },
@@ -71,7 +71,7 @@ export default function WorkPathPage() {
       description: 'Prioritize skill development and focused work on a single complex project.',
       schedule: [
         { time: '7:00-8:30', activity: 'Morning Routine (Dog walk, exercise, shower, breakfast)', priority: 'high' },
-        { time: '8:30-9:00', activity: 'Admin & Planning (Check messages, plan day&apos;s learning/project goal)', priority: 'medium' },
+        { time: '8:30-9:00', activity: 'Admin & Planning (Check messages, plan day\'s learning/project goal)', priority: 'medium' },
         { time: '9:00-10:00', activity: 'Project Focus (Urgent tasks only): [Specify if any]', priority: 'medium' },
         { time: '10:00-12:00', activity: 'Learning Task 1: [Core Learning Path focus or deep skill dive]', priority: 'high' },
         { time: '12:00-13:00', activity: 'Lunch Break', priority: 'medium' },
@@ -193,7 +193,7 @@ export default function WorkPathPage() {
         'Is there a genuine deadline that cannot be met otherwise?',
         'Am I in a state of productive flow that would be valuable to continue?',
         'Have I set a specific end goal for this extended session?',
-        'Will working late negatively impact tomorrow&apos;s productivity?',
+        'Will working late negatively impact tomorrow\'s productivity?',
         'Am I working late to avoid facing evening boredom?'
       ],
       recommendation: 'Only extend work if the first three factors are true AND the fourth is false. If the fifth factor is true, stick firmly to your scheduled endpoint and transition to a planned evening activity.'
@@ -206,11 +206,11 @@ export default function WorkPathPage() {
       day: 'Monday',
       focus: 'Planning & Admin',
       activities: [
-        'Review week&apos;s client commitments',
+        'Review week\'s client commitments',
         'Update Learning Path progress',
         'Schedule blocks for client work and learning',
         'Identify top 3 priorities for the week',
-        'Update gigs based on previous week&apos;s learnings'
+        'Update gigs based on previous week\'s learnings'
       ]
     },
     {
@@ -284,7 +284,7 @@ export default function WorkPathPage() {
       steps: [
         {
           title: 'Daily Financial Check-In',
-          description: 'Spend 15 minutes each evening reviewing the day&apos;s spending and income. Log every transaction in a simple tracker (spreadsheet or app).'
+          description: 'Spend 15 minutes each evening reviewing the day\'s spending and income. Log every transaction in a simple tracker (spreadsheet or app).'
         },
         {
           title: 'Freelance Income Allocation',
@@ -300,7 +300,7 @@ export default function WorkPathPage() {
         },
         {
           title: 'Weekly Financial Planning',
-          description: 'Each Sunday, plan the week&apos;s expenses and expected income. Pre-allocate funds for essential needs before discretionary spending.'
+          description: 'Each Sunday, plan the week\'s expenses and expected income. Pre-allocate funds for essential needs before discretionary spending.'
         }
       ]
     },
@@ -327,7 +327,7 @@ export default function WorkPathPage() {
         },
         {
           title: 'Non-Negotiable Shutdown',
-          description: 'Once you reach your predetermined endpoint, initiate a 30-minute shutdown ritual: document progress, set tomorrow&apos;s starting point, transitioning to wind-down.'
+          description: 'Once you reach your predetermined endpoint, initiate a 30-minute shutdown ritual: document progress, set tomorrow\'s starting point, transitioning to wind-down.'
         }
       ]
     }
@@ -572,7 +572,7 @@ export default function WorkPathPage() {
                 <h4 className="text-lg font-medium mb-2 text-purple-400">3. Aligned Learning</h4>
                 <p className="text-sm text-gray-400">
                   When possible, align your Learning Path focus with current client needs. 
-                  If you&apos;re working on a Shopify project, prioritize Shopify learning during that period.
+                  If you're working on a Shopify project, prioritize Shopify learning during that period.
                 </p>
               </div>
               
