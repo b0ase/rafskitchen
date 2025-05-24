@@ -299,14 +299,14 @@ export default function PortfolioPage() {
                            {project.status}
                            </span>
                         )}
-                        <div className="mt-auto pt-3 border-t border-gray-500/30 flex space-x-3">
+                        <div className="mt-auto pt-3 border-t border-gray-100 flex space-x-3">
                   {project.githubUrl && project.githubUrl !== '#' && (
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors" title="View Repository">
+                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-black transition-colors" title="View Repository">
                       <FaGithub size={16}/>
                     </a>
                   )}
                   {project.xUrl && project.xUrl !== '#' && (
-                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" title="Visit X Profile">
+                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors" title="Visit X Profile">
                                     <FaExternalLinkAlt size={16}/>
                                 </a>
                             )}
