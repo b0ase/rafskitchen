@@ -127,25 +127,20 @@ export default function MessagesPage() {
   const [filterType, setFilterType] = useState<'all' | 'unread' | 'recent'>('all');
 
   useEffect(() => {
-    const fetchUserAndLoadData = async () => {
-      // We can still attempt to get the user if needed for other UI elements,
-      // but we won't block loading demo data on it.
+    const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setCurrentUser(user);
+        // For demo purposes, use our demo data
+        setDirectThreads(demoDirectThreads);
+        setUserTeams(demoTeams);
+        setLoading(false);
       } else {
-        // Not redirecting to login to ensure page loads for deployment
-        console.log("Messages page: No active user, displaying demo content.");
+        router.push('/login?message=Please log in to view your messages.');
       }
-      
-      // For deployment purposes, always load demo data and stop loading spinner
-      setDirectThreads(demoDirectThreads);
-      setUserTeams(demoTeams);
-      setLoading(false);
     };
-
-    fetchUserAndLoadData();
-  }, [supabase, router]); // router is still a dependency due to potential past usage, safe to keep
+    fetchUser();
+  }, [supabase, router]);
 
   const fetchUserTeamsWithMessages = useCallback(async (userId: string) => {
     if (!userId) return;
