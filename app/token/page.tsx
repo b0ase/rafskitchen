@@ -6,11 +6,11 @@ import { FaCoins, FaChartLine, FaExchangeAlt, FaUsers, FaLock, FaRocket } from '
 
 // Token details (can be moved to a data object if needed)
 const tokenDetails = {
-  name: '$BOASE',
-  description: "The $BOASE token (BSV21 standard) is currently live on the BSV blockchain. Future plans include expansion to other chains like Solana via bridging technology to enhance accessibility and utility across different ecosystems.",
+  name: '$RAFS',
+  description: "The $RAFS token (BSV21 standard) is currently live on the BSV blockchain. Future plans include expansion to other chains like Solana via bridging technology to enhance accessibility and utility across different ecosystems.",
   marketUrl: 'https://1sat.market/market/bsv21/c3bf2d7a4519ddc633bc91bbfd1022db1a77da71e16bb582b0acc0d8f7836161_1',
   platform: 'BSV21',
-  cashHandle: '$BOASE' // Specify the cash handle
+  cashHandle: '$RAFS' // Specify the cash handle
 };
 
 export default function TokenPage() {
@@ -283,8 +283,8 @@ export default function TokenPage() {
               Login with HandCash
             </button>
             <p className="text-gray-700 dark:text-gray-300 mb-4">
-              Staking <b>$BOASE</b> tokens entitles stakers to receive dividends of revenue received by the <b>$BOASE</b> wallet handle.<br/>
-              Staking functionality will be available soon. Please check back later for updates on how to stake your $BOASE tokens and earn rewards.
+              Staking <b>$RAFS</b> tokens entitles stakers to receive dividends of revenue received by the <b>$RAFS</b> wallet handle.<br/>
+              Staking functionality will be available soon. Please check back later for updates on how to stake your $RAFS tokens and earn rewards.
             </p>
           </div>
         </div>
