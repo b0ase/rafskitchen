@@ -120,8 +120,8 @@ export default function Footer() {
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
             &copy; {currentYear} RafsKitchen. All rights reserved.
           </p>
-          <p className="text-gray-500 text-sm">
-            Built by <a href="https://b0ase.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@b0ase b0ase.com</a>
+          <p className="text-gray-500 text-sm flex items-center">
+            Built with <FaHeart className="text-red-400 mx-1" size={12} /> by the RafsKitchen team
           </p>
         </div>
       </div>
