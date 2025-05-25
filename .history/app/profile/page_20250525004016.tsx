@@ -12,7 +12,7 @@ export default function ProfilePage() {
     email: 'raf@example.com',
     username: 'raf',
     bio: 'Welcome to your dashboard! This is Raf\'s personalized workspace showing what your innovation hub would look like.',
-    avatar: '/images/avatars/raf_profile.jpg',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     joinedDate: 'January 2024',
     projects: 3,
     teams: 2
@@ -22,7 +22,7 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-white text-black">
       {/* Header */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-lg text-black mb-8">
-        <div className="mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center space-x-4">
             <Image
               src={mockUser.avatar}
@@ -41,7 +41,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Main Content */}
-      <div className="mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-lg">

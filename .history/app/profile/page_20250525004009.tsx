@@ -21,27 +21,27 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-white text-black">
       {/* Header */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-lg text-black mb-8">
-        <div className="mx-auto">
+      <div className="bg-cyan-600 text-white py-8 px-4">
+        <div className="max-w-4xl mx-auto">
           <div className="flex items-center space-x-4">
             <Image
               src={mockUser.avatar}
               alt="Profile"
-              className="w-20 h-20 rounded-full border-4 border-gray-200"
+              className="w-20 h-20 rounded-full border-4 border-white"
               width={80}
               height={80}
             />
             <div>
-              <h1 className="text-3xl font-bold text-black">{mockUser.name}</h1>
-              <p className="text-gray-600">@{mockUser.username}</p>
-              <p className="text-gray-600">{mockUser.email}</p>
+              <h1 className="text-3xl font-bold">{mockUser.name}</h1>
+              <p className="text-cyan-100">@{mockUser.username}</p>
+              <p className="text-cyan-100">{mockUser.email}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-lg">

@@ -102,7 +102,7 @@ function MockSidebar({ onLogout }: MockSidebarProps) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <Image
-            src="/images/avatars/raf_profile.jpg"
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
             alt="Profile"
             className="w-10 h-10 rounded-full"
             width={40} height={40}
@@ -162,7 +162,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     email: 'raf@rafskitchen',
     user_metadata: {
       display_name: 'Raf',
-      avatar_url: '/images/avatars/raf_profile.jpg'
+      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
     }
   };
 
@@ -170,7 +170,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     id: 'raf-profile-id',
     display_name: 'Raf',
     username: 'raf',
-    avatar_url: '/images/avatars/raf_profile.jpg',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     has_seen_welcome_card: true
   };
 
@@ -184,6 +184,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     window.location.href = '/';
   };
 
+  const shouldAppSubNavbarBeExpanded = false; // Always collapsed
+
   return (
     <MyCtxProvider>
       <div className={`flex h-screen bg-white ${isFullScreenMenuOpen ? 'overflow-hidden' : ''}`}>
@@ -194,6 +196,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
             isFullScreenMenuActuallyOpen={isFullScreenMenuOpen}
           />
           <AppSubNavbar 
+            initialIsExpanded={shouldAppSubNavbarBeExpanded} 
+            onCollapse={() => {/* no-op */}}
             user={mockUser as any}
           />
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-100 p-4 sm:p-6 md:p-8">

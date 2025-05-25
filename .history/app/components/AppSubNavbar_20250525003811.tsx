@@ -12,7 +12,6 @@ const navLinks = [
   { href: '/teams/join', label: 'Join a Team', icon: FaUserPlus },
   { href: '/myagents', label: 'Create an Agent', icon: FaUserSecret },
   { href: '/mytoken', label: 'Launch a Token', icon: FaCubes },
-  { href: '/users/invite', label: 'Invite User', icon: FaUserPlus },
 ];
 
 const welcomeSubtitle = "Welcome! This is your innovation hub. Start a new project, collaborate with your team, and bring your ideas to life. Whether it's a new application, a platform, or a creative endeavor, we're here to help you succeed.";

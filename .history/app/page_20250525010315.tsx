@@ -126,32 +126,12 @@ const studioFeatures = [
 
 // Helper for studio feature card styling
 const studioColorClasses: { [key: string]: string } = {
-  blue: 'bg-blue-50 border-blue-200 text-blue-800 group-hover:border-blue-300',
-  purple: 'bg-purple-50 border-purple-200 text-purple-800 group-hover:border-purple-300',
-  pink: 'bg-pink-50 border-pink-200 text-pink-800 group-hover:border-pink-300',
-  green: 'bg-green-50 border-green-200 text-green-800 group-hover:border-green-300',
-  orange: 'bg-orange-50 border-orange-200 text-orange-800 group-hover:border-orange-300',
-  indigo: 'bg-indigo-50 border-indigo-200 text-indigo-800 group-hover:border-indigo-300'
-};
-
-// New helper for icon colors on dark background
-const studioIconColorClasses: { [key: string]: string } = {
-  blue: 'text-blue-400',
-  purple: 'text-purple-400',
-  pink: 'text-pink-400',
-  green: 'text-green-400',
-  orange: 'text-orange-400',
-  indigo: 'text-indigo-400'
-};
-
-// Helper for icon and title colors on white cards
-const whiteCardTextStyles: { [key: string]: { icon: string; title: string } } = {
-  blue:   { icon: 'text-blue-600',   title: 'text-blue-800' },
-  purple: { icon: 'text-purple-600', title: 'text-purple-800' },
-  pink:   { icon: 'text-pink-600',   title: 'text-pink-800' },
-  green:  { icon: 'text-green-600',  title: 'text-green-800' },
-  orange: { icon: 'text-orange-600', title: 'text-orange-800' },
-  indigo: { icon: 'text-indigo-600', title: 'text-indigo-800' }
+  blue: 'bg-blue-50 border-blue-200 text-blue-700 group-hover:border-blue-300',
+  purple: 'bg-purple-50 border-purple-200 text-purple-700 group-hover:border-purple-300',
+  pink: 'bg-pink-50 border-pink-200 text-pink-700 group-hover:border-pink-300',
+  green: 'bg-green-50 border-green-200 text-green-700 group-hover:border-green-300',
+  orange: 'bg-orange-50 border-orange-200 text-orange-700 group-hover:border-orange-300',
+  indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700 group-hover:border-indigo-300'
 };
 
 export default function PortfolioPage() {
@@ -218,36 +198,26 @@ export default function PortfolioPage() {
       <main className="px-6 py-12 md:py-16 flex-grow">
 
         {/* Updated Hero Section with Integrated Core Platform Features */}
-        <section id="hero" className="py-20 md:py-28 text-center bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white"> {/* Slightly adjusted padding and darker gradient for depth */}
-          <div className="max-w-6xl mx-auto px-4"> {/* Overall hero container - THIS IS THE MAX WIDTH FOR ALL HERO CONTENT */}
-            <div className="mx-auto"> 
-              <h1 className="font-bold text-white mb-6 md:mb-8"> {/* Main H1 for semantic structure, children will provide visual hierarchy */}
-                <span className="block text-6xl md:text-8xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2 md:mb-3">
-                  RAFSKITCHEN
-                </span>
-                <span className="block text-3xl md:text-5xl font-medium tracking-tight text-gray-200">
-                  Transforming Ideas into Digital Realities.
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl text-gray-300 mb-12 md:mb-16 max-w-4xl mx-auto"> {/* Paragraph still constrained for readability, but wider */}
-                We are a tech incubator and innovation lab specializing in blockchain, AI, and cutting-edge web solutions. We empower startups and build open-source tools for a decentralized future.
-              </p>
-            </div>
+        <section id="hero" className="py-16 md:py-24 text-center"> {/* Adjusted padding */}
+          <div className="max-w-6xl mx-auto px-4"> {/* Increased max-width */}
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+              Transforming Ideas into Digital Realities.
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-700 mb-10 md:mb-12"> {/* Adjusted margin-bottom */}
+              RafsKitchen is a tech incubator and innovation lab specializing in blockchain, AI, and cutting-edge web solutions. We empower startups and build open-source tools for a decentralized future.
+            </p>
 
-            {/* Core Platform Features Section */}
-            <div className="mt-10 md:mt-0"> 
-              <h2 className="text-3xl md:text-4xl font-semibold text-gray-100 mb-10 md:mb-12">
-                Key Platform Capabilities
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Core Platform Features (Integrated) - Title Removed */}
+            <div className="mt-0 md:mt-0"> {/* Adjusted top margin */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {studioFeatures.map((feature, index) => (
                   <div
                     key={index}
-                    className={`group p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105`}
+                    className={`group p-6 rounded-lg border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 ${studioColorClasses[feature.color]}`}
                   >
-                    <feature.icon className={`text-4xl md:text-5xl mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
-                    <h3 className={`text-xl md:text-2xl font-semibold mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
-                    <p className="text-gray-700 text-sm md:text-base leading-relaxed">{feature.description}</p>
+                    <feature.icon className={`text-4xl mb-4 ${feature.color === 'blue' ? 'text-blue-600' : feature.color === 'purple' ? 'text-purple-600' : feature.color === 'pink' ? 'text-pink-600' : feature.color === 'green' ? 'text-green-600' : feature.color === 'orange' ? 'text-orange-600' : 'text-indigo-600'}`} />
+                    <h3 className={`text-xl font-bold mb-3 ${feature.color === 'blue' ? 'text-blue-800' : feature.color === 'purple' ? 'text-purple-800' : feature.color === 'pink' ? 'text-pink-800' : feature.color === 'green' ? 'text-green-800' : feature.color === 'orange' ? 'text-orange-800' : 'text-indigo-800'}`}>{feature.title}</h3>
+                    <p className="text-gray-700 text-sm leading-relaxed">{feature.description}</p>
                   </div>
                 ))}
               </div>

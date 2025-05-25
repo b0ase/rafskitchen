@@ -126,12 +126,12 @@ const studioFeatures = [
 
 // Helper for studio feature card styling
 const studioColorClasses: { [key: string]: string } = {
-  blue: 'bg-blue-50 border-blue-200 text-blue-800 group-hover:border-blue-300',
-  purple: 'bg-purple-50 border-purple-200 text-purple-800 group-hover:border-purple-300',
-  pink: 'bg-pink-50 border-pink-200 text-pink-800 group-hover:border-pink-300',
-  green: 'bg-green-50 border-green-200 text-green-800 group-hover:border-green-300',
-  orange: 'bg-orange-50 border-orange-200 text-orange-800 group-hover:border-orange-300',
-  indigo: 'bg-indigo-50 border-indigo-200 text-indigo-800 group-hover:border-indigo-300'
+  blue: 'bg-blue-50 border-blue-200 text-blue-700 group-hover:border-blue-300',
+  purple: 'bg-purple-50 border-purple-200 text-purple-700 group-hover:border-purple-300',
+  pink: 'bg-pink-50 border-pink-200 text-pink-700 group-hover:border-pink-300',
+  green: 'bg-green-50 border-green-200 text-green-700 group-hover:border-green-300',
+  orange: 'bg-orange-50 border-orange-200 text-orange-700 group-hover:border-orange-300',
+  indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700 group-hover:border-indigo-300'
 };
 
 // New helper for icon colors on dark background
@@ -142,16 +142,6 @@ const studioIconColorClasses: { [key: string]: string } = {
   green: 'text-green-400',
   orange: 'text-orange-400',
   indigo: 'text-indigo-400'
-};
-
-// Helper for icon and title colors on white cards
-const whiteCardTextStyles: { [key: string]: { icon: string; title: string } } = {
-  blue:   { icon: 'text-blue-600',   title: 'text-blue-800' },
-  purple: { icon: 'text-purple-600', title: 'text-purple-800' },
-  pink:   { icon: 'text-pink-600',   title: 'text-pink-800' },
-  green:  { icon: 'text-green-600',  title: 'text-green-800' },
-  orange: { icon: 'text-orange-600', title: 'text-orange-800' },
-  indigo: { icon: 'text-indigo-600', title: 'text-indigo-800' }
 };
 
 export default function PortfolioPage() {
@@ -219,8 +209,8 @@ export default function PortfolioPage() {
 
         {/* Updated Hero Section with Integrated Core Platform Features */}
         <section id="hero" className="py-20 md:py-28 text-center bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white"> {/* Slightly adjusted padding and darker gradient for depth */}
-          <div className="max-w-6xl mx-auto px-4"> {/* Overall hero container - THIS IS THE MAX WIDTH FOR ALL HERO CONTENT */}
-            <div className="mx-auto"> 
+          <div className="max-w-6xl mx-auto px-4"> {/* Overall hero container */} 
+            <div className="max-w-5xl mx-auto"> {/* Adjusted max-width for text content for slightly more spread */}
               <h1 className="font-bold text-white mb-6 md:mb-8"> {/* Main H1 for semantic structure, children will provide visual hierarchy */}
                 <span className="block text-6xl md:text-8xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2 md:mb-3">
                   RAFSKITCHEN
@@ -229,7 +219,7 @@ export default function PortfolioPage() {
                   Transforming Ideas into Digital Realities.
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-gray-300 mb-12 md:mb-16 max-w-4xl mx-auto"> {/* Paragraph still constrained for readability, but wider */}
+              <p className="text-lg md:text-xl text-gray-300 mb-12 md:mb-16 max-w-3xl mx-auto"> {/* Slightly smaller, centered paragraph */}
                 We are a tech incubator and innovation lab specializing in blockchain, AI, and cutting-edge web solutions. We empower startups and build open-source tools for a decentralized future.
               </p>
             </div>
@@ -243,11 +233,11 @@ export default function PortfolioPage() {
                 {studioFeatures.map((feature, index) => (
                   <div
                     key={index}
-                    className={`group p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105`}
+                    className={`group p-6 md:p-8 rounded-xl bg-white/5 backdrop-blur-lg shadow-2xl border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/25 hover:scale-105`}
                   >
-                    <feature.icon className={`text-4xl md:text-5xl mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
-                    <h3 className={`text-xl md:text-2xl font-semibold mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
-                    <p className="text-gray-700 text-sm md:text-base leading-relaxed">{feature.description}</p>
+                    <feature.icon className={`text-4xl md:text-5xl mb-5 ${studioIconColorClasses[feature.color]}`} /> 
+                    <h3 className={`text-xl md:text-2xl font-semibold mb-3 text-white`}>{feature.title}</h3>
+                    <p className="text-gray-300 text-sm md:text-base leading-relaxed">{feature.description}</p>
                   </div>
                 ))}
               </div>

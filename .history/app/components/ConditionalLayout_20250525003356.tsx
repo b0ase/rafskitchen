@@ -15,7 +15,7 @@ import {
   FaUserAlt, FaProjectDiagram, FaUsers, FaRobot, FaCubes, 
   FaComments, FaBookOpen, FaTasks, FaCalendarAlt, FaDollarSign,
   FaListAlt, FaSearchDollar, FaBullseye, FaChalkboardTeacher, 
-  FaRoute, FaCog, FaSignOutAlt
+  FaRoute, FaCog
 } from 'react-icons/fa';
 
 interface ConditionalLayoutProps {
@@ -73,13 +73,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   );
 }
 
-// Define props for MockSidebar to include onLogout
-interface MockSidebarProps {
-  onLogout: () => Promise<void>;
-}
-
 // Simple mock sidebar component for demo
-function MockSidebar({ onLogout }: MockSidebarProps) {
+function MockSidebar() {
   const pathname = usePathname() ?? '';
   
   const navLinks = [
@@ -102,7 +97,7 @@ function MockSidebar({ onLogout }: MockSidebarProps) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <Image
-            src="/images/avatars/raf_profile.jpg"
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
             alt="Profile"
             className="w-10 h-10 rounded-full"
             width={40} height={40}
@@ -137,15 +132,9 @@ function MockSidebar({ onLogout }: MockSidebarProps) {
         })}
       </nav>
 
-      {/* Bottom section - Logout Button */}
+      {/* Bottom section */}
       <div className="p-4 border-t border-gray-200">
-        <button
-          onClick={onLogout}
-          className="w-full flex items-center justify-center px-3 py-2.5 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors group"
-        >
-          <FaSignOutAlt className="w-5 h-5 mr-2.5 text-red-500 group-hover:text-red-600 transition-colors duration-150" />
-          Logout
-        </button>
+        <p className="text-xs text-gray-600 text-center">RafsKitchen Demo</p>
       </div>
     </div>
   );
@@ -162,7 +151,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     email: 'raf@rafskitchen',
     user_metadata: {
       display_name: 'Raf',
-      avatar_url: '/images/avatars/raf_profile.jpg'
+      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
     }
   };
 
@@ -170,7 +159,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     id: 'raf-profile-id',
     display_name: 'Raf',
     username: 'raf',
-    avatar_url: '/images/avatars/raf_profile.jpg',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
     has_seen_welcome_card: true
   };
 
@@ -180,20 +169,23 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     // Simple demo logout - just redirect to home
-    console.log("Logout initiated from AppLayout");
     window.location.href = '/';
   };
+
+  const shouldAppSubNavbarBeExpanded = false; // Always collapsed
 
   return (
     <MyCtxProvider>
       <div className={`flex h-screen bg-white ${isFullScreenMenuOpen ? 'overflow-hidden' : ''}`}>
-        <MockSidebar onLogout={handleLogout} />
+        <MockSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <AppNavbar 
             toggleFullScreenMenu={toggleFullScreenMenu} 
             isFullScreenMenuActuallyOpen={isFullScreenMenuOpen}
           />
           <AppSubNavbar 
+            initialIsExpanded={shouldAppSubNavbarBeExpanded} 
+            onCollapse={() => {/* no-op */}}
             user={mockUser as any}
           />
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-100 p-4 sm:p-6 md:p-8">
@@ -204,7 +196,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <FullScreenMobileMenu 
             isOpen={isFullScreenMenuOpen} 
             onClose={toggleFullScreenMenu} 
-            handleLogout={handleLogout}
+            handleLogout={handleLogout} 
             userDisplayName={mockProfile.display_name}
             userAvatarUrl={mockProfile.avatar_url}
           />

@@ -184,6 +184,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
     window.location.href = '/';
   };
 
+  const shouldAppSubNavbarBeExpanded = false; // Always collapsed
+
   return (
     <MyCtxProvider>
       <div className={`flex h-screen bg-white ${isFullScreenMenuOpen ? 'overflow-hidden' : ''}`}>
@@ -194,6 +196,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
             isFullScreenMenuActuallyOpen={isFullScreenMenuOpen}
           />
           <AppSubNavbar 
+            initialIsExpanded={shouldAppSubNavbarBeExpanded} 
+            onCollapse={() => {/* no-op */}}
             user={mockUser as any}
           />
           <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-100 p-4 sm:p-6 md:p-8">

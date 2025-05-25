@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import ProjectCardImage from './components/ProjectCardImage';
 import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
 import { portfolioData, Project } from '@/lib/data';
-import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools, FaTwitter, FaTelegramPlane, FaDiscord, FaRocket, FaUsers, FaChartLine, FaEnvelope, FaShieldAlt, FaCube, FaCodeBranch, FaProjectDiagram, FaLightbulb, FaLink, FaBrain, FaPalette, FaCode } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools, FaTwitter, FaTelegramPlane, FaDiscord, FaRocket, FaUsers, FaChartLine, FaEnvelope } from 'react-icons/fa';
 import { BsCurrencyBitcoin } from "react-icons/bs";
 import CharacterCycle from './components/CharacterCycle';
 
@@ -84,76 +84,6 @@ const services = [
   }
 ];
 
-// Studio features data (moved from app/studio/page.tsx)
-const studioFeatures = [
-  {
-    icon: FaCode,
-    title: 'Development Studio',
-    description: 'Full-stack development environment with modern tools and frameworks.',
-    color: 'blue' // Corresponds to Tailwind bg-blue-50, border-blue-200, text-blue-800 etc.
-  },
-  {
-    icon: FaBrain,
-    title: 'AI Integration',
-    description: 'AI-powered tools and machine learning capabilities for your projects.',
-    color: 'purple'
-  },
-  {
-    icon: FaPalette,
-    title: 'Design Lab',
-    description: 'Creative design workspace with advanced design tools and resources.',
-    color: 'pink'
-  },
-  {
-    icon: FaUsers, // Assuming FaUsers is already imported for other sections
-    title: 'Collaboration Hub',
-    description: 'Team workspace for seamless collaboration and project management.',
-    color: 'green'
-  },
-  {
-    icon: FaRocket, // Assuming FaRocket is already imported
-    title: 'Launch Pad',
-    description: 'Deploy and scale your applications with our cloud infrastructure.',
-    color: 'orange'
-  },
-  {
-    icon: FaChartLine, // Assuming FaChartLine is already imported
-    title: 'Analytics Center',
-    description: 'Comprehensive analytics and insights for your digital products.',
-    color: 'indigo'
-  }
-];
-
-// Helper for studio feature card styling
-const studioColorClasses: { [key: string]: string } = {
-  blue: 'bg-blue-50 border-blue-200 text-blue-800 group-hover:border-blue-300',
-  purple: 'bg-purple-50 border-purple-200 text-purple-800 group-hover:border-purple-300',
-  pink: 'bg-pink-50 border-pink-200 text-pink-800 group-hover:border-pink-300',
-  green: 'bg-green-50 border-green-200 text-green-800 group-hover:border-green-300',
-  orange: 'bg-orange-50 border-orange-200 text-orange-800 group-hover:border-orange-300',
-  indigo: 'bg-indigo-50 border-indigo-200 text-indigo-800 group-hover:border-indigo-300'
-};
-
-// New helper for icon colors on dark background
-const studioIconColorClasses: { [key: string]: string } = {
-  blue: 'text-blue-400',
-  purple: 'text-purple-400',
-  pink: 'text-pink-400',
-  green: 'text-green-400',
-  orange: 'text-orange-400',
-  indigo: 'text-indigo-400'
-};
-
-// Helper for icon and title colors on white cards
-const whiteCardTextStyles: { [key: string]: { icon: string; title: string } } = {
-  blue:   { icon: 'text-blue-600',   title: 'text-blue-800' },
-  purple: { icon: 'text-purple-600', title: 'text-purple-800' },
-  pink:   { icon: 'text-pink-600',   title: 'text-pink-800' },
-  green:  { icon: 'text-green-600',  title: 'text-green-800' },
-  orange: { icon: 'text-orange-600', title: 'text-orange-800' },
-  indigo: { icon: 'text-indigo-600', title: 'text-indigo-800' }
-};
-
 export default function PortfolioPage() {
   const projects: Project[] = portfolioData.projects as Project[];
   const [isAboutVisible, setIsAboutVisible] = useState(false);
@@ -171,148 +101,89 @@ export default function PortfolioPage() {
     };
   }, []);
 
-  // console.log("Name prop for CharacterCycle:", portfolioData.about.name);
-
-  const openSourceProjects = [
-    {
-      id: 'os_project_1',
-      title: 'VeriLedger',
-      description: 'A tamper-proof, open-source ledger system for decentralized verification of academic credentials and professional certifications.',
-      Icon: FaShieldAlt,
-    },
-    {
-      id: 'os_project_2',
-      title: 'BlockVote',
-      description: 'A secure and transparent e-voting platform built on blockchain, ensuring anonymity and auditable election results for DAOs and communities.',
-      Icon: FaCube,
-    },
-    {
-      id: 'os_project_3',
-      title: 'ChainTrack',
-      description: 'Open-source supply chain solution using blockchain to provide immutable traceability and transparency for goods from origin to consumer.',
-      Icon: FaLink,
-    },
-    {
-      id: 'os_project_4',
-      title: 'DeFi Spark',
-      description: 'A suite of open-source smart contracts and tools for building and deploying decentralized finance (DeFi) applications with ease.',
-      Icon: FaLightbulb,
-    },
-    {
-      id: 'os_project_5',
-      title: 'NFT Forge',
-      description: 'A community-driven platform for creating, managing, and trading NFTs with a focus on low gas fees and interoperability.',
-      Icon: FaProjectDiagram,
-    },
-    {
-      id: 'os_project_6',
-      title: 'CollabChain',
-      description: 'A decentralized version control system fostering transparent and secure collaborative software development, with built-in reward mechanisms.',
-      Icon: FaCodeBranch,
-    }
-  ];
+  console.log("Name prop for CharacterCycle:", portfolioData.about.name); 
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* <ClientForm /> */}
       <main className="px-6 py-12 md:py-16 flex-grow">
-
-        {/* Updated Hero Section with Integrated Core Platform Features */}
-        <section id="hero" className="py-20 md:py-28 text-center bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white"> {/* Slightly adjusted padding and darker gradient for depth */}
-          <div className="max-w-6xl mx-auto px-4"> {/* Overall hero container - THIS IS THE MAX WIDTH FOR ALL HERO CONTENT */}
-            <div className="mx-auto"> 
-              <h1 className="font-bold text-white mb-6 md:mb-8"> {/* Main H1 for semantic structure, children will provide visual hierarchy */}
-                <span className="block text-6xl md:text-8xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2 md:mb-3">
-                  RAFSKITCHEN
-                </span>
-                <span className="block text-3xl md:text-5xl font-medium tracking-tight text-gray-200">
-                  Transforming Ideas into Digital Realities.
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl text-gray-300 mb-12 md:mb-16 max-w-4xl mx-auto"> {/* Paragraph still constrained for readability, but wider */}
-                We are a tech incubator and innovation lab specializing in blockchain, AI, and cutting-edge web solutions. We empower startups and build open-source tools for a decentralized future.
-              </p>
-            </div>
-
-            {/* Core Platform Features Section */}
-            <div className="mt-10 md:mt-0"> 
-              <h2 className="text-3xl md:text-4xl font-semibold text-gray-100 mb-10 md:mb-12">
-                Key Platform Capabilities
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {studioFeatures.map((feature, index) => (
-                  <div
-                    key={index}
-                    className={`group p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105`}
-                  >
-                    <feature.icon className={`text-4xl md:text-5xl mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
-                    <h3 className={`text-xl md:text-2xl font-semibold mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
-                    <p className="text-gray-700 text-sm md:text-base leading-relaxed">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Studio Features Section (Moved from /studio) - THIS SECTION IS NOW REMOVED */}
-        {/* 
-        <section id="core-features" className="mb-16 md:mb-24 scroll-mt-20">
-          <div className="bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 md:mb-12 text-center">
-              Core Platform Features
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {studioFeatures.map((feature, index) => (
-                <div
-                  key={index}
-                  className={`group p-6 rounded-lg border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 ${studioColorClasses[feature.color]}`}
-                >
-                  <feature.icon className={`text-4xl mb-4 ${feature.color === 'blue' ? 'text-blue-600' : feature.color === 'purple' ? 'text-purple-600' : feature.color === 'pink' ? 'text-pink-600' : feature.color === 'green' ? 'text-green-600' : feature.color === 'orange' ? 'text-orange-600' : 'text-indigo-600'}`} />
-                  <h3 className={`text-xl font-bold mb-3 ${feature.color === 'blue' ? 'text-blue-800' : feature.color === 'purple' ? 'text-purple-800' : feature.color === 'pink' ? 'text-pink-800' : feature.color === 'green' ? 'text-green-800' : feature.color === 'orange' ? 'text-orange-800' : 'text-indigo-800'}`}>{feature.title}</h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-        */}
-
-        {/* About Section - Refocused on Open Source Blockchain Development */}
+        {/* About Section - Apply fade-in with new design */}
         <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
+          {/* Modern glass-morphism card */}
           <div className={`relative bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl transition-all duration-700 ease-in-out ${isAboutVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-10'}`}>
-            {/* Optional: Gradient overlay if desired, or remove for cleaner look */}
-            {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-teal-500/5 rounded-2xl"></div> */}
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-teal-500/5 rounded-2xl"></div>
             
-            <div className="relative z-10 text-center">
-              <h1 className="text-4xl md:text-5xl text-gray-900 font-bold mb-6">
-                Pioneering Open-Source Blockchain Solutions
-              </h1>
-              <p className="text-xl text-gray-700 mb-10 md:mb-12 max-w-3xl mx-auto">
-                Dedicated to fostering innovation and collaboration in the decentralized space. Explore some of Raf's open-source contributions to the blockchain ecosystem:
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
-                {openSourceProjects.map((project) => (
-                  <div key={project.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div className="flex items-center mb-3">
-                      <project.Icon className="text-3xl text-blue-600 mr-4" />
-                      <h3 className="text-xl font-semibold text-gray-800">{project.title}</h3>
-                    </div>
-                    <p className="text-gray-600 text-sm leading-relaxed">{project.description}</p>
-                  </div>
-                ))}
+            <div className="relative z-10">
+              <div className="flex flex-col items-center md:flex-row md:items-center mb-6">
+                <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-xl border-4 border-white mb-4 md:mb-0 md:mr-6 flex-shrink-0">
+                  <Image 
+                    src="/images/avatars/raf_profile.jpg" 
+                    alt="RafsKitchen Logo" 
+                    layout="fill" 
+                    objectFit="cover" 
+                  />
+                </div>
+                <h1 className="relative text-4xl md:text-6xl text-gray-900 font-bold min-h-[3rem] text-center md:text-left">
+                    <span className="invisible">{portfolioData.about.name}</span>
+                    <span className="absolute inset-0">
+                      <CharacterCycle text={portfolioData.about.name} cycleDuration={50} />
+                    </span>
+                </h1>
               </div>
+              <p className="relative text-xl md:text-2xl text-gray-700 mb-6 font-medium">
+                <span className="invisible">{portfolioData.about.tagline}</span>
+                <span className="absolute inset-0">
+                  <CharacterCycle text={portfolioData.about.tagline} cycleDuration={20} />
+                </span>
+              </p>
+              <p className="relative text-base md:text-lg text-gray-700 mb-8 whitespace-pre-line leading-relaxed">
+                 <span className="invisible">{portfolioData.about.bio}</span>
+                 <span className="absolute inset-0">
+                   <CharacterCycle text={portfolioData.about.bio} cycleDuration={5} />
+                  </span>
+              </p>
               
-              {/* Social Links - Can be kept if relevant, or moved/removed */}
-              <div className="mt-12 flex justify-center space-x-4">
+              {/* Social Links - Modern floating design */}
+              <div className="mt-8 flex justify-center md:justify-start space-x-4">
                 {portfolioData.about.socials.github && (
                    <a href={portfolioData.about.socials.github} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all duration-300 rounded-xl border border-gray-200 hover:border-gray-300 transform hover:scale-110">
                      <FaGithub size={24} />
                    </a>
                 )}
-                {/* Add other relevant social links here if desired */}
+                {portfolioData.about.socials.linkedin && (
+                  <a href={portfolioData.about.socials.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all duration-300 rounded-xl border border-gray-200 hover:border-gray-300 transform hover:scale-110">
+                    <FaLinkedin size={24} />
+                  </a>
+                )}
+                {portfolioData.about.socials.x && (
+                  <a href={portfolioData.about.socials.x} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all duration-300 rounded-xl border border-gray-200 hover:border-gray-300 transform hover:scale-110">
+                    <XIcon />
+                  </a>
+                )}
+                 {portfolioData.about.socials.telegram && portfolioData.about.socials.telegram !== '#telegram' && (
+                  <a href={portfolioData.about.socials.telegram} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all duration-300 rounded-xl border border-gray-200 hover:border-gray-300 transform hover:scale-110">
+                    <FaTelegramPlane size={24} />
+                  </a>
+                )}
+                 {portfolioData.about.socials.discord && portfolioData.about.socials.discord !== '#discord' && (
+                  <a href={portfolioData.about.socials.discord} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all duration-300 rounded-xl border border-gray-200 hover:border-gray-300 transform hover:scale-110">
+                    <FaDiscord size={24} />
+                  </a>
+                )}
               </div>
+            </div>
+            
+            {/* Floating token badge - redesigned */}
+            <div className="absolute top-6 right-6 bg-blue-600 px-4 py-3 rounded-xl text-white shadow-xl border border-gray-200 z-20">
+              <a 
+                href="https://1sat.market"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-sm font-semibold text-white hover:scale-105 transition-transform duration-300"
+              >
+                Trade $RAFS <FaExternalLinkAlt className="ml-2" />
+              </a>
             </div>
           </div>
         </section>
@@ -324,19 +195,21 @@ export default function PortfolioPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service) => (
-              <Link
-                key={service.id}
+              <Link 
+                key={service.id} 
                 href={`/services/${service.slug}`}
-                className="group flex flex-col items-center text-center bg-gray-50 p-8 border border-gray-200 shadow-xl rounded-2xl transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100 hover:border-gray-300"
+                className="group block bg-gray-50 p-8 border border-gray-200 shadow-xl rounded-2xl transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100 hover:border-gray-300"
               >
-                <div className="p-3 bg-blue-600 rounded-xl mb-3">
-                  <service.Icon className="text-white text-xl" />
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-blue-600 rounded-xl mr-4">
+                    <service.Icon className="text-white text-xl" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
+                    {service.title}
+                  </h3>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-gray-700 text-sm leading-relaxed mb-4">{service.description}</p>
-                <div className="mt-auto flex items-center justify-center text-blue-600 text-sm font-medium">
+                <p className="text-gray-700 text-sm leading-relaxed">{service.description}</p>
+                <div className="mt-4 flex items-center text-blue-600 text-sm font-medium">
                   Learn more <FaArrowRight className="ml-2 transform group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>
@@ -416,26 +289,26 @@ export default function PortfolioPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {projects.filter(p => p.type === 'github').map((project) => (
-                    <div key={project.id} className="group bg-gray-50 p-6 border border-gray-200 shadow-xl rounded-2xl flex flex-col transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-blue-700 transition-colors">{project.title}</h3>
-                        <p className="text-sm text-gray-700 mb-3 flex-grow">{project.description}</p>
+                    <div key={project.id} className="bg-gray-800 p-6 border border-gray-700 shadow-xl rounded-2xl flex flex-col transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-700">
+                        <h3 className="text-lg font-semibold text-gray-100 mb-1">{project.title}</h3>
+                        <p className="text-sm text-gray-300 mb-3 flex-grow">{project.description}</p>
                         {project.status && (
                            <span className={`text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max border rounded-md
-                           ${project.status === 'Live' ? 'bg-green-100 border-green-200 text-green-700' : 
-                           project.status === 'Archived' ? 'bg-gray-100 border-gray-200 text-gray-700' : 
-                           'bg-yellow-100 border-yellow-200 text-yellow-700'}
+                           ${project.status === 'Live' ? 'bg-green-700 border-green-600 text-green-100' : 
+                           project.status === 'Archived' ? 'bg-gray-600 border-gray-500 text-gray-200' : 
+                           'bg-yellow-700 border-yellow-600 text-yellow-100'}
                            `}>
                            {project.status}
                            </span>
                         )}
-                        <div className="mt-auto pt-3 border-t border-gray-200 flex space-x-3">
+                        <div className="mt-auto pt-3 border-t border-gray-600 flex space-x-3">
                   {project.githubUrl && project.githubUrl !== '#' && (
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" title="View Repository">
+                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-100 transition-colors" title="View Repository">
                       <FaGithub size={16}/>
                     </a>
                   )}
                   {project.xUrl && project.xUrl !== '#' && (
-                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" title="Visit X Profile">
+                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Visit X Profile">
                                     <FaExternalLinkAlt size={16}/>
                                 </a>
                             )}
