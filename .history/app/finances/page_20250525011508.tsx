@@ -86,7 +86,7 @@ export default function FinancesPage() {
   const [canUserAccessTrustModule, setCanUserAccessTrustModule] = useState(false);
   const [isConnectingBank, setIsConnectingBank] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('');
-  const [googleAuthMessage, setGoogleAuthMessage] = useState<React.ReactNode | null>(null);
+  const [googleAuthMessage, setGoogleAuthMessage] = useState<string | null>(null);
   const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
 
   useEffect(() => {

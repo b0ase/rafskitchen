@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { NextPage } from 'next';
 import { 
@@ -110,8 +110,8 @@ const AdminSocialsPage: NextPage = () => {
     debouncedSave(platform_id, newHref);
   };
 
-  const debouncedSave = useMemo(
-    () => debounce(async (platform_id: string, href: string) => {
+  const debouncedSave = useCallback(
+    debounce(async (platform_id: string, href: string) => {
       setSavingStatus(prev => ({ ...prev, [platform_id]: 'saving' }));
       const success = await saveSocialLinkToAPI(platform_id, href);
       if (success) {
@@ -121,8 +121,8 @@ const AdminSocialsPage: NextPage = () => {
         setSavingStatus(prev => ({ ...prev, [platform_id]: 'error' }));
         // Optionally, revert the change or prompt user
       }
-    }, 1000),
-  [] // Dependencies for useMemo: debounce, saveSocialLinkToAPI, setSavingStatus are stable.
+    }, 1000), // 1 second debounce
+  [] // Added empty dependency array
   );
 
   if (loading) {

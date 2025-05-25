@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Header from './components/Header';
 import Footer from './components/Footer';
 import ProjectCardImage from './components/ProjectCardImage';
 import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
@@ -162,6 +163,9 @@ export default function PortfolioPage() {
     const timer = setTimeout(() => {
       setIsAboutVisible(true);
     }, 100);
+    // Set the new RafsKitchen theme
+    document.documentElement.classList.remove('dark');
+    document.body.style.background = 'linear-gradient(135deg, #1e1b4b 0%, #7c3aed 25%, #0891b2 75%, #134e4a 100%)';
     return () => {
       clearTimeout(timer);
     };
@@ -209,39 +213,44 @@ export default function PortfolioPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 flex flex-col">
-      <main className="flex-grow">
-        {/* START - New Header from /studio page */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4">
-          <div className="max-w-6xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">RafsKitchen Studio</h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100">
-              Your creative workspace for digital innovation
-            </p>
-            <p className="text-lg text-blue-200 max-w-3xl mx-auto">
-              The Studio is where ideas transform into reality. Access our comprehensive 
-              suite of development tools, design resources, and collaboration platforms 
-              to build the future of technology.
-            </p>
-          </div>
-        </div>
-        {/* END - New Header from /studio page */}
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* <ClientForm /> */}
+      <main className="px-6 py-12 md:py-16 flex-grow">
 
-        {/* Platform Features Section (should remain below the new header) */}
-        <section id="platform-features" className="py-16 md:py-24 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12 md:mb-16">Key Platform Capabilities</h2> */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {studioFeatures.map((feature) => (
-                <div
-                  key={feature.title}
-                  className={`group p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105`}
-                >
-                  <feature.icon className={`text-4xl md:text-5xl mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
-                  <h3 className={`text-xl md:text-2xl font-semibold mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
-                  <p className="text-gray-700 text-sm md:text-base leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
+        {/* Updated Hero Section with Integrated Core Platform Features */}
+        <section id="hero" className="py-20 md:py-28 text-center bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 text-white"> {/* Slightly adjusted padding and darker gradient for depth */}
+          <div className="max-w-6xl mx-auto px-4"> {/* Overall hero container - THIS IS THE MAX WIDTH FOR ALL HERO CONTENT */}
+            <div className="mx-auto"> 
+              <h1 className="font-bold text-white mb-6 md:mb-8"> {/* Main H1 for semantic structure, children will provide visual hierarchy */}
+                <span className="block text-7xl md:text-9xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent mb-2 md:mb-3">
+                  RAFSKITCHEN
+                </span>
+                <span className="block text-3xl md:text-5xl font-medium tracking-tight text-gray-200">
+                  Transforming Ideas into Digital Realities.
+                </span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-300 mb-12 md:mb-16 max-w-4xl mx-auto"> {/* Paragraph still constrained for readability, but wider */}
+                We are a tech incubator and innovation lab specializing in blockchain, AI, and cutting-edge web solutions. We empower startups and build open-source tools for a decentralized future.
+              </p>
+            </div>
+
+            {/* Core Platform Features Section */}
+            <div className="mt-10 md:mt-0"> 
+              <h2 className="text-3xl md:text-4xl font-semibold text-gray-100 mb-10 md:mb-12">
+                Key Platform Capabilities
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {studioFeatures.map((feature, index) => (
+                  <div
+                    key={index}
+                    className={`group p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105`}
+                  >
+                    <feature.icon className={`text-4xl md:text-5xl mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
+                    <h3 className={`text-xl md:text-2xl font-semibold mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
+                    <p className="text-gray-700 text-sm md:text-base leading-relaxed">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -357,7 +366,7 @@ export default function PortfolioPage() {
         {/* Projects Section - Modern card grid */}
         <section id="projects" className="mb-16 md:mb-24 scroll-mt-20">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Open Source / Development
+            Featured Projects
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.slice(0, 6).map((project) => (
@@ -398,6 +407,42 @@ export default function PortfolioPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Development (GitHub Repos) Section */}
+        <section id="development" className="mb-16 md:mb-24 scroll-mt-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+                  Open Source / Development
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.filter(p => p.type === 'github').map((project) => (
+                    <div key={project.id} className="group bg-gray-50 p-6 border border-gray-200 shadow-xl rounded-2xl flex flex-col transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-blue-700 transition-colors">{project.title}</h3>
+                        <p className="text-sm text-gray-700 mb-3 flex-grow">{project.description}</p>
+                        {project.status && (
+                           <span className={`text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max border rounded-md
+                           ${project.status === 'Live' ? 'bg-green-100 border-green-200 text-green-700' : 
+                           project.status === 'Archived' ? 'bg-gray-100 border-gray-200 text-gray-700' : 
+                           'bg-yellow-100 border-yellow-200 text-yellow-700'}
+                           `}>
+                           {project.status}
+                           </span>
+                        )}
+                        <div className="mt-auto pt-3 border-t border-gray-200 flex space-x-3">
+                  {project.githubUrl && project.githubUrl !== '#' && (
+                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" title="View Repository">
+                      <FaGithub size={16}/>
+                    </a>
+                  )}
+                  {project.xUrl && project.xUrl !== '#' && (
+                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" title="Visit X Profile">
+                                    <FaExternalLinkAlt size={16}/>
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </section>
 
         {/* Contact Section - Modern design */}

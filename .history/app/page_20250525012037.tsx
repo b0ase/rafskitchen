@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Header from './components/Header';
 import Footer from './components/Footer';
 import ProjectCardImage from './components/ProjectCardImage';
 import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
@@ -162,6 +163,9 @@ export default function PortfolioPage() {
     const timer = setTimeout(() => {
       setIsAboutVisible(true);
     }, 100);
+    // Set the new RafsKitchen theme
+    document.documentElement.classList.remove('dark');
+    document.body.style.background = 'linear-gradient(135deg, #1e1b4b 0%, #7c3aed 25%, #0891b2 75%, #134e4a 100%)';
     return () => {
       clearTimeout(timer);
     };
@@ -210,6 +214,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-800 flex flex-col">
+      <Header />
       <main className="flex-grow">
         {/* START - New Header from /studio page */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4">
@@ -357,7 +362,7 @@ export default function PortfolioPage() {
         {/* Projects Section - Modern card grid */}
         <section id="projects" className="mb-16 md:mb-24 scroll-mt-20">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Open Source / Development
+            Work In Progress
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.slice(0, 6).map((project) => (
@@ -398,6 +403,42 @@ export default function PortfolioPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Development (GitHub Repos) Section */}
+        <section id="development" className="mb-16 md:mb-24 scroll-mt-20">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+                  Open Source / Development
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.filter(p => p.type === 'github').map((project) => (
+                    <div key={project.id} className="group bg-gray-50 p-6 border border-gray-200 shadow-xl rounded-2xl flex flex-col transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-blue-700 transition-colors">{project.title}</h3>
+                        <p className="text-sm text-gray-700 mb-3 flex-grow">{project.description}</p>
+                        {project.status && (
+                           <span className={`text-xs font-medium mr-2 px-2 py-0.5 mb-2 inline-block w-max border rounded-md
+                           ${project.status === 'Live' ? 'bg-green-100 border-green-200 text-green-700' : 
+                           project.status === 'Archived' ? 'bg-gray-100 border-gray-200 text-gray-700' : 
+                           'bg-yellow-100 border-yellow-200 text-yellow-700'}
+                           `}>
+                           {project.status}
+                           </span>
+                        )}
+                        <div className="mt-auto pt-3 border-t border-gray-200 flex space-x-3">
+                  {project.githubUrl && project.githubUrl !== '#' && (
+                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" title="View Repository">
+                      <FaGithub size={16}/>
+                    </a>
+                  )}
+                  {project.xUrl && project.xUrl !== '#' && (
+                    <a href={project.xUrl} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors" title="Visit X Profile">
+                                    <FaExternalLinkAlt size={16}/>
+                                </a>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </section>
 
         {/* Contact Section - Modern design */}
