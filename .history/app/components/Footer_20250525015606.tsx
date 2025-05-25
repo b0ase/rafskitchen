@@ -28,7 +28,7 @@ export default function Footer() {
             ))}
           </div>
           <div className="mt-8 md:mt-0 md:order-1 text-center text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} {portfolioData.about.name}. All rights reserved. 
+            &copy; {new Date().getFullYear()} {portfolioData.name}. All rights reserved. 
             <span className="ml-2">Built with <FaHeart className="text-red-400 mx-1 inline" size={12} /> by $BOASE <a href="https://b0ase.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@b0ase.com</a></span>
           </div>
         </div>

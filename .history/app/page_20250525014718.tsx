@@ -212,16 +212,17 @@ export default function PortfolioPage() {
     <div className="min-h-screen bg-white text-gray-800 flex flex-col">
       <main className="flex-grow">
         {/* START - Updated Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 md:py-20 px-4 text-center">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 md:py-28 px-4 text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-7xl md:text-9xl font-extrabold mb-6">
               RAFSKITCHEN
             </h1>
             <p className="text-4xl md:text-6xl font-medium mb-10 text-blue-100">
-              Software Development Studio
+              Software Development
             </p>
-            <p className="text-xl md:text-2xl text-blue-200 mx-auto">
-              Open-source
+            <p className="text-xl md:text-2xl text-blue-200 max-w-3xl mx-auto">
+              We are a tech incubator and innovation lab specializing in blockchain, AI, 
+              and cutting-edge web solutions. We empower startups and build open-source 
               tools for a decentralized future.
             </p>
           </div>

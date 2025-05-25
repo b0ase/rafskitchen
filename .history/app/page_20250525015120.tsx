@@ -221,7 +221,7 @@ export default function PortfolioPage() {
               Software Development Studio
             </p>
             <p className="text-xl md:text-2xl text-blue-200 mx-auto">
-              Open-source
+              Tech incubator. Empowering startups building open-source
               tools for a decentralized future.
             </p>
           </div>

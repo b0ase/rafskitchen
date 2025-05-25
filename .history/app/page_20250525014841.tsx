@@ -221,7 +221,8 @@ export default function PortfolioPage() {
               Software Development Studio
             </p>
             <p className="text-xl md:text-2xl text-blue-200 mx-auto">
-              Open-source
+              We are a tech incubator and innovation lab specializing in blockchain, AI, 
+              and cutting-edge web solutions. We empower startups and build open-source 
               tools for a decentralized future.
             </p>
           </div>
