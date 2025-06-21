@@ -60,7 +60,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6 overflow-x-hidden">
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6">
       <div className="flex items-center justify-between">
         {/* Left Group: Logo and Main Navigation */}
         <div className="flex items-center space-x-4 sm:space-x-8">
@@ -76,8 +76,8 @@ export default function Header() {
             <span className="text-black font-mono tracking-wide text-sm sm:hidden">
               RAFS
             </span>
-            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-teal-400 rounded-lg shadow-lg">
-              <FaUtensils className="text-white text-sm sm:text-base" />
+            <div className="p-1.5 sm:p-2 bg-gray-100 rounded-lg">
+              <FaUtensils className="text-gray-800 text-sm sm:text-base" />
             </div>
           </Link>
 
@@ -162,9 +162,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown - New white design */}
+      {/* Mobile Menu Dropdown - Fixed positioning and z-index */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-[60]">
+        <div className="md:hidden fixed top-full left-0 right-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-[100] max-h-[calc(100vh-80px)] overflow-y-auto">
           <nav className="flex flex-col space-y-4 mb-6">
             {sectionLinks.map((link) => (
               <Link 

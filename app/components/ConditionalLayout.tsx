@@ -64,10 +64,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For all other pages, use the simple public layout
   return (
-    <div className="flex flex-col min-h-screen w-full max-w-full">
+    <div className="flex flex-col min-h-screen w-full">
       <Header />
       <SubNavigation />
-      <main className="flex-grow w-full max-w-full">{children}</main>
+      <main className="flex-grow w-full">{children}</main>
       <Footer />
     </div>
   );
