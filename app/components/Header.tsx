@@ -178,19 +178,12 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
-            {/* Admin Link in mobile menu */}
-            <Link 
-              href="/admin" 
-              aria-label="Admin Dashboard" 
-              className="block text-base font-medium text-gray-700 hover:text-yellow-600 transition-all duration-300 py-2 px-4 rounded-lg hover:bg-yellow-100 border border-transparent hover:border-yellow-300" 
-              onClick={handleMobileLinkClick}
-            >
-              <span className="inline-flex items-center gap-2"><FaLock size={16} /> Admin</span>
-            </Link>
           </nav>
           
+          {/* Utility Links Section */}
           <div className="border-t border-gray-200 pt-6 flex flex-col space-y-4 mb-6"> 
-             {utilityLinks.map((link) => (
+            <span className="px-4 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider">Account</span>
+            {utilityLinks.map((link) => (
               <Link 
                 key={`mobile-${link.name}`} 
                 href={link.href} 
@@ -200,21 +193,51 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
+            {/* Admin Link in mobile menu */}
+            <Link 
+              href="/admin" 
+              aria-label="Admin Dashboard" 
+              className="block text-base font-medium text-gray-700 hover:text-yellow-600 transition-all duration-300 py-2 px-4 rounded-lg hover:bg-yellow-100 border border-transparent hover:border-yellow-300" 
+              onClick={handleMobileLinkClick}
+            >
+              <span className="inline-flex items-center gap-2"><FaLock size={16} /> Admin</span>
+            </Link>
           </div>
 
-          {/* Service Links */}
-          <div className="border-t border-gray-200 pt-6 flex flex-col space-y-3">
-             <span className="px-4 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider">Services</span>
-             {portfolioData.services.map((service) => (
-                <Link 
-                  key={`mobile-service-${service.slug}`} 
-                  href={`/services/${service.slug}`} 
-                  className="block text-sm font-medium text-gray-700 hover:text-black transition-all duration-300 py-2 px-4 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-300" 
+          {/* Social Links Section */}
+          <div className="border-t border-gray-200 pt-6 mb-6">
+            <span className="px-4 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider block mb-4">Connect</span>
+            <div className="flex flex-wrap gap-3 px-4">
+              {socialLinks
+                .filter(link => link.href && !link.href.includes('#') && link.href !== '')
+                .map((link, index) => (
+                <a 
+                  key={index} 
+                  href={link.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-3 rounded-lg text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 transition-all duration-300 transform hover:scale-110 border border-gray-300 hover:border-gray-400"
                   onClick={handleMobileLinkClick}
                 >
-                  {service.title}
-                </Link>
-             ))}
+                  <link.Icon size={20} />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Service Links Section */}
+          <div className="border-t border-gray-200 pt-6 flex flex-col space-y-3">
+            <span className="px-4 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider">Services</span>
+            {portfolioData.services.map((service) => (
+              <Link 
+                key={`mobile-service-${service.slug}`} 
+                href={`/services/${service.slug}`} 
+                className="block text-sm font-medium text-gray-700 hover:text-black transition-all duration-300 py-2 px-4 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-300" 
+                onClick={handleMobileLinkClick}
+              >
+                {service.title}
+              </Link>
+            ))}
           </div>
         </div>
       )}
