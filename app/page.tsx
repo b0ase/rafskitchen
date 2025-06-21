@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import ProjectCardImage from './components/ProjectCardImage';
 import ProjectCardLoginOverlay from './components/ProjectCardLoginOverlay';
 import { portfolioData, Project } from '@/lib/data';
-import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools, FaTwitter, FaTelegramPlane, FaDiscord, FaRocket, FaUsers, FaChartLine, FaEnvelope, FaShieldAlt, FaCube, FaCodeBranch, FaProjectDiagram, FaLightbulb, FaLink, FaBrain, FaPalette, FaCode } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaGithub, FaInfoCircle, FaArrowRight, FaLinkedin, FaLock, FaLaptopCode, FaPencilRuler, FaVideo, FaBullhorn, FaHandsHelping, FaCog, FaComments, FaTools, FaTwitter, FaTelegramPlane, FaDiscord, FaRocket, FaUsers, FaChartLine, FaEnvelope, FaShieldAlt, FaCube, FaCodeBranch, FaProjectDiagram, FaLightbulb, FaLink, FaBrain, FaPalette, FaCode, FaUtensils } from 'react-icons/fa';
 import { BsCurrencyBitcoin } from "react-icons/bs";
 import CharacterCycle from './components/CharacterCycle';
 
@@ -209,37 +209,41 @@ export default function PortfolioPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 flex flex-col">
-      <main className="flex-grow">
-        {/* START - Updated Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 md:py-20 px-4 text-center">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-7xl md:text-9xl font-extrabold mb-6">
-              RAFSKITCHEN
-            </h1>
-            <p className="text-4xl md:text-6xl font-medium mb-10 text-blue-100">
+    <div className="min-h-screen bg-white text-gray-800 flex flex-col w-full">
+      <main className="flex-grow w-full">
+        {/* START - Simple Hero Section */}
+        <div className="bg-white text-gray-900 py-12 sm:py-16 md:py-20 px-4 text-center w-full">
+          <div className="max-w-4xl mx-auto w-full">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6">
+              <div className="p-2 sm:p-3 bg-gray-100 rounded-lg">
+                <FaUtensils className="text-gray-800 text-2xl sm:text-3xl md:text-4xl" />
+              </div>
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-gray-900">
+                RAFSKITCHEN
+              </h1>
+            </div>
+            <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-medium mb-6 sm:mb-8 text-gray-700">
               Software Development Studio
             </p>
-            <p className="text-xl md:text-2xl text-blue-200 mx-auto">
-              Open-source
-              tools for a decentralized future.
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 max-w-2xl mx-auto">
+              Open-source tools for a decentralized future.
             </p>
           </div>
         </div>
-        {/* END - Updated Hero Section */}
+        {/* END - Simple Hero Section */}
 
         {/* Platform Features Section (should remain below the new header) */}
-        <section id="platform-features" className="py-16 md:py-24 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="platform-features" className="py-12 sm:py-16 md:py-20 bg-gray-50 w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto w-full">
             {/* <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12 md:mb-16">Key Platform Capabilities</h2> */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {studioFeatures.map((feature) => (
                 <div
                   key={feature.title}
-                  className={`group p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105`}
+                  className={`group p-4 sm:p-6 md:p-8 rounded-xl bg-white shadow-lg border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-xl hover:border-gray-300 hover:scale-105 w-full`}
                 >
-                  <feature.icon className={`text-4xl md:text-5xl mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
-                  <h3 className={`text-xl md:text-2xl font-semibold mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
+                  <feature.icon className={`text-3xl sm:text-4xl md:text-5xl mb-3 sm:mb-5 ${whiteCardTextStyles[feature.color]?.icon || 'text-gray-700'}`} /> 
+                  <h3 className={`text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 ${whiteCardTextStyles[feature.color]?.title || 'text-gray-900'}`}>{feature.title}</h3>
                   <p className="text-gray-700 text-sm md:text-base leading-relaxed">{feature.description}</p>
                 </div>
               ))}
@@ -271,25 +275,25 @@ export default function PortfolioPage() {
         */}
 
         {/* About Section - Renamed and content remains */}
-        <section id="about" className="mb-16 md:mb-24 scroll-mt-20">
-          <div className={`relative bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl transition-all duration-700 ease-in-out ${isAboutVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-10'}`}>
+        <section id="about" className="mb-12 sm:mb-16 md:mb-24 scroll-mt-20 w-full px-4 sm:px-6 lg:px-8">
+          <div className={`relative bg-gray-50 p-6 sm:p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl transition-all duration-700 ease-in-out max-w-6xl mx-auto w-full ${isAboutVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-10'}`}>
             {/* Optional: Gradient overlay if desired, or remove for cleaner look */}
             {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-teal-500/5 rounded-2xl"></div> */}
             
             <div className="relative z-10 text-center">
-              <h1 className="text-4xl md:text-5xl text-gray-900 font-bold mb-6">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gray-900 font-bold mb-4 sm:mb-6">
                 Our Open Source Initiatives
               </h1>
-              <p className="text-xl text-gray-700 mb-10 md:mb-12 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 mb-8 sm:mb-10 md:mb-12 max-w-3xl mx-auto">
                 Dedicated to fostering innovation and collaboration in the decentralized space. Explore some of Raf's open-source contributions to the blockchain ecosystem:
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 text-left">
                 {openSourceProjects.map((project) => (
-                  <div key={project.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <div key={project.id} className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 w-full">
                     <div className="flex items-center mb-3">
-                      <project.Icon className="text-3xl text-blue-600 mr-4" />
-                      <h3 className="text-xl font-semibold text-gray-800">{project.title}</h3>
+                      <project.Icon className="text-2xl sm:text-3xl text-blue-600 mr-3 sm:mr-4 flex-shrink-0" />
+                      <h3 className="text-lg sm:text-xl font-semibold text-gray-800">{project.title}</h3>
                     </div>
                     <p className="text-gray-600 text-sm leading-relaxed">{project.description}</p>
                   </div>
@@ -297,10 +301,10 @@ export default function PortfolioPage() {
               </div>
               
               {/* Social Links - Can be kept if relevant, or moved/removed */}
-              <div className="mt-12 flex justify-center space-x-4">
+              <div className="mt-8 sm:mt-12 flex justify-center space-x-4">
                 {portfolioData.about.socials.github && (
                    <a href={portfolioData.about.socials.github} target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all duration-300 rounded-xl border border-gray-200 hover:border-gray-300 transform hover:scale-110">
-                     <FaGithub size={24} />
+                     <FaGithub size={20} className="sm:w-6 sm:h-6" />
                    </a>
                 )}
                 {/* Add other relevant social links here if desired */}
@@ -310,121 +314,129 @@ export default function PortfolioPage() {
         </section>
 
         {/* Services Section - Modern card design */}
-        <section id="services" className="mb-16 md:mb-24 scroll-mt-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Our Services
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
-              <Link
-                key={service.id}
-                href={`/services/${service.slug}`}
-                className="group flex flex-col items-center text-center bg-gray-50 p-8 border border-gray-200 shadow-xl rounded-2xl transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100 hover:border-gray-300"
-              >
-                <div className="p-3 bg-blue-600 rounded-xl mb-3">
-                  <service.Icon className="text-white text-xl" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-gray-700 text-sm leading-relaxed mb-4">{service.description}</p>
-                <div className="mt-auto flex items-center justify-center text-blue-600 text-sm font-medium">
-                  Learn more <FaArrowRight className="ml-2 transform group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* Skills Section - Modern glassmorphism design */}
-        <section id="skills" className="mb-16 md:mb-24 scroll-mt-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Technical Skills
-          </h2>
-          <div className="bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl">
-            <div className="flex flex-wrap gap-3">
-              {portfolioData.skills.technical.map((skill) => (
-                <span 
-                  key={skill} 
-                  className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium border border-blue-200 hover:bg-blue-200 transition-all duration-300 hover:scale-105"
+        <section id="services" className="mb-16 md:mb-24 scroll-mt-20 overflow-x-hidden w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+              Our Services
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((service) => (
+                <Link
+                  key={service.id}
+                  href={`/services/${service.slug}`}
+                  className="group flex flex-col items-center text-center bg-gray-50 p-8 border border-gray-200 shadow-xl rounded-2xl transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100 hover:border-gray-300"
                 >
-                  {skill}
-                </span>
+                  <div className="p-3 bg-blue-600 rounded-xl mb-3">
+                    <service.Icon className="text-white text-xl" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-2">
+                    {service.title}
+                  </h3>
+                  <p className="text-gray-700 text-sm leading-relaxed mb-4">{service.description}</p>
+                  <div className="mt-auto flex items-center justify-center text-blue-600 text-sm font-medium">
+                    Learn more <FaArrowRight className="ml-2 transform group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Projects Section - Renamed to "Featured Projects" */}
-        <section id="projects" className="mb-16 md:mb-24 scroll-mt-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-            Featured Projects
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.slice(0, 6).map((project) => (
-              <div 
-                key={project.id}
-                className="group bg-gray-50 p-6 border border-gray-200 shadow-xl rounded-2xl transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100"
-                onMouseEnter={() => setHoveredProjectId(project.id)}
-                onMouseLeave={() => setHoveredProjectId(null)}
-              >
-                <div className="relative overflow-hidden rounded-xl mb-4">
-                  <ProjectCardImage 
-                    imageUrls={project.cardImageUrls || []} 
-                    alt={`${project.title} logo`}
-                  />
-                  {hoveredProjectId === project.id && (
-                    <ProjectCardLoginOverlay 
-                      project={project} 
-                      isVisible={hoveredProjectId === project.id} 
-                    />
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
-                  {project.title}
-                </h3>
-                <p className="text-gray-700 text-sm mb-4 leading-relaxed">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {project.tech.slice(0, 3).map((tech) => (
-                    <span 
-                      key={tech} 
-                      className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-md border border-blue-200"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
+        {/* Skills Section - Modern glassmorphism design */}
+        <section id="skills" className="mb-16 md:mb-24 scroll-mt-20 overflow-x-hidden w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+              Technical Skills
+            </h2>
+            <div className="bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl">
+              <div className="flex flex-wrap gap-3">
+                {portfolioData.skills.technical.map((skill) => (
+                  <span 
+                    key={skill} 
+                    className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium border border-blue-200 hover:bg-blue-200 transition-all duration-300 hover:scale-105"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Projects Section - Renamed to "Featured Projects" */}
+        <section id="projects" className="mb-16 md:mb-24 scroll-mt-20 overflow-x-hidden w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+              Featured Projects
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {projects.slice(0, 6).map((project) => (
+                <div 
+                  key={project.id}
+                  className="group bg-gray-50 p-6 border border-gray-200 shadow-xl rounded-2xl transition-all duration-300 hover:transform hover:scale-105 hover:bg-gray-100"
+                  onMouseEnter={() => setHoveredProjectId(project.id)}
+                  onMouseLeave={() => setHoveredProjectId(null)}
+                >
+                  <div className="relative overflow-hidden rounded-xl mb-4">
+                    <ProjectCardImage 
+                      imageUrls={project.cardImageUrls || []} 
+                      alt={`${project.title} logo`}
+                    />
+                    {hoveredProjectId === project.id && (
+                      <ProjectCardLoginOverlay 
+                        project={project} 
+                        isVisible={hoveredProjectId === project.id} 
+                      />
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
+                    {project.title}
+                  </h3>
+                  <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tech.slice(0, 3).map((tech) => (
+                      <span 
+                        key={tech} 
+                        className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-md border border-blue-200"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* Contact Section - Modern design */}
-        <section id="contact" className="mb-16 scroll-mt-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-              Get In Touch
-          </h2>
-          <div className="bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl text-center">
-            <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-              Ready to transform your ideas into reality? Let's build something amazing together.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href={`mailto:${portfolioData.contact.email}`}
-                className="inline-flex items-center px-8 py-4 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
-              >
-                <FaEnvelope className="mr-3" />
-                Start a Project
-              </a>
-              <Link
-                href="/signup"
-                className="inline-flex items-center px-8 py-4 bg-transparent hover:bg-teal-50 text-teal-600 font-semibold rounded-xl border-2 border-teal-500 hover:border-teal-600 transition-all duration-300 transform hover:scale-105"
-              >
-                <FaUsers className="mr-3" />
-                Join Our Platform
-              </Link>
+        <section id="contact" className="mb-16 scroll-mt-20 overflow-x-hidden w-full px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
+                Get In Touch
+            </h2>
+            <div className="bg-gray-50 p-8 md:p-12 border border-gray-200 shadow-xl rounded-2xl text-center">
+              <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+                Ready to transform your ideas into reality? Let's build something amazing together.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a
+                  href={`mailto:${portfolioData.contact.email}`}
+                  className="inline-flex items-center px-8 py-4 bg-white hover:bg-gray-100 text-gray-900 font-semibold rounded-xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
+                  <FaEnvelope className="mr-3" />
+                  Start a Project
+                </a>
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center px-8 py-4 bg-transparent hover:bg-teal-50 text-teal-600 font-semibold rounded-xl border-2 border-teal-500 hover:border-teal-600 transition-all duration-300 transform hover:scale-105"
+                >
+                  <FaUsers className="mr-3" />
+                  Join Our Platform
+                </Link>
+              </div>
             </div>
           </div>
         </section>
