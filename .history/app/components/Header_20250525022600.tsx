@@ -70,15 +70,15 @@ export default function Header() {
             className="text-lg sm:text-xl text-black hover:text-cyan-600 transition-all duration-300 transform hover:scale-105 font-bold flex items-center gap-2 sm:gap-3"
             onClick={handleMobileLinkClick}
           >
+            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-teal-400 rounded-lg shadow-lg">
+              <FaUtensils className="text-white text-sm sm:text-base" />
+            </div>
             <span className="text-black font-mono tracking-wide hidden sm:block">
               RAFSKITCHEN
             </span>
             <span className="text-black font-mono tracking-wide text-sm sm:hidden">
               RAFS
             </span>
-            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-teal-400 rounded-lg shadow-lg">
-              <FaUtensils className="text-white text-sm sm:text-base" />
-            </div>
           </Link>
 
           {/* Desktop Navigation Links (Moved here) */}

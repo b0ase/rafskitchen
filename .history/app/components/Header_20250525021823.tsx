@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FaGithub, FaLinkedin, FaEnvelope, FaBars, FaTimes, FaLock, FaTelegramPlane, FaDiscord, FaUtensils } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaBars, FaTimes, FaLock, FaTelegramPlane, FaDiscord, FaRocket } from 'react-icons/fa';
 import ThemeToggle from './ThemeToggle';
 import { portfolioData } from '@/lib/data';
 
@@ -70,15 +70,15 @@ export default function Header() {
             className="text-lg sm:text-xl text-black hover:text-cyan-600 transition-all duration-300 transform hover:scale-105 font-bold flex items-center gap-2 sm:gap-3"
             onClick={handleMobileLinkClick}
           >
+            <div className="p-1.5 sm:p-2 bg-cyan-600 rounded-lg shadow-lg">
+              <FaRocket className="text-white text-sm sm:text-base" />
+            </div>
             <span className="text-black font-mono tracking-wide hidden sm:block">
               RAFSKITCHEN
             </span>
             <span className="text-black font-mono tracking-wide text-sm sm:hidden">
               RAFS
             </span>
-            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-teal-400 rounded-lg shadow-lg">
-              <FaUtensils className="text-white text-sm sm:text-base" />
-            </div>
           </Link>
 
           {/* Desktop Navigation Links (Moved here) */}
@@ -158,6 +158,12 @@ export default function Header() {
             >
               {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
             </button>
+            {/* Debug indicator */}
+            {isMobileMenuOpen && (
+              <div className="absolute top-full right-4 mt-2 px-2 py-1 bg-red-500 text-white text-xs rounded">
+                Menu Open
+              </div>
+            )}
           </div>
         </div>
       </div>

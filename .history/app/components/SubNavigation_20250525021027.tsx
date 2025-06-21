@@ -19,15 +19,15 @@ const sections = [
 export default function SubNavigation() {
   return (
     // Modern white design with floating effect - removed gap by using top-[76px] instead of top-[80px]
-    <nav className="hidden md:flex sticky top-[76px] z-30 w-full bg-white border-b border-gray-200 shadow-lg px-6 py-3 overflow-x-hidden">
-      <div className="w-full flex justify-between items-center space-x-2">
+    <nav className="hidden md:flex sticky top-[76px] z-30 w-full bg-white border-b border-gray-200 shadow-lg px-6 py-3 overflow-x-auto">
+      <div className="w-full flex justify-between items-center space-x-8 min-w-max">
         {/* Left group: Service links with modern styling - now centered */}
         <div className="flex flex-grow items-center justify-center space-x-1 flex-wrap">
           {sections.map((section) => (
             <Link
               key={section.name}
               href={section.href}
-              className="px-2 py-2 text-xs font-medium text-gray-700 hover:text-black transition-all duration-300 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-300 relative group flex-shrink-0"
+              className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-black transition-all duration-300 rounded-lg hover:bg-gray-100 border border-transparent hover:border-gray-300 relative group flex-shrink-0"
             >
               {section.name}
               <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-cyan-600 transition-all duration-300 group-hover:w-3/4"></span>

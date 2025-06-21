@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FaGithub, FaLinkedin, FaEnvelope, FaBars, FaTimes, FaLock, FaTelegramPlane, FaDiscord, FaUtensils } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaBars, FaTimes, FaLock, FaTelegramPlane, FaDiscord, FaRocket } from 'react-icons/fa';
 import ThemeToggle from './ThemeToggle';
 import { portfolioData } from '@/lib/data';
 
@@ -60,7 +60,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6 overflow-x-hidden">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6 overflow-x-hidden">
       <div className="flex items-center justify-between">
         {/* Left Group: Logo and Main Navigation */}
         <div className="flex items-center space-x-4 sm:space-x-8">
@@ -70,15 +70,15 @@ export default function Header() {
             className="text-lg sm:text-xl text-black hover:text-cyan-600 transition-all duration-300 transform hover:scale-105 font-bold flex items-center gap-2 sm:gap-3"
             onClick={handleMobileLinkClick}
           >
+            <div className="p-1.5 sm:p-2 bg-cyan-600 rounded-lg shadow-lg">
+              <FaRocket className="text-white text-sm sm:text-base" />
+            </div>
             <span className="text-black font-mono tracking-wide hidden sm:block">
               RAFSKITCHEN
             </span>
             <span className="text-black font-mono tracking-wide text-sm sm:hidden">
               RAFS
             </span>
-            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-teal-400 rounded-lg shadow-lg">
-              <FaUtensils className="text-white text-sm sm:text-base" />
-            </div>
           </Link>
 
           {/* Desktop Navigation Links (Moved here) */}
@@ -150,13 +150,9 @@ export default function Header() {
             <button 
               onClick={toggleMobileMenu} 
               aria-label="Toggle menu" 
-              className={`p-3 rounded-lg hover:text-black focus:outline-none transition-all duration-300 border min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                isMobileMenuOpen 
-                  ? 'text-red-600 bg-red-100 hover:bg-red-200 border-red-300' 
-                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200 border-gray-300'
-              }`}
+              className="p-2 rounded-lg text-gray-700 hover:text-black bg-gray-100 hover:bg-gray-200 focus:outline-none transition-all duration-300 border border-gray-300"
             >
-              {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+              {isMobileMenuOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
             </button>
           </div>
         </div>
@@ -164,7 +160,7 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown - New white design */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-[60]">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-50">
           <nav className="flex flex-col space-y-4 mb-6">
             {sectionLinks.map((link) => (
               <Link 

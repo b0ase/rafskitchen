@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FaGithub, FaLinkedin, FaEnvelope, FaBars, FaTimes, FaLock, FaTelegramPlane, FaDiscord, FaUtensils } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaEnvelope, FaBars, FaTimes, FaLock, FaTelegramPlane, FaDiscord, FaRocket } from 'react-icons/fa';
 import ThemeToggle from './ThemeToggle';
 import { portfolioData } from '@/lib/data';
 
@@ -49,18 +49,16 @@ export default function Header() {
   ];
 
   const toggleMobileMenu = () => {
-    console.log('Mobile menu toggled:', !isMobileMenuOpen); // Debug log
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   // Close menu when a link is clicked (optional, good UX)
   const handleMobileLinkClick = () => {
-    console.log('Mobile link clicked, closing menu'); // Debug log
     setIsMobileMenuOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6 overflow-x-hidden">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6 overflow-x-hidden">
       <div className="flex items-center justify-between">
         {/* Left Group: Logo and Main Navigation */}
         <div className="flex items-center space-x-4 sm:space-x-8">
@@ -70,15 +68,15 @@ export default function Header() {
             className="text-lg sm:text-xl text-black hover:text-cyan-600 transition-all duration-300 transform hover:scale-105 font-bold flex items-center gap-2 sm:gap-3"
             onClick={handleMobileLinkClick}
           >
+            <div className="p-1.5 sm:p-2 bg-cyan-600 rounded-lg shadow-lg">
+              <FaRocket className="text-white text-sm sm:text-base" />
+            </div>
             <span className="text-black font-mono tracking-wide hidden sm:block">
               RAFSKITCHEN
             </span>
             <span className="text-black font-mono tracking-wide text-sm sm:hidden">
               RAFS
             </span>
-            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-purple-500 to-teal-400 rounded-lg shadow-lg">
-              <FaUtensils className="text-white text-sm sm:text-base" />
-            </div>
           </Link>
 
           {/* Desktop Navigation Links (Moved here) */}
@@ -97,9 +95,9 @@ export default function Header() {
         </div>
 
         {/* Right side container (Utility links, Social Icons, Mobile Menu Button) */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-4">
           {/* Desktop Utility Links */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             {utilityLinks.map((link) => (
               <span key={link.name} className="flex items-center gap-1">
                 <Link 
@@ -120,28 +118,27 @@ export default function Header() {
           </div>
 
           {/* Social Icons and Theme Toggle Container */}
-          <div className="hidden sm:flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             {socialLinks
               .filter(link => link.href && !link.href.includes('#') && link.href !== '')
-              .slice(0, 3) // Only show first 3 social links on mobile
               .map((link, index) => (
               <a 
                 key={index} 
                 href={link.href} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="p-1.5 rounded-lg text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 transition-all duration-300 transform hover:scale-110 border border-gray-300 hover:border-gray-400"
+                className="p-2 rounded-lg text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 transition-all duration-300 transform hover:scale-110 border border-gray-300 hover:border-gray-400"
               >
-                <link.Icon size={14} />
+                <link.Icon size={16} />
               </a>
             ))}
             {/* Admin Link (padlock icon) */}
             <Link 
               href="/admin" 
               aria-label="Admin Dashboard" 
-              className="p-1.5 rounded-lg text-gray-600 hover:text-yellow-600 bg-gray-100 hover:bg-yellow-100 transition-all duration-300 transform hover:scale-110 border border-gray-300 hover:border-yellow-400"
+              className="p-2 rounded-lg text-gray-600 hover:text-yellow-600 bg-gray-100 hover:bg-yellow-100 transition-all duration-300 transform hover:scale-110 border border-gray-300 hover:border-yellow-400"
             >
-              <FaLock size={14} />
+              <FaLock size={16} />
             </Link>
           </div>
 
@@ -150,11 +147,7 @@ export default function Header() {
             <button 
               onClick={toggleMobileMenu} 
               aria-label="Toggle menu" 
-              className={`p-3 rounded-lg hover:text-black focus:outline-none transition-all duration-300 border min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                isMobileMenuOpen 
-                  ? 'text-red-600 bg-red-100 hover:bg-red-200 border-red-300' 
-                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200 border-gray-300'
-              }`}
+              className="p-2 rounded-lg text-gray-700 hover:text-black bg-gray-100 hover:bg-gray-200 focus:outline-none transition-all duration-300 border border-gray-300"
             >
               {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
             </button>
@@ -164,7 +157,7 @@ export default function Header() {
 
       {/* Mobile Menu Dropdown - New white design */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-[60]">
+        <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6">
           <nav className="flex flex-col space-y-4 mb-6">
             {sectionLinks.map((link) => (
               <Link 
