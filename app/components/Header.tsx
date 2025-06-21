@@ -50,7 +50,9 @@ export default function Header() {
 
   const toggleMobileMenu = () => {
     console.log('Mobile menu toggled:', !isMobileMenuOpen); // Debug log
+    console.log('Current state before toggle:', isMobileMenuOpen);
     setIsMobileMenuOpen(!isMobileMenuOpen);
+    console.log('New state after toggle:', !isMobileMenuOpen);
   };
 
   // Close menu when a link is clicked (optional, good UX)
@@ -60,7 +62,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 text-black py-4 shadow-lg px-4 sm:px-6 relative">
       <div className="flex items-center justify-between">
         {/* Left Group: Logo and Main Navigation */}
         <div className="flex items-center space-x-4 sm:space-x-8">
@@ -162,9 +164,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown - Fixed positioning and z-index */}
+      {/* Mobile Menu Dropdown - Absolute positioning relative to header */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed top-full left-0 right-0 w-full bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-[100] max-h-[calc(100vh-80px)] overflow-y-auto">
+        <div className="md:hidden mobile-menu-dropdown absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-xl py-6 px-6 z-[100] max-h-[calc(100vh-80px)] overflow-y-auto" style={{width: '100vw'}}>
           <nav className="flex flex-col space-y-4 mb-6">
             {sectionLinks.map((link) => (
               <Link 

@@ -36,6 +36,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Override for mobile menus and dropdowns to ensure they can appear */
+[class*="fixed"][class*="z-"], 
+.mobile-menu-dropdown,
+header [class*="fixed"] {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
 /* Light mode styles (default) */
 html body {
    @apply bg-white text-gray-900;
