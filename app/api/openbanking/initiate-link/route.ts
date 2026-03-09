@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from 'next/server';
 
 // This is a placeholder for initiating a link with an Open Banking provider (e.g., Plaid).

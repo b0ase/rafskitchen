@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 
 // IMPORTANT: Ensure ADMIN_PASSWORD is set in your .env file

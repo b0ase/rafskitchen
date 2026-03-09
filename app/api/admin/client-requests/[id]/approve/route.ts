@@ -1,10 +1,11 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function getSupabase() {
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+}
 
 // Placeholder: Replace with real admin auth check
 function isAdmin(req: NextRequest) {
@@ -19,12 +20,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const id = params.id;
   const { review_notes } = await req.json();
   // Fetch the client request
-  const { data: client, error: fetchError } = await supabase.from("client_requests").select("*").eq("id", id).single();
+  const { data: client, error: fetchError } = await getSupabase().from("client_requests").select("*").eq("id", id).single();
   if (fetchError || !client) {
     return NextResponse.json({ error: "Client request not found" }, { status: 404 });
   }
   // Update status and review info
-  const { error: updateError } = await supabase.from("client_requests").update({
+  const { error: updateError } = await getSupabase().from("client_requests").update({
     status: "approved",
     review_notes,
     reviewed_by: "richardwboase@gmail.com", // TODO: use real admin email
@@ -34,9 +35,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
   // Insert into clients table if not already present (by email)
-  const { data: existingClient } = await supabase.from("clients").select("id").eq("email", client.email).single();
+  const { data: existingClient } = await getSupabase().from("clients").select("id").eq("email", client.email).single();
   if (!existingClient) {
-    await supabase.from("clients").insert([{
+    await getSupabase().from("clients").insert([{
       name: client.name,
       email: client.email,
       website: client.website,

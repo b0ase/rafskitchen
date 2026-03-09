@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 // Use the admin client for server-side operations
 import { createClient } from '@supabase/supabase-js'
